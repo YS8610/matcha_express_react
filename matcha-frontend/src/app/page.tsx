@@ -28,7 +28,7 @@ const featuredProfiles: Profile[] = [
     distance: 5,
     bio: 'Coffee enthusiast, book lover, and hiking addict. Looking for someone to share adventures with!',
     tags: ['#travel', '#books', '#coffee', '#hiking', '#photography'],
-    imageUrl: '/api/placeholder/400/500',
+    imageUrl: '/images/profiles/alexandra.png',
     fameRating: 4.8,
     online: true,
     lastActive: null
@@ -41,7 +41,7 @@ const featuredProfiles: Profile[] = [
     distance: 8,
     bio: 'Software engineer by day, musician by night. Passionate about tech, music and good food.',
     tags: ['#music', '#tech', '#foodie', '#guitar', '#coding'],
-    imageUrl: '/api/placeholder/400/500',
+    imageUrl: '/images/profiles/michael.png',
     fameRating: 4.5,
     online: false,
     lastActive: 'Yesterday at 9:30 PM'
@@ -54,7 +54,7 @@ const featuredProfiles: Profile[] = [
     distance: 12,
     bio: 'Art curator with a passion for contemporary paintings. Love exploring galleries and trying new cuisines.',
     tags: ['#art', '#museum', '#painting', '#foodie', '#travel'],
-    imageUrl: '/api/placeholder/400/500',
+    imageUrl: '/images/profiles/sophia.png',
     fameRating: 4.7,
     online: true,
     lastActive: null
@@ -67,7 +67,7 @@ const featuredProfiles: Profile[] = [
     distance: 4,
     bio: 'Finance professional who loves sports, fitness and weekend getaways. Looking for someone who enjoys an active lifestyle.',
     tags: ['#fitness', '#sports', '#travel', '#cooking', '#running'],
-    imageUrl: '/api/placeholder/400/500',
+    imageUrl: '/images/profiles/james.png',
     fameRating: 4.2,
     online: false,
     lastActive: 'Today at 10:15 AM'
@@ -88,21 +88,21 @@ const testimonials: Testimonial[] = [
     quote: "I never thought I'd find someone so compatible! After a month on Web Matcha, I met my partner and we've been inseparable since.",
     name: "Emily & David",
     status: "Dating for 8 months",
-    imageUrl: "/api/placeholder/100/100"
+    imageUrl: "/images/testimonials/emilydavid.png"
   },
   {
     id: 2,
     quote: "The matching algorithm is incredible! It connected me with people who share my passions and values. I'm now engaged to someone I met here.",
     name: "Robert & Jessica",
     status: "Engaged after 1 year",
-    imageUrl: "/api/placeholder/100/100"
+    imageUrl: "/images/testimonials/robertjessica.png"
   },
   {
     id: 3,
     quote: "As a busy professional, I appreciated how easy it was to connect with quality matches based on my preferences and location.",
     name: "Sarah",
     status: "Found her partner in 3 weeks",
-    imageUrl: "/api/placeholder/100/100"
+    imageUrl: "/images/testimonials/sarah.png"
   }
 ];
 

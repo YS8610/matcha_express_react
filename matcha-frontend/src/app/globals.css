@@ -533,7 +533,6 @@ a:hover {
   color: var(--matcha-text-secondary);
 }
 
-/* Utility Classes */
 .text-primary {
   color: var(--matcha-primary);
 }
