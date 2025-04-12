@@ -1,0 +1,55 @@
+.mobileNav {
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--matcha-divider);
+  background-color: var(--matcha-card-bg);
+}
+
+.mobileNavMenu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) 0;
+  color: var(--matcha-text);
+  font-weight: 500;
+  font-size: var(--font-md);
+}
+
+.mobileNavLink.active {
+  color: var(--matcha-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--matcha-secondary);
+  color: white;
+  font-size: var(--font-xs);
+  font-weight: bold;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+@media (min-width: 769px) {
+  .mobileNav {
+    display: none;
+  }
+}
