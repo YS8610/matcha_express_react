@@ -1,6 +1,6 @@
 # Matcha
 
-Create dating website, for now i will create frontend directory to separate out first.
+Create dating website, inspiration using tinder website. Forever alone!
 
 ## Packages Required
 
@@ -9,11 +9,6 @@ Create dating website, for now i will create frontend directory to separate out 
 - npx create-next-app matcha-frontend
 - npm install bcryptjs jsonwebtoken cookies-next mongoose socket.io-client
 - npm install @prisma/client prisma --save-dev
-
-## Frontend stack used
-
-- next js
-- tailwind css
 
 ## Start Frontend Server
 
@@ -25,15 +20,20 @@ npm start
 
 "proxy": "http://localhost:8080", << set this proxy in package.json
 
+## Frontend PDF Checklist
+
+- Your application must be free of errors, warnings, or notices, both server-side and client-side.
+    - to check for npm build npm run and browser console, so far all cleared
+- For this project, you are free to use any programming language of your choice.
+    - used typescript, ts, tsx, html, css for frontend
+- You may use micro-frameworks and any necessary libraries for this project.
+    - next js is a full fledge frontend framework
+- You are free to use UI libraries such as React, Angular, Vue, Bootstrap, Semantic, or any combination of them.
+    - next.config.ts and postcss.config.mjs
+- No security vulnerabilities are allowed. You must address at least the mandatory security
+requirements, but we strongly encourage you to go beyond them everything depends on it.
+    - not yet fully secured, to review and fix it.
+
 ## Frontend TODO
 
-- Create responsive layout with header, main section, and footer
-- Create Registration and Sign-in Page
-- Create User Profile Page
-- Create Browsing and Matching Page
-- Create Search Functionality Page
-- Create Profile View Page
-- Create Chat Page
-- Create Notifications Page
-- Design UI for social network authentication (OmniAuth)
-- Apply Security and Infrastructure
+- All pages to be inspired by tinder.
