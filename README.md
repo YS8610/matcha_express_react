@@ -5,13 +5,25 @@ Create dating website, for now i will create frontend directory to separate out 
 ## Packages Required
 
 - sudo apt install git vim nodejs npm
-- npm install -g create-react-app
-- npx create-react-app matcha-frontend --template typescript
-- npm install -D tailwindcss postcss autoprefixer
+- npm install -g create-next-app
+- npx create-next-app matcha-frontend
+- npm install bcryptjs jsonwebtoken cookies-next mongoose socket.io-client
+- npm install @prisma/client prisma --save-dev
+
+## Frontend stack used
+
+- next js
+- tailwind css
 
 ## Start Frontend Server
 
-cd to matcha-frontend director and run npm start.
+```sh
+cd matcha-frontend
+npm run build
+npm start
+```
+
+"proxy": "http://localhost:8080", << set this proxy in package.json
 
 ## Frontend TODO
 
