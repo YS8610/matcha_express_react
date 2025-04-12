@@ -7,6 +7,7 @@ Create dating website, for now i will create frontend directory to separate out 
 - sudo apt install git vim nodejs npm
 - npm install -g create-react-app
 - npx create-react-app matcha-frontend --template typescript
+- npm install -D tailwindcss postcss autoprefixer
 
 ## Start Frontend Server
 
