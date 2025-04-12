@@ -1,10 +1,17 @@
-'use client';
-
 import React from 'react';
-import { AuthProvider } from '@/hooks/useAuth';
+import type { Metadata } from 'next';
+import ClientProviders from '@/components/providers/ClientProviders';
 import Header from '@/components/common/Header/Header';
 import Footer from '@/components/common/Footer/Footer';
 import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'Web Matcha',
+  description: 'Because love, too, can be industrialized.',
+  icons: {
+    icon: '/favicon.ico',
+  }
+}
 
 export default function RootLayout({
   children,
@@ -14,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+        <ClientProviders>
           <div className="app-layout">
             <Header />
             <main className="main-content">
@@ -24,7 +31,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
-        </AuthProvider>
+        </ClientProviders>
       </body>
     </html>
   );

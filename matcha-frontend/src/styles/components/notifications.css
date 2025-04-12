@@ -1,0 +1,74 @@
+.notification-badge {
+  position: relative;
+}
+
+.notification-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background-color: var(--matcha-secondary);
+  border-radius: var(--radius-circle);
+}
+
+.notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--matcha-secondary);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background-color: var(--matcha-card-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  padding: var(--spacing-md);
+}
+
+.notification-item {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--matcha-divider);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  background-color: var(--matcha-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-time {
+  font-size: var(--font-xs);
+  color: var(--matcha-text-secondary);
+}

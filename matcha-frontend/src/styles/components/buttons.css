@@ -1,0 +1,76 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: var(--font-sm);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--matcha-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--matcha-primary-dark);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: var(--matcha-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--matcha-secondary-dark);
+  color: white;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--matcha-primary);
+  color: var(--matcha-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--matcha-primary);
+  color: white;
+}
+
+.btn-connect {
+  background-color: var(--matcha-connect);
+  color: white;
+}
+
+.btn-connect:hover {
+  opacity: 0.9;
+}
+
+.btn-icon {
+  border-radius: var(--radius-circle);
+  padding: var(--spacing-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-md);
+}
