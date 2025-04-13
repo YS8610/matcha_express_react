@@ -71,6 +71,7 @@ junit.xml
 .tmp/
 temp/
 tmp/
+temp
 .sass-cache/
 *.bak
 *.backup
@@ -82,3 +83,4 @@ dist-ssr
 
 # Docker
 docker-compose.override.yml
+

@@ -62,7 +62,7 @@ const ProfileCard = memo(({ profile }: ProfileCardProps) => {
         </div>
         
         <div className="flex justify-center gap-4 mt-2">
-          <button className="w-14 h-14 flex items-center justify-center rounded-full bg-white text-red-500 shadow-lg hover:scale-110 transition-transform">
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white shadow-lg hover:scale-110 transition-transform">
             <X size={24} />
           </button>
           <Link href={`/profile/${profile.id}`} className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white shadow-lg hover:scale-110 transition-transform">

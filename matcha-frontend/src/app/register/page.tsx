@@ -80,9 +80,8 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-8">
-          {/* Logo/Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex justify-center items-center bg-gradient-to-r from-pink-500 to-red-500 p-3 rounded-full mb-4">
+            <div className="inline-flex justify-center items-center bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-full mb-4">
               <Heart size={32} className="text-white" fill="white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
@@ -204,7 +203,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-white bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 font-bold"
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-700 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-bold"
               >
                 {loading ? 'Creating Account...' : 'CREATE ACCOUNT'}
                 {!loading && <ArrowRight size={18} className="ml-2" />}

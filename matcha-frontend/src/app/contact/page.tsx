@@ -1,5 +1,5 @@
 // src/app/contact/page.tsx
-// Styled after https://policies.tinder.com/contact/intl/en/
+// Styled after https://policies.tinder.com/contact/intl/en/ in matcha theme
 'use client';
 
 import React, { useState } from 'react';
@@ -59,7 +59,7 @@ export default function ContactPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 text-gray-800">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
           Contact Us
         </h1>
         <p className="text-xl max-w-2xl mx-auto text-gray-600">
@@ -69,7 +69,7 @@ export default function ContactPage() {
 
       <div className="grid md:grid-cols-3 gap-6 mb-16">
         <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center">
-          <div className="bg-gradient-to-br from-pink-400 to-red-500 text-white p-3 rounded-full mb-4">
+          <div className="bg-gradient-to-br from-green-400 to-emerald-500 text-white p-3 rounded-full mb-4">
             <HelpCircle size={24} />
           </div>
           <h3 className="text-xl font-semibold mb-2">Help Center</h3>
@@ -119,8 +119,7 @@ export default function ContactPage() {
 
       <div id="contact-form" className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="md:flex">
-          {/* Form info section */}
-          <div className="bg-gradient-to-br from-pink-500 to-red-500 text-white p-8 md:w-1/3">
+          <div className="bg-gradient-to-br from-green-500 to-emerald-500 text-white p-8 md:w-1/3">
             <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
             <p className="mb-8">
               We value your feedback and are here to answer any questions you may have.

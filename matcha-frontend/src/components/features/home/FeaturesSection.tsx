@@ -11,7 +11,7 @@ const FeaturesSection = ({
   features = APP_FEATURES
 }: FeaturesSectionProps) => {
   return (
-    <section className="py-16 bg-gradient-to-r from-pink-500 to-orange-500">
+    <section className="py-16 bg-gradient-to-r from-green-500 to-lime-500">
       <div className="container mx-auto px-4">
         <div className="text-center mb-14">
           <h2 className="text-4xl font-bold text-white mb-3">Discover the Magic</h2>
@@ -49,7 +49,7 @@ const FeaturesSection = ({
         </div>
 
         <div className="text-center mt-10">
-          <button className="bg-white text-pink-500 font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+          <button className="bg-white text-green-500 font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
             Start Matching Now
           </button>
         </div>

@@ -8,7 +8,7 @@ const CtaSection = () => {
   const { isLoggedIn } = useAuth();
   
   return (
-    <section className="bg-gradient-to-r from-rose-500 to-amber-500 py-16 px-4 rounded-3xl mx-4 my-12 shadow-xl">
+    <section className="bg-gradient-to-r from-green-600 to-lime-400 py-16 px-4 rounded-3xl mx-4 my-12 shadow-xl">
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-4xl font-extrabold text-white mb-4">
           Swipe Right® on Your Future
@@ -19,7 +19,7 @@ const CtaSection = () => {
         
         {!isLoggedIn ? (
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register" className="rounded-full bg-white text-rose-500 font-bold py-4 px-8 text-lg shadow-lg hover:bg-gray-100 transition duration-300">
+            <Link href="/register" className="rounded-full bg-white text-green-600 font-bold py-4 px-8 text-lg shadow-lg hover:bg-gray-100 transition duration-300">
               CREATE ACCOUNT
             </Link>
             <Link href="/login" className="rounded-full bg-transparent text-white border-2 border-white font-bold py-4 px-8 text-lg hover:bg-white/10 transition duration-300">

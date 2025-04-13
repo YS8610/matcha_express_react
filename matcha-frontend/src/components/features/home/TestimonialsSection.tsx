@@ -61,7 +61,7 @@ const TestimonialsSection = ({
     <section className="bg-gradient-to-b from-pink-50 to-white py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-pink-600 mb-2">Success Stories</h2>
+          <h2 className="text-3xl font-bold text-green-600 mb-2">Success Stories</h2>
           <p className="text-gray-600">
             Swipe through our matches
           </p>
@@ -117,7 +117,7 @@ const TestimonialsSection = ({
 
               <button
                 onClick={() => handleSwipe('right')}
-                className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-white text-3xl shadow-lg hover:from-pink-600 hover:to-red-600 transition-all"
+                className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white text-3xl shadow-lg hover:from-green-700 hover:to-emerald-600 transition-all"
                 disabled={isAnimating}
                 aria-label="Like"
               >

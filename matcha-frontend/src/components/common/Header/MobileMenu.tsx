@@ -31,13 +31,13 @@ const MobileMenu = ({
           <Link
             href="/browse"
             className={`flex flex-col items-center justify-center w-full py-2 ${
-              isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-500'
+              isActiveLink('/browse') ? 'text-green-500' : 'text-gray-500'
             }`}
             onClick={onItemClick}
           >
             <Flame
               size={24}
-              className={isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-400'}
+              className={isActiveLink('/browse') ? 'text-green-500' : 'text-gray-400'}
             />
             <span className="text-xs mt-1 font-medium">Discover</span>
           </Link>

@@ -1,5 +1,5 @@
 // src/app/about/page.tsx
-// Styled after https://tinder.com/about/ but in green instead.
+// Styled after https://tinder.com/about/ matcha theme
 import React from 'react';
 
 export default function AboutPage() {

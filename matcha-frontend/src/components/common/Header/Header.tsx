@@ -37,8 +37,8 @@ export const Header = () => {
 
         <div className="md:w-1/3 flex justify-center">
           <Link href="/" className="flex items-center">
-            <Flame size={28} className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-500" />
-            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">
+            <Flame size={28} className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-lime-500" />
+            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-green-500 to-lime-500 text-transparent bg-clip-text">
               matcha
             </span>
           </Link>
@@ -48,9 +48,9 @@ export const Header = () => {
           {isLoggedIn ? (
             <div className="flex items-center gap-5">
               <Link href="/messages" className="hidden md:flex relative">
-                <MessageCircle size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+                <MessageCircle size={24} className="text-gray-500 hover:text-green-500 transition-colors" />
                 {unreadMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-pink-500 text-white text-xs font-bold">
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold">
                     {unreadMessages}
                   </span>
                 )}

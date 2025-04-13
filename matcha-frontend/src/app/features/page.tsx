@@ -45,16 +45,16 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 border-2 border-pink-500 relative">
-            <div className="absolute top-0 right-0 bg-pink-500 text-white px-3 py-1 text-sm font-bold rounded-bl-lg">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 border-2 border-green-500 relative">
+            <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-sm font-bold rounded-bl-lg">
               POPULAR
             </div>
-            <div className="bg-pink-50 p-6 text-center">
+            <div className="bg-green-50 p-6 text-center">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center justify-center">
                 Matcha Plus <FaStar className="ml-2 text-yellow-500" />
               </h2>
               <p className="text-gray-600 my-2">Unlock key features</p>
-              <p className="text-3xl font-bold text-pink-600 mt-4">$9.99<span className="text-sm font-normal">/month</span></p>
+              <p className="text-3xl font-bold text-green-600 mt-4">$9.99<span className="text-sm font-normal">/month</span></p>
             </div>
             <div className="p-6">
               <ul className="space-y-3">
@@ -79,7 +79,7 @@ export default function FeaturesPage() {
                   <span>1 Boost Per Month</span>
                 </li>
               </ul>
-              <button className="w-full mt-6 py-3 px-4 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors">
+              <button className="w-full mt-6 py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
                 Get Matcha Plus
               </button>
             </div>

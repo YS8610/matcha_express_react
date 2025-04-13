@@ -3,11 +3,12 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 
+// Hero in websites are just attention grabbing portion
 const HeroSection = () => {
   const { isLoggedIn } = useAuth();
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-r from-pink-500 to-red-500 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-r from-green-500 to-emerald-500 overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         {/* Logo */}
         <div className="absolute top-0 left-0 w-full h-full bg-pattern" />
@@ -27,7 +28,7 @@ const HeroSection = () => {
 
         {!isLoggedIn && (
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-            <Link href="/register" className="w-full py-4 px-6 bg-white text-pink-600 font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+            <Link href="/register" className="w-full py-4 px-6 bg-white text-green-600 font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg">
               CREATE ACCOUNT
             </Link>
             <Link href="/about" className="w-full py-4 px-6 border-2 border-white text-white font-bold rounded-full hover:bg-white/10 transition-colors">

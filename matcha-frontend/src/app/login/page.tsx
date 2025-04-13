@@ -38,13 +38,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-8">
-            {/* Logo/Brand Header */}
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
                 Matcha
               </h1>
               <p className="text-gray-500 text-sm mt-2">
@@ -120,7 +119,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-medium py-3 px-4 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white font-medium py-3 px-4 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 disabled={loading}
               >
                 {loading ? 'Logging in...' : 'LOG IN'}

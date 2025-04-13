@@ -1,18 +1,8 @@
-/* src/app/globals.css 
- * In the midst of converting tailwindcss from 3 to 4, will remove some custom CSS scripts over time */
+/* src/app/globals.css */
 @import '../styles/variables.css';
 @import '../styles/reset.css';
 @import '../styles/typography.css';
 @import '../styles/layout.css';
-
-@import '../styles/components/buttons.css';
-@import '../styles/components/cards.css';
-@import '../styles/components/forms.css';
-@import '../styles/components/profile.css';
-@import '../styles/components/chat.css';
-@import '../styles/components/notifications.css';
-@import '../styles/components/auth.css';
-
 @import '../styles/utils.css';
 @import '../styles/animations.css';
 @import '../styles/media.css';
