@@ -22,15 +22,15 @@ export default function AboutPage() {
         
         <div className="about-section stats">
           <div className="stat-item">
-            <h3>20B+</h3>
+            <h3>20+</h3>
             <p>Matches Made</p>
           </div>
           <div className="stat-item">
-            <h3>190+</h3>
+            <h3>19+</h3>
             <p>Countries</p>
           </div>
           <div className="stat-item">
-            <h3>40+</h3>
+            <h3>4+</h3>
             <p>Languages</p>
           </div>
         </div>

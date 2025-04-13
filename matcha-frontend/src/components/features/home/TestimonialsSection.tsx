@@ -27,9 +27,10 @@ const TestimonialsSection = ({
     setIsAnimating(true);
 
     cardRef.current.style.transition = 'transform 0.5s ease-out';
-    cardRef.current.style.transform = direction === 'left'
-      ? 'translateX(-120%) rotate(-20deg)'
-      : 'translateX(120%) rotate(20deg)';
+    cardRef.current.style.transform =
+      direction === 'left'
+        ? 'translateX(-120%) rotate(-20deg)'
+        : 'translateX(120%) rotate(20deg)';
 
     setTimeout(() => {
       if (cardRef.current) {
@@ -58,13 +59,11 @@ const TestimonialsSection = ({
   }, [testimonials, autoPlayInterval, handleSwipe]);
 
   return (
-    <section className="bg-gradient-to-b from-pink-50 to-white py-16">
+    <section className="bg-linear-to-b from-pink-50 to-white py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-green-600 mb-2">Success Stories</h2>
-          <p className="text-gray-600">
-            Swipe through our matches
-          </p>
+          <p className="text-gray-600">Swipe through our matches</p>
         </div>
 
         {testimonials.length > 0 && (
@@ -117,7 +116,7 @@ const TestimonialsSection = ({
 
               <button
                 onClick={() => handleSwipe('right')}
-                className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white text-3xl shadow-lg hover:from-green-700 hover:to-emerald-600 transition-all"
+                className="w-16 h-16 flex items-center justify-center rounded-full bg-linear-to-r from-green-500 to-emerald-500 text-white text-3xl shadow-lg hover:from-green-700 hover:to-emerald-600 transition-all"
                 disabled={isAnimating}
                 aria-label="Like"
               >

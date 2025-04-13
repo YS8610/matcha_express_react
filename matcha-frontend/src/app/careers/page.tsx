@@ -19,14 +19,14 @@ export default function CareersPage() {
       id: 1,
       title: 'Senior Frontend Developer',
       department: 'Engineering',
-      location: 'New York, NY (Remote Option)',
+      location: 'Singapore (Remote Option)',
       type: 'Full-time'
     },
     {
       id: 2,
       title: 'UX/UI Designer',
       department: 'Design',
-      location: 'New York, NY',
+      location: 'Singapore',
       type: 'Full-time'
     },
     {
@@ -40,14 +40,14 @@ export default function CareersPage() {
       id: 4,
       title: 'Product Manager',
       department: 'Product Management',
-      location: 'New York, NY',
+      location: 'Singapore',
       type: 'Full-time'
     },
     {
       id: 5,
       title: 'Backend Engineer',
       department: 'Engineering',
-      location: 'San Francisco, CA (Remote Option)',
+      location: 'Kuala Lumpur (Remote Option)',
       type: 'Full-time'
     },
     {
@@ -61,14 +61,14 @@ export default function CareersPage() {
       id: 7,
       title: 'iOS Developer',
       department: 'Engineering',
-      location: 'New York, NY',
+      location: 'Singapore',
       type: 'Full-time'
     },
     {
       id: 8,
       title: 'Android Developer',
       department: 'Engineering',
-      location: 'New York, NY',
+      location: 'Singapore',
       type: 'Full-time'
     }
   ];

@@ -26,7 +26,7 @@ const MobileMenu = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white z-50">
-      <div className="container mx-auto px-0">
+      <div className="container mx-auto px-4">
         <nav className="flex justify-around items-center h-16">
           <Link
             href="/browse"
@@ -111,18 +111,15 @@ const MobileMenu = ({
             />
             <span className="text-xs mt-1 font-medium">Profile</span>
           </Link>
-          
+
           <button
-            className={`flex flex-col items-center justify-center w-full py-2 text-gray-500`}
+            className="flex flex-col items-center justify-center w-full py-2 text-gray-500"
             onClick={() => {
               onLogout();
               onItemClick();
             }}
           >
-            <LogOut
-              size={24}
-              className="text-gray-400"
-            />
+            <LogOut size={24} className="text-gray-400" />
             <span className="text-xs mt-1 font-medium">Logout</span>
           </button>
         </nav>

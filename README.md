@@ -2,6 +2,8 @@
 
 Create dating website, inspiration using tinder website. Forever alone!
 
+Call to action and hero are actually website terminologies.
+
 ## Packages Required
 
 - sudo apt install git vim nodejs npm

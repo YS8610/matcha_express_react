@@ -147,7 +147,7 @@ export default function CookiePolicyPage() {
               <span className="font-semibold">Email:</span> privacy@webmatcha.com
             </p>
             <p>
-              <span className="font-semibold">Address:</span> 123 Match Street, New York, NY 10001
+              <span className="font-semibold">Address:</span> 123 Orchard Road, Singapore 238873
             </p>
           </div>
         </div>

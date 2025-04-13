@@ -19,14 +19,11 @@ export const Header = () => {
     setMobileNavOpen(!mobileNavOpen);
   };
 
-  const isActiveLink = (path: string) => {
-    return pathname === path;
-  };
+  const isActiveLink = (path: string) => pathname === path;
 
   return (
     <header className="sticky top-0 z-[100] bg-white shadow-sm py-3">
-      <div className="container flex justify-between items-center">
-        {/* Left section - Profile icon on mobile, empty on desktop */}
+      <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="md:w-1/3 flex justify-start">
           {isLoggedIn && (
             <Link href="/profile" className="md:hidden flex items-center">
@@ -37,7 +34,10 @@ export const Header = () => {
 
         <div className="md:w-1/3 flex justify-center">
           <Link href="/" className="flex items-center">
-            <Flame size={28} className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-lime-500" />
+            <Flame
+              size={28}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-lime-500"
+            />
             <span className="ml-2 text-xl font-bold bg-gradient-to-r from-green-500 to-lime-500 text-transparent bg-clip-text">
               matcha
             </span>
@@ -48,7 +48,10 @@ export const Header = () => {
           {isLoggedIn ? (
             <div className="flex items-center gap-5">
               <Link href="/messages" className="hidden md:flex relative">
-                <MessageCircle size={24} className="text-gray-500 hover:text-green-500 transition-colors" />
+                <MessageCircle
+                  size={24}
+                  className="text-gray-500 hover:text-green-500 transition-colors"
+                />
                 {unreadMessages > 0 && (
                   <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold">
                     {unreadMessages}
@@ -57,7 +60,10 @@ export const Header = () => {
               </Link>
 
               <Link href="/notifications" className="hidden md:flex relative">
-                <Bell size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+                <Bell
+                  size={24}
+                  className="text-gray-500 hover:text-pink-500 transition-colors"
+                />
                 {notifications > 0 && (
                   <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-pink-500 text-white text-xs font-bold">
                     {notifications}
@@ -66,7 +72,10 @@ export const Header = () => {
               </Link>
 
               <Link href="/profile" className="hidden md:flex">
-                <User size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+                <User
+                  size={24}
+                  className="text-gray-500 hover:text-pink-500 transition-colors"
+                />
               </Link>
 
               <button className="md:hidden" onClick={toggleMobileNav}>
@@ -79,14 +88,14 @@ export const Header = () => {
             </div>
           ) : (
             <div className="flex gap-3">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 font-medium text-sm hover:border-pink-400 transition-colors"
               >
                 Log In
               </Link>
-              <Link 
-                href="/register" 
+              <Link
+                href="/register"
                 className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 text-white font-medium text-sm hover:opacity-90 transition-opacity"
               >
                 Sign Up

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   }
 }
 
+// i am using tailwind css version 4, cheatsheet located at tailwindcs.md
 export default function RootLayout({
   children,
 }: {

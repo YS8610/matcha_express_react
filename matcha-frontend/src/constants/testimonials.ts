@@ -1,4 +1,5 @@
 // src/constants/testimonials
+// remember to remove once backend is ready to test.
 import { type Testimonial } from '@/types/testimonial';
 
 export const APP_TESTIMONIALS: Testimonial[] = [

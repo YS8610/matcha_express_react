@@ -29,16 +29,16 @@ export default function PressPage() {
     },
     {
       id: 4,
-      title: "Web Matcha Named One of 'Best Dating Apps of 2025' by Tech Review",
+      title: "Web Matcha Named One of 'Best Dating Apps of 2025' in Singapore",
       date: "February 12, 2025",
       excerpt: "Industry recognition highlights platform's innovative approach to online dating.",
       category: "Award"
     },
     {
       id: 5,
-      title: "Web Matcha Partnerships Program Connects Local Businesses for Date Night Offers",
+      title: "Web Matcha Partnerships Program Connects Singapore Businesses for Date Night Offers",
       date: "January 30, 2025",
-      excerpt: "New business initiative creates opportunities for restaurants and entertainment venues.",
+      excerpt: "New business initiative creates opportunities for restaurants and entertainment venues across Singapore.",
       category: "Partnerships"
     },
   ];
@@ -78,7 +78,6 @@ export default function PressPage() {
     },
   ];
 
-  // Media kit downloads
   const mediaKitFiles = [
     { name: "Web Matcha Logo Pack", format: "ZIP", size: "12.4 MB" },
     { name: "Brand Guidelines", format: "PDF", size: "3.8 MB" },
@@ -99,7 +98,6 @@ export default function PressPage() {
         </div>
       </section>
 
-      {/* Press Contacts */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
@@ -130,7 +128,6 @@ export default function PressPage() {
         </div>
       </section>
 
-      {/* Press Releases */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Press Releases</h2>
@@ -182,7 +179,6 @@ export default function PressPage() {
         </div>
       </section>
 
-      {/* Media Coverage */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Media Coverage</h2>
@@ -220,7 +216,6 @@ export default function PressPage() {
         </div>
       </section>
 
-      {/* Media Kit */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Media Kit</h2>
@@ -266,7 +261,6 @@ export default function PressPage() {
         </div>
       </section>
 
-      {/* Upcoming Events */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Upcoming Events</h2>
@@ -284,9 +278,9 @@ export default function PressPage() {
                   </div>
                   <div className="md:w-3/4">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">TechConnect Conference</h3>
-                    <p className="text-gray-600 mb-2">San Francisco, CA</p>
+                    <p className="text-gray-600 mb-2">Singapore</p>
                     <p className="text-gray-600">
-                      Our CEO will be speaking about &quot;The Future of AI in Dating Apps&quot; on May 19th at 2:00 PM.
+                      Our CEO will be speaking about &quot;The Future of 42 in Dating Apps&quot; on May 19th at 2:00 PM.
                     </p>
                   </div>
                 </div>
@@ -312,7 +306,7 @@ export default function PressPage() {
                   </div>
                   <div className="md:w-3/4">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">App Growth Summit</h3>
-                    <p className="text-gray-600 mb-2">New York, NY</p>
+                    <p className="text-gray-600 mb-2">Singapore</p>
                     <p className="text-gray-600">
                       Our CMO will present &quot;Building a Global Dating Brand&quot; on July 23rd at 11:30 AM.
                     </p>

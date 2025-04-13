@@ -1,4 +1,4 @@
-// src/components/features/FeaturesSection.tsx
+// src/components/features/home/FeaturesSection.tsx
 import React from 'react';
 import { type Feature } from '@/types/feature';
 import { APP_FEATURES } from '@/constants/features';
@@ -11,7 +11,7 @@ const FeaturesSection = ({
   features = APP_FEATURES
 }: FeaturesSectionProps) => {
   return (
-    <section className="py-16 bg-gradient-to-r from-green-500 to-lime-500">
+    <section className="py-16 bg-linear-to-r from-green-500 to-lime-500">
       <div className="container mx-auto px-4">
         <div className="text-center mb-14">
           <h2 className="text-4xl font-bold text-white mb-3">Discover the Magic</h2>
@@ -22,8 +22,8 @@ const FeaturesSection = ({
 
         <div className="max-w-5xl mx-auto">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`flex flex-col md:flex-row items-center mb-16 ${
                 index % 2 === 0 ? '' : 'md:flex-row-reverse'
               }`}
