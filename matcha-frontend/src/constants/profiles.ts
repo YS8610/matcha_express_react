@@ -1,3 +1,5 @@
+// src/constants/profiles.ts
+// To remove this script once backend is ready to test
 import { type Profile } from '@/types/profile';
 
 export const FEATURED_PROFILES: Profile[] = [

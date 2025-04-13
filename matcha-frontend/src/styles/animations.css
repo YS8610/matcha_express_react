@@ -1,3 +1,4 @@
+/* src/styles/animations.css */
 .fade-in {
   animation: fadeIn var(--transition-normal);
 }

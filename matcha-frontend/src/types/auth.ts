@@ -1,3 +1,4 @@
+// src/types/auth.ts
 export interface AuthState {
   isLoggedIn: boolean;
   user: User | null;

@@ -1,3 +1,4 @@
+/* src/styles/components/cards.css */
 .card {
   background-color: var(--matcha-card-bg);
   border-radius: var(--radius-md);

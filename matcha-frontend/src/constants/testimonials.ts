@@ -1,3 +1,4 @@
+// src/constants/testimonials
 import { type Testimonial } from '@/types/testimonial';
 
 export const APP_TESTIMONIALS: Testimonial[] = [

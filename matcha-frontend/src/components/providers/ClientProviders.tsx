@@ -1,3 +1,4 @@
+// src/components/providers/ClientProviders.tsx
 'use client';
 
 import { AuthProvider } from '@/hooks/useAuth';

@@ -1,3 +1,4 @@
+// src/hooks/useMatchesFetcher.ts
 import { useState, useEffect } from 'react';
 import { type Profile } from '@/types/profile';
 import { FEATURED_PROFILES } from '@/constants/profiles';
@@ -10,10 +11,8 @@ export function useMatchesFetcher() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // In a real app, this would be an API call
         setProfiles(FEATURED_PROFILES);
         setLoading(false);
       } catch (err) {
