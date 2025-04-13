@@ -1,3 +1,4 @@
+// src/components/features/home/FeaturedProfiles.tsx
 import React from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';

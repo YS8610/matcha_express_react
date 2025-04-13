@@ -1,4 +1,5 @@
 // src/app/about/page.tsx
+// Styled after https://tinder.com/about/ but in green instead.
 import React from 'react';
 
 export default function AboutPage() {
@@ -57,11 +58,6 @@ export default function AboutPage() {
             Download the app, create a profile, and start matching today.
             Your next meaningful connection could be just a swipe away.
           </p>
-        </div>
-
-        <div className="about-section">
-          <h2>Notes</h2>
-          <p>App pages all inspired by tinder websites, about page not required for evaluations!</p>
         </div>
       </section>
     </div>

@@ -1,3 +1,4 @@
+// src/constants/features.tsx
 import React from 'react';
 import { Heart, MessageCircle, MapPin, Star, Filter, Sparkles } from 'lucide-react';
 import { type Feature } from '@/types/feature';

@@ -36,4 +36,5 @@ requirements, but we strongly encourage you to go beyond them everything depends
 
 ## Frontend TODO
 
-- All pages to be inspired by tinder.
+- All pages to be inspired by tinder, to change red to green theme though.
+- Currently tailwindcss syntax using version 3, need to switch to version 4.

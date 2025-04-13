@@ -1,6 +1,7 @@
+// src/components/common/Header/MobileMenu.tsx
 import React from 'react';
 import Link from 'next/link';
-import styles from './MobileMenu.module.css';
+import { Flame, Search, User, MessageCircle, Bell } from 'lucide-react';
 
 interface MobileMenuProps {
   isLoggedIn: boolean;
@@ -11,120 +12,106 @@ interface MobileMenuProps {
   onItemClick: () => void;
 }
 
-const MobileMenu = ({ 
+const MobileMenu = ({
   isLoggedIn,
   notifications,
   unreadMessages,
   isActiveLink,
   onLogout,
-  onItemClick 
+  onItemClick
 }: MobileMenuProps) => {
+  if (!isLoggedIn) {
+    return null;
+  }
+
   return (
-    <div className={styles.mobileNav}>
-      <div className="container">
-        <ul className={styles.mobileNavMenu}>
-          {isLoggedIn ? (
-            <>
-              <li>
-                <Link
-                  href="/browse"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/browse') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Browse
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/search"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/search') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Search
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/profile"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/profile') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  My Profile
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/messages"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/messages') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Messages
-                  {unreadMessages > 0 && <span className={styles.badge}>{unreadMessages}</span>}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/notifications"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/notifications') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Notifications
-                  {notifications > 0 && <span className={styles.badge}>{notifications}</span>}
-                </Link>
-              </li>
-              <li>
-                <button
-                  className={`${styles.mobileNavLink} ${styles.logoutButton}`}
-                  onClick={() => {
-                    onLogout();
-                    onItemClick();
-                  }}
-                >
-                  Log Out
-                </button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <Link
-                  href="/about"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/about') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/features"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/features') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/login"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/login') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Log In
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/register"
-                  className={`${styles.mobileNavLink} ${isActiveLink('/register') ? styles.active : ''}`}
-                  onClick={onItemClick}
-                >
-                  Sign Up
-                </Link>
-              </li>
-            </>
-          )}
-        </ul>
+    <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white z-50">
+      <div className="container mx-auto px-0">
+        <nav className="flex justify-around items-center h-16">
+          <Link
+            href="/browse"
+            className={`flex flex-col items-center justify-center w-full py-2 ${
+              isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-500'
+            }`}
+            onClick={onItemClick}
+          >
+            <Flame 
+              size={24} 
+              className={isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-400'} 
+            />
+            <span className="text-xs mt-1 font-medium">Discover</span>
+          </Link>
+
+          <Link
+            href="/search"
+            className={`flex flex-col items-center justify-center w-full py-2 ${
+              isActiveLink('/search') ? 'text-pink-500' : 'text-gray-500'
+            }`}
+            onClick={onItemClick}
+          >
+            <Search 
+              size={24} 
+              className={isActiveLink('/search') ? 'text-pink-500' : 'text-gray-400'} 
+            />
+            <span className="text-xs mt-1 font-medium">Explore</span>
+          </Link>
+
+          <Link
+            href="/messages"
+            className={`flex flex-col items-center justify-center w-full py-2 ${
+              isActiveLink('/messages') ? 'text-pink-500' : 'text-gray-500'
+            }`}
+            onClick={onItemClick}
+          >
+            <div className="relative">
+              <MessageCircle 
+                size={24} 
+                className={isActiveLink('/messages') ? 'text-pink-500' : 'text-gray-400'} 
+              />
+              {unreadMessages > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-500 text-white text-xs font-bold">
+                  {unreadMessages > 9 ? '9+' : unreadMessages}
+                </span>
+              )}
+            </div>
+            <span className="text-xs mt-1 font-medium">Messages</span>
+          </Link>
+
+          <Link
+            href="/notifications"
+            className={`flex flex-col items-center justify-center w-full py-2 ${
+              isActiveLink('/notifications') ? 'text-pink-500' : 'text-gray-500'
+            }`}
+            onClick={onItemClick}
+          >
+            <div className="relative">
+              <Bell 
+                size={24} 
+                className={isActiveLink('/notifications') ? 'text-pink-500' : 'text-gray-400'} 
+              />
+              {notifications > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-500 text-white text-xs font-bold">
+                  {notifications > 9 ? '9+' : notifications}
+                </span>
+              )}
+            </div>
+            <span className="text-xs mt-1 font-medium">Activity</span>
+          </Link>
+
+          <Link
+            href="/profile"
+            className={`flex flex-col items-center justify-center w-full py-2 ${
+              isActiveLink('/profile') ? 'text-pink-500' : 'text-gray-500'
+            }`}
+            onClick={onItemClick}
+          >
+            <User 
+              size={24} 
+              className={isActiveLink('/profile') ? 'text-pink-500' : 'text-gray-400'} 
+            />
+            <span className="text-xs mt-1 font-medium">Profile</span>
+          </Link>
+        </nav>
       </div>
     </div>
   );

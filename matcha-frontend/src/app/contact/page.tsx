@@ -1,8 +1,9 @@
 // src/app/contact/page.tsx
+// Styled after https://policies.tinder.com/contact/intl/en/
 'use client';
 
 import React, { useState } from 'react';
-import { Send, Map, Phone, Mail, Clock } from 'lucide-react';
+import { Send, HelpCircle, Mail, AlertCircle, Instagram, Twitter, Facebook } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ export default function ContactPage() {
     subject: '',
     message: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     success: boolean;
@@ -30,15 +31,15 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setSubmitStatus({
         success: true,
-        message: 'Thank you for your message! Our team will get back to you soon.'
+        message: 'Thanks for reaching out! Our team will get back to you soon.'
       });
-      
+
       setFormData({
         name: '',
         email: '',
@@ -48,7 +49,7 @@ export default function ContactPage() {
     } catch {
       setSubmitStatus({
         success: false,
-        message: 'Sorry, there was an error sending your message. Please try again later.'
+        message: 'Something went wrong. Please try again later.'
       });
     } finally {
       setIsSubmitting(false);
@@ -56,172 +57,211 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="contact-page">
-      <section className="hero-section">
-        <h1>Contact Us</h1>
-        <p className="lead">We&apos;d love to hear from you! Please fill out the form below or reach out directly.</p>
-      </section>
+    <div className="max-w-6xl mx-auto px-4 py-12 text-gray-800">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">
+          Contact Us
+        </h1>
+        <p className="text-xl max-w-2xl mx-auto text-gray-600">
+          We're here to help. Choose an option below or send us a message.
+        </p>
+      </div>
 
-      <section className="contact-section">
-        <div className="contact-container">
-          <div className="contact-info">
-            <h2>Get in Touch</h2>
-            <p>
-              Have questions, feedback, or need assistance? Our team is here to help you. 
-              We typically respond within 24 hours.
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
+        <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center">
+          <div className="bg-gradient-to-br from-pink-400 to-red-500 text-white p-3 rounded-full mb-4">
+            <HelpCircle size={24} />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Help Center</h3>
+          <p className="text-gray-600 mb-4">
+            Find answers to frequently asked questions in our Help Center.
+          </p>
+          <a
+            href="#"
+            className="text-pink-500 font-medium hover:text-pink-600 transition-colors mt-auto"
+          >
+            Visit Help Center
+          </a>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center">
+          <div className="bg-gradient-to-br from-pink-400 to-red-500 text-white p-3 rounded-full mb-4">
+            <Mail size={24} />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Email Support</h3>
+          <p className="text-gray-600 mb-4">
+            Contact our support team directly for personalized assistance.
+          </p>
+          <a
+            href="mailto:support@webmatcha.com"
+            className="text-pink-500 font-medium hover:text-pink-600 transition-colors mt-auto"
+          >
+            support@webmatcha.com
+          </a>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center">
+          <div className="bg-gradient-to-br from-pink-400 to-red-500 text-white p-3 rounded-full mb-4">
+            <AlertCircle size={24} />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Report an Issue</h3>
+          <p className="text-gray-600 mb-4">
+            Having problems with your account or found a bug? Let us know.
+          </p>
+          <a
+            href="#contact-form"
+            className="text-pink-500 font-medium hover:text-pink-600 transition-colors mt-auto"
+          >
+            Report Problem
+          </a>
+        </div>
+      </div>
+
+      <div id="contact-form" className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="md:flex">
+          {/* Form info section */}
+          <div className="bg-gradient-to-br from-pink-500 to-red-500 text-white p-8 md:w-1/3">
+            <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
+            <p className="mb-8">
+              We value your feedback and are here to answer any questions you may have.
+              Our team typically responds within 24 hours.
             </p>
-            
-            <div className="contact-details">
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <Map size={20} />
-                </div>
-                <div className="contact-text">
-                  <h3>Address</h3>
-                  <p>123 Match Street, New York, NY 10001</p>
-                </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center">
+                <Mail className="mr-3" size={20} />
+                <span>support@webmatcha.com</span>
               </div>
-              
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <Phone size={20} />
-                </div>
-                <div className="contact-text">
-                  <h3>Phone</h3>
-                  <p>+1 (212) 555-7890</p>
-                </div>
+
+              <div>
+                <h3 className="font-semibold mb-1">Support Hours</h3>
+                <p>Monday - Friday: 9AM - 6PM EST</p>
               </div>
-              
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <Mail size={20} />
+
+              <div>
+                <h3 className="font-semibold mb-2">Follow Us</h3>
+                <div className="flex space-x-3">
+                  <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer"
+                     className="bg-white bg-opacity-20 hover:bg-opacity-30 transition-all p-2 rounded-full">
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                  <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer"
+                     className="bg-white bg-opacity-20 hover:bg-opacity-30 transition-all p-2 rounded-full">
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                  <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer"
+                     className="bg-white bg-opacity-20 hover:bg-opacity-30 transition-all p-2 rounded-full">
+                    <Facebook className="w-5 h-5" />
+                  </a>
                 </div>
-                <div className="contact-text">
-                  <h3>Email</h3>
-                  <p>support@webmatcha.com</p>
-                </div>
-              </div>
-              
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <Clock size={20} />
-                </div>
-                <div className="contact-text">
-                  <h3>Support Hours</h3>
-                  <p>Monday - Friday: 9AM - 6PM EST</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="social-links">
-              <h3>Follow Us</h3>
-              <div className="social-icons">
-                <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                  Facebook
-                </a>
-                <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                  Twitter
-                </a>
-                <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                  Instagram
-                </a>
-                <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                  LinkedIn
-                </a>
               </div>
             </div>
           </div>
-          
-          <div className="contact-form-container">
-            <h2>Send Us a Message</h2>
-            
+
+          <div className="p-8 md:w-2/3">
+            <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
+
             {submitStatus && (
-              <div className={`alert ${submitStatus.success ? 'bg-success' : 'bg-error'} text-white p-md rounded mb-md`}>
+              <div
+                className={`p-4 rounded-lg mb-6 ${
+                  submitStatus.success
+                    ? 'bg-green-50 text-green-800 border border-green-200'
+                    : 'bg-red-50 text-red-800 border border-red-200'
+                }`}
+              >
                 {submitStatus.message}
               </div>
             )}
-            
-            <form onSubmit={handleSubmit} className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">Your Name</label>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Name
+                </label>
                 <input
                   type="text"
                   id="name"
                   name="name"
-                  className="form-control"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"
                   placeholder="John Doe"
                   value={formData.name}
                   onChange={handleChange}
                   required
                 />
               </div>
-              
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email Address</label>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  className="form-control"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={handleChange}
                   required
                 />
               </div>
-              
-              <div className="form-group">
-                <label htmlFor="subject" className="form-label">Subject</label>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                  What can we help you with?
+                </label>
                 <select
                   id="subject"
                   name="subject"
-                  className="form-control"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"
                   value={formData.subject}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select a subject</option>
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="Technical Support">Technical Support</option>
+                  <option value="">Select a topic</option>
                   <option value="Account Issues">Account Issues</option>
+                  <option value="Technical Support">Technical Support</option>
                   <option value="Billing Questions">Billing Questions</option>
-                  <option value="Feedback">Feedback</option>
+                  <option value="Safety Concerns">Safety Concerns</option>
+                  <option value="Feature Request">Feature Request</option>
                   <option value="Partnership">Partnership</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">Message</label>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                  Message
+                </label>
                 <textarea
                   id="message"
                   name="message"
-                  className="form-control"
-                  placeholder="Your message here..."
-                  rows={5}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500"
+                  placeholder="Please provide details about your inquiry..."
+                  rows={4}
                   value={formData.message}
                   onChange={handleChange}
                   required
                 />
               </div>
-              
-              <button 
-                type="submit" 
-                className="btn btn-primary" 
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-pink-500 to-red-500 text-white font-medium py-3 px-6 rounded-lg hover:from-pink-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-colors duration-300 flex items-center justify-center"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <span>Sending...</span>
                 ) : (
-                  <span className="d-flex align-items-center gap-sm">
-                    Send Message <Send size={16} />
+                  <span className="flex items-center">
+                    Send Message <Send size={16} className="ml-2" />
                   </span>
                 )}
               </button>
             </form>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

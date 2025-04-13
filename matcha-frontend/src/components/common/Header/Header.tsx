@@ -1,12 +1,12 @@
+// src/components/common/Header/Header.tsx
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageCircle, Bell, User, Search, Menu, X, LogOut } from 'lucide-react';
+import { MessageCircle, Bell, User, Search, Menu, X, LogOut, Flame, Shield, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import MobileMenu from './MobileMenu';
-import styles from './Header.module.css';
 
 export const Header = () => {
   const { isLoggedIn, logout } = useAuth();
@@ -24,110 +24,81 @@ export const Header = () => {
   };
 
   return (
-    <header className={styles.header}>
-      <div className={`container ${styles.headerContent}`}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.matchaIcon}>🍵</span>
-          <span>Web Matcha</span>
-        </Link>
+    <header className="sticky top-0 z-[100] bg-white shadow-sm py-3">
+      <div className="container flex justify-between items-center">
+        {/* Left section - Profile icon on mobile, empty on desktop */}
+        <div className="md:w-1/3 flex justify-start">
+          {isLoggedIn && (
+            <Link href="/profile" className="md:hidden flex items-center">
+              <User size={24} className="text-gray-500" />
+            </Link>
+          )}
+        </div>
 
-        <nav>
-          <ul className={styles.navMenu}>
-            {isLoggedIn ? (
-              <>
-                <li>
-                  <Link
-                    href="/browse"
-                    className={`${styles.navLink} ${isActiveLink('/browse') ? styles.active : ''}`}
-                  >
-                    Browse
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/search"
-                    className={`${styles.navLink} ${isActiveLink('/search') ? styles.active : ''}`}
-                  >
-                    Search
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link
-                    href="/about"
-                    className={`${styles.navLink} ${isActiveLink('/about') ? styles.active : ''}`}
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/features"
-                    className={`${styles.navLink} ${isActiveLink('/features') ? styles.active : ''}`}
-                  >
-                    Features
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
+        <div className="md:w-1/3 flex justify-center">
+          <Link href="/" className="flex items-center">
+            <Flame size={28} className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-500" />
+            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">
+              matcha
+            </span>
+          </Link>
+        </div>
 
-        <div>
+        <div className="md:w-1/3 flex justify-end items-center">
           {isLoggedIn ? (
-            <div className={styles.userActions}>
-              <Link href="/search" className="btn-icon">
-                <Search size={20} />
+            <div className="flex items-center gap-5">
+              <Link href="/messages" className="hidden md:flex relative">
+                <MessageCircle size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+                {unreadMessages > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-pink-500 text-white text-xs font-bold">
+                    {unreadMessages}
+                  </span>
+                )}
               </Link>
 
-              <div className={styles.notificationBadge}>
-                <Link href="/notifications" className="btn-icon">
-                  <Bell size={20} />
-                  {notifications > 0 && (
-                    <span className={styles.notificationCount}>{notifications}</span>
-                  )}
-                </Link>
-              </div>
-
-              <div className={styles.notificationBadge}>
-                <Link href="/messages" className="btn-icon">
-                  <MessageCircle size={20} />
-                  {unreadMessages > 0 && (
-                    <span className={styles.notificationCount}>{unreadMessages}</span>
-                  )}
-                </Link>
-              </div>
-
-              <Link href="/profile" className="btn-icon">
-                <User size={20} />
+              <Link href="/notifications" className="hidden md:flex relative">
+                <Bell size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+                {notifications > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-pink-500 text-white text-xs font-bold">
+                    {notifications}
+                  </span>
+                )}
               </Link>
 
-              <button onClick={logout} className="btn-icon">
-                <LogOut size={20} />
+              <Link href="/profile" className="hidden md:flex">
+                <User size={24} className="text-gray-500 hover:text-pink-500 transition-colors" />
+              </Link>
+
+              <button className="md:hidden" onClick={toggleMobileNav}>
+                {mobileNavOpen ? (
+                  <X size={24} className="text-gray-500" />
+                ) : (
+                  <Menu size={24} className="text-gray-500" />
+                )}
               </button>
             </div>
           ) : (
-            <div className={styles.authButtons}>
-              <Link href="/login" className="btn btn-outline">
+            <div className="flex gap-3">
+              <Link 
+                href="/login" 
+                className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 font-medium text-sm hover:border-pink-400 transition-colors"
+              >
                 Log In
               </Link>
-              <Link href="/register" className="btn btn-primary">
+              <Link 
+                href="/register" 
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 text-white font-medium text-sm hover:opacity-90 transition-opacity"
+              >
                 Sign Up
               </Link>
             </div>
           )}
-
-          <button className={`${styles.mobileNavToggle} btn-icon`} onClick={toggleMobileNav}>
-            {mobileNavOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
       </div>
 
       {mobileNavOpen && (
-        <MobileMenu 
-          isLoggedIn={isLoggedIn} 
+        <MobileMenu
+          isLoggedIn={isLoggedIn}
           notifications={notifications}
           unreadMessages={unreadMessages}
           isActiveLink={isActiveLink}
