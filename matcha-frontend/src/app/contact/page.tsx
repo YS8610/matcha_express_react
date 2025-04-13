@@ -63,7 +63,7 @@ export default function ContactPage() {
           Contact Us
         </h1>
         <p className="text-xl max-w-2xl mx-auto text-gray-600">
-          We're here to help. Choose an option below or send us a message.
+          We&apos;re here to help. Choose an option below or send us a message.
         </p>
       </div>
 

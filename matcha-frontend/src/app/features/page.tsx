@@ -1,7 +1,7 @@
 // src/app/features/page.tsx
 // https://tinder.com/feature/subscription-tiers/
 import React from 'react';
-import { FaFire, FaStar, FaCrown } from 'react-icons/fa';
+import { FaStar, FaCrown } from 'react-icons/fa';
 import { APP_FEATURES } from '@/constants/features';
 
 export default function FeaturesPage() {
@@ -10,7 +10,7 @@ export default function FeaturesPage() {
       <section className="py-16 px-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-pink-600 mb-4">Upgrade Your Dating Experience</h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Choose the Matcha experience that's right for you
+          Choose the Matcha experience that&apos;s right for you
         </p>
       </section>
 
@@ -210,7 +210,7 @@ export default function FeaturesPage() {
           
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">What are Super Likes?</h3>
-            <p className="text-gray-600">Super Likes let someone know you're really interested before they decide to like or pass on you. When you Super Like someone, they'll see a bright blue star when your profile appears for them.</p>
+            <p className="text-gray-600">Super Likes let someone know you&apos;re really interested before they decide to like or pass on you. When you Super Like someone, they&apos;ll see a bright blue star when your profile appears for them.</p>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md">

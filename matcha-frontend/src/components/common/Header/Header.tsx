@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageCircle, Bell, User, Search, Menu, X, LogOut, Flame, Shield, Settings } from 'lucide-react';
+import { MessageCircle, Bell, User, Menu, X, Flame } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import MobileMenu from './MobileMenu';
 

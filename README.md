@@ -7,8 +7,7 @@ Create dating website, inspiration using tinder website. Forever alone!
 - sudo apt install git vim nodejs npm
 - npm install -g create-next-app
 - npx create-next-app matcha-frontend
-- npm install bcryptjs jsonwebtoken cookies-next mongoose socket.io-client
-- npm install @prisma/client prisma --save-dev
+- npm install
 
 ## Start Frontend Server
 

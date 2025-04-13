@@ -15,7 +15,7 @@ export default function AboutPage() {
           <h2>It all starts with a match</h2>
           <p>
             Web Matcha is how people meet. With millions of users worldwide,
-            we've become one of the leading platforms for making new connections with people
+            we&apos;ve become one of the leading platforms for making new connections with people
             who share your interests and passions.
           </p>
         </div>
@@ -39,15 +39,15 @@ export default function AboutPage() {
           <h2>How Web Matcha Works</h2>
           <p>
             Swipe Right™ on a profile to Like someone, Swipe Left™ to pass.
-            If someone likes you back, it's a Match! We use your interests, preferences,
-            and activity to match you with people who align with what you're looking for.
+            If someone likes you back, it&apos;s a Match! We use your interests, preferences,
+            and activity to match you with people who align with what you&apos;re looking for.
           </p>
         </div>
         
         <div className="about-section">
           <h2>Safety First</h2>
           <p>
-            We're dedicated to making Web Matcha a safe and welcoming experience for everyone.
+            We&apos;re dedicated to making Web Matcha a safe and welcoming experience for everyone.
             Our Community Guidelines and safety features help ensure respectful interactions.
           </p>
         </div>

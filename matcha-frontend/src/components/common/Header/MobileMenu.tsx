@@ -1,7 +1,7 @@
 // src/components/common/Header/MobileMenu.tsx
 import React from 'react';
 import Link from 'next/link';
-import { Flame, Search, User, MessageCircle, Bell } from 'lucide-react';
+import { Flame, Search, User, MessageCircle, Bell, LogOut } from 'lucide-react';
 
 interface MobileMenuProps {
   isLoggedIn: boolean;
@@ -35,9 +35,9 @@ const MobileMenu = ({
             }`}
             onClick={onItemClick}
           >
-            <Flame 
-              size={24} 
-              className={isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-400'} 
+            <Flame
+              size={24}
+              className={isActiveLink('/browse') ? 'text-pink-500' : 'text-gray-400'}
             />
             <span className="text-xs mt-1 font-medium">Discover</span>
           </Link>
@@ -49,9 +49,9 @@ const MobileMenu = ({
             }`}
             onClick={onItemClick}
           >
-            <Search 
-              size={24} 
-              className={isActiveLink('/search') ? 'text-pink-500' : 'text-gray-400'} 
+            <Search
+              size={24}
+              className={isActiveLink('/search') ? 'text-pink-500' : 'text-gray-400'}
             />
             <span className="text-xs mt-1 font-medium">Explore</span>
           </Link>
@@ -64,9 +64,9 @@ const MobileMenu = ({
             onClick={onItemClick}
           >
             <div className="relative">
-              <MessageCircle 
-                size={24} 
-                className={isActiveLink('/messages') ? 'text-pink-500' : 'text-gray-400'} 
+              <MessageCircle
+                size={24}
+                className={isActiveLink('/messages') ? 'text-pink-500' : 'text-gray-400'}
               />
               {unreadMessages > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-500 text-white text-xs font-bold">
@@ -85,9 +85,9 @@ const MobileMenu = ({
             onClick={onItemClick}
           >
             <div className="relative">
-              <Bell 
-                size={24} 
-                className={isActiveLink('/notifications') ? 'text-pink-500' : 'text-gray-400'} 
+              <Bell
+                size={24}
+                className={isActiveLink('/notifications') ? 'text-pink-500' : 'text-gray-400'}
               />
               {notifications > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-500 text-white text-xs font-bold">
@@ -105,12 +105,26 @@ const MobileMenu = ({
             }`}
             onClick={onItemClick}
           >
-            <User 
-              size={24} 
-              className={isActiveLink('/profile') ? 'text-pink-500' : 'text-gray-400'} 
+            <User
+              size={24}
+              className={isActiveLink('/profile') ? 'text-pink-500' : 'text-gray-400'}
             />
             <span className="text-xs mt-1 font-medium">Profile</span>
           </Link>
+          
+          <button
+            className={`flex flex-col items-center justify-center w-full py-2 text-gray-500`}
+            onClick={() => {
+              onLogout();
+              onItemClick();
+            }}
+          >
+            <LogOut
+              size={24}
+              className="text-gray-400"
+            />
+            <span className="text-xs mt-1 font-medium">Logout</span>
+          </button>
         </nav>
       </div>
     </div>

@@ -38,7 +38,7 @@ export default function TermsPage() {
         <div id="acceptance" className="terms-section pb-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">1. ACCEPTANCE OF TERMS</h2>
           <p className="mb-4">
-            By accessing or using Web Matcha ("the Service"), you agree to be bound by these Terms of
+            By accessing or using Web Matcha (&quot;the Service&quot;), you agree to be bound by these Terms of
             Service. If you do not agree to these terms, you may not access or use the Service.
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function TermsPage() {
         <div id="warranty" className="terms-section pb-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">8. DISCLAIMER OF WARRANTIES</h2>
           <p className="mb-4 uppercase">
-            THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+            THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
             WEB MATCHA DISCLAIMS ALL WARRANTIES, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY,
             FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
           </p>
@@ -144,7 +144,7 @@ export default function TermsPage() {
           <p className="mb-4">
             Web Matcha reserves the right to modify these Terms at any time. We will provide notice
             of any material changes by posting the updated Terms on the Service and updating the
-            "last updated" date. Your continued use of the Service after such changes constitutes
+            &quot;last updated&quot; date. Your continued use of the Service after such changes constitutes
             your acceptance of the new Terms.
           </p>
         </div>

@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       </header>
 
       <section className="policy-welcome mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Welcome to Web Matcha's Privacy Policy</h2>
+        <h2 className="text-2xl font-semibold mb-4">Welcome to Web Matcha&apos;s Privacy Policy</h2>
         <p className="mb-4">
           We know that you care about how your personal information is used and shared, and we take your
           privacy seriously. Please read the following to learn more about our Privacy Policy.
@@ -22,13 +22,13 @@ export default function PrivacyPage() {
           your information in the following ways.
         </p>
         <p className="italic text-sm mb-4">
-          Remember that your use of Web Matcha's Services is at all times subject to our <a href="/terms" className="text-primary underline">Terms of Use</a>,
+          Remember that your use of Web Matcha&apos;s Services is at all times subject to our <a href="/terms" className="text-primary underline">Terms of Use</a>,
           which incorporates this Privacy Policy.
         </p>
       </section>
 
       <section className="policy-toc mb-10 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-semibold mb-2">WHAT'S IN THIS POLICY?</h3>
+        <h3 className="font-semibold mb-2">WHAT&apos;S IN THIS POLICY?</h3>
         <ol className="list-decimal pl-5 space-y-1">
           <li><a href="#information" className="text-primary">Information We Collect</a></li>
           <li><a href="#use" className="text-primary">How We Use Your Information</a></li>
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
           <li><a href="#choices" className="text-primary">Your Rights and Choices</a></li>
           <li><a href="#third-parties" className="text-primary">Third-Party Services</a></li>
           <li><a href="#retention" className="text-primary">Data Retention</a></li>
-          <li><a href="#children" className="text-primary">Children's Privacy</a></li>
+          <li><a href="#children" className="text-primary">Children&apos;s Privacy</a></li>
           <li><a href="#security" className="text-primary">Privacy and Security</a></li>
           <li><a href="#international" className="text-primary">International Users</a></li>
           <li><a href="#changes" className="text-primary">Changes to This Policy</a></li>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
             <h3 className="font-semibold mb-2">Information we receive when you use our Services:</h3>
             <ul className="list-disc pl-5 space-y-2">
               <li>
-                <strong>Usage Information.</strong> We collect information about your activity on our services, such as date and time you logged in, features you've been using, searches, clicks and pages viewed, and your interactions with other users.
+                <strong>Usage Information.</strong> We collect information about your activity on our services, such as date and time you logged in, features you&apos;ve been using, searches, clicks and pages viewed, and your interactions with other users.
               </li>
               <li>
                 <strong>Device Information.</strong> We collect information from and about the device(s) you use to access our Services, including hardware and software information, device identifiers, and mobile network information.
@@ -103,13 +103,13 @@ export default function PrivacyPage() {
         <section id="sharing" className="policy-section">
           <h2 className="text-2xl font-semibold mb-4 text-primary">3. Information Sharing and Disclosure</h2>
           <p className="mb-4">
-            Since our goal is to help you make meaningful connections, the main sharing of user information is with other users. We also share some users' information with service providers and partners who assist us in operating the Services, and in some cases, legal authorities.
+            Since our goal is to help you make meaningful connections, the main sharing of user information is with other users. We also share some users&apos; information with service providers and partners who assist us in operating the Services, and in some cases, legal authorities.
           </p>
           
           <div className="subsection mb-6">
             <h3 className="font-semibold mb-2">With other users:</h3>
             <p className="mb-2">
-              You share information with other users when you voluntarily disclose information on the Service (including your public profile). Please be careful with your information and make sure that the content you share is stuff that you're comfortable being publicly viewable.
+              You share information with other users when you voluntarily disclose information on the Service (including your public profile). Please be careful with your information and make sure that the content you share is stuff that you&apos;re comfortable being publicly viewable.
             </p>
           </div>
           
@@ -142,7 +142,7 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              <strong>Access/Update tools in the service.</strong> Tools and account settings that help you to access, rectify or delete information that you provided to us and that's associated with your account.
+              <strong>Access/Update tools in the service.</strong> Tools and account settings that help you to access, rectify or delete information that you provided to us and that&apos;s associated with your account.
             </li>
             <li>
               <strong>Device permissions.</strong> Mobile platforms have permission systems for specific types of device data and notifications, such as phone contacts, pictures, location services, push notifications and advertising identifiers. You can change your settings on your device to either consent or oppose the collection of the corresponding information or the display of the corresponding notifications.
@@ -184,7 +184,7 @@ export default function PrivacyPage() {
         </section>
 
         <section id="children" className="policy-section">
-          <h2 className="text-2xl font-semibold mb-4 text-primary">7. Children's Privacy</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-primary">7. Children&apos;s Privacy</h2>
           <p className="mb-4">
             Our Services are restricted to users who are 18 years of age or older. We do not permit users under the age of 18 on our platform and we do not knowingly collect personal information from anyone under the age of 18. If you suspect that a user is under the age of 18, please use the reporting mechanism available through the Service.
           </p>
@@ -213,14 +213,14 @@ export default function PrivacyPage() {
         <section id="changes" className="policy-section">
           <h2 className="text-2xl font-semibold mb-4 text-primary">10. Changes to This Policy</h2>
           <p className="mb-4">
-            Because we're always looking for new and innovative ways to help you build meaningful connections, this policy may change over time. We will notify you before any material changes take effect so that you have time to review the changes.
+            Because we&apos;re always looking for new and innovative ways to help you build meaningful connections, this policy may change over time. We will notify you before any material changes take effect so that you have time to review the changes.
           </p>
         </section>
 
         <section id="contact" className="policy-section">
           <h2 className="text-2xl font-semibold mb-4 text-primary">11. How To Contact Us</h2>
           <p className="mb-6">
-            If you have questions about this Privacy Policy, here's how you can reach us:
+            If you have questions about this Privacy Policy, here&apos;s how you can reach us:
           </p>
           <div className="contact-info p-4 bg-gray-50 rounded-lg">
             <p className="mb-2"><strong>Email:</strong> privacy@webmatcha.com</p>
