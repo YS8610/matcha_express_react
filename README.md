@@ -15,8 +15,7 @@ Call to action and hero are actually website terminologies.
 
 ```sh
 cd matcha-frontend
-npm run build
-npm start
+npm run dev
 ```
 
 "proxy": "http://localhost:8080", << set this proxy in package.json

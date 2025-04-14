@@ -36,23 +36,23 @@ const Footer = () => {
             <h6 className="text-sm font-semibold text-gray-700 mb-3 uppercase">Legal</h6>
             <ul className="space-y-2">
               <li>
-                <Link href="/privacy">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Privacy</a>
+                <Link href="/privacy" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Privacy
                 </Link>
               </li>
               <li>
-                <Link href="/terms">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Terms</a>
+                <Link href="/terms" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Terms
                 </Link>
               </li>
               <li>
-                <Link href="/cookie-policy">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Cookie Policy</a>
+                <Link href="/cookie-policy" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link href="/intellectual-property">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Intellectual Property</a>
+                <Link href="/intellectual-property" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Intellectual Property
                 </Link>
               </li>
             </ul>
@@ -62,13 +62,13 @@ const Footer = () => {
             <h6 className="text-sm font-semibold text-gray-700 mb-3 uppercase">Careers</h6>
             <ul className="space-y-2">
               <li>
-                <Link href="/careers">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Careers Portal</a>
+                <Link href="/careers" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Careers Portal
                 </Link>
               </li>
               <li>
-                <Link href="/tech-blog">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Tech Blog</a>
+                <Link href="/tech-blog" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Tech Blog
                 </Link>
               </li>
             </ul>
@@ -78,23 +78,23 @@ const Footer = () => {
             <h6 className="text-sm font-semibold text-gray-700 mb-3 uppercase">Company</h6>
             <ul className="space-y-2">
               <li>
-                <Link href="/about">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">About</a>
+                <Link href="/about" className="text-gray-600 hover:text-gray-800 text-sm">
+                  About
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Contact</a>
+                <Link href="/contact" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Contact
                 </Link>
               </li>
               <li>
-                <Link href="/press">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">Press</a>
+                <Link href="/press" className="text-gray-600 hover:text-gray-800 text-sm">
+                  Press
                 </Link>
               </li>
               <li>
-                <Link href="/faq">
-                  <a className="text-gray-600 hover:text-gray-800 text-sm">FAQ</a>
+                <Link href="/faq" className="text-gray-600 hover:text-gray-800 text-sm">
+                  FAQ
                 </Link>
               </li>
             </ul>
