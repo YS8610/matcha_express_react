@@ -1,111 +1,206 @@
 // src/hooks/useAuth.tsx
-'use client';
+import { useState, useEffect } from 'react';
+import { User } from '../types/user';
+import * as api from '../utils/api';
 
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { type User, type AuthState } from '@/types/auth';
-
-const initialState: AuthState = {
-  isLoggedIn: false,
-  user: null,
-  token: null,
-};
-
-const AuthContext = createContext<{
-  isLoggedIn: boolean;
+interface AuthState {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-}>({
-  isLoggedIn: false,
-  user: null,
-  login: async () => false,
-  register: async () => false,
-  logout: () => {},
-});
+  isAuthenticated: boolean;
+  isProfileComplete: boolean;
+  isLoading: boolean;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>(initialState);
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+interface RegisterData {
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
+
+interface ProfileData {
+  gender: string;
+  preference: string;
+  bio: string;
+  tags: string;
+  age: string;
+  location: string;
+  photos: File[];
+}
+
+export const useAuth = () => {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isProfileComplete: false,
+    isLoading: true
+  });
 
   useEffect(() => {
-    const token = localStorage.getItem('matchaAuthToken');
-    if (token) {
-      setAuthState({
-        isLoggedIn: true,
-        token,
-        user: null,
-      });
-    }
+    checkAuthStatus();
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const checkAuthStatus = async () => {
     try {
-      const token = 'mock-jwt-token';
-      localStorage.setItem('matchaAuthToken', token);
-      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      const user = await api.getCurrentUser();
       setAuthState({
-        isLoggedIn: true,
-        token,
-        user: {
-          id: 1,
-          name: 'Demo User',
-          email,
-          profileImageUrl: null,
-        },
+        user,
+        isAuthenticated: true,
+        isProfileComplete: isUserProfileComplete(user),
+        isLoading: false
       });
-      
-      return true;
     } catch (error) {
-      console.error('Login failed:', error);
-      return false;
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('authToken');
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isProfileComplete: false,
+        isLoading: false
+      });
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const isUserProfileComplete = (user: User): boolean => {
+    return !!(
+      user.gender &&
+      user.sexualPreference &&
+      user.bio &&
+      user.tags?.length > 0 &&
+      user.photos?.length > 0 &&
+      user.age &&
+      user.location
+    );
+  };
+
+  const login = async (credentials: LoginCredentials): Promise<void> => {
     try {
-      const token = 'mock-jwt-token';
-      localStorage.setItem('matchaAuthToken', token);
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+      
+      const response = await api.login(credentials);
+      const { user, token } = response;
+
+      localStorage.setItem('authToken', token);
       
       setAuthState({
-        isLoggedIn: true,
-        token,
-        user: {
-          id: 1,
-          name,
-          email,
-          profileImageUrl: null,
-        },
+        user,
+        isAuthenticated: true,
+        isProfileComplete: isUserProfileComplete(user),
+        isLoading: false
       });
-      
-      return true;
     } catch (error) {
-      console.error('Registration failed:', error);
-      return false;
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      throw error;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('matchaAuthToken');
-    setAuthState(initialState);
+  const register = async (data: RegisterData): Promise<void> => {
+    try {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+      
+      const response = await api.register(data);
+      const { user, token } = response;
+
+      localStorage.setItem('authToken', token);
+      
+      setAuthState({
+        user,
+        isAuthenticated: true,
+        isProfileComplete: false, 
+        isLoading: false
+      });
+    } catch (error) {
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      throw error;
+    }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        isLoggedIn: authState.isLoggedIn,
-        user: authState.user,
-        login,
-        register,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  const completeProfile = async (data: ProfileData): Promise<void> => {
+    try {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+      
+      const updatedUser = await api.updateProfile(data);
+      
+      setAuthState(prev => ({
+        ...prev,
+        user: updatedUser,
+        isProfileComplete: isUserProfileComplete(updatedUser),
+        isLoading: false
+      }));
+    } catch (error) {
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      throw error;
+    }
+  };
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+  const updateUser = async (updates: Partial<User>): Promise<void> => {
+    try {
+      if (!authState.user) throw new Error('No user logged in');
+      
+      const updatedUser = await api.updateUser(updates);
+      
+      setAuthState(prev => ({
+        ...prev,
+        user: updatedUser,
+        isProfileComplete: isUserProfileComplete(updatedUser)
+      }));
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      await api.logout();
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+    } finally {
+      localStorage.removeItem('authToken');
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isProfileComplete: false,
+        isLoading: false
+      });
+    }
+  };
+
+  const refreshUser = async (): Promise<void> => {
+    try {
+      if (!authState.isAuthenticated) return;
+      
+      const user = await api.getCurrentUser();
+      setAuthState(prev => ({
+        ...prev,
+        user,
+        isProfileComplete: isUserProfileComplete(user)
+      }));
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
+  return {
+    user: authState.user,
+    isAuthenticated: authState.isAuthenticated,
+    isProfileComplete: authState.isProfileComplete,
+    isLoading: authState.isLoading,
+    login,
+    register,
+    completeProfile,
+    updateUser,
+    logout,
+    refreshUser
+  };
+};

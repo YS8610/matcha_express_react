@@ -71,6 +71,7 @@ junit.xml
 .tmp/
 temp/
 tmp/
+tmp
 temp
 .sass-cache/
 *.bak
