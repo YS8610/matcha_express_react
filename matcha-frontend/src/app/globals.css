@@ -4,19 +4,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --pink-50: #fdf2f8;
-  --pink-100: #fce7f3;
-  --pink-500: #ec4899;
-  --pink-600: #db2777;
-  --gradient-start: #ec4899;
-  --gradient-end: #f59e0b;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --matcha-100: #dcfce7;
+  --matcha-200: #bbf7d0;
+  --matcha-300: #86efac;
+  --matcha-400: #4ade80;
+  --matcha-500: #22c55e;
+  --matcha-600: #16a34a;
+  --matcha-700: #15803d;
+  --matcha-800: #166534;
+  --matcha-900: #14532d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,198 +22,23 @@
   }
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+.animate-heart-beat { animation: heart-beat 0.6s ease-in-out; }
+@keyframes heart-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+.bg-matcha-gradient {
+  background: linear-gradient(135deg, var(--matcha-400) 0%, var(--matcha-600) 50%, var(--matcha-700) 100%);
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.safe-area-inset-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes heart-beat {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-@keyframes swipe-right {
-  0% {
-    transform: translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(100vw) rotate(30deg);
-    opacity: 0;
-  }
-}
-
-@keyframes swipe-left {
-  0% {
-    transform: translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-100vw) rotate(-30deg);
-    opacity: 0;
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
-}
-
-.animate-slide-down {
-  animation: slide-down 0.3s ease-out;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.2s ease-out;
-}
-
-.animate-heart-beat {
-  animation: heart-beat 0.6s ease-in-out;
-}
-
-.animate-swipe-right {
-  animation: swipe-right 0.3s ease-in;
-}
-
-.animate-swipe-left {
-  animation: swipe-left 0.3s ease-in;
-}
-
-.bg-gradient-matcha {
-  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-}
-
-.bg-gradient-pink {
-  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
-}
-
-.shadow-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.shadow-card-hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.focus-pink {
-  @apply focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2;
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #ec4899 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@media (max-width: 768px) {
-  .mobile-optimized {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  body {
-    overscroll-behavior: none;
-  }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-.notification-enter {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.notification-enter-active {
-  transform: translateX(0);
-  opacity: 1;
-  transition: all 0.3s ease-out;
-}
-
-.notification-exit {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.notification-exit-active {
-  transform: translateX(100%);
-  opacity: 0;
-  transition: all 0.3s ease-in;
+.bg-matcha-gradient-soft {
+  background: linear-gradient(135deg, var(--matcha-100) 0%, var(--matcha-200) 50%, var(--matcha-300) 100%);
 }

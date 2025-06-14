@@ -1,4 +1,4 @@
-// src/componenets/navigation/Navigation.tsx
+// src/components/navigation/Navigation.tsx
 import React from 'react';
 import { Heart, Search, MessageCircle, User } from 'lucide-react';
 

@@ -1,12 +1,12 @@
 // src/components/chat/MessageList.tsx
 import React, { useEffect, useRef } from 'react';
 import { Check, CheckCheck } from 'lucide-react';
-import { Message, User } from '../types/message';
+import { Message, ChatUser } from '../../types/types';
 
 interface MessageListProps {
   messages: Message[];
   currentUserId: number;
-  otherUser: User;
+  otherUser: ChatUser;
 }
 
 const MessageList: React.FC<MessageListProps> = ({

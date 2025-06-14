@@ -1,7 +1,7 @@
 // src/components/search/SearchFilters.tsx
 import React, { useState } from 'react';
 import { X, MapPin, Star, Tag } from 'lucide-react';
-import { SearchFilters as ISearchFilters } from '../types/profile';
+import { SearchFilters as ISearchFilters } from '../../types/types';
 
 interface SearchFiltersProps {
   filters: ISearchFilters;

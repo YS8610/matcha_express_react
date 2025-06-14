@@ -1,40 +1,15 @@
 // src/hooks/useAuth.tsx
 import { useState, useEffect } from 'react';
-import { User } from '../types/user';
+import { User } from '../types/types';
 import * as api from '../utils/api';
 
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isProfileComplete: boolean;
-  isLoading: boolean;
-}
-
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface RegisterData {
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-}
-
-interface ProfileData {
-  gender: string;
-  preference: string;
-  bio: string;
-  tags: string;
-  age: string;
-  location: string;
-  photos: File[];
-}
-
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
+  const [authState, setAuthState] = useState<{
+    user: User | null;
+    isAuthenticated: boolean;
+    isProfileComplete: boolean;
+    isLoading: boolean;
+  }>({
     user: null,
     isAuthenticated: false,
     isProfileComplete: false,
@@ -57,150 +32,50 @@ export const useAuth = () => {
       setAuthState({
         user,
         isAuthenticated: true,
-        isProfileComplete: isUserProfileComplete(user),
+        isProfileComplete: isUserComplete(user),
         isLoading: false
       });
     } catch (error) {
-      console.error('Auth check failed:', error);
       localStorage.removeItem('authToken');
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isProfileComplete: false,
-        isLoading: false
-      });
+      setAuthState({ user: null, isAuthenticated: false, isProfileComplete: false, isLoading: false });
     }
   };
 
-  const isUserProfileComplete = (user: User): boolean => {
-    return !!(
-      user.gender &&
-      user.sexualPreference &&
-      user.bio &&
-      user.tags?.length > 0 &&
-      user.photos?.length > 0 &&
-      user.age &&
-      user.location
-    );
+  const isUserComplete = (user: User): boolean => {
+    return !!(user.gender && user.sexualPreference && user.bio && user.tags?.length && user.photos?.length && user.age && user.location);
   };
 
-  const login = async (credentials: LoginCredentials): Promise<void> => {
-    try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
-      
-      const response = await api.login(credentials);
-      const { user, token } = response;
-
-      localStorage.setItem('authToken', token);
-      
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isProfileComplete: isUserProfileComplete(user),
-        isLoading: false
-      });
-    } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      throw error;
-    }
+  const login = async (credentials: { username: string; password: string }) => {
+    const response = await api.login(credentials);
+    localStorage.setItem('authToken', response.token);
+    setAuthState({
+      user: response.user,
+      isAuthenticated: true,
+      isProfileComplete: isUserComplete(response.user),
+      isLoading: false
+    });
   };
 
-  const register = async (data: RegisterData): Promise<void> => {
-    try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
-      
-      const response = await api.register(data);
-      const { user, token } = response;
-
-      localStorage.setItem('authToken', token);
-      
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isProfileComplete: false, 
-        isLoading: false
-      });
-    } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      throw error;
-    }
+  const register = async (data: any) => {
+    const response = await api.register(data);
+    localStorage.setItem('authToken', response.token);
+    setAuthState({
+      user: response.user,
+      isAuthenticated: true,
+      isProfileComplete: false,
+      isLoading: false
+    });
   };
 
-  const completeProfile = async (data: ProfileData): Promise<void> => {
-    try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
-      
-      const updatedUser = await api.updateProfile(data);
-      
-      setAuthState(prev => ({
-        ...prev,
-        user: updatedUser,
-        isProfileComplete: isUserProfileComplete(updatedUser),
-        isLoading: false
-      }));
-    } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      throw error;
-    }
+  const completeProfile = async (data: any) => {
+    const user = await api.updateProfile(data);
+    setAuthState(prev => ({ ...prev, user, isProfileComplete: isUserComplete(user) }));
   };
 
-  const updateUser = async (updates: Partial<User>): Promise<void> => {
-    try {
-      if (!authState.user) throw new Error('No user logged in');
-      
-      const updatedUser = await api.updateUser(updates);
-      
-      setAuthState(prev => ({
-        ...prev,
-        user: updatedUser,
-        isProfileComplete: isUserProfileComplete(updatedUser)
-      }));
-    } catch (error) {
-      throw error;
-    }
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setAuthState({ user: null, isAuthenticated: false, isProfileComplete: false, isLoading: false });
   };
 
-  const logout = async (): Promise<void> => {
-    try {
-      await api.logout();
-    } catch (error) {
-      console.error('Logout API call failed:', error);
-    } finally {
-      localStorage.removeItem('authToken');
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isProfileComplete: false,
-        isLoading: false
-      });
-    }
-  };
-
-  const refreshUser = async (): Promise<void> => {
-    try {
-      if (!authState.isAuthenticated) return;
-      
-      const user = await api.getCurrentUser();
-      setAuthState(prev => ({
-        ...prev,
-        user,
-        isProfileComplete: isUserProfileComplete(user)
-      }));
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
-    }
-  };
-
-  return {
-    user: authState.user,
-    isAuthenticated: authState.isAuthenticated,
-    isProfileComplete: authState.isProfileComplete,
-    isLoading: authState.isLoading,
-    login,
-    register,
-    completeProfile,
-    updateUser,
-    logout,
-    refreshUser
-  };
+  return { ...authState, login, register, completeProfile, logout };
 };

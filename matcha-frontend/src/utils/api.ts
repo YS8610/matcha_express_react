@@ -1,32 +1,9 @@
 // src/utils/api.ts
-import { API_BASE_URL } from './constants';
-import { User } from '../types/user';
-import { Profile, SearchFilters } from '../types/profile';
-import { ChatRoom, Message } from '../types/message';
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
-
-interface AuthResponse {
-  user: User;
-  token: string;
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
-
-  private async request<T>(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
     const token = localStorage.getItem('authToken');
 
     const config: RequestInit = {
@@ -38,22 +15,14 @@ class ApiClient {
       ...options,
     };
 
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data || data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Network request failed');
+    const response = await fetch(url, config);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.data || data;
   }
 
   async get<T>(endpoint: string): Promise<T> {
@@ -77,165 +46,69 @@ class ApiClient {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
-
-  async uploadFile<T>(endpoint: string, file: File, additionalData?: any): Promise<T> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    if (additionalData) {
-      Object.keys(additionalData).forEach(key => {
-        formData.append(key, additionalData[key]);
-      });
-    }
-
-    const token = localStorage.getItem('authToken');
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: formData,
-    });
-  }
 }
 
-const apiClient = new ApiClient(API_BASE_URL);
+const apiClient = new ApiClient();
 
-export const login = async (credentials: { username: string; password: string }): Promise<AuthResponse> => {
-  return apiClient.post<AuthResponse>('/auth/login', credentials);
-};
+export const login = (credentials: { username: string; password: string }) => 
+  apiClient.post('/auth/login', credentials);
 
-export const register = async (userData: {
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-}): Promise<AuthResponse> => {
-  return apiClient.post<AuthResponse>('/auth/register', userData);
-};
+export const register = (userData: any) => 
+  apiClient.post('/auth/register', userData);
 
-export const logout = async (): Promise<void> => {
-  return apiClient.post<void>('/auth/logout');
-};
+export const getCurrentUser = () => 
+  apiClient.get('/user/me');
 
-export const forgotPassword = async (email: string): Promise<void> => {
-  return apiClient.post<void>('/auth/forgot-password', { email });
-};
+export const updateProfile = (data: any) => 
+  apiClient.put('/user/profile', data);
 
-export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
-  return apiClient.post<void>('/auth/reset-password', { token, newPassword });
-};
-
-export const getCurrentUser = async (): Promise<User> => {
-  return apiClient.get<User>('/user/me');
-};
-
-export const updateUser = async (updates: Partial<User>): Promise<User> => {
-  return apiClient.put<User>('/user/me', updates);
-};
-
-export const updateProfile = async (profileData: any): Promise<User> => {
-  return apiClient.put<User>('/user/profile', profileData);
-};
-
-export const uploadProfilePhoto = async (file: File): Promise<{ url: string }> => {
-  return apiClient.uploadFile<{ url: string }>('/user/photos', file);
-};
-
-export const deleteProfilePhoto = async (photoId: string): Promise<void> => {
-  return apiClient.delete<void>(`/user/photos/${photoId}`);
-};
-
-export const getProfiles = async (filters?: SearchFilters): Promise<Profile[]> => {
+export const getProfiles = (filters?: any) => {
   const params = new URLSearchParams();
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        if (Array.isArray(value)) {
-          params.append(key, value.join(','));
-        } else {
-          params.append(key, value.toString());
-        }
+        params.append(key, Array.isArray(value) ? value.join(',') : value.toString());
       }
     });
   }
-  
-  const endpoint = params.toString() ? `/profiles?${params.toString()}` : '/profiles';
-  return apiClient.get<Profile[]>(endpoint);
+  return apiClient.get(`/profiles${params.toString() ? `?${params}` : ''}`);
 };
 
-export const getProfile = async (profileId: number): Promise<Profile> => {
-  return apiClient.get<Profile>(`/profiles/${profileId}`);
-};
+export const likeProfile = (profileId: number) => 
+  apiClient.post(`/profiles/${profileId}/like`);
 
-export const likeProfile = async (profileId: number): Promise<{ matched: boolean }> => {
-  return apiClient.post<{ matched: boolean }>(`/profiles/${profileId}/like`);
-};
+export const getChatRooms = () => 
+  apiClient.get('/chat/rooms');
 
-export const unlikeProfile = async (profileId: number): Promise<void> => {
-  return apiClient.delete<void>(`/profiles/${profileId}/like`);
-};
+export const sendMessage = (chatId: number, content: string) => 
+  apiClient.post(`/chat/rooms/${chatId}/messages`, { content });
 
-export const blockProfile = async (profileId: number): Promise<void> => {
-  return apiClient.post<void>(`/profiles/${profileId}/block`);
-};
+export const recordProfileView = (profileId: number) => 
+  apiClient.post(`/profiles/${profileId}/view`);
 
-export const reportProfile = async (profileId: number, reason: string): Promise<void> => {
-  return apiClient.post<void>(`/profiles/${profileId}/report`, { reason });
-};
+export const unlikeProfile = (profileId: number) => 
+  apiClient.delete(`/profiles/${profileId}/like`);
 
-export const getChatRooms = async (): Promise<ChatRoom[]> => {
-  return apiClient.get<ChatRoom[]>('/chat/rooms');
-};
+export const reportProfile = (profileId: number, reason: string, details?: string) => 
+  apiClient.post(`/profiles/${profileId}/report`, { reason, details });
 
-export const getChatRoom = async (chatId: number): Promise<ChatRoom> => {
-  return apiClient.get<ChatRoom>(`/chat/rooms/${chatId}`);
-};
+export const blockProfile = (profileId: number) => 
+  apiClient.post(`/profiles/${profileId}/block`);
 
-export const sendMessage = async (chatId: number, content: string): Promise<Message> => {
-  return apiClient.post<Message>(`/chat/rooms/${chatId}/messages`, { content });
-};
+export const updateLocation = (latitude: number, longitude: number) => 
+  apiClient.put('/user/location', { latitude, longitude });
 
-export const markMessagesAsRead = async (chatId: number): Promise<void> => {
-  return apiClient.put<void>(`/chat/rooms/${chatId}/read`);
-};
+export const verifyEmail = (token: string) => 
+  apiClient.post('/auth/verify-email', { token });
 
-export const getNotifications = async (): Promise<any[]> => {
-  return apiClient.get<any[]>('/notifications');
-};
+export const forgotPassword = (email: string) => 
+  apiClient.post('/auth/forgot-password', { email });
 
-export const markNotificationAsRead = async (notificationId: number): Promise<void> => {
-  return apiClient.put<void>(`/notifications/${notificationId}/read`);
-};
+export const resetPassword = (token: string, password: string) => 
+  apiClient.post('/auth/reset-password', { token, password });
 
-export const getProfileStats = async (): Promise<{
-  totalMatches: number;
-  profileViews: number;
-  likesReceived: number;
-  messagesCount: number;
-}> => {
-  return apiClient.get('/user/stats');
-};
+export const getProfileVisitors = () => 
+  apiClient.get('/user/visitors');
 
-export const getProfileVisitors = async (): Promise<Profile[]> => {
-  return apiClient.get<Profile[]>('/user/visitors');
-};
-
-export const getProfileLikes = async (): Promise<Profile[]> => {
-  return apiClient.get<Profile[]>('/user/likes');
-};
-
-export const updateLocation = async (latitude: number, longitude: number): Promise<void> => {
-  return apiClient.put<void>('/user/location', { latitude, longitude });
-};
-
-export const handleApiError = (error: any): string => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
-  }
-  if (error.message) {
-    return error.message;
-  }
-  return 'An unexpected error occurred';
-};
+export const getProfileLikes = () => 
+  apiClient.get('/user/likes');

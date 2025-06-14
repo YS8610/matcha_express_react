@@ -2,7 +2,7 @@
 import React from 'react';
 import { Bell, ArrowLeft, MoreVertical } from 'lucide-react';
 import NotificationBadge from '../navigation/NotificationBadge';
-import { User } from '../types/user';
+import { User } from '../../types/types';
 
 interface HeaderProps {
   title: string;
