@@ -9,16 +9,16 @@ export function generateAvatarUrl(name?: string, id?: string): string {
     .slice(0, 2);
   
   const colors = [
-    '007bff', // blue
-    '28a745', // green
-    'dc3545', // red
-    'ffc107', // amber
-    '17a2b8', // cyan
-    '6610f2', // indigo
-    'e83e8c', // pink
-    '20c997', // teal
-    'fd7e14', // orange
-    '6f42c1', // purple
+    '007bff',
+    '28a745',
+    'dc3545',
+    'ffc107',
+    '17a2b8',
+    '6610f2',
+    'e83e8c',
+    '20c997',
+    'fd7e14',
+    '6f42c1',
   ];
   
   const hash = (displayName || '').split('').reduce((acc, char) => {

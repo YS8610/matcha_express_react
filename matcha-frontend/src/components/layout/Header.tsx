@@ -2,34 +2,36 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
-import { Heart } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="relative z-[1000] bg-gradient-to-r from-green-50 to-green-100/50 shadow-md border-b border-green-200 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-blue-600">
-              <Heart className="w-8 h-8 fill-blue-600" />
-              Matcha
+            <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
+              <div className="bg-gradient-to-br from-green-400 to-green-600 p-2 rounded-full">
+                <Leaf className="w-6 h-6 text-white" />
+              </div>
+              <span className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Matcha</span>
             </Link>
             
             {user && (
               <nav className="ml-10 flex space-x-4">
-                <Link href="/browse" className="text-gray-700 hover:text-gray-900">
+                <Link href="/browse" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Browse
                 </Link>
-                <Link href="/search" className="text-gray-700 hover:text-gray-900">
+                <Link href="/search" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Search
                 </Link>
-                <Link href="/messages" className="text-gray-700 hover:text-gray-900">
+                <Link href="/messages" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Messages
                 </Link>
-                <Link href="/profile" className="text-gray-700 hover:text-gray-900">
+                <Link href="/profile" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Profile
                 </Link>
               </nav>
@@ -40,24 +42,24 @@ export default function Header() {
             {user ? (
               <>
                 <NotificationDropdown />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-green-700 font-medium">
                   {user.username}
                 </span>
                 <button
                   onClick={logout}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-green-600 hover:text-green-800 font-medium transition-colors"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <div className="space-x-4">
-                <Link href="/login" className="text-gray-700 hover:text-gray-900">
+                <Link href="/login" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                  className="bg-gradient-to-r from-green-600 to-green-500 text-white px-5 py-2 rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md"
                 >
                   Register
                 </Link>

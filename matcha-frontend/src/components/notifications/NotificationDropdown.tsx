@@ -40,20 +40,20 @@ export default function NotificationDropdown() {
 
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
-      case 'like': return <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />;
-      case 'view': return <Eye className="w-5 h-5 text-blue-500" />;
+      case 'like': return <Heart className="w-5 h-5 text-green-500 fill-green-500" />;
+      case 'view': return <Eye className="w-5 h-5 text-green-600" />;
       case 'message': return <MessageCircle className="w-5 h-5 text-green-500" />;
-      case 'match': return <Sparkles className="w-5 h-5 text-purple-500" />;
-      case 'unlike': return <HeartCrack className="w-5 h-5 text-gray-500" />;
-      default: return <Bell className="w-5 h-5 text-gray-600" />;
+      case 'match': return <Sparkles className="w-5 h-5 text-green-400" />;
+      case 'unlike': return <HeartCrack className="w-5 h-5 text-green-700" />;
+      default: return <Bell className="w-5 h-5 text-green-600" />;
     }
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-[9999]">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900"
+        className="relative p-2 text-green-600 hover:text-green-800 transition-colors"
       >
         <svg
           className="w-6 h-6"
@@ -69,42 +69,46 @@ export default function NotificationDropdown() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-green-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-sm animate-pulse">
             {unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border max-h-96 overflow-y-auto z-50">
-          <div className="p-3 border-b">
-            <h3 className="font-semibold">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur rounded-2xl shadow-xl border border-green-100 max-h-96 overflow-y-auto z-[9999]">
+          <div className="p-4 border-b border-green-200 bg-gradient-to-r from-green-50 to-green-100/50">
+            <h3 className="font-semibold text-green-800 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-green-600" />
+              Notifications
+            </h3>
           </div>
           
           {notifications.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              No notifications
+            <div className="p-8 text-center text-green-600">
+              <Bell className="w-12 h-12 text-green-400 mx-auto mb-3 opacity-50" />
+              No notifications yet
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-green-100">
               {notifications.map(notification => (
                 <div
                   key={notification.id}
-                  className={`p-3 hover:bg-gray-50 cursor-pointer ${
-                    !notification.read ? 'bg-blue-50' : ''
+                  className={`p-4 hover:bg-green-50 cursor-pointer transition-colors ${
+                    !notification.read ? 'bg-green-50/50' : ''
                   }`}
                   onClick={() => !notification.read && handleMarkAsRead(notification.id)}
                 >
                   <div className="flex items-start gap-2">
                     <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1">
-                      <p className="text-sm">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-green-800">{notification.message}</p>
+                      <p className="text-xs text-green-600 mt-1">
                         {new Date(notification.createdAt).toLocaleString()}
                       </p>
                     </div>
                     {!notification.read && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-1" />
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-1 animate-pulse" />
                     )}
                   </div>
                 </div>

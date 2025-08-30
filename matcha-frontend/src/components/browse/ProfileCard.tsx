@@ -1,7 +1,7 @@
 'use client';
 
 import { Profile } from '@/types';
-import { Star } from 'lucide-react';
+import { Star, Leaf } from 'lucide-react';
 import { generateAvatarUrl } from '@/utils/avatar';
 
 interface ProfileCardProps {
@@ -15,7 +15,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   return (
     <a
       href={`/profile/${profileId}`}
-      className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+      className="relative z-10 block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border border-green-100"
     >
       <div className="relative h-64">
         <img
@@ -25,10 +25,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         />
         
         {(profile as any).isOnline && (
-          <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+          <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         )}
         
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-green-900/70 to-transparent p-4">
           <h3 className="text-white font-semibold text-lg">
             {displayName}, {profile.age}
           </h3>
@@ -41,18 +41,19 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600 flex items-center gap-1">
+          <span className="text-sm text-green-700 flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             {profile.fameRating}/100
           </span>
           {profile.hasLikedMe && (
-            <span className="text-xs bg-pink-100 text-pink-800 px-2 py-1 rounded-full">
+            <span className="text-xs bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-2 py-1 rounded-full flex items-center gap-1">
+              <Leaf className="w-3 h-3" />
               Likes you
             </span>
           )}
         </div>
         
-        <p className="text-sm text-gray-700 line-clamp-2 mb-2">
+        <p className="text-sm text-green-800 line-clamp-2 mb-2">
           {profile.biography}
         </p>
         
@@ -60,13 +61,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           {profile.interests.slice(0, 3).map(interest => (
             <span
               key={interest}
-              className="text-xs px-2 py-1 bg-gray-100 rounded-full"
+              className="text-xs px-2 py-1 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-full border border-green-200"
             >
               #{interest}
             </span>
           ))}
           {profile.interests.length > 3 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-green-600">
               +{profile.interests.length - 3} more
             </span>
           )}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SearchFilters } from '@/types';
+import { X, Calendar, MapPin, Star, ArrowUpDown, Filter, RotateCcw } from 'lucide-react';
 
 interface FilterPanelProps {
   filters: SearchFilters;
@@ -17,20 +18,26 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Filters</h2>
+        <h2 className="text-lg font-semibold text-green-800 flex items-center gap-2">
+          <Filter className="w-5 h-5 text-green-600" />
+          Filter Your Matches
+        </h2>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
+          className="text-green-600 hover:text-green-800 p-1 hover:bg-green-50 rounded-full transition-colors"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Age Range</label>
+          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Age Range
+          </label>
           <div className="flex gap-2 items-center">
             <input
               type="number"
@@ -42,9 +49,9 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 ageMin: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Min"
-              className="w-20 px-2 py-1 border rounded"
+              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
-            <span>-</span>
+            <span className="text-green-600">-</span>
             <input
               type="number"
               min="18"
@@ -55,13 +62,16 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 ageMax: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Max"
-              className="w-20 px-2 py-1 border rounded"
+              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Distance (km)</label>
+          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Distance (km)
+          </label>
           <input
             type="number"
             min="1"
@@ -72,12 +82,15 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
               distanceMax: e.target.value ? parseInt(e.target.value) : undefined
             })}
             placeholder="Maximum distance"
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Fame Rating</label>
+          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <Star className="w-4 h-4" />
+            Fame Rating
+          </label>
           <div className="flex gap-2 items-center">
             <input
               type="number"
@@ -89,9 +102,9 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 fameMin: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Min"
-              className="w-20 px-2 py-1 border rounded"
+              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
-            <span>-</span>
+            <span className="text-green-600">-</span>
             <input
               type="number"
               min="0"
@@ -102,20 +115,23 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 fameMax: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Max"
-              className="w-20 px-2 py-1 border rounded"
+              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Sort By</label>
+          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4" />
+            Sort By
+          </label>
           <select
             value={localFilters.sortBy || 'distance'}
             onChange={(e) => setLocalFilters({
               ...localFilters,
               sortBy: e.target.value as any
             })}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >
             <option value="age">Age</option>
             <option value="distance">Distance</option>
@@ -125,14 +141,14 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Order</label>
+          <label className="block text-sm font-medium mb-2 text-green-700">Order</label>
           <select
             value={localFilters.order || 'asc'}
             onChange={(e) => setLocalFilters({
               ...localFilters,
               order: e.target.value as any
             })}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
@@ -142,13 +158,14 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         <div className="flex gap-2 pt-4">
           <button
             onClick={() => setLocalFilters({})}
-            className="flex-1 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+            className="flex-1 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 font-medium transition-all flex items-center justify-center gap-2"
           >
+            <RotateCcw className="w-4 h-4" />
             Reset
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="flex-1 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md"
           >
             Apply Filters
           </button>

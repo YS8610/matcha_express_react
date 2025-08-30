@@ -76,7 +76,7 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
-        <label htmlFor="username" className="block text-sm font-medium mb-1">
+        <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700">
           Username
         </label>
         <input
@@ -86,12 +86,12 @@ export default function RegisterForm() {
           value={formData.username}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded-md"
+          className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
         />
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
+        <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
           Email
         </label>
         <input
@@ -101,13 +101,13 @@ export default function RegisterForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded-md"
+          className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-medium mb-1">
+          <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-green-700">
             First Name
           </label>
           <input
@@ -117,12 +117,12 @@ export default function RegisterForm() {
             value={formData.firstName}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
         </div>
 
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium mb-1">
+          <label htmlFor="lastName" className="block text-sm font-medium mb-1 text-green-700">
             Last Name
           </label>
           <input
@@ -132,13 +132,13 @@ export default function RegisterForm() {
             value={formData.lastName}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium mb-1">
+        <label htmlFor="password" className="block text-sm font-medium mb-1 text-green-700">
           Password
         </label>
         <input
@@ -148,7 +148,7 @@ export default function RegisterForm() {
           value={formData.password}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded-md"
+          className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
         />
         <p className="text-xs text-gray-500 mt-1">
           Must be 8+ chars with uppercase, lowercase, number & special char
@@ -156,7 +156,7 @@ export default function RegisterForm() {
       </div>
 
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+        <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-green-700">
           Confirm Password
         </label>
         <input
@@ -166,7 +166,7 @@ export default function RegisterForm() {
           value={formData.confirmPassword}
           onChange={handleChange}
           required
-          className="w-full px-3 py-2 border rounded-md"
+          className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
         />
       </div>
 
@@ -177,14 +177,14 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+        className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
       >
         {loading ? 'Creating Account...' : 'Register'}
       </button>
 
       <div className="text-center text-sm">
         Already have an account?{' '}
-        <a href="/login" className="text-blue-500 hover:underline">
+        <a href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
           Login
         </a>
       </div>
