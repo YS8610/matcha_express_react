@@ -1,9 +1,108 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
+import BadRequestError from "../errors/BadRequestError";
+import { ProfileJson } from "../model/profile";
+import { createUser, getUsers, isPwValid, isUser, loginSvc } from "../service/userSvc";
+import { hashPW } from "../service/authSvc";
+import { CustomError } from "../errors/CustomError";
 
 export let router = express.Router();
 
-router.get("/ping", (req : Request, res: Response) => {
-  res.status(200).json({msg : "pong"});
+router.get("/ping", async (req: Request, res: Response) => {
+  // const session = driver.session();
+  // const result = await session.run<{u:{properties:{email:string, pw:string}}}>("CREATE (u:Profile {email:'t2@yahoo.com' ,pw:'123456' }) RETURN u");
+  // console.log("this is result0 " + result.records[0].get("u")); // Should log the created user
+  // console.log(result.records[0].get("u").properties); // Should log the created user
+  // const result2 = await session.run(ConstMatcha.NEO4j_STMT_GET_ALL_USERS);
+  // console.log("this is result2 " + result2.records[0].get("u")); // Should log the created user
+  // session.close();
+  // console.log(result2.records[0].get("u").properties);
+  res.status(200).json({ msg: "pong" });
+});
+
+router.post("/login", async (req: Request<{token:string}, {}, { email: string, password: string }>, res: Response, next: NextFunction) => {
+  // todo: implement email login link logic here
+  const { token } = req.params;
+  
+  // normal login with email and password
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Email and/or password are required",
+      logging: false,
+      context: { email: !email ? "missing" : "present", password: !password ? "missing" : "present" }
+    }));
+  }
+  const jwt = await loginSvc(email, password);
+  if (jwt.length === 0) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Invalid email and/or password",
+      logging: true,
+      context: { email: "invalid", password: "invalid" }
+    }));
+  }
+  res.status(200).json({ msg: jwt });
+});
+
+router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response, next: NextFunction) => {
+  const { email, pw, pw2, firstName, lastName, username } = req.body;
+  if (!email || !pw || !pw2 || !firstName || !lastName || !username) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Email, passwords, first name, last name, and/or username are required",
+      logging: false,
+      context: { 
+        email: !email ? "missing" : "present", 
+        pw: !pw ? "missing" : "present", 
+        pw2: !pw2 ? "missing" : "present", 
+        firstName: !firstName ? "missing" : "present", 
+        lastName: !lastName ? "missing" : "present", 
+        username: !username ? "missing" : "present" 
+      }
+    }));
+  }
+  if (pw !== pw2) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Passwords do not match",
+      logging: true,
+      context: { pw: "mismatch" }
+    }));
+  }
+  if (!isPwValid(pw)) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Password does not meet complexity requirements",
+      logging: true,
+      context: { pw: "invalid" }
+    }));
+  }
+  const userExists = await isUser(email);
+  if (userExists) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Email is already registered",
+      logging: false,
+      context: { email: "already registered" }
+    }));
+  }
+  const hashedpw = await hashPW(pw);
+  try {
+    await createUser( email, hashedpw, firstName, lastName, username );
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return next(new BadRequestError({
+        code: 400,
+        message: "User registration failed",
+        logging: true,
+        context: { email: "registration failed" }
+      }));
+    }
+    return next(error);
+  }
+  // todo: create jwt token, send email verification link with jwt token
+  res.status(200).json({ msg: "registered and activation email sent to " + email });
 });
 
 export default router;

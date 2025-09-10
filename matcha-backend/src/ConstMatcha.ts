@@ -34,9 +34,9 @@ export default class ConstMatcha{
   static readonly DEFAULT_BIOGRAPHY = "";
 
   // sexual preference
-  static readonly SEXUAL_PREFERENCE_MALE = "male";
-  static readonly SEXUAL_PREFERENCE_FEMALE = "female";
-  static readonly SEXUAL_PREFERENCE_BISEXUAL = "bisexual";
+  static readonly SEXUAL_PREFERENCE_MALE = 1;
+  static readonly SEXUAL_PREFERENCE_FEMALE = 2;
+  static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
 
   // statement for neo4j
   static readonly NEO4j_STMT_CREATE_USER = `
