@@ -21,6 +21,7 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "neo4j-driver": "^5.28.1",
+    "nodemailer": "^7.0.6",
     "pg": "^8.13.0",
     "pino": "^9.4.0"
   },
@@ -28,7 +29,9 @@
     "@jest/globals": "^29.7.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.7.4",
+    "@types/nodemailer": "^7.0.1",
     "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
     "concurrently": "^9.0.1",
