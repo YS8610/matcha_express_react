@@ -17,7 +17,7 @@ export default class ConstMatcha{
   static readonly ARGON_SECRET = Buffer.from(process.env.HASHING_SECRET || "uKDFkACTga43Qz9Z7V5vGWERXcsdr6hL");
 
   // constant for jwt secret
-  static readonly JWT_SECRET = process.env.JWT_SECRET || "n6r8bhHVU9qJ3Rvf7tdYA4ZTPD2pKBjy";
+  static readonly JWT_SECRET = process.env.JWT_SECRET || "jwtsecret";
   static readonly JWT_EXPIRY = "20d";
 
   // default value for neo4j
@@ -31,7 +31,7 @@ export default class ConstMatcha{
   static readonly DEFAULT_TAG_PHOTO = "PHOTO";
   static readonly DEFAULT_FAME_RATING = 0;
   static readonly DEFAULT_AGE = 0;
-  static readonly DEFAULT_BIOGRAPHY = "";
+  static readonly DEFAULT_BIOGRAPHY = "\"my biography\"";
 
   // sexual preference
   static readonly SEXUAL_PREFERENCE_MALE = 1;
