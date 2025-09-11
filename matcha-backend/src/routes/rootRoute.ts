@@ -1,13 +1,14 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError";
 import { ProfileJson } from "../model/profile";
-import { createUser, getUsers, isPwValid, isUser, loginSvc } from "../service/userSvc";
-import { hashPW } from "../service/authSvc";
+import { createUser, getUsers, isPwValid, isUser } from "../service/userSvc";
+import { hashPW, loginSvc } from "../service/authSvc";
 import { CustomError } from "../errors/CustomError";
+import { createToken, verifyToken } from "../service/jwtSvc";
 
 export let router = express.Router();
 
-router.get("/ping", async (req: Request, res: Response) => {
+router.get("/ping", async (req: Request, res: Response<{msg:string}>) => {
   // const session = driver.session();
   // const result = await session.run<{u:{properties:{email:string, pw:string}}}>("CREATE (u:Profile {email:'t2@yahoo.com' ,pw:'123456' }) RETURN u");
   // console.log("this is result0 " + result.records[0].get("u")); // Should log the created user
@@ -16,10 +17,18 @@ router.get("/ping", async (req: Request, res: Response) => {
   // console.log("this is result2 " + result2.records[0].get("u")); // Should log the created user
   // session.close();
   // console.log(result2.records[0].get("u").properties);
-  res.status(200).json({ msg: "pong" });
+  // try {
+  //   const token = await createToken("t2@yahoo.com", "testuser");
+  //   const decode = await verifyToken(token);
+  //   console.log("this is decode " + JSON.stringify(decode));
+  //   res.status(200).json({ msg: "pong " + token });
+    
+  // } catch (error) {
+  //   res.status(500).json({ msg: "failed to create token" });
+  // }
 });
 
-router.post("/login", async (req: Request<{token:string}, {}, { email: string, password: string }>, res: Response, next: NextFunction) => {
+router.post("/login", async (req: Request<{token:string}, {}, { email: string, password: string }>, res: Response<{msg:string}>, next: NextFunction) => {
   // todo: implement email login link logic here
   const { token } = req.params;
   
@@ -33,19 +42,23 @@ router.post("/login", async (req: Request<{token:string}, {}, { email: string, p
       context: { email: !email ? "missing" : "present", password: !password ? "missing" : "present" }
     }));
   }
-  const jwt = await loginSvc(email, password);
-  if (jwt.length === 0) {
-    return next(new BadRequestError({
+  try {
+    const jwt = await loginSvc(email, password);
+    if (jwt.length === 0) {
+      return next(new BadRequestError({
       code: 400,
       message: "Invalid email and/or password",
       logging: true,
       context: { email: "invalid", password: "invalid" }
-    }));
+      }));
+    }
+    res.status(200).json({ msg: jwt });
+  } catch (error) {
+    return next(error);
   }
-  res.status(200).json({ msg: jwt });
 });
 
-router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response, next: NextFunction) => {
+router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response<{msg:string}, {}>, next: NextFunction) => {
   const { email, pw, pw2, firstName, lastName, username } = req.body;
   if (!email || !pw || !pw2 || !firstName || !lastName || !username) {
     return next(new BadRequestError({
@@ -90,19 +103,13 @@ router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response
   const hashedpw = await hashPW(pw);
   try {
     await createUser( email, hashedpw, firstName, lastName, username );
+    // todo: send email verification link with jwt token
+    const token = await createToken(email, username);
   } catch (error) {
-    if (error instanceof CustomError) {
-      return next(new BadRequestError({
-        code: 400,
-        message: "User registration failed",
-        logging: true,
-        context: { email: "registration failed" }
-      }));
-    }
     return next(error);
   }
-  // todo: create jwt token, send email verification link with jwt token
-  res.status(200).json({ msg: "registered and activation email sent to " + email });
+  res.status(200).json({ msg : "registered and activation email sent to " + email });
+
 });
 
 export default router;

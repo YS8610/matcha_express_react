@@ -1,19 +1,6 @@
 import ConstMatcha from "../ConstMatcha";
 import driver from "../repo/neo4jRepo";
 
-export const loginSvc = async (email: string, password: string): Promise<string> => {
-  // todo: implement login logic here
-  const session = driver.session();
-  const result = await session.run(ConstMatcha.NEO4j_STMT_FIND_USER_BY_EMAIL, { email });
-  session.close();
-  if (result.records.length === 0)
-    return "";
-  const user = result.records[0].get("u").properties;
-  // Here you would normally verify the password and generate a JWT token 
-  // For simplicity, we return a dummy token
-  return "dummy-jwt-token";
-};
-
 export const isUser = async (email: string): Promise<boolean> => {
   // todo: implement email presence check
   const session = driver.session();
