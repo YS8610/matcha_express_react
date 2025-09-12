@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { Message } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,17 +17,7 @@ export default function Chat({ userId }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    loadMessages();
-    const interval = setInterval(loadMessages, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [userId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const data = await api.getMessages(userId);
       setMessages(data);
@@ -36,7 +26,17 @@ export default function Chat({ userId }: ChatProps) {
       console.error('Failed to load messages:', error);
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadMessages();
+    const interval = setInterval(loadMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [userId, loadMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

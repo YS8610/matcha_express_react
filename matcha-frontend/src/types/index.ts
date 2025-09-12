@@ -26,6 +26,7 @@ export interface Profile {
   hasLikedMe?: boolean;
   isConnected?: boolean;
   isBlocked?: boolean;
+  isOnline?: boolean;
 }
 
 export interface Photo {

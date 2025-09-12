@@ -64,8 +64,8 @@ export default function ProfileSetup() {
       }
 
       router.push('/browse');
-    } catch (err: any) {
-      setError(err.message || 'Failed to setup profile');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to setup profile');
     } finally {
       setLoading(false);
     }

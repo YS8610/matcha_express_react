@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { generateAvatarUrl, generatePlaceholderImage } from '@/utils/avatar';
+import { generateAvatarUrl } from '@/utils/avatar';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProfileViewProps {
   userId: string;
@@ -22,6 +24,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     } else {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadProfile = async () => {
@@ -92,15 +95,17 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-96">
-          <img
-            src={profile.profilePhoto || generateAvatarUrl((profile as any).firstName || (profile as any).username, profile.userId || profile.id)}
-            alt={profile.userId}
+          <Image
+            src={profile.profilePhoto || generateAvatarUrl((profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || 'User', profile.userId || profile.id)}
+            alt={profile.userId || 'Profile'}
+            width={1024}
+            height={384}
             className="w-full h-full object-cover"
           />
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
             <h1 className="text-3xl font-bold text-white">
-              {(profile as any).firstName || (profile as any).username || profile.userId}, {profile.age}
+              {(profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || profile.userId}, {profile.age}
             </h1>
             <p className="text-white/90">
               {profile.location?.city || 'Unknown location'}
@@ -123,7 +128,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
           {profile.isConnected && (
             <div className="bg-green-100 text-green-800 p-3 rounded-md mb-4">
-              You're connected! You can now chat.
+              You&apos;re connected! You can now chat.
             </div>
           )}
 
@@ -157,10 +162,12 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               <h2 className="text-xl font-semibold mb-2">Photos</h2>
               <div className="grid grid-cols-3 gap-2">
                 {profile.photos.map(photo => (
-                  <img
+                  <Image
                     key={photo.id}
                     src={photo.url}
                     alt=""
+                    width={128}
+                    height={128}
                     className="w-full h-32 object-cover rounded-md"
                   />
                 ))}
@@ -182,12 +189,12 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               </button>
               
               {profile.isConnected && (
-                <a
+                <Link
                   href={`/chat/${userId}`}
                   className="flex-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 text-center"
                 >
                   Chat
-                </a>
+                </Link>
               )}
               
               <button

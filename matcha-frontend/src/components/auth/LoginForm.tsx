@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginForm() {
@@ -27,8 +28,8 @@ export default function LoginForm() {
     try {
       await login(username, password);
       router.push('/browse');
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -95,14 +96,14 @@ export default function LoginForm() {
         </button>
 
         <div className="text-center space-y-2">
-          <a href="/forgot-password" className="text-green-600 hover:text-green-700 hover:underline text-sm transition-colors">
+          <Link href="/forgot-password" className="text-green-600 hover:text-green-700 hover:underline text-sm transition-colors">
             Forgot Password?
-          </a>
+          </Link>
           <div className="text-sm">
-            Don't have an account?{' '}
-            <a href="/register" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
+            {`Don't have an account? `}
+            <Link href="/register" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
               Register
-            </a>
+            </Link>
           </div>
         </div>
       </form>

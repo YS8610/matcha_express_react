@@ -129,7 +129,7 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
             value={localFilters.sortBy || 'distance'}
             onChange={(e) => setLocalFilters({
               ...localFilters,
-              sortBy: e.target.value as any
+              sortBy: e.target.value as 'age' | 'distance' | 'fame' | 'commonTags'
             })}
             className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >
@@ -146,7 +146,7 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
             value={localFilters.order || 'asc'}
             onChange={(e) => setLocalFilters({
               ...localFilters,
-              order: e.target.value as any
+              order: e.target.value as 'asc' | 'desc'
             })}
             className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >

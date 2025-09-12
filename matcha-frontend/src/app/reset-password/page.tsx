@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -29,23 +29,28 @@ export default function ResetPasswordPage() {
       return false;
     }
     
-    const hasUpper = /[A-Z]/.test(pass);
-    const hasLower = /[a-z]/.test(pass);
-    const hasNumber = /\d/.test(pass);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
+    let strength = 0;
+    if (pass.match(/[a-z]/)) strength++;
+    if (pass.match(/[A-Z]/)) strength++;
+    if (pass.match(/[0-9]/)) strength++;
+    if (pass.match(/[^a-zA-Z0-9]/)) strength++;
     
-    const strength = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
-    
-    if (strength === 4) {
-      setPasswordStrength('Strong');
-      return true;
-    } else if (strength === 3) {
+    if (strength < 2) {
+      setPasswordStrength('Weak');
+      return false;
+    } else if (strength < 3) {
       setPasswordStrength('Medium');
       return true;
     } else {
-      setPasswordStrength('Weak');
-      return false;
+      setPasswordStrength('Strong');
+      return true;
     }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    checkPasswordStrength(newPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +58,7 @@ export default function ResetPasswordPage() {
     setError('');
 
     if (!token) {
-      setError('Invalid or missing reset token');
+      setError('Reset token is missing');
       return;
     }
 
@@ -63,7 +68,7 @@ export default function ResetPasswordPage() {
     }
 
     if (!checkPasswordStrength(password)) {
-      setError('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character');
+      setError('Password is too weak');
       return;
     }
 
@@ -75,8 +80,8 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/login');
       }, 3000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -104,7 +109,7 @@ export default function ResetPasswordPage() {
               Password reset successful!
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Your password has been reset. Redirecting to login...
+              Your password has been updated. Redirecting to login...
             </p>
           </div>
         </div>
@@ -137,10 +142,7 @@ export default function ResetPasswordPage() {
                 autoComplete="new-password"
                 required
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  checkPasswordStrength(e.target.value);
-                }}
+                onChange={handlePasswordChange}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Enter new password"
               />
@@ -154,10 +156,10 @@ export default function ResetPasswordPage() {
                 </p>
               )}
             </div>
-
+            
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm New Password
+                Confirm Password
               </label>
               <input
                 id="confirmPassword"
@@ -170,11 +172,6 @@ export default function ResetPasswordPage() {
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Confirm new password"
               />
-              {confirmPassword && password !== confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
-                  Passwords do not match
-                </p>
-              )}
             </div>
           </div>
 
@@ -207,7 +204,7 @@ export default function ResetPasswordPage() {
               disabled={loading || !token}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Resetting...' : 'Reset password'}
+              {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </div>
 
@@ -222,5 +219,20 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

@@ -157,7 +157,6 @@ function generateUsername(firstName: string, lastName: string, index: number): s
 function generateAge(): number {
   const min = 18;
   const max = 65;
-  const skew = 1.5;
   const u = Math.random();
   const v = Math.random();
   const num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);

@@ -18,8 +18,8 @@ export default function ForgotPasswordPage() {
     try {
       await api.forgotPassword(email);
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send reset email');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to send reset email');
     } finally {
       setLoading(false);
     }
@@ -47,10 +47,10 @@ export default function ForgotPasswordPage() {
               Check your email
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              We've sent a password reset link to {email}
+              We&apos;ve sent a password reset link to {email}
             </p>
             <p className="mt-4 text-xs text-gray-500">
-              If you don't see the email, check your spam folder.
+              If you don&apos;t see the email, check your spam folder.
             </p>
             <Link
               href="/login"
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
             Forgot your password?
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
         

@@ -50,7 +50,7 @@ class ApiClient {
     return response.json();
   }
 
-  async register(data: any) {
+  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string}) {
     return this.request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -96,7 +96,7 @@ class ApiClient {
     return this.request(endpoint);
   }
 
-  async updateProfile(data: any) {
+  async updateProfile(data: Record<string, unknown>) {
     return this.request('/profiles/me', {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -110,17 +110,17 @@ class ApiClient {
     return this.request('/profiles/photos', {
       method: 'POST',
       headers: {},
-      body: formData as any,
+      body: formData as BodyInit,
     });
   }
 
-  async getSuggestions(filters?: any) {
-    const params = new URLSearchParams(filters).toString();
+  async getSuggestions(filters?: Record<string, unknown>) {
+    const params = new URLSearchParams(filters as Record<string, string>).toString();
     return this.request(`/browse/suggestions?${params}`);
   }
 
-  async search(criteria: any) {
-    const params = new URLSearchParams(criteria).toString();
+  async search(criteria: Record<string, unknown>) {
+    const params = new URLSearchParams(criteria as Record<string, string>).toString();
     return this.request(`/search?${params}`);
   }
 

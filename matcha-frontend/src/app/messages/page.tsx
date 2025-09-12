@@ -5,6 +5,8 @@ import { api } from '@/lib/api';
 import { Conversation } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { generateAvatarUrl } from '@/utils/avatar';
 import { MessageCircle, Leaf, Clock } from 'lucide-react';
 
@@ -66,16 +68,18 @@ export default function MessagesPage() {
       ) : (
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl divide-y divide-green-100 border border-green-100 overflow-hidden">
           {conversations.map(conversation => (
-            <a
+            <Link
               key={conversation.userId}
               href={`/chat/${conversation.userId}`}
               className="block p-5 hover:bg-green-50 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <img
+                  <Image
                     src={conversation.profilePhoto || generateAvatarUrl(conversation.username, conversation.userId)}
                     alt={conversation.username}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                   {conversation.isOnline && (
@@ -100,7 +104,7 @@ export default function MessagesPage() {
                   )}
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       )}

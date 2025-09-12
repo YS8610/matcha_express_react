@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterForm() {
@@ -59,8 +60,8 @@ export default function RegisterForm() {
         password: formData.password,
       });
       router.push('/verify-email');
-    } catch (err: any) {
-      setError(err.message || 'Registration failed');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -183,10 +184,10 @@ export default function RegisterForm() {
       </button>
 
       <div className="text-center text-sm">
-        Already have an account?{' '}
-        <a href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
+        {`Already have an account? `}
+        <Link href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
           Login
-        </a>
+        </Link>
       </div>
     </form>
   );

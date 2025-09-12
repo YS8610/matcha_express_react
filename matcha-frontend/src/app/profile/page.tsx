@@ -5,7 +5,9 @@ import { api } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { User, Star, Heart, Eye, Edit, MapPin, Leaf } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { User, Star, Heart, Eye, Edit, Leaf } from 'lucide-react';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -53,9 +55,11 @@ export default function MyProfilePage() {
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl overflow-hidden border border-green-100">
           <div className="relative h-64">
             {profile.profilePhoto ? (
-              <img
+              <Image
                 src={profile.profilePhoto}
                 alt="Profile"
+                width={1024}
+                height={256}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -73,13 +77,13 @@ export default function MyProfilePage() {
                 </h1>
                 <p className="text-green-600">@{user?.username}</p>
               </div>
-              <a
+              <Link
                 href="/profile/edit"
                 className="px-5 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2"
               >
                 <Edit className="w-4 h-4" />
                 Edit Profile
-              </a>
+              </Link>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -106,14 +110,14 @@ export default function MyProfilePage() {
                   Stats
                 </h2>
                 <div className="space-y-2">
-                  <a href="/profile/views" className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:underline transition-colors">
+                  <Link href="/profile/views" className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:underline transition-colors">
                     <Eye className="w-4 h-4" />
                     View profile visitors →
-                  </a>
-                  <a href="/profile/likes" className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:underline transition-colors">
+                  </Link>
+                  <Link href="/profile/likes" className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:underline transition-colors">
                     <Heart className="w-4 h-4" />
                     See who liked you →
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -142,10 +146,12 @@ export default function MyProfilePage() {
                 <h2 className="font-semibold mb-3 text-green-800">Photos</h2>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                   {profile.photos.map(photo => (
-                    <img
+                    <Image
                       key={photo.id}
                       src={photo.url}
                       alt=""
+                      width={96}
+                      height={96}
                       className="w-full h-24 object-cover rounded-lg border border-green-200 hover:border-green-400 transition-colors"
                     />
                   ))}

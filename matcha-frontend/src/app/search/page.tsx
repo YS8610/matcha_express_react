@@ -35,7 +35,7 @@ export default function SearchPage() {
     setLoading(true);
     setSearched(true);
 
-    const searchCriteria: any = {};
+    const searchCriteria: Record<string, string | number | string[]> = {};
     if (criteria.ageMin) searchCriteria.ageMin = parseInt(criteria.ageMin);
     if (criteria.ageMax) searchCriteria.ageMax = parseInt(criteria.ageMax);
     if (criteria.fameMin) searchCriteria.fameMin = parseInt(criteria.fameMin);

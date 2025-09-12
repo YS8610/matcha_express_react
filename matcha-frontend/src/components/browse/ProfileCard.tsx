@@ -3,6 +3,8 @@
 import { Profile } from '@/types';
 import { Star, Leaf } from 'lucide-react';
 import { generateAvatarUrl } from '@/utils/avatar';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProfileCardProps {
   profile: Profile;
@@ -10,21 +12,23 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const profileId = profile.id || profile.userId;
-  const displayName = (profile as any).firstName || (profile as any).username || `User ${profileId}`;
+  const displayName = (profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || `User ${profileId}`;
   
   return (
-    <a
+    <Link
       href={`/profile/${profileId}`}
       className="relative z-10 block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border border-green-100"
     >
       <div className="relative h-64">
-        <img
+        <Image
           src={profile.profilePhoto || generateAvatarUrl(displayName, profileId)}
           alt={`Profile ${profileId}`}
+          width={300}
+          height={256}
           className="w-full h-full object-cover"
         />
         
-        {(profile as any).isOnline && (
+        {(profile as Profile & {isOnline?: boolean}).isOnline && (
           <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         )}
         
@@ -73,6 +77,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           )}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }

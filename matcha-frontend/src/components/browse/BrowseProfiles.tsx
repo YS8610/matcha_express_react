@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Profile, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
@@ -25,6 +25,7 @@ export default function BrowseProfiles() {
 
   useEffect(() => {
     loadProfiles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function BrowseProfiles() {
   const loadProfiles = async () => {
     setLoading(true);
     try {
-      const data = await api.getSuggestions(filters);
+      const data = await api.getSuggestions(filters as Record<string, unknown>);
       
       // Ensure unique profiles by ID
       const uniqueProfiles = data.filter((profile: Profile, index: number, self: Profile[]) =>

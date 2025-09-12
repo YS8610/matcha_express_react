@@ -40,11 +40,5 @@ requirements, but we strongly encourage you to go beyond them everything depends
 
 ## Frontend TODO
 
-- All backend stuff are currently mocked on the frontend, to integrate once ready.
 - Make sure color is matcha theme, location wise based in Singapore.
-- Currently tailwindcss syntax using version 3, need to switch to version 4.
-
-## Backend Notes
-
-- using express, typescript, postgresql, helmetjs
-- yet to see any api endpoint, auth, db table
+- Currently tailwindcss syntax using version 4.

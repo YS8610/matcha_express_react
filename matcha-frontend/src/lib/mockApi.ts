@@ -344,7 +344,7 @@ export class MockApiClient {
     throw new Error(`Endpoint not found: ${endpoint}`);
   }
 
-  async register(data: any) {
+  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string}) {
     return this.request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -356,8 +356,8 @@ export class MockApiClient {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
-    if (response.token) {
-      this.setToken(response.token);
+    if (response && typeof response === 'object' && 'token' in response) {
+      this.setToken((response as { token: string }).token);
     }
     return response;
   }
@@ -390,7 +390,7 @@ export class MockApiClient {
     return this.request(endpoint);
   }
 
-  async updateProfile(data: any) {
+  async updateProfile(data: Record<string, unknown>) {
     return this.request('/profiles/me', {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -404,17 +404,17 @@ export class MockApiClient {
     return this.request('/profiles/photos', {
       method: 'POST',
       headers: {},
-      body: formData as any,
+      body: formData as BodyInit,
     });
   }
 
-  async getSuggestions(filters?: any) {
-    const params = new URLSearchParams(filters).toString();
+  async getSuggestions(filters?: Record<string, unknown>) {
+    const params = new URLSearchParams(filters as Record<string, string>).toString();
     return this.request(`/browse/suggestions?${params}`);
   }
 
-  async search(criteria: any) {
-    const params = new URLSearchParams(criteria).toString();
+  async search(criteria: Record<string, unknown>) {
+    const params = new URLSearchParams(criteria as Record<string, string>).toString();
     return this.request(`/search?${params}`);
   }
 
