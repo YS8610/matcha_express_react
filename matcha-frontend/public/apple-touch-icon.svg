@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <defs>
+    <linearGradient id="matchaGradientApple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7cb342;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#689f38;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#558b2f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGradientApple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8bc34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#689f38;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="180" height="180" fill="#f1f8e9"/>
+  
+  <!-- Heart shape with matcha gradient (scaled up) -->
+  <path d="M90 140c-2.2 0-4.4-1.1-6.1-2.2l-36.2-36.2c-8.9-8.9-8.9-23.3 0-32.2 4.4-4.4 10-6.6 16.1-6.6s11.7 2.2 16.1 6.6l10 10 10-10c8.9-8.9 23.3-8.9 32.2 0 8.9 8.9 8.9 23.3 0 32.2l-36.2 36.2c-1.7 1.1-3.9 2.2-6.1 2.2z" fill="url(#matchaGradientApple)"/>
+  
+  <!-- Tea leaf accent on top of heart (scaled up) -->
+  <path d="M90 45c0 0-11 11-11 22 0 6.1 4.9 11 11 11s11-4.9 11-11c0-11-11-22-11-22z" fill="url(#leafGradientApple)" opacity="0.9"/>
+  
+  <!-- Small decorative dots (scaled up) -->
+  <circle cx="56" cy="56" r="5.5" fill="#aed581" opacity="0.6"/>
+  <circle cx="124" cy="56" r="5.5" fill="#aed581" opacity="0.6"/>
+</svg>

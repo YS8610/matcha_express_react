@@ -59,7 +59,7 @@ export default function RegisterForm() {
         lastName: formData.lastName,
         password: formData.password,
       });
-      router.push('/verify-email');
+      router.push('/login');
     } catch (err: unknown) {
       setError((err as Error).message || 'Registration failed');
     } finally {

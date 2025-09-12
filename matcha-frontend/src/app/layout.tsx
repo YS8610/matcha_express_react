@@ -23,7 +23,10 @@ export const metadata: Metadata = {
       { url: '/favicon.ico' },
       { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
+    apple: '/apple-touch-icon.svg',
   },
+  manifest: '/manifest.json',
+  themeColor: '#689f38',
 };
 
 export default function RootLayout({

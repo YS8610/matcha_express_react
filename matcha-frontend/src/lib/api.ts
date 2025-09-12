@@ -1,8 +1,6 @@
-import { MockApiClient } from './mockApi';
 import { setCookie, deleteCookie } from './cookies';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const USE_MOCK = !API_URL || process.env.NEXT_PUBLIC_USE_MOCK === 'true';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 class ApiClient {
   private token: string | null = null;
@@ -50,31 +48,34 @@ class ApiClient {
     return response.json();
   }
 
-  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string}) {
-    return this.request('/auth/register', {
+  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string, password2?: string}) {
+    const requestData = {
+      email: data.email,
+      pw: data.password,
+      pw2: data.password2 || data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username
+    };
+    return this.request('/register', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(requestData),
     });
   }
 
-  async login(username: string, password: string) {
-    const response = await this.request('/auth/login', {
+  async login(email: string, password: string) {
+    const response = await this.request('/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
-    if (response.token) {
-      this.setToken(response.token);
+    if (response.msg) {
+      this.setToken(response.msg);
     }
     return response;
   }
 
   async logout() {
-    await this.request('/auth/logout', { method: 'POST' });
     this.clearToken();
-  }
-
-  async verifyEmail(token: string) {
-    return this.request(`/auth/verify/${token}`, { method: 'POST' });
   }
 
   async forgotPassword(email: string) {
@@ -173,13 +174,14 @@ class ApiClient {
   async getLikes() {
     return this.request('/stats/likes');
   }
+
+  async ping() {
+    return this.request('/ping');
+  }
 }
 
-export const api = USE_MOCK ? new MockApiClient() : new ApiClient();
+export const api = new ApiClient();
 
 if (typeof window !== 'undefined') {
-  console.log(`[API] Using ${USE_MOCK ? 'MOCK' : 'REAL'} API${!USE_MOCK ? ` at ${API_URL}` : ''}`);
-  if (USE_MOCK) {
-    console.log('[API] Mock Mode: Login with username "demo" and password "password"');
-  }
+  console.log(`[API] Using API at ${API_URL}`);
 }

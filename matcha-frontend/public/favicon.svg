@@ -1,10 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#e63946;stop-opacity:1" />
+    <linearGradient id="matchaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7cb342;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#689f38;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#558b2f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8bc34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#689f38;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <circle cx="16" cy="16" r="15" fill="#fff" stroke="#ff6b9d" stroke-width="1"/>
-  <path d="M16 26.5c-.5 0-1-.2-1.4-.5l-8.1-8.1c-2-2-2-5.2 0-7.2 1-1 2.3-1.5 3.6-1.5s2.6.5 3.6 1.5l2.3 2.3 2.3-2.3c2-2 5.2-2 7.2 0 2 2 2 5.2 0 7.2l-8.1 8.1c-.4.3-.9.5-1.4.5z" fill="url(#heartGradient)"/>
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#f1f8e9" stroke="#689f38" stroke-width="1"/>
+  
+  <!-- Heart shape with matcha gradient -->
+  <path d="M16 25c-.4 0-.8-.2-1.1-.4l-6.5-6.5c-1.6-1.6-1.6-4.2 0-5.8.8-.8 1.8-1.2 2.9-1.2s2.1.4 2.9 1.2l1.8 1.8 1.8-1.8c1.6-1.6 4.2-1.6 5.8 0 1.6 1.6 1.6 4.2 0 5.8l-6.5 6.5c-.3.2-.7.4-1.1.4z" fill="url(#matchaGradient)"/>
+  
+  <!-- Tea leaf accent on top of heart -->
+  <path d="M16 8c0 0-2 2-2 4 0 1.1.9 2 2 2s2-.9 2-2c0-2-2-4-2-4z" fill="url(#leafGradient)" opacity="0.9"/>
+  
+  <!-- Small decorative dots -->
+  <circle cx="10" cy="10" r="1" fill="#aed581" opacity="0.6"/>
+  <circle cx="22" cy="10" r="1" fill="#aed581" opacity="0.6"/>
 </svg>

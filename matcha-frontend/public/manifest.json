@@ -1,0 +1,26 @@
+{
+  "name": "Matcha - Find Your Perfect Match",
+  "short_name": "Matcha",
+  "description": "A modern dating app to find meaningful connections",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1f8e9",
+  "theme_color": "#689f38",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml"
+    }
+  ]
+}

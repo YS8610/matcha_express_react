@@ -38,7 +38,8 @@ npm run dev
 requirements, but we strongly encourage you to go beyond them everything depends on it.
     - not yet fully secured, to review and fix it.
 
-## Frontend TODO
+## Backend endpoints
 
-- Make sure color is matcha theme, location wise based in Singapore.
-- Currently tailwindcss syntax using version 4.
+- POST /api/register
+- POST /api/login
+- GET /api/ping

@@ -30,8 +30,6 @@ services:
     container_name: matcha-frontend
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
     depends_on:
       - backend
 
