@@ -28,10 +28,10 @@ export default class ConstMatcha{
 
   // default value for newly created user
   static readonly DEFAULT_TAG_PROFILE = "PROFILE";
-  static readonly DEFAULT_TAG_PHOTO = "PHOTO";
+  static readonly DEFAULT_GENDER = 0;
   static readonly DEFAULT_FAME_RATING = 0;
-  static readonly DEFAULT_AGE = 0;
-  static readonly DEFAULT_BIOGRAPHY = "\"my biography\"";
+  static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
+  static readonly DEFAULT_BIOGRAPHY = "\"\"";
 
   // sexual preference
   static readonly SEXUAL_PREFERENCE_MALE = 1;
@@ -41,34 +41,56 @@ export default class ConstMatcha{
   // statement for neo4j
   static readonly NEO4j_STMT_CREATE_USER = `
     CREATE (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {
-      email: $email,
-      pw: $password,
       firstName: $firstName,
       lastName: $lastName,
+      email: $email,
       username: $username,
+      pw: $password,
+      birthDate: date($birthDate),
       biography: ${ConstMatcha.DEFAULT_BIOGRAPHY},
-      gender: "",
+      gender: ${ConstMatcha.DEFAULT_GENDER},
       sexualPreference: ${ConstMatcha.SEXUAL_PREFERENCE_BISEXUAL},
-      age: ${ConstMatcha.DEFAULT_AGE},
       fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
+      photo0: "",
+      photo1: "",
+      photo2: "",
+      photo3: "",
+      photo4: "",
+      activated: false,
       createdAt: datetime(),
       updatedAt: datetime()
     })
     RETURN u
   `;
 
-  static readonly NEO4j_STMT_FIND_USER_BY_EMAIL = `
+  static readonly NEO4j_STMT_GET_USER_BY_EMAIL = `
     MATCH (u:PROFILE { email: $email })
     RETURN u
   `;
 
-  static readonly NEO4j_STMT_FIND_USER_BY_ID = `
-    MATCH (u:PROFILE) WHERE id(u) = $id
+  static readonly NEO4j_STMT_GET_USER_BY_USERNAME = `
+    MATCH (u:PROFILE { username: $username })
+    RETURN u
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME = `
+    MATCH (u:PROFILE { email: $email, username: $username })
+    RETURN u
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
     RETURN u
   `;
 
   static readonly NEO4j_STMT_GET_ALL_USERS = `
     MATCH (u:PROFILE)
+    RETURN u
+  `;
+
+  static readonly NEO4j_STMT_ACTIVATE_USER_BY_USERNAME = `
+    MATCH (u:PROFILE { username: $username })
+    SET u.activated = true
     RETURN u
   `;
 

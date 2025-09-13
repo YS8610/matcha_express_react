@@ -4,6 +4,7 @@ import driver from '../repo/neo4jRepo';
 import { ProfileDb } from '../model/profile';
 import { createToken } from './jwtSvc';
 import ServerRequestError from '../errors/ServerRequestError';
+import BadRequestError from '../errors/BadRequestError';
 
 export const option = {
   hashLength: ConstMatcha.ARGON_HASHLENGTH,
@@ -25,19 +26,27 @@ export const hashPW = async(pw:string) =>{
 }
 
 
-export const loginSvc = async (email: string, password: string): Promise<string> => {
+export const loginSvc = async (username: string, password: string): Promise<string> => {
   // todo: implement login logic here
   const session = driver.session();
-  const result = await session.run<{u:{properties:ProfileDb}}>(ConstMatcha.NEO4j_STMT_FIND_USER_BY_EMAIL, { email });
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
   session.close();
   if (result.records.length === 0)
     return "";
-  const profile = result.records[0].get("u").properties;
+  const profile = result.records[0].toObject();
+  if (!profile.activated){
+    throw new BadRequestError({
+      code: 400,
+      message: "Account not activated. Please check your email for the activation link.",
+      logging: false,
+      context: { username: "not activated" }
+    });
+  }
   try {
     const isValid = await verifyPW(profile.pw, password);
     if (!isValid)
       return "";
-    const token = await createToken(profile.email, profile.username);
+    const token = await createToken(profile.email, profile.username, profile.activated);
     return token;
   } catch (error) {
     throw new ServerRequestError({

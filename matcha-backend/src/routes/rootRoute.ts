@@ -1,13 +1,14 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError";
-import { ProfileJson } from "../model/profile";
-import { createUser, getUsers, isPwValid, isUser } from "../service/userSvc";
+import { ProfileRegJson } from "../model/profile";
+import { activateUserByUsername, createUser, getUsers, isPwValid, isUserByEmail, isUserByUsername, isValidDateStr } from "../service/userSvc";
 import { hashPW, loginSvc } from "../service/authSvc";
 import { CustomError } from "../errors/CustomError";
 import { createToken, verifyToken } from "../service/jwtSvc";
 
 export let router = express.Router();
 
+// testing purpose
 router.get("/ping", async (req: Request, res: Response<{msg:string}>) => {
   // const session = driver.session();
   // const result = await session.run<{u:{properties:{email:string, pw:string}}}>("CREATE (u:Profile {email:'t2@yahoo.com' ,pw:'123456' }) RETURN u");
@@ -26,30 +27,28 @@ router.get("/ping", async (req: Request, res: Response<{msg:string}>) => {
   // } catch (error) {
   //   res.status(500).json({ msg: "failed to create token" });
   // }
+  res.status(200).json({ msg: "pong" });
 });
 
-router.post("/login", async (req: Request<{token:string}, {}, { email: string, password: string }>, res: Response<{msg:string}>, next: NextFunction) => {
-  // todo: implement email login link logic here
-  const { token } = req.params;
-  
-  // normal login with email and password
-  const { email, password } = req.body;
-  if (!email || !password) {
+// login using username and password, return jwt token if successful
+router.post("/login", async (req: Request<{token:string}, {}, { username: string, password: string }>, res: Response<{msg:string}>, next: NextFunction) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
     return next(new BadRequestError({
       code: 400,
-      message: "Email and/or password are required",
+      message: "username and/or password are required",
       logging: false,
-      context: { email: !email ? "missing" : "present", password: !password ? "missing" : "present" }
+      context: { username: !username ? "missing" : "present", password: !password ? "missing" : "present" }
     }));
   }
   try {
-    const jwt = await loginSvc(email, password);
+    const jwt = await loginSvc(username, password);
     if (jwt.length === 0) {
       return next(new BadRequestError({
       code: 400,
-      message: "Invalid email and/or password",
+      message: "Invalid username and/or password",
       logging: true,
-      context: { email: "invalid", password: "invalid" }
+      context: { username: "invalid", password: "invalid" }
       }));
     }
     res.status(200).json({ msg: jwt });
@@ -58,12 +57,13 @@ router.post("/login", async (req: Request<{token:string}, {}, { email: string, p
   }
 });
 
-router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response<{msg:string}, {}>, next: NextFunction) => {
-  const { email, pw, pw2, firstName, lastName, username } = req.body;
-  if (!email || !pw || !pw2 || !firstName || !lastName || !username) {
+// user registration
+router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Response<{msg:string}, {}>, next: NextFunction) => {
+  const { email, pw, pw2, firstName, lastName, username, birthDate } = req.body;
+  if (!email || !pw || !pw2 || !firstName || !lastName || !username || !birthDate) {
     return next(new BadRequestError({
       code: 400,
-      message: "Email, passwords, first name, last name, and/or username are required",
+      message: "Email, passwords, first name, last name, birthDate, and/or username are required",
       logging: false,
       context: { 
         email: !email ? "missing" : "present", 
@@ -71,6 +71,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response
         pw2: !pw2 ? "missing" : "present", 
         firstName: !firstName ? "missing" : "present", 
         lastName: !lastName ? "missing" : "present", 
+        birthDate: !birthDate ? "missing" : "present",
         username: !username ? "missing" : "present" 
       }
     }));
@@ -79,7 +80,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response
     return next(new BadRequestError({
       code: 400,
       message: "Passwords do not match",
-      logging: true,
+      logging: false,
       context: { pw: "mismatch" }
     }));
   }
@@ -87,29 +88,67 @@ router.post("/register", async (req: Request<{}, {}, ProfileJson>, res: Response
     return next(new BadRequestError({
       code: 400,
       message: "Password does not meet complexity requirements",
-      logging: true,
+      logging: false,
       context: { pw: "invalid" }
     }));
   }
-  const userExists = await isUser(email);
+  if (!isValidDateStr(birthDate)) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Invalid birthDate format. Expected format: YYYY-MM-DD",
+      logging: false,
+      context: { birthDate: "invalid" }
+    }));
+  }
+  const userExists = await isUserByUsername(username);
   if (userExists) {
     return next(new BadRequestError({
       code: 400,
-      message: "Email is already registered",
+      message: "Username is already taken",
       logging: false,
-      context: { email: "already registered" }
+      context: { username: "already taken" }
     }));
   }
   const hashedpw = await hashPW(pw);
   try {
-    await createUser( email, hashedpw, firstName, lastName, username );
-    // todo: send email verification link with jwt token
+    await createUser( email, hashedpw, firstName, lastName, username, birthDate );
     const token = await createToken(email, username);
+    // todo: send email verification link with jwt token
   } catch (error) {
     return next(error);
   }
-  res.status(200).json({ msg : "registered and activation email sent to " + email });
+  res.status(201).json({ msg : "registered and activation email sent to " + email });
 
+});
+
+// activating user account from email link
+router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}>, res: Response<{msg:string}>, next: NextFunction) => {
+  const { token } = req.params;
+  if (!token){
+    res.status(400).json({ msg: "Token is required" });
+    return;
+  }
+  const decodedToken = await verifyToken(token);
+  if (!decodedToken || typeof decodedToken === "string") {
+    res.status(400).json({ msg: "Invalid token" });
+    return;
+  }
+  const { email, username } = decodedToken as { email: string, username: string };
+  if (!email || !username) {
+    res.status(400).json({ msg: "Invalid token" });
+    return;
+  }
+  try {
+    const activated = await activateUserByUsername(username);
+    if (!activated){
+      res.status(400).json({ msg: "Failed to activate account. Please contact support." });
+      return;
+    }
+    const activatedtoken = await createToken(email, username, true);
+    res.status(200).json({ msg: activatedtoken });
+  } catch (error) {
+    return next(error);
+  }
 });
 
 export default router;
