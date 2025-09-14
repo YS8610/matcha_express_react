@@ -8,9 +8,10 @@ import { getCookie, deleteCookie } from '@/lib/cookies';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (data: {username: string, email: string, firstName: string, lastName: string, password: string}) => Promise<void>;
+  register: (data: {username: string, email: string, firstName: string, lastName: string, birthDate: string, password: string, password2?: string}) => Promise<void>;
+  activateAccount: (token: string) => Promise<void>;
   updateUser: (user: User) => void;
 }
 
@@ -32,12 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (tokenParts.length === 3) {
           const payload = JSON.parse(atob(tokenParts[1]));
           setUser({
-            id: payload.email || 'user',
-            username: payload.username || payload.email?.split('@')[0] || 'user',
+            id: payload.username || 'user',
+            username: payload.username || 'user',
             email: payload.email || '',
             firstName: '',
             lastName: '',
-            emailVerified: false,
+            emailVerified: payload.activated || false,
             profileComplete: false,
             lastSeen: new Date(),
             isOnline: false
@@ -53,20 +54,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string) => {
-    const response = await api.login(email, password);
+  const login = async (username: string, password: string) => {
+    const response = await api.login(username, password);
     if (response.msg) {
       const token = response.msg;
       const tokenParts = token.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
         setUser({
-          id: payload.email || 'user',
-          username: payload.username || payload.email?.split('@')[0] || 'user',
-          email: payload.email || email,
+          id: payload.username || 'user',
+          username: payload.username || username,
+          email: payload.email || '',
           firstName: '',
           lastName: '',
-          emailVerified: false,
+          emailVerified: payload.activated || false,
           profileComplete: false,
           lastSeen: new Date(),
           isOnline: false
@@ -78,6 +79,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       api.clearToken();
+      localStorage.clear();
+      sessionStorage.clear();
+
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
       setUser(null);
       window.location.href = '/login';
     } catch (error) {
@@ -85,8 +95,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: {username: string, email: string, firstName: string, lastName: string, password: string}) => {
+  const register = async (data: {username: string, email: string, firstName: string, lastName: string, birthDate: string, password: string, password2?: string}) => {
     await api.register(data);
+  };
+
+  const activateAccount = async (token: string) => {
+    const response = await api.activateAccount(token);
+    if (response.msg) {
+      const newToken = response.msg;
+      const tokenParts = newToken.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        setUser({
+          id: payload.username || 'user',
+          username: payload.username || 'user',
+          email: payload.email || '',
+          firstName: '',
+          lastName: '',
+          emailVerified: true,
+          profileComplete: false,
+          lastSeen: new Date(),
+          isOnline: false
+        });
+      }
+    }
   };
 
   const updateUser = (user: User) => {
@@ -94,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, activateAccount, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

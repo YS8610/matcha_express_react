@@ -2,7 +2,7 @@
 
 import { Profile } from '@/types';
 import { Star, Leaf } from 'lucide-react';
-import { generateAvatarUrl } from '@/utils/avatar';
+import { generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 

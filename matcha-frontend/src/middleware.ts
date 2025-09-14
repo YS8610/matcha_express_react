@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+const publicPaths = ['/', '/login', '/register', '/activate'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
@@ -20,6 +20,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|pubapi|_next/static|_next/image|favicon.ico).*)',
   ],
 };

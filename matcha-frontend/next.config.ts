@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://backend:3001/api/:path*',
+        destination: 'http://matcha-backend:3001/api/:path*',
+      },
+      {
+        source: '/pubapi/:path*',
+        destination: 'http://matcha-backend:3001/pubapi/:path*',
       },
     ];
   },

@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { generateAvatarUrl } from '@/utils/avatar';
 import Link from 'next/link';
 import Image from 'next/image';
 

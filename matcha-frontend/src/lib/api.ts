@@ -1,6 +1,6 @@
 import { setCookie, deleteCookie } from './cookies';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_URL = '';
 
 class ApiClient {
   private token: string | null = null;
@@ -41,32 +41,36 @@ class ApiClient {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
+      if (errorData.errors && errorData.errors[0]) {
+        throw new Error(errorData.errors[0].message || `HTTP error! status: ${response.status}`);
+      }
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
   }
 
-  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string, password2?: string}) {
+  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string, password2?: string, birthDate: string}) {
     const requestData = {
       email: data.email,
       pw: data.password,
       pw2: data.password2 || data.password,
       firstName: data.firstName,
       lastName: data.lastName,
-      username: data.username
+      username: data.username,
+      birthDate: data.birthDate
     };
-    return this.request('/register', {
+    return this.request('/pubapi/register', {
       method: 'POST',
       body: JSON.stringify(requestData),
     });
   }
 
-  async login(email: string, password: string) {
-    const response = await this.request('/login', {
+  async login(username: string, password: string) {
+    const response = await this.request('/pubapi/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
     if (response.msg) {
       this.setToken(response.msg);
@@ -78,19 +82,14 @@ class ApiClient {
     this.clearToken();
   }
 
-  async forgotPassword(email: string) {
-    return this.request('/auth/forgot-password', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+  async activateAccount(token: string) {
+    const response = await this.request(`/pubapi/activate/${token}`);
+    if (response.msg) {
+      this.setToken(response.msg);
+    }
+    return response;
   }
 
-  async resetPassword(token: string, password: string) {
-    return this.request('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ token, password }),
-    });
-  }
 
   async getProfile(userId?: string) {
     const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/profiles/me';
@@ -98,7 +97,7 @@ class ApiClient {
   }
 
   async updateProfile(data: Record<string, unknown>) {
-    return this.request('/profiles/me', {
+    return this.request('/api/user/profile', {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -176,12 +175,55 @@ class ApiClient {
   }
 
   async ping() {
-    return this.request('/ping');
+    return this.request('/pubapi/ping');
   }
 }
 
 export const api = new ApiClient();
 
-if (typeof window !== 'undefined') {
-  console.log(`[API] Using API at ${API_URL}`);
+export function generateAvatarUrl(name?: string, id?: string): string {
+  const displayName = name || id || 'User';
+
+  const initials = displayName
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const colors = [
+    '007bff',
+    '28a745',
+    'dc3545',
+    'ffc107',
+    '17a2b8',
+    '6610f2',
+    'e83e8c',
+    '20c997',
+    'fd7e14',
+    '6f42c1',
+  ];
+
+  const hash = (displayName || '').split('').reduce((acc, char) => {
+    return char.charCodeAt(0) + ((acc << 5) - acc);
+  }, 0);
+
+  const colorIndex = Math.abs(hash) % colors.length;
+  const bgColor = colors[colorIndex];
+
+  const params = new URLSearchParams({
+    name: initials,
+    background: bgColor,
+    color: 'ffffff',
+    size: '400',
+    font: '0.5',
+    bold: 'true',
+    format: 'svg',
+  });
+
+  return `https://ui-avatars.com/api/?${params.toString()}`;
+}
+
+export function generatePlaceholderImage(width = 400, height = 400, text = 'No Image'): string {
+  return `https://via.placeholder.com/${width}x${height}/e0e0e0/666666?text=${encodeURIComponent(text)}`;
 }

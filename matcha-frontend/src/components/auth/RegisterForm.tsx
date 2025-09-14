@@ -11,6 +11,7 @@ export default function RegisterForm() {
     email: '',
     firstName: '',
     lastName: '',
+    birthDate: '',
     password: '',
     confirmPassword: '',
   });
@@ -57,9 +58,11 @@ export default function RegisterForm() {
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        birthDate: formData.birthDate,
         password: formData.password,
+        password2: formData.confirmPassword,
       });
-      router.push('/login');
+      router.push('/activate');
     } catch (err: unknown) {
       setError((err as Error).message || 'Registration failed');
     } finally {
@@ -136,6 +139,25 @@ export default function RegisterForm() {
             className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="birthDate" className="block text-sm font-medium mb-1 text-green-700">
+          Birth Date
+        </label>
+        <input
+          type="date"
+          id="birthDate"
+          name="birthDate"
+          value={formData.birthDate}
+          onChange={handleChange}
+          required
+          max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+          className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          You must be at least 18 years old
+        </p>
       </div>
 
       <div>

@@ -2,8 +2,6 @@
 
 Create dating website, inspiration using tinder website. Forever alone!
 
-Call to action and hero are actually website terminologies.
-
 ## Packages Required
 
 - sudo apt install git vim nodejs npm
@@ -18,28 +16,12 @@ cd matcha-frontend
 npm run dev
 ```
 
-"proxy": "http://localhost:8080", << set this proxy in package.json
-
-## Frontend PDF Checklist
-
-- Your application must be free of errors, warnings, or notices, both server-side and client-side.
-    - to check for npm build npm run and browser console, so far all cleared
-
-- For this project, you are free to use any programming language of your choice.
-    - used typescript, ts, tsx, html, css for frontend
-
-- You may use micro-frameworks and any necessary libraries for this project.
-    - next js is a full fledge frontend framework
-
-- You are free to use UI libraries such as React, Angular, Vue, Bootstrap, Semantic, or any combination of them.
-    - next.config.ts and postcss.config.mjs
-
-- No security vulnerabilities are allowed. You must address at least the mandatory security
-requirements, but we strongly encourage you to go beyond them everything depends on it.
-    - not yet fully secured, to review and fix it.
-
 ## Backend endpoints
 
-- POST /api/register
-- POST /api/login
-- GET /api/ping
+- /pubapi/ping - Health check
+- /pubapi/login - User login with username/password
+- /pubapi/register - User registration with all required fields
+- /pubapi/activate/:token - Account activation
+
+- Currently activation not fully implemented, need to wait before testing further.
+- /api/user/profile - Profile updates (protected route)

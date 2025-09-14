@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(username, password);
       router.push('/browse');
     } catch (err: unknown) {
       setError((err as Error).message || 'Login failed');
@@ -33,17 +33,17 @@ export default function LoginForm() {
     <div className="space-y-4 w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
-            Email
+          <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700">
+            Username
           </label>
           <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-            placeholder="Enter your email"
+            placeholder="Enter your username"
           />
         </div>
         
@@ -74,16 +74,11 @@ export default function LoginForm() {
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
-        <div className="text-center space-y-2">
-          <Link href="/forgot-password" className="text-green-600 hover:text-green-700 hover:underline text-sm transition-colors">
-            Forgot Password?
+        <div className="text-center text-sm">
+          {`Don't have an account? `}
+          <Link href="/register" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
+            Register
           </Link>
-          <div className="text-sm">
-            {`Don't have an account? `}
-            <Link href="/register" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
-              Register
-            </Link>
-          </div>
         </div>
       </form>
     </div>

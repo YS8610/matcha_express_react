@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { Conversation } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { generateAvatarUrl } from '@/utils/avatar';
 import { MessageCircle, Leaf, Clock } from 'lucide-react';
 
 export default function MessagesPage() {
