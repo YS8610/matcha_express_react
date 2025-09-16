@@ -12,6 +12,11 @@ const port = process.env.PORT || ConstMatcha.DEFAULT_PORT;
 const app = appfunc();
 
 app.listen(port, () => {
+  const session = driver.session();
+  session.run(ConstMatcha.NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID)
+    .then(() => {
+      clogger.info("[neo4j]: Ensured unique constraint on user id"); 
+    });
   clogger.info(`[server]: Server is running at http://localhost:${port}`);
 });
 

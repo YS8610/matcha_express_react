@@ -39,8 +39,15 @@ export default class ConstMatcha{
   static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
 
   // statement for neo4j
+  static readonly NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID = `
+    CREATE CONSTRAINT unique_id IF NOT EXISTS
+    FOR (u:${ConstMatcha.DEFAULT_TAG_PROFILE})
+    REQUIRE u.id IS UNIQUE
+  `;
+
   static readonly NEO4j_STMT_CREATE_USER = `
     CREATE (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {
+      id: $id,
       firstName: $firstName,
       lastName: $lastName,
       email: $email,
@@ -101,6 +108,11 @@ export default class ConstMatcha{
 
   static readonly NEO4j_STMT_SET_PW_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
+    SET u.pw = $hashedpw, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_SET_PW_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
     SET u.pw = $hashedpw, u.updatedAt = datetime()
   `;
 }

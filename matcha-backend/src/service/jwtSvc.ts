@@ -1,10 +1,10 @@
 import { sign, verify } from "jsonwebtoken";
 import ConstMatcha from "../ConstMatcha";
 
-export const createToken = (email: string, username: string, activated: boolean = false): Promise<string> => {
+export const createToken = (id: string, email: string, username: string, activated: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {
     const token = sign(
-      { email, username, activated },
+      { id, email, username, activated },
       ConstMatcha.JWT_SECRET,
       { algorithm: "HS512", expiresIn: ConstMatcha.JWT_EXPIRY },
       (err, token) => {
@@ -25,10 +25,10 @@ export const verifyToken = (token: string): Promise<string | object> => {
   });
 }
 
-export const createPWResetToken = (email: string, username: string, hashedpw:string): Promise<string> => {
+export const createPWResetToken = (id:string, email: string, username: string, hashedpw:string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const token = sign(
-      { email, username },
+      { id, email, username },
       hashedpw, 
       { algorithm: "HS512", expiresIn: "1h" },
       (err, token) => {

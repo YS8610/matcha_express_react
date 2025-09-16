@@ -47,9 +47,16 @@ export const setPwByUsername = async (username: string, hashedpw: string): Promi
   return;
 }
 
-export const createUser = async (email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<boolean> => {
+export const setPwById = async (id: string, hashedpw: string): Promise<void> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { email, password: hashedPassword, firstName, lastName, username, birthDate });
+  await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_ID, { id, hashedpw });
+  session.close();
+  return;
+}
+
+export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate });
   session.close();
   return result.records.length > 0;
 };

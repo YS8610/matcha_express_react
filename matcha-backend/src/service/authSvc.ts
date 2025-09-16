@@ -46,7 +46,7 @@ export const loginSvc = async (username: string, password: string): Promise<stri
     const isValid = await verifyPW(profile.pw, password);
     if (!isValid)
       return "";
-    const token = await createToken(profile.email, profile.username, profile.activated);
+    const token = await createToken(profile.id, profile.email, profile.username, profile.activated);
     return token;
   } catch (error) {
     throw new ServerRequestError({

@@ -1,7 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 
 
-export let router = express.Router();
+let router = express.Router();
 
 router.put("/profile", (req: Request, res: Response<{msg:string}>, next: NextFunction) => {
   

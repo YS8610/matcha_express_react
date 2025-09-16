@@ -1,11 +1,17 @@
 import express, { NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError";
 import { ProfileRegJson } from "../model/profile";
-import { activateUserByUsername, createUser, getHashedPwByUsername, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwByUsername } from "../service/userSvc";
+import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc";
 import { hashPW, loginSvc } from "../service/authSvc";
 import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc";
+import { AuthToken, token } from "../model/token";
+let uuidv4: () => string;
+(async () => {
+  const { v4 } = await import('uuid');
+  uuidv4 = v4;
+})();
 
-export let router = express.Router();
+let router = express.Router();
 
 // testing purpose
 router.get("/ping", async (req: Request, res: Response<{ msg: string }>) => {
@@ -109,9 +115,11 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
     }));
   }
   const hashedpw = await hashPW(pw);
+  const id = uuidv4();
   try {
-    await createUser(email, hashedpw, firstName, lastName, username, birthDate);
-    const token = await createToken(email, username);
+    await createUser(id, email, hashedpw, firstName, lastName, username, birthDate);
+    const token = await createToken(id, email, username, false);
+    console.log("this is activation link " + `http://localhost:3000/activate/${token}`);
     // todo: send email verification link with jwt token
   } catch (error) {
     return next(error);
@@ -132,8 +140,8 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
     res.status(400).json({ msg: "Invalid token" });
     return;
   }
-  const { email, username, activated } = decodedToken as { email: string, username: string, activated?: boolean };
-  if (!email || !username || activated === undefined) {
+  const { userId, email, username, activated } = decodedToken as AuthToken;
+  if (!userId || !email || !username || activated === undefined) {
     res.status(400).json({ msg: "Invalid token" });
     return;
   }
@@ -147,7 +155,8 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
       res.status(400).json({ msg: "Failed to activate account. Please contact support." });
       return;
     }
-    const activatedtoken = await createToken(email, username, true);
+
+    const activatedtoken = await createToken(userId, email, username, true);
     res.status(200).json({ msg: activatedtoken });
   } catch (error) {
     return next(error);
@@ -175,9 +184,11 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
     }));
   }
   try {
+    const userId = await getUserIdByUsername(username);
     const hashedpw = await getHashedPwByUsername(username);
-    const pwResetToken = await createPWResetToken(email, username, hashedpw);
+    const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
     console.log("this is pwResetToken " + pwResetToken);
+    console.log("this is email reset link " + `http://localhost:3000/reset-password/${userId}/${pwResetToken}`);
     // todo: send email with reset link and user id
     res.status(200).json({ msg: "Password reset email sent" });
   } catch (error) {
@@ -249,8 +260,8 @@ router.post("/reset-password/:id/:token", async (req: Request<{ id: string, toke
       context: { token: "invalid" }
     }));
   }
-  const { email, username } = decodedToken as { email: string, username: string };
-  if (!email || !username) {
+  const { userId, email, username } = decodedToken as token;
+  if (!userId || !email || !username || userId !== id) {
     return next(new BadRequestError({
       code: 400,
       message: "Invalid token",
@@ -260,7 +271,7 @@ router.post("/reset-password/:id/:token", async (req: Request<{ id: string, toke
   }
   try {
     const hashedNewPw = await hashPW(newPassword);
-    await setPwByUsername(username, hashedNewPw);
+    await setPwById(userId, hashedNewPw);
     res.status(200).json({ msg: "Password has been reset successfully. Pls login again with new pw" });
   } catch (error) {
     return next(error);
