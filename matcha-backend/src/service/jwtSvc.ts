@@ -25,3 +25,26 @@ export const verifyToken = (token: string): Promise<string | object> => {
   });
 }
 
+export const createPWResetToken = (email: string, username: string, hashedpw:string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const token = sign(
+      { email, username },
+      hashedpw, 
+      { algorithm: "HS512", expiresIn: "1h" },
+      (err, token) => {
+        if (err || !token)
+          return reject("failed to create token");
+        resolve(token);
+      });
+  });
+};
+
+export const verifyPWResetToken = (token: string, hashedpw:string): Promise<string | object> => {
+  return new Promise((resolve, reject) => {
+    verify(token, hashedpw, { algorithms: ["HS512"] }, (err, decoded) => {
+      if (err || !decoded)
+        return reject("invalid token");
+      resolve(decoded);
+    });
+  });
+}

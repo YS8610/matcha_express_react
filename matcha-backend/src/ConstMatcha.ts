@@ -94,4 +94,13 @@ export default class ConstMatcha{
     RETURN u
   `;
 
+  static readonly NEO4j_STMT_GET_PW_BY_USERNAME = `
+    MATCH (u:PROFILE { username: $username })
+    RETURN u.pw as pw 
+  `;
+
+  static readonly NEO4j_STMT_SET_PW_BY_USERNAME = `
+    MATCH (u:PROFILE { username: $username })
+    SET u.pw = $hashedpw, u.updatedAt = datetime()
+  `;
 }

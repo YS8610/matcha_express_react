@@ -26,6 +26,27 @@ export const getUserIdByUsername = async (username: string): Promise<string> => 
   return result.records.length > 0 ? result.records[0].get("id") : "";
 };
 
+export const isUserByEmailUsername = async (email: string, username: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME, { email, username });
+  session.close();
+  return result.records.length > 0;
+};
+
+export const getHashedPwByUsername = async (username: string): Promise<string> => {
+  const session = driver.session();
+  const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_USERNAME, { username });
+  session.close();
+  return result.records.length == 1 ? result.records[0].get("pw"): "";
+};
+
+export const setPwByUsername = async (username: string, hashedpw: string): Promise<void> => {
+  const session = driver.session();
+  await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_USERNAME, { username, hashedpw });
+  session.close();
+  return;
+}
+
 export const createUser = async (email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<boolean> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { email, password: hashedPassword, firstName, lastName, username, birthDate });
