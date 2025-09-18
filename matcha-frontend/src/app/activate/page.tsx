@@ -17,7 +17,7 @@ export default function ActivatePage() {
     try {
       const token = btoa(JSON.stringify({ username, email }));
 
-      const response = await api.activateAccount(token);
+      await api.activateAccount(token);
       setMessage('Account activated successfully!');
 
       setTimeout(() => {

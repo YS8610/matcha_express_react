@@ -18,10 +18,12 @@ npm run dev
 
 ## Backend endpoints
 
-- /pubapi/ping - Health check
-- /pubapi/login - User login with username/password
-- /pubapi/register - User registration with all required fields
-- /pubapi/activate/:token - Account activation
+matcha-backend/src/routes/rootRoute.ts
 
-- Currently activation not fully implemented, need to wait before testing further.
-- /api/user/profile - Profile updates (protected route)
+1. GET /pubapi/ping - matcha-backend/src/routes/rootRoute.ts
+2. POST /pubapi/login - matcha-backend/src/routes/rootRoute.ts
+3. POST /pubapi/register - matcha-backend/src/routes/rootRoute.ts
+4. GET /pubapi/activate/:token - matcha-backend/src/routes/rootRoute.ts
+5. POST /pubapi/reset-password - matcha-backend/src/routes/rootRoute.ts
+6. POST /pubapi/reset-password/:id/:token - matcha-backend/src/routes/rootRoute.ts
+7. PUT /api/user/profile - matcha-backend/src/routes/auth/userRoute.ts

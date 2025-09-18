@@ -90,6 +90,19 @@ class ApiClient {
     return response;
   }
 
+  async requestPasswordReset(email: string, username: string) {
+    return this.request('/pubapi/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, username }),
+    });
+  }
+
+  async confirmPasswordReset(id: string, token: string, newPassword: string, newPassword2: string) {
+    return this.request(`/pubapi/reset-password/${id}/${token}`, {
+      method: 'POST',
+      body: JSON.stringify({ newPassword, newPassword2 }),
+    });
+  }
 
   async getProfile(userId?: string) {
     const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/profiles/me';
