@@ -115,4 +115,16 @@ export default class ConstMatcha{
     MATCH (u:PROFILE { id: $id })
     SET u.pw = $hashedpw, u.updatedAt = datetime()
   `;
+
+  static readonly NEO4j_STMT_SET_USER_PROFILE_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
+    SET u.firstName = $firstName,
+    u.lastName = $lastName,
+    u.email = $email,
+    u.gender = $gender,
+    u.sexualPreference = $sexualPreference,
+    u.biography = $biography,
+    u.birthDate = date($birthDate),
+    u.updatedAt = datetime()
+  `;
 }

@@ -1,5 +1,5 @@
 import ConstMatcha from "../ConstMatcha";
-import { ProfileDb } from "../model/profile";
+import { ProfileDb, ProfileUpdateJson } from "../model/profile";
 import driver from "../repo/neo4jRepo";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
@@ -81,6 +81,13 @@ export const activateUserByUsername = async (username: string): Promise<boolean>
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_ACTIVATE_USER_BY_USERNAME, { username });
   session.close();
   return result.records.length > 0;
+}
+
+export const setUserProfileById = async (id : string, profileUpdateJson : ProfileUpdateJson): Promise<void> => {
+  const session = driver.session();
+  await session.run(ConstMatcha.NEO4j_STMT_SET_USER_PROFILE_BY_ID, { id, ...profileUpdateJson });
+  session.close();
+  return;
 }
 
 // password validation function (e.g., length, complexity)

@@ -35,10 +35,10 @@ export interface ProfileUpdateJson {
   firstName: string;
   lastName: string;
   email: string;
-  gender: string;
-  sexualPreference: string;
+  gender: number;
+  sexualPreference: number;
   biography: string;
-  birthdate: Date;
+  birthDate: string;
 }
 
 export interface Reslocal{
