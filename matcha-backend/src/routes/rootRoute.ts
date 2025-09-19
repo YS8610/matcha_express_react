@@ -5,6 +5,7 @@ import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByU
 import { hashPW, loginSvc } from "../service/authSvc";
 import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc";
 import { AuthToken, token } from "../model/token";
+import ConstMatcha from "../ConstMatcha";
 let uuidv4: () => string;
 (async () => {
   const { v4 } = await import('uuid');
@@ -119,7 +120,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
   try {
     await createUser(id, email, hashedpw, firstName, lastName, username, birthDate);
     const token = await createToken(id, email, username, false);
-    console.log("this is activation link " + `http://localhost:3000/activate/${token}`);
+    console.log("this is activation link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`);
     // todo: send email verification link with jwt token
   } catch (error) {
     return next(error);
@@ -136,12 +137,13 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
     return;
   }
   const decodedToken = await verifyToken(token);
+  console.log("this is decoded token " + JSON.stringify(decodedToken));
   if (!decodedToken || typeof decodedToken === "string") {
     res.status(400).json({ msg: "Invalid token" });
     return;
   }
-  const { userId, email, username, activated } = decodedToken as AuthToken;
-  if (!userId || !email || !username || activated === undefined) {
+  const { id, email, username, activated } = decodedToken as AuthToken;
+  if (!id || !email || !username || activated === undefined) {
     res.status(400).json({ msg: "Invalid token" });
     return;
   }
@@ -156,7 +158,7 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
       return;
     }
 
-    const activatedtoken = await createToken(userId, email, username, true);
+    const activatedtoken = await createToken(id, email, username, true);
     res.status(200).json({ msg: activatedtoken });
   } catch (error) {
     return next(error);
@@ -187,8 +189,7 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
     const userId = await getUserIdByUsername(username);
     const hashedpw = await getHashedPwByUsername(username);
     const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
-    console.log("this is pwResetToken " + pwResetToken);
-    console.log("this is email reset link " + `http://localhost:3000/reset-password/${userId}/${pwResetToken}`);
+    console.log("this is email reset link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`);
     // todo: send email with reset link and user id
     res.status(200).json({ msg: "Password reset email sent" });
   } catch (error) {
@@ -197,15 +198,15 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
 });
 
 // password reset using token from email link
-router.post("/reset-password/:id/:token", async (req: Request<{ id: string, token: string }, {}, { newPassword: string, newPassword2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
-  const { id, token } = req.params;
+router.post("/reset-password/:userId/:token", async (req: Request<{ userId: string, token: string }, {}, { newPassword: string, newPassword2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+  const { userId, token } = req.params;
   const { newPassword, newPassword2 } = req.body;
-  if (!token || !id) {
+  if (!token || !userId) {
     return next(new BadRequestError({
       code: 400,
       message: "Token and/or id are required",
       logging: false,
-      context: { token: token ? "present" : "missing", id: id ? "present" : "missing" }
+      context: { token: token ? "present" : "missing", id: userId ? "present" : "missing" }
     }));
   }
   if (!newPassword || !newPassword2) {
@@ -234,7 +235,7 @@ router.post("/reset-password/:id/:token", async (req: Request<{ id: string, toke
   }
   let decodedToken;
   try {
-    const hashedpw = await getHashedPwByUsername(id);
+    const hashedpw = await getHashedPwByUsername(userId);
     if (!hashedpw) {
       return next(new BadRequestError({
         code: 400,
@@ -260,8 +261,8 @@ router.post("/reset-password/:id/:token", async (req: Request<{ id: string, toke
       context: { token: "invalid" }
     }));
   }
-  const { userId, email, username } = decodedToken as token;
-  if (!userId || !email || !username || userId !== id) {
+  const { id, email, username } = decodedToken as token;
+  if (!id || !email || !username || userId !== id) {
     return next(new BadRequestError({
       code: 400,
       message: "Invalid token",
