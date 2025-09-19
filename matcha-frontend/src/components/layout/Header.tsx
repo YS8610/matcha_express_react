@@ -9,7 +9,7 @@ export default function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="relative z-[1000] bg-gradient-to-r from-green-50 to-green-100/50 shadow-md border-b border-green-200 backdrop-blur-sm">
+    <header className="relative z-40 bg-gradient-to-r from-green-50 to-green-100/50 shadow-md border-b border-green-200 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">

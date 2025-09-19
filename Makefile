@@ -13,7 +13,7 @@ down:
 
 restart:
 	docker compose down
-	docker compose up -d
+	docker compose up
 
 logs:
 	docker compose logs -f
@@ -25,7 +25,7 @@ clean:
 re:
 	docker compose down
 	docker compose build --no-cache
-	docker compose up -d
+	docker compose up
 
 status:
 	docker compose ps

@@ -39,11 +39,14 @@ class ApiClient {
     };
 
     const response = await fetch(url, config);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
       if (errorData.errors && errorData.errors[0]) {
         throw new Error(errorData.errors[0].message || `HTTP error! status: ${response.status}`);
+      }
+      if (errorData.msg) {
+        throw new Error(errorData.msg);
       }
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
