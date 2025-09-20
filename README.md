@@ -20,10 +20,11 @@ npm run dev
 
 matcha-backend/src/routes/rootRoute.ts
 
-1. GET /pubapi/ping - matcha-backend/src/routes/rootRoute.ts
-2. POST /pubapi/login - matcha-backend/src/routes/rootRoute.ts
-3. POST /pubapi/register - matcha-backend/src/routes/rootRoute.ts
-4. GET /pubapi/activate/:token - matcha-backend/src/routes/rootRoute.ts
-5. POST /pubapi/reset-password - matcha-backend/src/routes/rootRoute.ts
-6. POST /pubapi/reset-password/:id/:token - matcha-backend/src/routes/rootRoute.ts
-7. PUT /api/user/profile - matcha-backend/src/routes/auth/userRoute.ts
+1. GET /pubapi/ping
+2. POST /pubapi/login
+3. POST /pubapi/register
+4. GET /pubapi/activate/:token
+5. POST /pubapi/reset-password
+6. POST /pubapi/reset-password/:id/:token
+7. PUT /api/user/profile
+8. PUT /api/user/password

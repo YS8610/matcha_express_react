@@ -11,7 +11,7 @@ export default function ProfileSetup() {
     sexualPreference: '',
     biography: '',
     interests: [] as string[],
-    age: '',
+    birthDate: '',
     photos: [] as File[],
   });
   const [interestInput, setInterestInput] = useState('');
@@ -56,7 +56,7 @@ export default function ProfileSetup() {
         sexualPreference: formData.sexualPreference,
         biography: formData.biography,
         interests: formData.interests,
-        age: parseInt(formData.age),
+        birthDate: formData.birthDate,
       });
 
       for (const photo of formData.photos) {
@@ -119,20 +119,19 @@ export default function ProfileSetup() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Age</label>
+            <label className="block text-sm font-medium mb-2">Birth Date</label>
             <input
-              type="number"
-              min="18"
-              max="120"
-              value={formData.age}
-              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+              type="date"
+              value={formData.birthDate}
+              onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
               className="w-full px-3 py-2 border rounded-md"
+              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
             />
           </div>
 
           <button
             onClick={() => setStep(2)}
-            disabled={!formData.gender || !formData.sexualPreference || !formData.age}
+            disabled={!formData.gender || !formData.sexualPreference || !formData.birthDate}
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
           >
             Next
@@ -215,20 +214,72 @@ export default function ProfileSetup() {
       {step === 3 && (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-4">
               Upload Photos (Max 5)
             </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="w-full"
-            />
+
+            {/* Custom file upload button */}
+            <div className="relative">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                id="photo-upload"
+              />
+              <label
+                htmlFor="photo-upload"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                Choose Photos
+              </label>
+            </div>
+
+            {/* Selected photos preview */}
             {formData.photos.length > 0 && (
-              <p className="text-sm text-gray-600 mt-2">
-                {formData.photos.length} photo(s) selected
-              </p>
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  {formData.photos.length} photo{formData.photos.length > 1 ? 's' : ''} selected
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {formData.photos.map((photo, index) => (
+                    <div
+                      key={index}
+                      className="relative group"
+                    >
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-20 h-20 object-cover rounded-md border-2 border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPhotos = formData.photos.filter((_, i) => i !== index);
+                          setFormData({ ...formData, photos: newPhotos });
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 

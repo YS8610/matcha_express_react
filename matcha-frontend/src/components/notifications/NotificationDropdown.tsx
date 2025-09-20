@@ -11,19 +11,9 @@ export default function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    loadNotifications();
-    const interval = setInterval(loadNotifications, 10000); // Poll every 10 seconds
-    return () => clearInterval(interval);
   }, []);
 
   const loadNotifications = async () => {
-    try {
-      const data = await api.getNotifications();
-      setNotifications(data);
-      setUnreadCount(data.filter((n: Notification) => !n.read).length);
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-    }
   };
 
   const handleMarkAsRead = async (notificationId: string) => {

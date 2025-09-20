@@ -31,11 +31,17 @@ export interface ProfileUpdateRequest {
   email?: string;
   biography?: string;
   interests?: string[];
-  age?: number;
+  birthDate?: string;
   gender?: string;
   sexualPreference?: string;
   location?: string;
   [key: string]: unknown;
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  pw: string;
+  pw2: string;
 }
 
 export interface ApiResponse {
@@ -165,6 +171,26 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Profile update failed');
+    }
+
+    return response.json();
+  }
+
+  async changePassword(data: ChangePasswordRequest): Promise<ApiResponse> {
+    const token = localStorage.getItem('authToken');
+
+    const response = await fetch(`${API_BASE_URL}/api/user/password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Password change failed');
     }
 
     return response.json();
