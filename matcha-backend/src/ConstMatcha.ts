@@ -127,4 +127,9 @@ export default class ConstMatcha{
     u.birthDate = date($birthDate),
     u.updatedAt = datetime()
   `;
+
+  static readonly NEO4j_STMT_GET_PW_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
+    RETURN u.pw as pw
+  `;
 }
