@@ -17,7 +17,6 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     res.status(statusCode).send({ errors });
     return;
   }
-
   // Unhandled errors
   clogger.error(JSON.stringify(err, null, 2));
   res.status(500).json({ errors: [{ message: "Something went wrong", err }] });

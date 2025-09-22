@@ -9,7 +9,7 @@ let router = express.Router();
 
 router.put("/profile", async (req: Request<{}, {}, ProfileUpdateJson>, res: Response<{ msg: string }>, next: NextFunction) => {
   const { firstName, lastName, email, gender, sexualPreference, biography, birthDate } = req.body;
-  const { authenticated, username, id = "24767122-cd81-43c2-ab57-908a19e36cb5", activated } = res.locals as Reslocal;
+  const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!isValidDateStr(birthDate)) {
     return next(new BadRequestError({
       code: 400,
@@ -29,7 +29,7 @@ router.put("/profile", async (req: Request<{}, {}, ProfileUpdateJson>, res: Resp
 
 router.put("/password", async (req: Request<{}, {}, { oldPassword: string, pw: string, pw2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
   const { oldPassword, pw, pw2 } = req.body;
-  const { authenticated, username, id = "24767122-cd81-43c2-ab57-908a19e36cb5", activated } = res.locals as Reslocal;
+  const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (pw !== pw2) {
     return next(new BadRequestError({
       code: 400,
