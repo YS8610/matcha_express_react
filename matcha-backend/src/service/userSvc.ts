@@ -1,4 +1,5 @@
 import ConstMatcha from "../ConstMatcha";
+import ServerRequestError from "../errors/ServerRequestError";
 import { ProfileDb, ProfileUpdateJson } from "../model/profile";
 import driver from "../repo/neo4jRepo";
 
@@ -7,7 +8,7 @@ export const isUserByEmail = async (email: string): Promise<boolean> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL, { email });
   session.close();
-  return result.records.length > 0;
+  return result.records.length == 1;
 };
 
 export const isUserByUsername = async (username: string): Promise<boolean> => {
@@ -29,23 +30,29 @@ export const getUsers = async (): Promise<ProfileDb[]> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_ALL_USERS);
   session.close();
-  const records = result.records.map(record => record.toObject());
-  return records;
+  return result.records.map(record => record.get(0));
 };
 
 export const getUserById = async (id: string): Promise<ProfileDb | null> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
   session.close();
-  return result.records.length > 0 ? result.records[0].toObject() : null;
+  return result.records.length == 1 ? result.records[0].get(0) : null;
 };
+
+export const getUserByUsername = async (username: string): Promise<ProfileDb | null> => {
+    const session = driver.session();
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+    session.close();
+    return result.records.length == 1 ? result.records[0].get(0) : null;
+}
 
 export const getUserIdByUsername = async (username: string): Promise<string> => {
   // todo: implement get user ID logic
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
   session.close();
-  return result.records.length > 0 ? result.records[0].get("id") : "";
+  return result.records.length == 1 ? result.records[0].get(0).id : "";
 };
 
 export const getHashedPwById = async (id: string): Promise<string> => {

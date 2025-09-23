@@ -75,38 +75,37 @@ export default class ConstMatcha{
       createdAt: datetime(),
       updatedAt: datetime()
     })
-    RETURN u
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_EMAIL = `
     MATCH (u:PROFILE { email: $email })
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME = `
     MATCH (u:PROFILE { email: $email, username: $username })
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_ID = `
     MATCH (u:PROFILE { id: $id })
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_GET_ALL_USERS = `
     MATCH (u:PROFILE)
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_ACTIVATE_USER_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
     SET u.activated = true
-    RETURN u
+    RETURN u{.*}
   `;
 
   static readonly NEO4j_STMT_GET_PW_BY_USERNAME = `
@@ -144,12 +143,12 @@ export default class ConstMatcha{
   // statements for tags
   static readonly NEO4j_STMT_GET_TAG_BY_NAME = `
     MATCH (t:TAG { name: $name })
-    RETURN t
+    RETURN t{.*}
   `;
 
   static readonly NEO4j_STMT_CREATE_TAG = `
     MERGE (t:TAG { name: $name })
-    RETURN t
+    RETURN t{.*}
   `;
 
   static readonly NEO4j_STMT_CREATE_USER_TAG_REL = `

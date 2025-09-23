@@ -1,11 +1,12 @@
 import express, { NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError";
 import { ProfileRegJson } from "../model/profile";
-import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc";
+import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, getUsers, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc";
 import { hashPW, loginSvc } from "../service/authSvc";
 import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc";
 import { AuthToken, token } from "../model/token";
 import ConstMatcha from "../ConstMatcha";
+import { serverErrorWrapper } from "../util/wrapper";
 let uuidv4: () => string;
 (async () => {
   const { v4 } = await import('uuid');
@@ -47,20 +48,16 @@ router.post("/login", async (req: Request<{ token: string }, {}, { username: str
       context: { username: !username ? "missing" : "present", password: !password ? "missing" : "present" }
     }));
   }
-  try {
-    const jwt = await loginSvc(username, password);
-    if (jwt.length === 0) {
-      return next(new BadRequestError({
-        code: 400,
-        message: "Invalid username and/or password",
-        logging: true,
-        context: { username: "invalid", password: "invalid" }
-      }));
-    }
-    res.status(200).json({ msg: jwt });
-  } catch (error) {
-    return next(error);
+  const jwt = await loginSvc(username, password);
+  if (jwt.length === 0) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Invalid username and/or password",
+      logging: true,
+      context: { username: "invalid", password: "invalid" }
+    }));
   }
+  res.status(200).json({ msg: jwt });
 });
 
 // user registration
@@ -106,7 +103,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
       context: { birthDate: "invalid" }
     }));
   }
-  const userExists = await isUserByUsername(username);
+  const userExists = await serverErrorWrapper(() => isUserByUsername(username), "Failed to check if user exists");
   if (userExists) {
     return next(new BadRequestError({
       code: 400,
@@ -117,16 +114,11 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
   }
   const hashedpw = await hashPW(pw);
   const id = uuidv4();
-  try {
-    await createUser(id, email, hashedpw, firstName, lastName, username, birthDate);
-    const token = await createToken(id, email, username, false);
-    console.log("this is activation link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`);
-    // todo: send email verification link with jwt token
-  } catch (error) {
-    return next(error);
-  }
+  await serverErrorWrapper(() => createUser(id, email, hashedpw, firstName, lastName, username, birthDate), "Failed to create user");
+  const token = await createToken(id, email, username, false);
+  console.log("this is activation link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`);
+  // todo: send email verification link with jwt token
   res.status(201).json({ msg: "registered and activation email sent to " + email });
-
 });
 
 // activating user account from email link
@@ -151,18 +143,13 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
     res.status(200).json({ msg: token });
     return;
   }
-  try {
-    const activated = await activateUserByUsername(username);
-    if (!activated) {
-      res.status(400).json({ msg: "Failed to activate account. Please contact support." });
-      return;
-    }
-
-    const activatedtoken = await createToken(id, email, username, true);
-    res.status(200).json({ msg: activatedtoken });
-  } catch (error) {
-    return next(error);
+  const isActivated = await serverErrorWrapper(() => activateUserByUsername(username), "Failed to activate user");
+  if (!isActivated) {
+    res.status(400).json({ msg: "Failed to activate account. Please contact support." });
+    return;
   }
+  const activatedtoken = await createToken(id, email, username, true);
+  res.status(200).json({ msg: activatedtoken });
 });
 
 // password reset request
@@ -176,7 +163,7 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
       context: { username: !username ? "missing" : "present", email: !email ? "missing" : "present" }
     }));
   }
-  const userExists = await isUserByEmailUsername(email, username);
+  const userExists = await serverErrorWrapper(() => isUserByEmailUsername(email, username), "Failed to check if user exists");
   if (!userExists) {
     return next(new BadRequestError({
       code: 400,
@@ -185,16 +172,12 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
       context: { email_or_Pw: "not found" }
     }));
   }
-  try {
-    const userId = await getUserIdByUsername(username);
-    const hashedpw = await getHashedPwByUsername(username);
-    const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
-    console.log("this is email reset link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`);
-    // todo: send email with reset link and user id
-    res.status(200).json({ msg: "Password reset email sent" });
-  } catch (error) {
-    return next(error);
-  }
+  const userId = await serverErrorWrapper(() => getUserIdByUsername(username), "Failed to get user ID");
+  const hashedpw = await serverErrorWrapper(() => getHashedPwByUsername(username), "Failed to get hashed password");
+  const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
+  console.log("this is email reset link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`);
+  // todo: send email with reset link and user id
+  res.status(200).json({ msg: "Password reset email sent" });
 });
 
 // password reset using token from email link
@@ -270,13 +253,9 @@ router.post("/reset-password/:userId/:token", async (req: Request<{ userId: stri
       context: { token: "invalid" }
     }));
   }
-  try {
-    const hashedNewPw = await hashPW(newPassword);
-    await setPwById(userId, hashedNewPw);
-    res.status(200).json({ msg: "Password has been reset successfully. Pls login again with new pw" });
-  } catch (error) {
-    return next(error);
-  }
+  const hashedNewPw = await hashPW(newPassword);
+  await serverErrorWrapper(() => setPwById(userId, hashedNewPw), "Failed to set new password");
+  res.status(200).json({ msg: "Password has been reset successfully. Pls login again with new pw" });
 });
 
 export default router;
