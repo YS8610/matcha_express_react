@@ -85,14 +85,6 @@ export default function LoginForm() {
           <Link href="/reset-password" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
             Forgot Password?
           </Link>
-          {process.env.NODE_ENV === 'development' && (
-            <>
-              {' | '}
-              <Link href="/token-helper" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
-                Token Helper (Dev)
-              </Link>
-            </>
-          )}
         </div>
       </form>
     </div>

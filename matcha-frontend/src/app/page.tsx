@@ -54,14 +54,6 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-4">
-          <a
-            href="/token-helper"
-            className="text-green-600 hover:text-green-700 hover:underline transition-colors text-sm"
-          >
-            🔧 Token Extraction Helper (Dev Tool)
-          </a>
-        </div>
       </div>
     </div>
   );
