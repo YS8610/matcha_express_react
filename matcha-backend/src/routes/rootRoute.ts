@@ -1,17 +1,13 @@
 import express, { NextFunction, Request, Response } from "express";
-import BadRequestError from "../errors/BadRequestError";
-import { ProfileRegJson } from "../model/profile";
-import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, getUsers, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc";
-import { hashPW, loginSvc } from "../service/authSvc";
-import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc";
-import { AuthToken, token } from "../model/token";
-import ConstMatcha from "../ConstMatcha";
-import { serverErrorWrapper } from "../util/wrapper";
-let uuidv4: () => string;
-(async () => {
-  const { v4 } = await import('uuid');
-  uuidv4 = v4;
-})();
+import BadRequestError from "../errors/BadRequestError.js";
+import { ProfileRegJson } from "../model/profile.js";
+import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, getUsers, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc.js";
+import { hashPW, loginSvc } from "../service/authSvc.js";
+import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc.js";
+import { AuthToken, token } from "../model/token.js";
+import ConstMatcha from "../ConstMatcha.js";
+import { serverErrorWrapper } from "../util/wrapper.js";
+import { v4 as uuidv4 } from "uuid";
 
 let router = express.Router();
 

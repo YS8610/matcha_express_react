@@ -28,10 +28,14 @@ export default class ConstMatcha{
 
   // default value for newly created user
   static readonly DEFAULT_TAG_PROFILE = "PROFILE";
+  static readonly DEFAULT_TAG_TAG = "TAG";
   static readonly DEFAULT_GENDER = 0;
   static readonly DEFAULT_FAME_RATING = 0;
   static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
   static readonly DEFAULT_BIOGRAPHY = "\"\"";
+  
+  // user limit 
+  static readonly NEO4j_USER_MAX_TAGS = 10;
 
   // sexual preference
   static readonly SEXUAL_PREFERENCE_MALE = 1;
@@ -43,13 +47,13 @@ export default class ConstMatcha{
   static readonly NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID = `
     CREATE CONSTRAINT unique_id IF NOT EXISTS
     FOR (u:${ConstMatcha.DEFAULT_TAG_PROFILE})
-    REQUIRE u.id IS UNIQUE
+    REQUIRE u.id IS UNIQUE;
   `;
 
   static readonly NEO4j_STMT_TAG_CONSTRAINT_UNIQUE_NAME = `
     CREATE CONSTRAINT unique_tag_name IF NOT EXISTS
-    FOR (t:TAG)
-    REQUIRE t.name IS UNIQUE
+    FOR (t:${ConstMatcha.DEFAULT_TAG_TAG})
+    REQUIRE t.name IS UNIQUE;
   `;
 
   // user related statements
@@ -152,7 +156,22 @@ export default class ConstMatcha{
   `;
 
   static readonly NEO4j_STMT_CREATE_USER_TAG_REL = `
-    MATCH (u:PROFILE { id: $userId }), (t:TAG { name: $tagName })
+    MERGE (u:PROFILE { id: $userId }), (t:TAG { name: $tagName })
     MERGE (u)-[:HAS_TAG]->(t)
-  `;  
+  `;
+
+  static readonly NEO4j_STMT_DELETE_USER_TAG_REL = `
+    MATCH (u:PROFILE { id: $userId })-[r:HAS_TAG]->(t:TAG { name: $tagName })
+    DELETE r
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_TAGS = `
+    MATCH (u:PROFILE { id: $userId })-[:HAS_TAG]->(t:TAG)
+    RETURN t{.*}
+  `;
+
+  static readonly NEO4j_STMT_GET_TAG_COUNTS_BY_USER_ID = `
+    MATCH (u:PROFILE { id: $userId })-[:HAS_TAG]->(t:TAG)
+    RETURN count(t) as tagCount
+  `;
 }

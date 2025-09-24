@@ -1,7 +1,7 @@
-import ConstMatcha from "../ConstMatcha";
-import ServerRequestError from "../errors/ServerRequestError";
-import { ProfileDb, ProfileUpdateJson } from "../model/profile";
-import driver from "../repo/neo4jRepo";
+import ConstMatcha from "../ConstMatcha.js";
+import ServerRequestError from "../errors/ServerRequestError.js";
+import { ProfileDb, ProfileUpdateJson } from "../model/profile.js";
+import driver from "../repo/neo4jRepo.js";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
   // todo: implement email presence check

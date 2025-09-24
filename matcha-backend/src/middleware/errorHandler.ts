@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError } from "../errors/CustomError";
+import { CustomError } from "../errors/CustomError.js";
 
-import { clogger } from "../service/loggerSvc";
+import { clogger } from "../service/loggerSvc.js";
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
   // Handled errors

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import ServerRequestError from '../errors/ServerRequestError';
+import ServerRequestError from '../errors/ServerRequestError.js';
 
 export const sendMail = async (from: string, to: string, subject: string, html: string) => {
   const transporter = nodemailer.createTransport({

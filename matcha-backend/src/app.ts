@@ -1,9 +1,10 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
-import { errorHandler } from "./middleware/errorHandler";
-import rootRoute from "./routes/rootRoute";
-import userRoute from "./routes/auth/userRoute";
-import { authMiddleware } from "./middleware/auth";
+import { errorHandler } from "./middleware/errorHandler.js";
+import rootRoute from "./routes/rootRoute.js";
+import userRoute from "./routes/auth/userRoute.js";
+import { authMiddleware } from "./middleware/auth.js";
+import BadRequestError from "./errors/BadRequestError.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -22,7 +23,14 @@ const appfunc = () => {
   // auth api routes
   app.use("/api", authMiddleware);
   app.use("/api/user", userRoute);
-
+  app.use("/*", (req, res, next) => {
+    next(new BadRequestError({
+      message: "invalid endpoint",
+      logging: false,
+      code: 404,
+      context: { message: "The requested endpoint does not exist." },
+    }));
+  });
   // setup error handler
   app.use(errorHandler);
 

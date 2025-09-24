@@ -37,7 +37,7 @@ const ftransport = pino.transport({
 });
 
 // use transport for logging to both file and console
-export const logger = pino(
+export const logger = pino.default(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
@@ -46,7 +46,7 @@ export const logger = pino(
 );
 
 // use transport for logging to console only
-export const clogger = pino(
+export const clogger = pino.default(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
@@ -55,7 +55,7 @@ export const clogger = pino(
 );
 
 // use transport for logging to file only
-export const flogger = pino(
+export const flogger = pino.default(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,

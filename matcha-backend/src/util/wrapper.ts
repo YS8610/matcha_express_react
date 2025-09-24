@@ -1,4 +1,4 @@
-import ServerRequestError from "../errors/ServerRequestError";
+import ServerRequestError from "../errors/ServerRequestError.js";
 
 export const serverErrorWrapper = async <T>(fn: () => T, errorMsg: string, log: boolean = true, code: number = 500): Promise<T> => {
   try {

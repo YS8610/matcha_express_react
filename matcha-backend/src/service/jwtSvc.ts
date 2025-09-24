@@ -1,7 +1,8 @@
-import { sign, verify } from "jsonwebtoken";
-import ConstMatcha from "../ConstMatcha";
-import BadRequestError from "../errors/BadRequestError";
-import ServerRequestError from "../errors/ServerRequestError";
+import ConstMatcha from "../ConstMatcha.js";
+import BadRequestError from "../errors/BadRequestError.js";
+import ServerRequestError from "../errors/ServerRequestError.js";
+import pkg from "jsonwebtoken";
+const { sign, verify } = pkg;
 
 export const createToken = (id: string, email: string, username: string, activated: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {

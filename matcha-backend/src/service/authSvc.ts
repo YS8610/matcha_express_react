@@ -1,10 +1,10 @@
-import ConstMatcha from '../ConstMatcha';
+import ConstMatcha from '../ConstMatcha.js';
 import * as argon2 from "argon2";
-import { createToken } from './jwtSvc';
-import ServerRequestError from '../errors/ServerRequestError';
-import BadRequestError from '../errors/BadRequestError';
-import { getUserByUsername } from './userSvc';
-import { serverErrorWrapper } from '../util/wrapper';
+import { createToken } from './jwtSvc.js';
+import ServerRequestError from '../errors/ServerRequestError.js';
+import BadRequestError from '../errors/BadRequestError.js';
+import { getUserByUsername } from './userSvc.js';
+import { serverErrorWrapper } from '../util/wrapper.js';
 
 export const option = {
   hashLength: ConstMatcha.ARGON_HASHLENGTH,

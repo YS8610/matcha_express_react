@@ -1,8 +1,8 @@
 import { NextFunction } from "express";
 import { Request, Response } from "express-serve-static-core";
-import { verifyToken } from "../service/jwtSvc";
-import { Reslocal } from "../model/profile";
-import { AuthToken } from "../model/token";
+import { verifyToken } from "../service/jwtSvc.js";
+import { Reslocal } from "../model/profile.js";
+import { AuthToken } from "../model/token.js";
 
 
 declare module 'express-serve-static-core' {

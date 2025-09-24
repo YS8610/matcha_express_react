@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
-import { clogger } from "./service/loggerSvc";
-import appfunc from "./app";
-import ConstMatcha from "./ConstMatcha";
-import driver from "./repo/neo4jRepo";
-import ServerRequestError from "./errors/ServerRequestError";
+import { clogger } from "./service/loggerSvc.js";
+import appfunc from "./app.js";
+import ConstMatcha from "./ConstMatcha.js";
+import driver from "./repo/neo4jRepo.js";
+import ServerRequestError from "./errors/ServerRequestError.js";
 
 
 dotenv.config();

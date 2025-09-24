@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import neo4j from "neo4j-driver";
-import ConstMatcha from "../ConstMatcha";
+import ConstMatcha from "../ConstMatcha.js";
 
 dotenv.config();
 
