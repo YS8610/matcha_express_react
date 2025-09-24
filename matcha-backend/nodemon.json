@@ -1,7 +1,15 @@
 {
-  "watch": ["src"],
-  "ignore": ["build", "node_modules", "src/**/*.test.ts"],
+  "watch": [
+    "src"
+  ],
+  "ignore": [
+    "build",
+    "node_modules",
+    "src/**/*.test.ts"
+  ],
   "ext": "ts",
-  "exec": "ts-node src/index.ts",
+  "execMap": {
+    "ts": "node --loader ts-node/esm"
+  },
   "legacyWatch": true
 }
