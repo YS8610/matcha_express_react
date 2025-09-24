@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ignore": ["build", "node_modules", "src/**/*.test.ts"],
+  "ext": "ts",
+  "exec": "ts-node src/index.ts",
+  "legacyWatch": true
+}

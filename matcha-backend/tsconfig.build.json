@@ -3,6 +3,8 @@
   // 👇️ this may vary depending on how you
   // name your test files
   "exclude": [
+    "node_modules",
+    "build",
     "src/**/*.test.ts"
-  ]
+  ],
 }

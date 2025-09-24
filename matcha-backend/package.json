@@ -4,7 +4,7 @@
   "description": "expressjs typescript template",
   "main": "build/index.js",
   "scripts": {
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q build/index.js\"",
+    "dev": "npx nodemon",
     "build": "npx tsc --project tsconfig.build.json",
     "start": "npm run build && node build/index.js",
     "prebuild": "test -f ./logs/app.log || mkdir -p ./logs && touch ./logs/app.log",
@@ -38,7 +38,6 @@
     "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^10.0.0",
-    "concurrently": "^9.0.1",
     "jest": "^29.7.0",
     "nodemon": "^3.1.7",
     "pino-pretty": "^11.2.2",
