@@ -23,12 +23,12 @@ const appfunc = () => {
   // auth api routes
   app.use("/api", authMiddleware);
   app.use("/api/user", userRoute);
-  app.use("/*", (req, res, next) => {
+  app.use("/", (req, res, next) => {
     next(new BadRequestError({
       message: "invalid endpoint",
       logging: false,
       code: 404,
-      context: { message: "The requested endpoint does not exist." },
+      context: { msg : "The requested endpoint does not exist." },
     }));
   });
   // setup error handler
