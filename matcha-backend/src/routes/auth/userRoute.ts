@@ -3,7 +3,7 @@ import { ProfileUpdateJson, Reslocal } from "../../model/profile.js";
 import { getHashedPwById, isPwValid, isValidDateStr, setPwById, setUserProfileById } from "../../service/userSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { hashPW, verifyPW } from "../../service/authSvc.js";
-import { createTag, deleteTagbyUserId, getTagCountById, getTagsById, setTagbyUserId } from "../../service/tagSvc.js";
+import { deleteTagbyUserId, getTagCountById, getTagsById, setTagbyUserId } from "../../service/tagSvc.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import ConstMatcha from "../../ConstMatcha.js";
 
@@ -58,7 +58,7 @@ router.put("/password", async (req: Request<{}, {}, { oldPassword: string, pw: s
     }));
   }
   const hashedpw = await getHashedPwById(id);
-  const isMatch = await verifyPW(hashedpw, oldPassword);
+  const isMatch = await serverErrorWrapper(() => verifyPW(hashedpw, oldPassword), "Failed to verify password");
   if (!isMatch) {
     return next(new BadRequestError({
       code: 400,
@@ -68,7 +68,7 @@ router.put("/password", async (req: Request<{}, {}, { oldPassword: string, pw: s
     }));
   }
   try {
-    const newHashedPw = await hashPW(pw);
+    const newHashedPw = await serverErrorWrapper(() => hashPW(pw), "Failed to hash password");
     // Call a service to change the password
     await setPwById(id, newHashedPw);
   } catch (error) {

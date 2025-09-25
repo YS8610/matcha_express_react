@@ -31,7 +31,7 @@ export const verifyToken = (token: string): Promise<string | object> => {
           message: "invalid token",
           logging: false,
           code: 401,
-          context: { message: "Invalid token. Please log in again." },
+          context: { token: "Invalid token. Please log in again." },
         }));
       resolve(decoded);
     });

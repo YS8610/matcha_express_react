@@ -4,7 +4,6 @@ import { ProfileDb, ProfileUpdateJson } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
-  // todo: implement email presence check
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL, { email });
   session.close();
@@ -12,7 +11,6 @@ export const isUserByEmail = async (email: string): Promise<boolean> => {
 };
 
 export const isUserByUsername = async (username: string): Promise<boolean> => {
-  // todo: implement email presence check
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
   session.close();
@@ -48,7 +46,6 @@ export const getUserByUsername = async (username: string): Promise<ProfileDb | n
 }
 
 export const getUserIdByUsername = async (username: string): Promise<string> => {
-  // todo: implement get user ID logic
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
   session.close();
@@ -90,11 +87,10 @@ export const setPwById = async (id: string, hashedpw: string): Promise<void> => 
   return;
 }
 
-export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<boolean> => {
+export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<void> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate });
   session.close();
-  return result.records.length > 0;
 };
 
 export const activateUserByUsername = async (username: string): Promise<boolean> => {

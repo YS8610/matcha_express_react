@@ -34,32 +34,44 @@ router.get("/ping", async (req: Request, res: Response<{ msg: string }>) => {
 });
 
 // login using username and password, return jwt token if successful
-router.post("/login", async (req: Request<{ token: string }, {}, { username: string, password: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/login", async (req: Request<{}, {}, { username: string, password: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is required",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { username, password } = req.body;
-  if (!username || !password) {
+  if (!username || !password)
     return next(new BadRequestError({
       code: 400,
       message: "username and/or password are required",
       logging: false,
       context: { username: !username ? "missing" : "present", password: !password ? "missing" : "present" }
     }));
-  }
   const jwt = await loginSvc(username, password);
-  if (jwt.length === 0) {
+  if (jwt.length === 0)
     return next(new BadRequestError({
-      code: 400,
+      code: 401,
       message: "Invalid username and/or password",
       logging: true,
       context: { username: "invalid", password: "invalid" }
     }));
-  }
   res.status(200).json({ msg: jwt });
 });
 
 // user registration
 router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Response<{ msg: string }, {}>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is required",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { email, pw, pw2, firstName, lastName, username, birthDate } = req.body;
-  if (!email || !pw || !pw2 || !firstName || !lastName || !username || !birthDate) {
+  if (!email || !pw || !pw2 || !firstName || !lastName || !username || !birthDate)
     return next(new BadRequestError({
       code: 400,
       message: "Email, passwords, first name, last name, birthDate, and/or username are required",
@@ -74,41 +86,43 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
         username: !username ? "missing" : "present"
       }
     }));
-  }
-  if (pw !== pw2) {
+  if (pw !== pw2)
     return next(new BadRequestError({
       code: 400,
       message: "Passwords do not match",
       logging: false,
       context: { pw: "mismatch" }
     }));
-  }
-  if (!isPwValid(pw)) {
+  if (!isPwValid(pw))
     return next(new BadRequestError({
       code: 400,
       message: "Password does not meet complexity requirements",
       logging: false,
       context: { pw: "invalid" }
     }));
-  }
-  if (!isValidDateStr(birthDate)) {
+  if (!isValidDateStr(birthDate))
     return next(new BadRequestError({
       code: 400,
       message: "Invalid birthDate format. Expected format: YYYY-MM-DD",
       logging: false,
       context: { birthDate: "invalid" }
     }));
-  }
-  const userExists = await serverErrorWrapper(() => isUserByUsername(username), "Failed to check if user exists");
-  if (userExists) {
+  if ((new Date(birthDate)).getFullYear() > (new Date()).getFullYear() - 18)
     return next(new BadRequestError({
       code: 400,
+      message: "User must be at least 18 years old.",
+      logging: false,
+      context: { birthDate: "too young" }
+    }));
+  const userExists = await serverErrorWrapper(() => isUserByUsername(username), "Failed to check if user exists");
+  if (userExists)
+    return next(new BadRequestError({
+      code: 409,
       message: "Username is already taken",
       logging: false,
       context: { username: "already taken" }
     }));
-  }
-  const hashedpw = await hashPW(pw);
+  const hashedpw = await serverErrorWrapper(() => hashPW(pw), "Failed to hash password");
   const id = uuidv4();
   await serverErrorWrapper(() => createUser(id, email, hashedpw, firstName, lastName, username, birthDate), "Failed to create user");
   const token = await createToken(id, email, username, false);
@@ -150,24 +164,29 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
 
 // password reset request
 router.post("/reset-password", async (req: Request<{}, {}, { email: string, username: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is required",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { email, username } = req.body;
-  if (!email || !username) {
+  if (!email || !username)
     return next(new BadRequestError({
       code: 400,
       message: "Email and username are required",
       logging: false,
       context: { username: !username ? "missing" : "present", email: !email ? "missing" : "present" }
     }));
-  }
   const userExists = await serverErrorWrapper(() => isUserByEmailUsername(email, username), "Failed to check if user exists");
-  if (!userExists) {
+  if (!userExists)
     return next(new BadRequestError({
       code: 400,
       message: "No user found with the provided email/username",
       logging: false,
-      context: { email_or_Pw: "not found" }
+      context: { email_or_Username: "not found" }
     }));
-  }
   const userId = await serverErrorWrapper(() => getUserIdByUsername(username), "Failed to get user ID");
   const hashedpw = await serverErrorWrapper(() => getHashedPwByUsername(username), "Failed to get hashed password");
   const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
@@ -178,78 +197,69 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
 
 // password reset using token from email link
 router.post("/reset-password/:userId/:token", async (req: Request<{ userId: string, token: string }, {}, { newPassword: string, newPassword2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is required",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { userId, token } = req.params;
   const { newPassword, newPassword2 } = req.body;
-  if (!token || !userId) {
+  if (!token || !userId)
     return next(new BadRequestError({
       code: 400,
       message: "Token and/or id are required",
       logging: false,
       context: { token: token ? "present" : "missing", id: userId ? "present" : "missing" }
     }));
-  }
-  if (!newPassword || !newPassword2) {
+  if (!newPassword || !newPassword2)
     return next(new BadRequestError({
       code: 400,
       message: "New passwords are required",
       logging: false,
       context: { newPassword: !newPassword ? "missing" : "present", newPassword2: !newPassword2 ? "missing" : "present" }
     }));
-  }
-  if (newPassword !== newPassword2) {
+  if (newPassword !== newPassword2)
     return next(new BadRequestError({
       code: 400,
       message: "New passwords do not match",
       logging: false,
       context: { newPassword: "mismatch" }
     }));
-  }
-  if (!isPwValid(newPassword)) {
+  if (!isPwValid(newPassword))
     return next(new BadRequestError({
       code: 400,
       message: "New password does not meet complexity requirements",
       logging: false,
       context: { newPassword: "invalid" }
     }));
-  }
-  let decodedToken;
-  try {
-    const hashedpw = await getHashedPwByUsername(userId);
-    if (!hashedpw) {
-      return next(new BadRequestError({
-        code: 400,
-        message: "Invalid id",
-        logging: false,
-        context: { id: "invalid" }
-      }));
-    }
-    decodedToken = await verifyPWResetToken(token, hashedpw);
-  } catch (error) {
+  const hashedpw = await serverErrorWrapper(() => getHashedPwByUsername(userId), "Failed to get hashed password");
+  if (hashedpw.length === 0) {
     return next(new BadRequestError({
-      code: 400,
-      message: "Invalid or expired token",
+      code: 401,
+      message: "Invalid id",
       logging: false,
-      context: { token: "invalid or expired" }
+      context: { id: "invalid" }
     }));
   }
-  if (!decodedToken || typeof decodedToken === "string") {
+  const decodedToken = await verifyPWResetToken(token, hashedpw);
+  if (!decodedToken || typeof decodedToken === "string")
     return next(new BadRequestError({
       code: 400,
       message: "Invalid token",
       logging: false,
       context: { token: "invalid" }
     }));
-  }
   const { id, email, username } = decodedToken as token;
-  if (!id || !email || !username || userId !== id) {
+  if (!id || !email || !username || userId !== id)
     return next(new BadRequestError({
       code: 400,
       message: "Invalid token",
       logging: false,
       context: { token: "invalid" }
     }));
-  }
-  const hashedNewPw = await hashPW(newPassword);
+  const hashedNewPw = await serverErrorWrapper(() => hashPW(newPassword), "Failed to hash new password");
   await serverErrorWrapper(() => setPwById(userId, hashedNewPw), "Failed to set new password");
   res.status(200).json({ msg: "Password has been reset successfully. Pls login again with new pw" });
 });
