@@ -3,7 +3,8 @@ import { clogger } from "./service/loggerSvc.js";
 import appfunc from "./app.js";
 import ConstMatcha from "./ConstMatcha.js";
 import driver from "./repo/neo4jRepo.js";
-import ServerRequestError from "./errors/ServerRequestError.js";
+import { setAllConstraints } from "./service/constraintSvc.js";
+import { serverErrorWrapper } from "./util/wrapper.js";
 
 
 dotenv.config();
@@ -13,20 +14,7 @@ const port = process.env.PORT || ConstMatcha.DEFAULT_PORT;
 const app = appfunc();
 
 app.listen(port, async () => {
-  const session = driver.session();
-  try {
-    await session.run(ConstMatcha.NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID);
-    await session.run(ConstMatcha.NEO4j_STMT_TAG_CONSTRAINT_UNIQUE_NAME);
-  } catch (error) {
-    session.close();
-    throw new ServerRequestError({
-      code: 500,
-      message: "Failed to create constraints",
-      logging: true,
-      context: { error }
-    });
-  }
-  session.close();
+  await serverErrorWrapper(setAllConstraints, "failed to set constraints");
   clogger.info(`[server]: Server is running at http://localhost:${port}`);
 });
 
