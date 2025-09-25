@@ -5,9 +5,11 @@
   "main": "build/index.js",
   "type": "module",
   "scripts": {
-    "dev": "npx nodemon",
+    "dev": "npx nodemon --config ./nodemon.json src/index.ts",
     "build": "npx tsc --project tsconfig.build.json",
-    "start": "npm run build && node build/index.js",
+    "buildstart": "npm run build && node build/index.js",
+    "start1": "tsc --noEmit && node --loader ts-node/esm/transpile-only src/index.ts",
+    "start": "tsc --noEmit && tsx src/index.ts",
     "prebuild": "test -f ./logs/app.log || mkdir -p ./logs && touch ./logs/app.log",
     "serve": "node build/index.js",
     "test": "vitest"
@@ -19,7 +21,7 @@
     "argon2": "^0.41.1",
     "dotenv": "^16.4.5",
     "express": "^5.1.0",
-    "helmet": "^8.0.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "neo4j-driver": "^5.28.1",
@@ -42,6 +44,7 @@
     "pino-pretty": "^11.2.2",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
     "typescript": "^5.6.2",
     "vitest": "^3.2.4"
   }

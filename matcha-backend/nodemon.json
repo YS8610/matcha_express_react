@@ -9,7 +9,9 @@
   ],
   "ext": "ts",
   "execMap": {
-    "ts": "node --loader ts-node/esm"
+    "ts1": "tsc --noEmit && node --loader ts-node/esm/transpile-only",
+    "ts0" : "tsc --noEmit && tsx",
+    "ts" : "tsx"
   },
   "legacyWatch": true
 }
