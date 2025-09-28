@@ -269,7 +269,7 @@ router.post("/reset-password/:userId/:token", async (req: Request<{ userId: stri
       logging: false,
       context: { newPassword: "invalid" }
     }));
-  const hashedpw = await serverErrorWrapper(() => getHashedPwByUsername(userId), "Failed to get hashed password");
+  const hashedpw = await serverErrorWrapper(() => getHashedPwById(userId), "Failed to get hashed password");
   if (hashedpw.length === 0) {
     return next(new BadRequestError({
       code: 401,
