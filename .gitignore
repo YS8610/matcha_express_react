@@ -87,3 +87,4 @@ docker-compose.override.yml
 matcha.md
 tsconfig.build.tsbuildinfo
 tsconfig.tsbuildinfo
+photoDump/

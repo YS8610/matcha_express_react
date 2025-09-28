@@ -1,15 +1,50 @@
 import express, { NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError.js";
 import { ProfileRegJson } from "../model/profile.js";
-import { activateUserByUsername, createUser, getHashedPwByUsername, getUserIdByUsername, getUsers, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById, setPwByUsername } from "../service/userSvc.js";
+import { activateUserByUsername, createUser, getHashedPwById, getHashedPwByUsername, getUserIdByUsername, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById } from "../service/userSvc.js";
 import { hashPW, loginSvc } from "../service/authSvc.js";
 import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc.js";
 import { AuthToken, token } from "../model/token.js";
 import ConstMatcha from "../ConstMatcha.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
 import { v4 as uuidv4 } from "uuid";
+import upload from "../middleware/uploadMulter.js";
 
 let router = express.Router();
+
+// testing fileupload. will be removed later
+router.post("/ping", upload.single("photo"), async (req: Request<{},{},{ }>, res: Response, next: NextFunction) => {
+  console.log("In rootRoute POST /ping");
+  console.log("File received:", req.file);
+  const photoUrl = req.file?.path;
+  // Logic to add a new photo URL for the user
+  if (!req.file) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "No file uploaded",
+      logging: false,
+      context: { file: "missing" }
+    }));
+  }
+  res.status(201).json({ message: "Photo URL added successfully", photoUrl });
+});
+
+// testing retrieve photo by name. will be removed later
+router.get("/photo/:name", async (req: Request<{ name: string }>, res: Response, next: NextFunction) => {
+  const { name } = req.params;
+  // Logic to get photo URLs by name
+  res.sendFile(`/${ConstMatcha.PHOTO_DUMP_DIR}/` + name, { root: '.' }, (err) => {
+    if (err) {
+      console.error("Error sending file:", err);
+      next( new BadRequestError({
+        message: "file not found",
+        logging: false,
+        code: 404,
+        context: { msg : "The requested file does not exist." },
+      }));
+    }
+  });
+});
 
 // testing purpose
 router.get("/ping", async (req: Request, res: Response<{ msg: string }>) => {

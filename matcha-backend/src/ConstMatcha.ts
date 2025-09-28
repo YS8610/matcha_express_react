@@ -7,6 +7,9 @@ export default class ConstMatcha{
 
   // constants for the app
   static readonly DEFAULT_PORT:number = 8080;
+
+  // photo dump
+  static readonly PHOTO_DUMP_DIR = "./photoDump/";
   
   // constants for argon2
   static readonly ARGON_HASHLENGTH = 128;
@@ -36,6 +39,7 @@ export default class ConstMatcha{
   
   // user limit 
   static readonly NEO4j_USER_MAX_TAGS = 10;
+  static readonly NEO4j_USER_MAX_PHOTOS = 5;
 
   // sexual preference
   static readonly SEXUAL_PREFERENCE_MALE = 1;
@@ -142,6 +146,11 @@ export default class ConstMatcha{
   static readonly NEO4j_STMT_GET_PW_BY_ID = `
     MATCH (u:PROFILE { id: $id })
     RETURN u.pw as pw
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_PROFILE_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
+    RETURN u{.*}
   `;
 
   // statements for tags
