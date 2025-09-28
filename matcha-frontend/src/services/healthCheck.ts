@@ -37,6 +37,21 @@ class HealthCheckService {
         this.notifyListeners(result);
         return result;
       } else {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+
+        console.error('Health Check Failed:', {
+          url: '/pubapi/ping',
+          method: 'GET',
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          errorData,
+          requestHeaders: {
+            'Content-Type': 'application/json',
+          },
+          timestamp: new Date(timestamp).toISOString()
+        });
+
         const result: HealthCheckResult = {
           isHealthy: false,
           message: 'Backend service unavailable',

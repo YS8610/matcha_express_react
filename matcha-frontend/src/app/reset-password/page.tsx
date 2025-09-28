@@ -8,43 +8,94 @@ import { Leaf } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [activeTab, setActiveTab] = useState<'request' | 'reset'>('request');
+
+  const [requestData, setRequestData] = useState({
     email: '',
     username: '',
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState('');
+  const [requestSuccess, setRequestSuccess] = useState('');
+  const [requestLoading, setRequestLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+  const [resetData, setResetData] = useState({
+    userId: '',
+    token: '',
+    newPassword: '',
+    newPassword2: ''
+  });
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const handleRequestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRequestData({
+      ...requestData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleResetChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setResetData({
+      ...resetData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleRequestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
+    setRequestError('');
+    setRequestSuccess('');
+    setRequestLoading(true);
 
     try {
-      await api.requestPasswordReset(formData.email, formData.username);
-      setSuccess('Password reset email sent! Please check your email.');
+      await api.requestPasswordReset(requestData.email, requestData.username);
+      setRequestSuccess('Password reset email sent! Please check your email for the reset link.');
+    } catch (err) {
+      setRequestError(err instanceof Error ? err.message : 'Password reset request failed');
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError('');
+    setResetSuccess('');
+
+    if (resetData.newPassword !== resetData.newPassword2) {
+      setResetError('Passwords do not match');
+      return;
+    }
+
+    if (resetData.newPassword.length < 8) {
+      setResetError('Password must be at least 8 characters long');
+      return;
+    }
+
+    setResetLoading(true);
+
+    try {
+      const response = await api.confirmPasswordReset(
+        resetData.userId,
+        resetData.token,
+        resetData.newPassword,
+        resetData.newPassword2
+      );
+      setResetSuccess(`Success: ${response.msg}`);
       setTimeout(() => {
         router.push('/login');
       }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Password reset request failed');
+      setResetError(err instanceof Error ? err.message : 'Password reset failed');
     } finally {
-      setLoading(false);
+      setResetLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-green-400 to-green-600 p-4 rounded-full">
@@ -54,70 +105,187 @@ export default function ResetPasswordPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">
             Reset Password
           </h1>
-          <p className="text-green-600">Enter your email and username to reset your password</p>
+          <p className="text-green-600">Request a reset email or use your reset token</p>
         </div>
 
-        <div className="space-y-4 w-full max-w-md">
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
+        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('request')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'request'
+                ? 'bg-white text-green-700 shadow-sm'
+                : 'text-gray-500 hover:text-green-600'
+            }`}
+          >
+            Request Reset Email
+          </button>
+          <button
+            onClick={() => setActiveTab('reset')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'reset'
+                ? 'bg-white text-green-700 shadow-sm'
+                : 'text-gray-500 hover:text-green-600'
+            }`}
+          >
+            Reset with Token
+          </button>
+        </div>
 
-          {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-              {success}
-            </div>
-          )}
+        {activeTab === 'request' && (
+          <div className="space-y-4">
+            {requestError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {requestError}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                placeholder="Enter your email"
-              />
-            </div>
+            {requestSuccess && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                {requestSuccess}
+              </div>
+            )}
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                placeholder="Enter your username"
-              />
-            </div>
+            <form onSubmit={handleRequestSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={requestData.email}
+                  onChange={handleRequestChange}
+                  required
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Enter your email"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
-            >
-              {loading ? 'Sending...' : 'Send Reset Email'}
-            </button>
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={requestData.username}
+                  onChange={handleRequestChange}
+                  required
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Enter your username"
+                />
+              </div>
 
-            <div className="text-center text-sm">
-              Remember your password?{' '}
-              <Link href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
-                Back to Login
-              </Link>
-            </div>
-          </form>
+              <button
+                type="submit"
+                disabled={requestLoading}
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
+              >
+                {requestLoading ? 'Sending...' : 'Send Reset Email'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {activeTab === 'reset' && (
+          <div className="space-y-4">
+            {resetError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {resetError}
+              </div>
+            )}
+
+            {resetSuccess && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                {resetSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleResetSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="userId" className="block text-sm font-medium mb-1 text-green-700">
+                  User ID
+                </label>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  value={resetData.userId}
+                  onChange={handleResetChange}
+                  required
+                  placeholder="Paste user ID from email"
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="token" className="block text-sm font-medium mb-1 text-green-700">
+                  Reset Token
+                </label>
+                <textarea
+                  id="token"
+                  name="token"
+                  value={resetData.token}
+                  onChange={handleResetChange}
+                  required
+                  rows={3}
+                  placeholder="Paste reset token from email"
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium mb-1 text-green-700">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  value={resetData.newPassword}
+                  onChange={handleResetChange}
+                  required
+                  minLength={8}
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Enter new password (min 8 characters)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="newPassword2" className="block text-sm font-medium mb-1 text-green-700">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  id="newPassword2"
+                  name="newPassword2"
+                  value={resetData.newPassword2}
+                  onChange={handleResetChange}
+                  required
+                  minLength={8}
+                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={resetLoading || !!resetSuccess}
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
+              >
+                {resetLoading ? 'Resetting Password...' : 'Reset Password'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        <div className="text-center text-sm mt-6">
+          Remember your password?{' '}
+          <Link href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
+            Back to Login
+          </Link>
         </div>
       </div>
     </div>

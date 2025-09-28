@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Leaf, Save } from 'lucide-react';
+import TagManager from '@/components/profile/TagManager';
+import PasswordChanger from '@/components/profile/PasswordChanger';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -274,6 +276,14 @@ export default function EditProfilePage() {
             </button>
           </div>
         </form>
+
+        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+          <TagManager />
+        </div>
+
+        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+          <PasswordChanger />
+        </div>
       </div>
     </div>
   );

@@ -11,9 +11,17 @@ export default function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    loadNotifications();
   }, []);
 
   const loadNotifications = async () => {
+    try {
+      const data = await api.getNotifications();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.notifications?.filter((n: Notification) => !n.read).length || 0);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+    }
   };
 
   const handleMarkAsRead = async (notificationId: string) => {

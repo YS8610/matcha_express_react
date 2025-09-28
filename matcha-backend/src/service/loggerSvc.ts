@@ -36,8 +36,9 @@ const ftransport = pino.transport({
   ],
 });
 
+// jegoh: manual remove default to pass build, dont think will break anything, wanted to just use direct dockerfile dockercompose.
 // use transport for logging to both file and console
-export const logger = pino.default(
+export const logger = pino(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
@@ -46,7 +47,7 @@ export const logger = pino.default(
 );
 
 // use transport for logging to console only
-export const clogger = pino.default(
+export const clogger = pino(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
@@ -55,7 +56,7 @@ export const clogger = pino.default(
 );
 
 // use transport for logging to file only
-export const flogger = pino.default(
+export const flogger = pino(
   {
     level: "info",
     timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,

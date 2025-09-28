@@ -2,14 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || 'http://matcha-backend:3001';
     return [
       {
         source: '/api/:path*',
-        destination: 'http://matcha-backend:3001/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: '/pubapi/:path*',
-        destination: 'http://matcha-backend:3001/pubapi/:path*',
+        destination: `${backendUrl}/pubapi/:path*`,
       },
     ];
   },

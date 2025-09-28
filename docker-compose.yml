@@ -3,10 +3,10 @@ services:
     image: neo4j:latest
     container_name: matcha-neo4j
     ports:
-      - "7474:7474"
+      - "7474:7474" # localhost:7474 to access website
       - "7687:7687"
     environment:
-      - NEO4J_AUTH=neo4j/matcha123
+      - NEO4J_AUTH=neo4j/matcha123 # username/password for db login
     volumes:
       - neo4j_data:/data
     healthcheck:
@@ -20,7 +20,7 @@ services:
     build: ./matcha-backend
     container_name: matcha-backend
     ports:
-      - "3001:3001"
+      - "3001:3001" # localhost:3001 to access backend api
     environment:
       - PORT=3001
       - NEO4J_URI=bolt://neo4j:7687
@@ -35,7 +35,7 @@ services:
     build: ./matcha-frontend
     container_name: matcha-frontend
     ports:
-      - "3000:3000"
+      - "3000:3000" # localhost:3000 to access website
     depends_on:
       - backend
 

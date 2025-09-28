@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { api } from '@/lib/api';
 
 export default function ProfileSetup() {
@@ -261,10 +262,13 @@ export default function ProfileSetup() {
                       key={index}
                       className="relative group"
                     >
-                      <img
+                      <Image
                         src={URL.createObjectURL(photo)}
                         alt={`Preview ${index + 1}`}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded-md border-2 border-gray-300"
+                        unoptimized
                       />
                       <button
                         type="button"

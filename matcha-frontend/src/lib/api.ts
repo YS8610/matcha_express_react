@@ -1,6 +1,6 @@
 import { setCookie, deleteCookie } from './cookies';
 
-const API_URL = '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 class ApiClient {
   private token: string | null = null;
@@ -42,6 +42,18 @@ class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
+
+      console.error('API Request Failed:', {
+        url,
+        method: config.method || 'GET',
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        errorData,
+        requestHeaders: config.headers,
+        requestBody: options.body
+      });
+
       if (errorData.errors && errorData.errors[0]) {
         throw new Error(errorData.errors[0].message || `HTTP error! status: ${response.status}`);
       }
@@ -192,6 +204,35 @@ class ApiClient {
 
   async ping() {
     return this.request('/pubapi/ping');
+  }
+
+  async getUserTags() {
+    return this.request('/api/user/tags');
+  }
+
+  async addTag(tagName: string) {
+    return this.request('/api/user/tag', {
+      method: 'POST',
+      body: JSON.stringify({ tagName }),
+    });
+  }
+
+  async removeTag(tagName: string) {
+    return this.request('/api/user/tag', {
+      method: 'DELETE',
+      body: JSON.stringify({ tagName }),
+    });
+  }
+
+  async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string) {
+    return this.request('/api/user/password', {
+      method: 'PUT',
+      body: JSON.stringify({
+        oldPassword,
+        pw: newPassword,
+        pw2: confirmPassword
+      }),
+    });
   }
 }
 
