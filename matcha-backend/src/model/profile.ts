@@ -16,10 +16,10 @@ export interface ProfileRegJson extends Profile {
 
 export interface ProfileDb extends Profile{
   id:string;
-  birthDate: Date;
+  birthDate: string;
   biography?: string;
-  gender?: string;
-  sexualPreference?: string;
+  gender?: number;
+  sexualPreference?: number;
   fameRating?: number;
   photo0?: string;
   photo1?: string;
@@ -31,7 +31,7 @@ export interface ProfileDb extends Profile{
   updatedAt: string;
 };
 
-export interface ProfileUpdateJson {
+export interface ProfilePutJson {
   firstName: string;
   lastName: string;
   email: string;
@@ -39,6 +39,33 @@ export interface ProfileUpdateJson {
   sexualPreference: number;
   biography: string;
   birthDate: string;
+}
+
+export interface IntTypeNeo4j {
+  low: number;
+  high: number;
+}
+
+export interface DateTypeNeo4j {
+  year: IntTypeNeo4j;
+  month: IntTypeNeo4j;
+  day: IntTypeNeo4j;
+}
+
+export interface ProfileGetJson {
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: DateTypeNeo4j;
+  biography: string;
+  gender: number;
+  sexualPreference: number;
+  fameRating: number;
+  photo0: string;
+  photo1: string;
+  photo2: string;
+  photo3: string;
+  photo4: string;
 }
 
 export interface Reslocal{

@@ -1,6 +1,6 @@
 import ConstMatcha from "../ConstMatcha.js";
 import ServerRequestError from "../errors/ServerRequestError.js";
-import { ProfileDb, ProfileUpdateJson } from "../model/profile.js";
+import { ProfileDb, ProfileGetJson, ProfilePutJson } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
@@ -66,7 +66,7 @@ export const getHashedPwByUsername = async (username: string): Promise<string> =
   return result.records.length == 1 ? result.records[0].get("pw"): "";
 };
 
-export const setUserProfileById = async (id : string, profileUpdateJson : ProfileUpdateJson): Promise<void> => {
+export const setUserProfileById = async (id : string, profileUpdateJson : ProfilePutJson): Promise<void> => {
   const session = driver.session();
   await session.run(ConstMatcha.NEO4j_STMT_SET_USER_PROFILE_BY_ID, { id, ...profileUpdateJson });
   session.close();
@@ -99,6 +99,13 @@ export const activateUserByUsername = async (username: string): Promise<boolean>
   session.close();
   return result.records.length > 0;
 }
+
+export const getUserProfileById = async (id: string): Promise<ProfileGetJson | null> => {
+  const session = driver.session();
+  const result = await session.run<ProfileGetJson>(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
+  session.close();
+  return result.records.length == 1 ? result.records[0].get(0) : null;
+};
 
 // password validation function (e.g., length, complexity)
 export const isPwValid = (pw: string): boolean => {
