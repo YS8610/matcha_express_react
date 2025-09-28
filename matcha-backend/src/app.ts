@@ -2,9 +2,13 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import { errorHandler } from "./middleware/errorHandler.js";
 import rootRoute from "./routes/rootRoute.js";
-import userRoute from "./routes/auth/userRoute.js";
+import userProfileRoute from "./routes/auth/userProfileRoute.js";
 import { authMiddleware } from "./middleware/auth.js";
 import BadRequestError from "./errors/BadRequestError.js";
+import userTagRoute from "./routes/auth/userTagRoute.js";
+import userPwRoute from "./routes/auth/userPwRoute.js";
+import userPhotoRoute from "./routes/auth/userPhotoRoute.js";
+import photoRoute from "./routes/auth/photoRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -22,7 +26,11 @@ const appfunc = () => {
   app.use("/pubapi", rootRoute);
   // auth api routes
   app.use("/api", authMiddleware);
-  app.use("/api/user", userRoute);
+  app.use("/api/photo", photoRoute);
+  app.use("/api/user/profile", userProfileRoute);
+  app.use("/api/user/tag", userTagRoute);
+  app.use("/api/user/pw", userPwRoute);
+  app.use("/api/user/photo", userPhotoRoute);
   app.use("/", (req, res, next) => {
     next(new BadRequestError({
       message: "invalid endpoint",
