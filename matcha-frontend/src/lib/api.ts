@@ -120,7 +120,7 @@ class ApiClient {
   }
 
   async getProfile(userId?: string) {
-    const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/profiles/me';
+    const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/api/user/profile';
     return this.request(endpoint);
   }
 
@@ -131,14 +131,31 @@ class ApiClient {
     });
   }
 
-  async uploadPhoto(file: File) {
+  async uploadPhoto(file: File, photoNumber: number) {
     const formData = new FormData();
     formData.append('photo', file);
-    
-    return this.request('/profiles/photos', {
-      method: 'POST',
+
+    return this.request(`/api/user/photo/${photoNumber}`, {
+      method: 'PUT',
       headers: {},
       body: formData as BodyInit,
+    });
+  }
+
+  async getUserPhotos() {
+    return this.request('/api/user/photo');
+  }
+
+  async deletePhoto(photoNumber: number) {
+    return this.request(`/api/user/photo/${photoNumber}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderPhotos(newOrder: number[]) {
+    return this.request('/api/user/photo/order', {
+      method: 'PUT',
+      body: JSON.stringify({ newOrder }),
     });
   }
 
@@ -206,8 +223,13 @@ class ApiClient {
     return this.request('/pubapi/ping');
   }
 
+  async getPhoto(photoName: string) {
+    const url = `${API_URL}/api/photo/${photoName}`;
+    return url;
+  }
+
   async getUserTags() {
-    return this.request('/api/user/tags');
+    return this.request('/api/user/tag');
   }
 
   async addTag(tagName: string) {

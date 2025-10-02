@@ -1,4 +1,5 @@
-import { pino } from "pino";
+// jegoh: removed {} from pino to fix build error
+import pino from "pino";
 
 const LOG_DIR = "./logs/app.log";
 
@@ -36,7 +37,7 @@ const ftransport = pino.transport({
   ],
 });
 
-// jegoh: manual remove default to pass build, dont think will break anything, wanted to just use direct dockerfile dockercompose.
+// jegoh: manual remove default to pass build
 // use transport for logging to both file and console
 export const logger = pino(
   {

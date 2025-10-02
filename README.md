@@ -16,7 +16,7 @@ cd matcha-frontend
 npm run dev
 ```
 
-## Endpoints no auth
+## Endpoints no jwt
 
 1. GET /pubapi/ping
 2. POST /pubapi/login
@@ -25,10 +25,17 @@ npm run dev
 5. POST /pubapi/reset-password
 6. POST /pubapi/reset-password/:userId/:token
 
-## Endpoints need auth
+## Endpoints need jwt
 
-1. PUT /api/user/profile
-2. PUT /api/user/password
-3. GET /api/user/tags
-4. POST /api/user/tag
-5. DELETE /api/user/tag
+7. GET /api/user/profile
+8. PUT /api/user/profile
+9. GET /api/user/tag
+10. POST /api/user/tag
+11. DELETE /api/user/tag
+12. PUT /api/user/pw
+13. GET /api/user/photo
+14. PUT /api/user/photo/:no
+15. DELETE /api/user/photo/:no
+16. PUT /api/user/photo/order
+17. GET /api/photo/:name
+

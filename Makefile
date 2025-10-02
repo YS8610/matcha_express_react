@@ -22,8 +22,7 @@ clean:
 	docker compose down -v
 	docker system prune -af
 
-re:
-	docker compose down
+re: clean
 	docker compose build --no-cache
 	docker compose up
 
