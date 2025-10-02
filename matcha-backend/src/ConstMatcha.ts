@@ -183,4 +183,44 @@ export default class ConstMatcha{
     MATCH (u:PROFILE { id: $userId })-[:HAS_TAG]->(t:TAG)
     RETURN count(t) as tagCount
   `;
+
+  static readonly NEO4j_STMT_ADD_USER_PHOTO0 = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo0 = $photoUrl, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_ADD_USER_PHOTO1 = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo1 = $photoUrl, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_ADD_USER_PHOTO2 = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo2 = $photoUrl, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_ADD_USER_PHOTO3 = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo3 = $photoUrl, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_ADD_USER_PHOTO4 = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo4 = $photoUrl, u.updatedAt = datetime()
+  `;
+
+  static readonly NEO4j_STMT_GET_ALL_PHOTO_NAME_BY_USER_ID = `
+    MATCH (u:PROFILE { id: $userId })
+    RETURN [u.photo0, u.photo1, u.photo2, u.photo3, u.photo4] AS photoNames
+  `;
+
+  static readonly NEO4j_STMT_SET_PHOTO_ORDER_BY_USER_ID = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.photo0 = $photo0,
+        u.photo1 = $photo1,
+        u.photo2 = $photo2,
+        u.photo3 = $photo3,
+        u.photo4 = $photo4,
+        u.updatedAt = datetime()
+  `;
 }
