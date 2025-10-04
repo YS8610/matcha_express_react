@@ -28,12 +28,19 @@ router.put("/", async (req: Request<{}, {}, { oldPassword: string, pw: string, p
       context: { oldPassword: "same", pw: "same" }
     }));
   }
-  if (!isPwValid(pw)) {
+  const bitPWValid = isPwValid(pw);
+  if (bitPWValid != 0) {
     return next(new BadRequestError({
       code: 400,
       message: "Invalid/insecure password format",
       logging: false,
-      context: { pw: "invalid/insecure" }
+      context: {
+        "min 8 char": (bitPWValid & 1) > 0? "missing" : "present",
+        "upper case": (bitPWValid & 2) > 0? "missing" : "present",
+        "lower case": (bitPWValid & 4) > 0? "missing" : "present",
+        "number": (bitPWValid & 8) > 0? "missing" : "present",
+        "special char": (bitPWValid & 16) > 0? "missing" : "present"
+      }
     }));
   }
   const hashedpw = await getHashedPwById(id);

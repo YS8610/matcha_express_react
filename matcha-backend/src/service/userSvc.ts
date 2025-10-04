@@ -114,13 +114,24 @@ export const getUserProfileById = async (id: string): Promise<ProfileGetJson | n
 };
 
 // password validation function (e.g., length, complexity)
-export const isPwValid = (pw: string): boolean => {
-  if (pw.length < 8) return false; // Minimum length
-  if (!/[A-Z]/.test(pw)) return false; // At least one uppercase letter
-  if (!/[a-z]/.test(pw)) return false; // At least one lowercase letter
-  if (!/[0-9]/.test(pw)) return false; // At least one number
-  if (!/[!@#$%^&*]/.test(pw)) return false; // At least one special character
-  return true;
+export const isPwValid = (pw: string): number => {
+  let mask = 0;
+  // Minimum length of 8 characters
+  if (pw.length < 8) 
+    mask |= 1; 
+  // At least one uppercase letter
+  if (!/[A-Z]/.test(pw)) 
+    mask |= 2; 
+  // At least one lowercase letter
+  if (!/[a-z]/.test(pw)) 
+    mask |= 4; 
+  // At least one number
+  if (!/[0-9]/.test(pw)) 
+    mask |= 8;
+  // At least one special character
+  if (!/[!@#$%^&*]/.test(pw))
+    mask |= 16;
+  return mask; // Return 0 if valid, otherwise return the bitmask indicating issues
 }
 
 export const isValidDateStr = (dateStr: string): boolean => {

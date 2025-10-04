@@ -129,12 +129,19 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
       logging: false,
       context: { pw: "mismatch" }
     }));
-  if (!isPwValid(pw))
+  const bitPWValid = isPwValid(pw);
+  if (bitPWValid != 0)
     return next(new BadRequestError({
       code: 400,
       message: "Password does not meet complexity requirements",
       logging: false,
-      context: { pw: "invalid" }
+      context: {
+        "min 8 char": (bitPWValid & 1) > 0? "missing" : "present",
+        "upper case": (bitPWValid & 2) > 0? "missing" : "present",
+        "lower case": (bitPWValid & 4) > 0? "missing" : "present",
+        "number": (bitPWValid & 8) > 0? "missing" : "present",
+        "special char": (bitPWValid & 16) > 0? "missing" : "present"
+      }
     }));
   if (!isValidDateStr(birthDate))
     return next(new BadRequestError({
@@ -263,12 +270,19 @@ router.post("/reset-password/:userId/:token", async (req: Request<{ userId: stri
       logging: false,
       context: { newPassword: "mismatch" }
     }));
-  if (!isPwValid(newPassword))
+  const bitPWValid = isPwValid(newPassword);
+  if (bitPWValid != 0)
     return next(new BadRequestError({
       code: 400,
       message: "New password does not meet complexity requirements",
       logging: false,
-      context: { newPassword: "invalid" }
+      context: {
+        "min 8 char": (bitPWValid & 1) > 0? "missing" : "present",
+        "upper case": (bitPWValid & 2) > 0? "missing" : "present",
+        "lower case": (bitPWValid & 4) > 0? "missing" : "present",
+        "number": (bitPWValid & 8) > 0? "missing" : "present",
+        "special char": (bitPWValid & 16) > 0? "missing" : "present"
+      }
     }));
   const hashedpw = await serverErrorWrapper(() => getHashedPwById(userId), "Failed to get hashed password");
   if (hashedpw.length === 0) {
