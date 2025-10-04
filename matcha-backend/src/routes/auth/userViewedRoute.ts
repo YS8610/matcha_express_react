@@ -4,6 +4,7 @@ import { serverErrorWrapper } from "../../util/wrapper.js";
 import { isUserExistsById } from "../../service/userSvc.js";
 import { addViewed, getViewedById, getVisitedById } from "../../service/viewedSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
+import { ResMsg } from "../../model/Response.js";
 
 
 let router = express.Router();
@@ -41,7 +42,7 @@ router.get("/by", async (req: Request, res: Response<{ data: ProfileViewed[] }>,
 });
 
 // record that the authenticated user has viewed another user
-router.post("/", async (req: Request<{}, {}, { viewedUserID: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/", async (req: Request<{}, {}, { viewedUserID: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { viewedUserID } = req.body;
   if (!viewedUserID)

@@ -4,6 +4,7 @@ import { Reslocal } from "../../model/profile.js";
 import { deletePhotoByName, getAllPhotoNameByUserId, isValidOrder, reorderPhotosByID, setPhotobyUserId } from "../../service/photoSvc.js";
 import { catchErrorWrapper, serverErrorWrapper } from "../../util/wrapper.js";
 import BadRequestError from "../../errors/BadRequestError.js";
+import { ResMsg } from "../../model/Response.js";
 
 let router = express.Router();
 
@@ -15,7 +16,7 @@ router.get("/", async (req: Request, res: Response<{photoNames: string[]}>, next
 });
 
 // upload user photo by photo number
-router.put("/:no", upload.single("photo"), async (req: Request<{ no: string }>, res: Response<{msg:string}>, next: NextFunction) => {
+router.put("/:no", upload.single("photo"), async (req: Request<{ no: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!req.file)
     return (next(new BadRequestError({
@@ -54,7 +55,7 @@ router.put("/:no", upload.single("photo"), async (req: Request<{ no: string }>, 
 });
 
 // delete user photo by photo number
-router.delete("/:no", async (req: Request<{ no: string }>, res: Response<{msg :string}>, next: NextFunction) => {
+router.delete("/:no", async (req: Request<{ no: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { no } = req.params;
   const photoNumber = parseInt(no, 10);
@@ -89,7 +90,7 @@ router.delete("/:no", async (req: Request<{ no: string }>, res: Response<{msg :s
 });
 
 // reorder photos by new order array
-router.put("/order", async (req: Request<{}, {}, {newOrder: number[]}>, res: Response<{msg:string}>, next: NextFunction) => {
+router.put("/order", async (req: Request<{}, {}, {newOrder: number[]}>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { newOrder } = req.body;
   if (!newOrder)

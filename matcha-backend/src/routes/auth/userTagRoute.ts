@@ -4,6 +4,7 @@ import { deleteTagbyUserId, getTagCountById, getTagsById, setTagbyUserId } from 
 import { Reslocal } from "../../model/profile.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import ConstMatcha from "../../ConstMatcha.js";
+import { ResMsg } from "../../model/Response.js";
 
 let router = express.Router();
 
@@ -15,7 +16,7 @@ router.get("/", async (req: Request, res: Response<{ tags: string[] }>, next: Ne
 });
 
 // Add a new tag for the authenticated user
-router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { tagName } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!tagName || tagName.trim() === "") {
@@ -41,7 +42,7 @@ router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response
 });
 
 // Remove a tag for the authenticated user
-router.delete("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.delete("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { tagName } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!tagName || tagName.trim() === "") {

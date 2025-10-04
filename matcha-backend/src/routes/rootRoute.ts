@@ -9,6 +9,7 @@ import ConstMatcha from "../ConstMatcha.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
 import { v4 as uuidv4 } from "uuid";
 import upload from "../middleware/uploadMulter.js";
+import { ResMsg } from "../model/Response.js";
 
 let router = express.Router();
 
@@ -47,7 +48,7 @@ router.get("/photo/:name", async (req: Request<{ name: string }>, res: Response,
 });
 
 // testing purpose
-router.get("/ping", async (req: Request, res: Response<{ msg: string }>) => {
+router.get("/ping", async (req: Request, res: Response<ResMsg>) => {
   // const session = driver.session();
   // const result = await session.run<{u:{properties:{email:string, pw:string}}}>("CREATE (u:Profile {email:'t2@yahoo.com' ,pw:'123456' }) RETURN u");
   // console.log("this is result0 " + result.records[0].get("u")); // Should log the created user
@@ -69,7 +70,7 @@ router.get("/ping", async (req: Request, res: Response<{ msg: string }>) => {
 });
 
 // login using username and password, return jwt token if successful
-router.post("/login", async (req: Request<{}, {}, { username: string, password: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/login", async (req: Request<{}, {}, { username: string, password: string }>, res: Response<ResMsg>, next: NextFunction) => {
   if (!req.body)
     return next(new BadRequestError({
       code: 400,
@@ -97,7 +98,7 @@ router.post("/login", async (req: Request<{}, {}, { username: string, password: 
 });
 
 // user registration
-router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Response<{ msg: string }, {}>, next: NextFunction) => {
+router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Response<ResMsg>, next: NextFunction) => {
   if (!req.body)
     return next(new BadRequestError({
       code: 400,
@@ -167,7 +168,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
 });
 
 // activating user account from email link
-router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}>, res: Response<ResMsg>, next: NextFunction) => {
   const { token } = req.params;
   if (!token) {
     res.status(400).json({ msg: "Token is required" });
@@ -198,7 +199,7 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
 });
 
 // password reset request
-router.post("/reset-password", async (req: Request<{}, {}, { email: string, username: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/reset-password", async (req: Request<{}, {}, { email: string, username: string }>, res: Response<ResMsg>, next: NextFunction) => {
   if (!req.body)
     return next(new BadRequestError({
       code: 400,
@@ -231,7 +232,7 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
 });
 
 // password reset using token from email link
-router.post("/reset-password/:userId/:token", async (req: Request<{ userId: string, token: string }, {}, { newPassword: string, newPassword2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.post("/reset-password/:userId/:token", async (req: Request<{ userId: string, token: string }, {}, { newPassword: string, newPassword2: string }>, res: Response<ResMsg>, next: NextFunction) => {
   if (!req.body)
     return next(new BadRequestError({
       code: 400,

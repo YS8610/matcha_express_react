@@ -3,6 +3,7 @@ import { ProfileGetJson, ProfilePutJson, Reslocal } from "../../model/profile.js
 import { getUserProfileById, isValidDateStr, setUserProfileById } from "../../service/userSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
+import { ResMsg } from "../../model/Response.js";
 
 let router = express.Router();
 
@@ -38,7 +39,7 @@ router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFu
 });
 
 // Update user profile
-router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<ResMsg>, next: NextFunction) => {
   const { firstName, lastName, email, gender, sexualPreference, biography, birthDate } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!isValidDateStr(birthDate)) {

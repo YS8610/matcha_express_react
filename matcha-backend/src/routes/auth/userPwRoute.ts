@@ -4,11 +4,12 @@ import BadRequestError from "../../errors/BadRequestError.js";
 import { getHashedPwById, isPwValid, setPwById } from "../../service/userSvc.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { hashPW, verifyPW } from "../../service/authSvc.js";
+import { ResMsg } from "../../model/Response.js";
 
 let router = express.Router();
 
 // Change password for the authenticated user
-router.put("/", async (req: Request<{}, {}, { oldPassword: string, pw: string, pw2: string }>, res: Response<{ msg: string }>, next: NextFunction) => {
+router.put("/", async (req: Request<{}, {}, { oldPassword: string, pw: string, pw2: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { oldPassword, pw, pw2 } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (pw !== pw2) {
