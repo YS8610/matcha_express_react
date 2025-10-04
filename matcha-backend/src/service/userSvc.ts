@@ -1,5 +1,4 @@
 import ConstMatcha from "../ConstMatcha.js";
-import ServerRequestError from "../errors/ServerRequestError.js";
 import { ProfileDb, ProfileGetJson, ProfilePutJson } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 
@@ -13,6 +12,13 @@ export const isUserByEmail = async (email: string): Promise<boolean> => {
 export const isUserByUsername = async (username: string): Promise<boolean> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+  session.close();
+  return result.records.length > 0;
+};
+
+export const isUserExistsById = async (id: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
   session.close();
   return result.records.length > 0;
 };

@@ -223,4 +223,33 @@ export default class ConstMatcha{
         u.photo4 = $photo4,
         u.updatedAt = datetime()
   `;
+
+  static readonly NEO4j_STMT_GET_USER_VIEWED_BY = `
+    MATCH (u:PROFILE { id: $userId })<-[:VIEWED]-(v:PROFILE)
+    RETURN v{.*}
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_VIEWED = `
+    MATCH (u:PROFILE { id: $userId })-[:VIEWED]->(v:PROFILE)
+    RETURN v{.*}
+  `;
+
+  static readonly NEO4j_STMT_CREATE_USER_VIEWED_REL = `
+    MATCH (u:PROFILE { id: $userId }) with u 
+    MATCH (v:PROFILE { id: $viewedUserId })
+    MERGE (u)-[:VIEWED]->(v)
+  `;
 }
+
+// MATCH (u:PROFILE { id: "37e4428f-d7ec-4b93-8b78-b81d42b4c8b5" }) with u
+// MATCH (v:PROFILE { id: "bd18a016-1142-4ae5-b1f2-1767e9f1ef53" }) 
+// MERGE (u)-[:VIEWED ]->(v)
+
+// MATCH (u:PROFILE { id: $userId }) with u
+// MATCH (v:PROFILE { id: $viewedUserId })
+// MERGE (u)-[:VIEWED { viewedAt: datetime() }]->(v)
+
+// MATCH (u:PROFILE { id: "37e4428f-d7ec-4b93-8b78-b81d42b4c8b5" }), (v:PROFILE { id: "bd18a016-1142-4ae5-b1f2-1767e9f1ef53" })
+// MERGE (u)-[:VIEWED ]->(v)
+// MATCH (:PROFILE {id: "bd18a016-1142-4ae5-b1f2-1767e9f1ef53" }) <- [r:VIEWED] - () DELETE r
+// MATCH (n) WHERE size(labels(n)) = 0 return n

@@ -53,8 +53,10 @@ export interface DateTypeNeo4j {
 }
 
 export interface ProfileGetJson {
+  id:string;
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   birthDate: DateTypeNeo4j;
   biography: string;
@@ -73,4 +75,12 @@ export interface Reslocal{
   username:string;
   id:string;
   activated:boolean;
+}
+
+export interface ProfileViewed{
+  id :string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  photo0: string;
 }

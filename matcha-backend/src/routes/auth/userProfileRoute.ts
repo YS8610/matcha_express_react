@@ -18,6 +18,8 @@ router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFu
       context: { id: "not_found" }
     }));
   const profileResponse: ProfileGetJson = {
+    id: profile.id,
+    username: profile.username,
     firstName: profile.firstName,
     lastName: profile.lastName,
     email: profile.email,

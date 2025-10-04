@@ -9,6 +9,7 @@ import userTagRoute from "./routes/auth/userTagRoute.js";
 import userPwRoute from "./routes/auth/userPwRoute.js";
 import userPhotoRoute from "./routes/auth/userPhotoRoute.js";
 import photoRoute from "./routes/auth/photoRoute.js";
+import userViewedRoute from "./routes/auth/userViewedRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -31,6 +32,7 @@ const appfunc = () => {
   app.use("/api/user/tag", userTagRoute);
   app.use("/api/user/pw", userPwRoute);
   app.use("/api/user/photo", userPhotoRoute);
+  app.use("/api/user/viewed", userViewedRoute);
   app.use("/", (req, res, next) => {
     next(new BadRequestError({
       message: "invalid endpoint",
