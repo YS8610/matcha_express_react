@@ -24,8 +24,10 @@ export default function TagManager({ className = '' }: TagManagerProps) {
       setLoading(true);
       const response = await api.getUserTags();
       setTags(response.tags || []);
+      setError('');
     } catch (err) {
-      setError((err as Error).message || 'Failed to load tags');
+      console.warn('Failed to load tags:', err);
+      setTags([]);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* Matcha-themed colors */
   --matcha-light: #c5e1a5;
   --matcha-medium: #8bc34a;
   --matcha-dark: #689f38;
@@ -10,13 +9,11 @@
   --matcha-brown: #795548;
   --matcha-accent: #9ccc65;
   
-  /* Primary palette */
   --background: #fafaf8;
   --foreground: #2d3a2d;
   --card-bg: #ffffff;
   --border: #e0e6db;
   
-  /* Semantic colors */
   --primary: var(--matcha-medium);
   --primary-hover: var(--matcha-dark);
   --secondary: var(--matcha-light);
@@ -55,7 +52,38 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Utility classes for matcha theme */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+main {
+  will-change: transform, opacity;
+}
+
+a {
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+}
+
+a:active {
+  transform: scale(0.98);
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.hover\:shadow-lg {
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.hover\:shadow-lg:hover {
+  transform: translateY(-2px);
+}
+
 .matcha-gradient {
   background: linear-gradient(135deg, var(--matcha-light) 0%, var(--matcha-medium) 100%);
 }

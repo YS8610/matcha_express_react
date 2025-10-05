@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { api } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import imageCompression from 'browser-image-compression';
 
 export default function ProfileSetup() {
   const [step, setStep] = useState(1);
@@ -19,6 +21,7 @@ export default function ProfileSetup() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleAddInterest = () => {
     if (interestInput && !formData.interests.includes(interestInput)) {
@@ -52,16 +55,36 @@ export default function ProfileSetup() {
     setLoading(true);
 
     try {
+      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
+      const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
+
       await api.updateProfile({
-        gender: formData.gender,
-        sexualPreference: formData.sexualPreference,
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        gender: genderMap[formData.gender] ?? 0,
+        sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
         biography: formData.biography,
-        interests: formData.interests,
         birthDate: formData.birthDate,
       });
 
-      for (const photo of formData.photos) {
-        await api.uploadPhoto(photo);
+      for (const interest of formData.interests) {
+        try {
+          await api.addTag(interest);
+        } catch (tagError) {
+          console.error(`Failed to add tag ${interest}:`, tagError);
+        }
+      }
+
+      for (let i = 0; i < formData.photos.length; i++) {
+        const options = {
+          maxSizeMB: 0.095,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+          fileType: 'image/jpeg',
+        };
+        const compressedFile = await imageCompression(formData.photos[i], options);
+        await api.uploadPhoto(compressedFile, i);
       }
 
       router.push('/browse');

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { toDisplayNumber } from '@/lib/neo4j-utils';
 
 interface ProfileViewProps {
   userId: string;
@@ -16,32 +17,39 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
   const { user } = useAuth();
-  
+
+  const loadProfile = useCallback(async () => {
+    if (!userId) {
+      console.error('No userId provided');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await api.getProfile(userId);
+      setProfile(data);
+
+      if (user && user.id !== userId) {
+        try {
+          await api.recordUserView(userId);
+        } catch (viewError) {
+          console.error('Failed to record profile view:', viewError);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, user]);
+
   useEffect(() => {
     if (userId) {
       loadProfile();
     } else {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
-
-  const loadProfile = async () => {
-    if (!userId) {
-      console.error('No userId provided');
-      setLoading(false);
-      return;
-    }
-    
-    try {
-      const data = await api.getProfile(userId);
-      setProfile(data);
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [userId, loadProfile]);
 
   const handleLike = async () => {
     if (!profile || !userId) {
@@ -104,7 +112,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
             <h1 className="text-3xl font-bold text-white">
-              {(profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || profile.userId}, {profile.age}
+              {(profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || profile.userId}{profile.age ? `, ${toDisplayNumber(profile.age)}` : ''}
             </h1>
             <p className="text-white/90">
               {profile.location?.city || 'Unknown location'}
@@ -116,7 +124,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         <div className="p-6">
           <div className="flex items-center gap-4 mb-6">
             <span className="text-sm text-gray-600">
-              Fame Rating: {profile.fameRating}/100
+              Fame Rating: {toDisplayNumber(profile.fameRating, '0')}/100
             </span>
             {profile.isOnline ? (
               <span className="text-green-500 text-sm">Online</span>
@@ -139,24 +147,26 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">About</h2>
-            <p className="text-gray-700">{profile.biography}</p>
+            <p className="text-gray-700">{profile.biography || 'No biography available.'}</p>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Interests</h2>
-            <div className="flex flex-wrap gap-2">
-              {profile.interests.map(interest => (
-                <span
-                  key={interest}
-                  className="px-3 py-1 bg-gray-200 rounded-full text-sm"
-                >
-                  #{interest}
-                </span>
-              ))}
+          {profile.interests && profile.interests.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Interests</h2>
+              <div className="flex flex-wrap gap-2">
+                {profile.interests.map(interest => (
+                  <span
+                    key={interest}
+                    className="px-3 py-1 bg-gray-200 rounded-full text-sm"
+                  >
+                    #{interest}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {profile.photos.length > 0 && (
+          {profile.photos && profile.photos.length > 0 && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">Photos</h2>
               <div className="grid grid-cols-3 gap-2">

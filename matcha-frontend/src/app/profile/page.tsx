@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { User, Star, Heart, Eye, Edit, Leaf } from 'lucide-react';
+import { toDisplayNumber, toGenderString, toSexualPreferenceString } from '@/lib/neo4j-utils';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -93,13 +94,13 @@ export default function MyProfilePage() {
                   Profile Info
                 </h2>
                 <div className="space-y-2 text-sm text-green-700">
-                  <p><span className="font-medium text-green-800">Age:</span> {profile.age}</p>
-                  <p><span className="font-medium text-green-800">Gender:</span> {profile.gender}</p>
-                  <p><span className="font-medium text-green-800">Preference:</span> {profile.sexualPreference}</p>
+                  <p><span className="font-medium text-green-800">Age:</span> {toDisplayNumber(profile.age, 'Not set')}</p>
+                  <p><span className="font-medium text-green-800">Gender:</span> {toGenderString(profile.gender)}</p>
+                  <p><span className="font-medium text-green-800">Preference:</span> {toSexualPreferenceString(profile.sexualPreference)}</p>
                   <p className="flex items-center gap-1">
                     <span className="font-medium text-green-800">Fame Rating:</span>
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                    {profile.fameRating}/100
+                    {toDisplayNumber(profile.fameRating, '0')}/100
                   </p>
                 </div>
               </div>
@@ -124,24 +125,26 @@ export default function MyProfilePage() {
 
             <div className="mt-6">
               <h2 className="font-semibold mb-2 text-green-800">Biography</h2>
-              <p className="text-green-700 bg-green-50 p-4 rounded-lg">{profile.biography}</p>
+              <p className="text-green-700 bg-green-50 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
             </div>
 
-            <div className="mt-6">
-              <h2 className="font-semibold mb-3 text-green-800">Interests</h2>
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map(interest => (
-                  <span
-                    key={interest}
-                    className="px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 text-green-700 rounded-full text-sm border border-green-300 font-medium"
-                  >
-                    #{interest}
-                  </span>
-                ))}
+            {profile.interests && profile.interests.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-semibold mb-3 text-green-800">Interests</h2>
+                <div className="flex flex-wrap gap-2">
+                  {profile.interests.map(interest => (
+                    <span
+                      key={interest}
+                      className="px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 text-green-700 rounded-full text-sm border border-green-300 font-medium"
+                    >
+                      #{interest}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {profile.photos.length > 0 && (
+            {profile.photos && profile.photos.length > 0 && (
               <div className="mt-6">
                 <h2 className="font-semibold mb-3 text-green-800">Photos</h2>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">

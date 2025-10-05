@@ -18,24 +18,31 @@ npm run dev
 
 ## Endpoints no jwt
 
-1. GET /pubapi/ping
-2. POST /pubapi/login
-3. POST /pubapi/register
-4. GET /pubapi/activate/:token
-5. POST /pubapi/reset-password
-6. POST /pubapi/reset-password/:userId/:token
+All working so far, photo test endpoint only.
+
+- GET /pubapi/ping
+- POST /pubapi/ping
+- GET /pubapi/photo/:name
+- POST /pubapi/login
+- POST /pubapi/register
+- GET /pubapi/activate/:token
+- POST /pubapi/reset-password
+- POST /pubapi/reset-password/:userId/:token
 
 ## Endpoints need jwt
 
-7. GET /api/user/profile
-8. PUT /api/user/profile
-9. GET /api/user/tag
-10. POST /api/user/tag
-11. DELETE /api/user/tag
-12. PUT /api/user/pw
-13. GET /api/user/photo
-14. PUT /api/user/photo/:no
-15. DELETE /api/user/photo/:no
-16. PUT /api/user/photo/order
-17. GET /api/photo/:name
+- GET /api/user/profile
+- PUT /api/user/profile
+- GET /api/user/tag
+- POST /api/user/tag
+- DELETE /api/user/tag
+- PUT /api/user/pw
+- GET /api/user/photo
+- PUT /api/user/photo/:no
+- DELETE /api/user/photo/:no
+- PUT /api/user/photo/order
+- GET /api/photo/:name
+- GET /api/user/viewed
+- GET /api/user/viewed/by
+- POST /api/user/viewed
 

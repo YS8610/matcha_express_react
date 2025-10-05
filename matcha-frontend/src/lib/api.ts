@@ -29,13 +29,18 @@ class ApiClient {
 
   async request(endpoint: string, options: RequestInit = {}) {
     const url = `${API_URL}${endpoint}`;
+    const headers: HeadersInit = {
+      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      ...(options.headers as Record<string, string>),
+    };
+
+    if (!(options.body instanceof FormData)) {
+      (headers as Record<string, string>)['Content-Type'] = 'application/json';
+    }
+
     const config: RequestInit = {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
+      headers,
     };
 
     const response = await fetch(url, config);
@@ -137,7 +142,6 @@ class ApiClient {
 
     return this.request(`/api/user/photo/${photoNumber}`, {
       method: 'PUT',
-      headers: {},
       body: formData as BodyInit,
     });
   }
@@ -223,7 +227,7 @@ class ApiClient {
     return this.request('/pubapi/ping');
   }
 
-  async getPhoto(photoName: string) {
+  getPhoto(photoName: string): string {
     const url = `${API_URL}/api/photo/${photoName}`;
     return url;
   }
@@ -247,13 +251,43 @@ class ApiClient {
   }
 
   async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string) {
-    return this.request('/api/user/password', {
+    return this.request('/api/user/pw', {
       method: 'PUT',
       body: JSON.stringify({
         oldPassword,
         pw: newPassword,
         pw2: confirmPassword
       }),
+    });
+  }
+
+  async getUsersViewed() {
+    return this.request('/api/user/viewed');
+  }
+
+  async getUsersWhoViewedMe() {
+    return this.request('/api/user/viewed/by');
+  }
+
+  async recordUserView(viewedUserID: string) {
+    return this.request('/api/user/viewed', {
+      method: 'POST',
+      body: JSON.stringify({ viewedUserID }),
+    });
+  }
+
+  getPublicPhoto(photoName: string): string {
+    const url = `${API_URL}/pubapi/photo/${photoName}`;
+    return url;
+  }
+
+  async testUploadPhoto(file: File) {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    return this.request('/pubapi/ping', {
+      method: 'POST',
+      body: formData as BodyInit,
     });
   }
 }

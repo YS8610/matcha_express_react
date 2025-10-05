@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Leaf, Save } from 'lucide-react';
 import TagManager from '@/components/profile/TagManager';
 import PasswordChanger from '@/components/profile/PasswordChanger';
+import PhotoManager from '@/components/profile/PhotoManager';
+import { toNumber, toDateString } from '@/lib/neo4j-utils';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -19,12 +21,10 @@ export default function EditProfilePage() {
     firstName: '',
     lastName: '',
     email: '',
-    age: '',
     gender: '',
     sexualPreference: '',
     biography: '',
-    interests: '',
-    location: '',
+    birthDate: '',
   });
 
   useEffect(() => {
@@ -36,19 +36,26 @@ export default function EditProfilePage() {
     const loadProfile = async () => {
       try {
         const data = await api.getProfile();
+
+        const genderReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 0: 'other', '-1': '' };
+        const sexualPreferenceReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 3: 'both', '-1': '' };
+
+        const genderNum = toNumber(data.gender) ?? -1;
+        const sexPrefNum = toNumber(data.sexualPreference) ?? -1;
+        const birthDateStr = toDateString(data.birthDate);
+
         setFormData({
-          firstName: data.firstName || user?.firstName || '',
-          lastName: data.lastName || user?.lastName || '',
-          email: data.email || user?.email || '',
-          age: data.age?.toString() || '',
-          gender: data.gender || '',
-          sexualPreference: data.sexualPreference || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || '',
+          gender: genderReverseMap[genderNum] || '',
+          sexualPreference: sexualPreferenceReverseMap[sexPrefNum] || '',
           biography: data.biography || '',
-          interests: data.interests?.join(', ') || '',
-          location: data.location || '',
+          birthDate: birthDateStr,
         });
       } catch (error) {
         console.error('Failed to load profile:', error);
+        setError('Failed to load profile data');
       }
     };
 
@@ -69,10 +76,17 @@ export default function EditProfilePage() {
     setLoading(true);
 
     try {
+      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
+      const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
+
       const dataToSend = {
-        ...formData,
-        age: formData.age ? parseInt(formData.age) : undefined,
-        interests: formData.interests.split(',').map(i => i.trim()).filter(i => i),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        gender: genderMap[formData.gender] ?? 0,
+        sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
+        biography: formData.biography,
+        birthDate: formData.birthDate,
       };
 
       await api.updateProfile(dataToSend);
@@ -126,6 +140,7 @@ export default function EditProfilePage() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
@@ -140,6 +155,7 @@ export default function EditProfilePage() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
@@ -155,27 +171,28 @@ export default function EditProfilePage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              required
               className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="age" className="block text-sm font-medium mb-1 text-green-700">
-                Age
-              </label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                min="18"
-                max="100"
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-              />
-            </div>
+          <div>
+            <label htmlFor="birthDate" className="block text-sm font-medium mb-1 text-green-700">
+              Birth Date
+            </label>
+            <input
+              type="date"
+              id="birthDate"
+              name="birthDate"
+              value={formData.birthDate}
+              onChange={handleChange}
+              required
+              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+            />
+          </div>
 
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="gender" className="block text-sm font-medium mb-1 text-green-700">
                 Gender
@@ -185,6 +202,7 @@ export default function EditProfilePage() {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               >
                 <option value="">Select...</option>
@@ -203,6 +221,7 @@ export default function EditProfilePage() {
                 name="sexualPreference"
                 value={formData.sexualPreference}
                 onChange={handleChange}
+                required
                 className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               >
                 <option value="">Select...</option>
@@ -211,21 +230,6 @@ export default function EditProfilePage() {
                 <option value="both">Both</option>
               </select>
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium mb-1 text-green-700">
-              Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="City, Country"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-            />
           </div>
 
           <div>
@@ -240,21 +244,6 @@ export default function EditProfilePage() {
               rows={4}
               className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               placeholder="Tell us about yourself..."
-            />
-          </div>
-
-          <div>
-            <label htmlFor="interests" className="block text-sm font-medium mb-1 text-green-700">
-              Interests
-            </label>
-            <input
-              type="text"
-              id="interests"
-              name="interests"
-              value={formData.interests}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-              placeholder="Separate with commas (e.g., tea, hiking, reading)"
             />
           </div>
 
@@ -276,6 +265,10 @@ export default function EditProfilePage() {
             </button>
           </div>
         </form>
+
+        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+          <PhotoManager />
+        </div>
 
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
           <TagManager />

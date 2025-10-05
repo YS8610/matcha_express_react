@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { Profile, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
@@ -23,10 +23,32 @@ export default function BrowseProfiles() {
 
   const totalPages = Math.ceil(allProfiles.length / PROFILES_PER_PAGE);
 
+  const loadProfiles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getSuggestions(filters as Record<string, unknown>);
+
+      const uniqueProfiles = data.filter((profile: Profile, index: number, self: Profile[]) =>
+        index === self.findIndex((p) => p.id === profile.id)
+      );
+
+      if (data.length !== uniqueProfiles.length) {
+        console.warn(`Removed ${data.length - uniqueProfiles.length} duplicate profiles`);
+      }
+
+      setAllProfiles(uniqueProfiles);
+      setCurrentPage(1);
+    } catch {
+      setAllProfiles([]);
+      setCurrentPage(1);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
   useEffect(() => {
     loadProfiles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [loadProfiles]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,33 +63,9 @@ export default function BrowseProfiles() {
     const start = (currentPage - 1) * PROFILES_PER_PAGE;
     const end = start + PROFILES_PER_PAGE;
     setDisplayedProfiles(allProfiles.slice(start, end));
-    
-    // Scroll to top when page changes
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage, allProfiles]);
-
-  const loadProfiles = async () => {
-    setLoading(true);
-    try {
-      const data = await api.getSuggestions(filters as Record<string, unknown>);
-      
-      // Ensure unique profiles by ID
-      const uniqueProfiles = data.filter((profile: Profile, index: number, self: Profile[]) =>
-        index === self.findIndex((p) => p.id === profile.id)
-      );
-      
-      if (data.length !== uniqueProfiles.length) {
-        console.warn(`Removed ${data.length - uniqueProfiles.length} duplicate profiles`);
-      }
-      
-      setAllProfiles(uniqueProfiles);
-      setCurrentPage(1);
-    } catch (error) {
-      console.error('Failed to load profiles:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -165,19 +163,16 @@ export default function BrowseProfiles() {
         </div>
       ) : (
         <>
-          {/* Results info */}
           <div className="mb-4 text-sm text-green-600">
             Showing {((currentPage - 1) * PROFILES_PER_PAGE) + 1}-{Math.min(currentPage * PROFILES_PER_PAGE, allProfiles.length)} of {allProfiles.length} profiles
           </div>
 
-          {/* Profile Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             {displayedProfiles.map((profile, index) => (
               <ProfileCard key={`${profile.id}-${index}`} profile={profile} />
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mb-8">
               <button
@@ -220,7 +215,6 @@ export default function BrowseProfiles() {
         </>
       )}
 
-      {/* Scroll to top button */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}

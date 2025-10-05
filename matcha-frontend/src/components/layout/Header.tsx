@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { Leaf } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,7 +18,7 @@ export default function Header() {
               </div>
               <span className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Matcha</span>
             </Link>
-            
+
             {user && (
               <nav className="ml-10 flex space-x-4">
                 <Link href="/browse" className="text-green-700 hover:text-green-900 font-medium transition-colors">
@@ -27,6 +26,9 @@ export default function Header() {
                 </Link>
                 <Link href="/search" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Search
+                </Link>
+                <Link href="/visitors" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                  Visitors
                 </Link>
                 <Link href="/messages" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                   Messages
@@ -41,7 +43,6 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <NotificationDropdown />
                 <span className="text-sm text-green-700 font-medium">
                   {user.username}
                 </span>
