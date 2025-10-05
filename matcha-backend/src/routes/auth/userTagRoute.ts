@@ -28,7 +28,7 @@ router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response
     }));
   }
   const tagCount = await serverErrorWrapper(() => getTagCountById(id), "Error getting tag count for user");
-  if (tagCount > ConstMatcha.NEO4j_USER_MAX_TAGS) {
+  if (tagCount >= ConstMatcha.NEO4j_USER_MAX_TAGS) {
     return next(new BadRequestError({
       code: 400,
       message: "User has reached the maximum number of tags",

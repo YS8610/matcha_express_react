@@ -10,14 +10,14 @@ export const createTag = async (name:string): Promise<void> => {
 
 export const getTagCountById = async (id:string): Promise<number> => {
   const session = driver.session();
-  const result = await session.run<{ tagCount: number }>(ConstMatcha.NEO4j_STMT_GET_TAG_COUNTS_BY_USER_ID, { id });
+  const result = await session.run<{ tagCount: number }>(ConstMatcha.NEO4j_STMT_GET_TAG_COUNTS_BY_USER_ID, { userId: id });
   session.close();
   return result.records[0].get("tagCount");
 };
 
 export const getTagsById = async (id:string): Promise<string[]> => {
   const session = driver.session();
-  const result = await session.run<{ name: string }>(ConstMatcha.NEO4j_STMT_GET_USER_TAGS, { id });
+  const result = await session.run<{ name: string }>(ConstMatcha.NEO4j_STMT_GET_USER_TAGS, { userId: id });
   session.close();
   return result.records.map(record => record.get("name"));
 }
