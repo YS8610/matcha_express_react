@@ -3,14 +3,14 @@ import { argon2i } from "argon2";
 
 dotenv.config();
 
-export default class ConstMatcha{
+export default class ConstMatcha {
 
   // constants for the app
-  static readonly DEFAULT_PORT:number = 8080;
+  static readonly DEFAULT_PORT: number = 8080;
 
   // photo dump
   static readonly PHOTO_DUMP_DIR = "./photoDump/";
-  
+
   // constants for argon2
   static readonly ARGON_HASHLENGTH = 128;
   static readonly ARGON_MEMORYCOST = 131072;
@@ -36,7 +36,7 @@ export default class ConstMatcha{
   static readonly DEFAULT_FAME_RATING = 0;
   static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
   static readonly DEFAULT_BIOGRAPHY = "\"\"";
-  
+
   // user limit 
   static readonly NEO4j_USER_MAX_TAGS = 10;
   static readonly NEO4j_USER_MAX_PHOTOS = 5;
@@ -165,7 +165,7 @@ export default class ConstMatcha{
   `;
 
   static readonly NEO4j_STMT_CREATE_USER_TAG_REL = `
-    MERGE (u:PROFILE { id: $userId }), (t:TAG { name: $tagName })
+    MATCH (u:PROFILE { id: $userId }) MERGE (t:TAG { name: $tagName })
     MERGE (u)-[:HAS_TAG]->(t)
   `;
 
@@ -176,7 +176,7 @@ export default class ConstMatcha{
 
   static readonly NEO4j_STMT_GET_USER_TAGS = `
     MATCH (u:PROFILE { id: $userId })-[:HAS_TAG]->(t:TAG)
-    RETURN t{.*}
+    RETURN t.name as name
   `;
 
   static readonly NEO4j_STMT_GET_TAG_COUNTS_BY_USER_ID = `
@@ -239,10 +239,32 @@ export default class ConstMatcha{
     MATCH (v:PROFILE { id: $viewedUserId })
     MERGE (u)-[:VIEWED]->(v)
   `;
+
+  static readonly NEO4j_STMT_GET_USER_LIKED_BY = `
+    MATCH (u:PROFILE { id: $userId })<-[:LIKED]-(v:PROFILE)
+    RETURN v{.*}
+  `;
+
+  static readonly NEO4j_STMT_GET_USER_LIKED = `
+    MATCH (u:PROFILE { id: $userId })-[:LIKED]->(v:PROFILE)
+    RETURN v{.*}
+  `;
+
+  static readonly NEO4j_STMT_CREATE_USER_LIKED_REL = `
+    MATCH (u:PROFILE { id: $userId }) with u
+    MATCH (v:PROFILE { id: $likedUserId })
+    MERGE (u)-[:LIKED]->(v)
+  `;
+
+  static readonly NEO4j_STMT_DELETE_USER_LIKED_REL = `
+    MATCH (u:PROFILE { id: $userId }) with u
+    MATCH (v:PROFILE { id: $likedUserId })
+    DELETE (u)-[:LIKED]->(v)
+  `;
 }
 
 // MATCH (u:PROFILE { id: "37e4428f-d7ec-4b93-8b78-b81d42b4c8b5" }) with u
-// MATCH (v:PROFILE { id: "bd18a016-1142-4ae5-b1f2-1767e9f1ef53" }) 
+// MATCH (v:PROFILE { id: "bd18a016-1142-4ae5-b1f2-1767e9f1ef53" })
 // MERGE (u)-[:VIEWED ]->(v)
 
 // MATCH (u:PROFILE { id: $userId }) with u
