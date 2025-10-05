@@ -77,10 +77,11 @@ export interface Reslocal{
   activated:boolean;
 }
 
-export interface ProfileViewed{
+export interface ProfileShort{
   id :string;
   username: string;
   firstName: string;
   lastName: string;
+  fameRating: number;
   photo0: string;
 }

@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { ProfileViewed, Reslocal } from "../../model/profile.js";
+import { ProfileShort, Reslocal } from "../../model/profile.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { isUserExistsById } from "../../service/userSvc.js";
 import { addViewed, getViewedById, getVisitedById } from "../../service/viewedSvc.js";
@@ -10,33 +10,35 @@ import { ResMsg } from "../../model/Response.js";
 let router = express.Router();
 
 // get list of users viewed by the authenticated user
-router.get("/", async (req: Request, res: Response<{ data: ProfileViewed[] }>, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response<{ data: ProfileShort[] }>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const viewedUsers = await serverErrorWrapper(() => getVisitedById(id), "Failed to get viewed users");
-  const viewedUsernames: ProfileViewed[] = []
+  const viewedUsernames: ProfileShort[] = []
   for (const user of viewedUsers)
     viewedUsernames.push({
       id: user.id,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo0: user.photo0
+      photo0: user.photo0,
+      fameRating: user.fameRating
     });
   res.status(200).json({ data: viewedUsernames });
 });
 
 // get list of users who viewed the authenticated user
-router.get("/by", async (req: Request, res: Response<{ data: ProfileViewed[] }>, next: NextFunction) => {
+router.get("/by", async (req: Request, res: Response<{ data: ProfileShort[] }>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const viewedByUser = await serverErrorWrapper(() => getViewedById(id), "Failed to get users who viewed you");
-  const viewedByUsernames: ProfileViewed[] = []
+  const viewedByUsernames: ProfileShort[] = []
   for (const user of viewedByUser)
     viewedByUsernames.push({
       id: user.id,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo0: user.photo0
+      photo0: user.photo0,
+      fameRating: user.fameRating
     });
   res.status(200).json({ data: viewedByUsernames });
 });
