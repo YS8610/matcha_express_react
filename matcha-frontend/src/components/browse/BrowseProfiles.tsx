@@ -25,25 +25,9 @@ export default function BrowseProfiles() {
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
-    try {
-      const data = await api.getSuggestions(filters as Record<string, unknown>);
-
-      const uniqueProfiles = data.filter((profile: Profile, index: number, self: Profile[]) =>
-        index === self.findIndex((p) => p.id === profile.id)
-      );
-
-      if (data.length !== uniqueProfiles.length) {
-        console.warn(`Removed ${data.length - uniqueProfiles.length} duplicate profiles`);
-      }
-
-      setAllProfiles(uniqueProfiles);
-      setCurrentPage(1);
-    } catch {
-      setAllProfiles([]);
-      setCurrentPage(1);
-    } finally {
-      setLoading(false);
-    }
+    setAllProfiles([]);
+    setCurrentPage(1);
+    setLoading(false);
   }, [filters]);
 
   useEffect(() => {

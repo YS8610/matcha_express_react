@@ -19,25 +19,33 @@ export default function Header() {
               <span className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Matcha</span>
             </Link>
 
-            {user && (
-              <nav className="ml-10 flex space-x-4">
-                <Link href="/browse" className="text-green-700 hover:text-green-900 font-medium transition-colors">
-                  Browse
-                </Link>
-                <Link href="/search" className="text-green-700 hover:text-green-900 font-medium transition-colors">
-                  Search
-                </Link>
-                <Link href="/visitors" className="text-green-700 hover:text-green-900 font-medium transition-colors">
-                  Visitors
-                </Link>
-                <Link href="/messages" className="text-green-700 hover:text-green-900 font-medium transition-colors">
-                  Messages
-                </Link>
-                <Link href="/profile" className="text-green-700 hover:text-green-900 font-medium transition-colors">
-                  Profile
-                </Link>
-              </nav>
-            )}
+            <nav className="ml-10 flex space-x-4">
+              {user && (
+                <>
+                  <Link href="/browse" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Browse
+                  </Link>
+                  <Link href="/search" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Search
+                  </Link>
+                  <Link href="/visitors" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Visitors
+                  </Link>
+                  <Link href="/likes" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Likes
+                  </Link>
+                  <Link href="/messages" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Messages
+                  </Link>
+                  <Link href="/profile" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Profile
+                  </Link>
+                </>
+              )}
+              <Link href="/admin/seed-profiles" className="text-yellow-700 hover:text-yellow-900 font-medium transition-colors border-l border-green-300 pl-4">
+                Generate Users
+              </Link>
+            </nav>
           </div>
 
           <div className="flex items-center space-x-4">

@@ -45,4 +45,6 @@ All working so far, photo test endpoint only.
 - GET /api/user/viewed
 - GET /api/user/viewed/by
 - POST /api/user/viewed
-
+- GET /api/user/liked/by
+- POST /api/user/liked
+- DELETE /api/user/liked

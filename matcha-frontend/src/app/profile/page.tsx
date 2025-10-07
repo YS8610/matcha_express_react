@@ -55,13 +55,14 @@ export default function MyProfilePage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl overflow-hidden border border-green-100">
           <div className="relative h-64">
-            {profile.profilePhoto ? (
+            {profile.photo0 ? (
               <Image
-                src={profile.profilePhoto}
+                src={api.getPhoto(profile.photo0)}
                 alt="Profile"
                 width={1024}
                 height={256}
                 className="w-full h-full object-cover"
+                unoptimized
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
@@ -94,7 +95,7 @@ export default function MyProfilePage() {
                   Profile Info
                 </h2>
                 <div className="space-y-2 text-sm text-green-700">
-                  <p><span className="font-medium text-green-800">Age:</span> {toDisplayNumber(profile.age, 'Not set')}</p>
+                  <p><span className="font-medium text-green-800">Birth Date:</span> {profile.birthDate || 'Not set'}</p>
                   <p><span className="font-medium text-green-800">Gender:</span> {toGenderString(profile.gender)}</p>
                   <p><span className="font-medium text-green-800">Preference:</span> {toSexualPreferenceString(profile.sexualPreference)}</p>
                   <p className="flex items-center gap-1">
@@ -127,40 +128,6 @@ export default function MyProfilePage() {
               <h2 className="font-semibold mb-2 text-green-800">Biography</h2>
               <p className="text-green-700 bg-green-50 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
             </div>
-
-            {profile.interests && profile.interests.length > 0 && (
-              <div className="mt-6">
-                <h2 className="font-semibold mb-3 text-green-800">Interests</h2>
-                <div className="flex flex-wrap gap-2">
-                  {profile.interests.map(interest => (
-                    <span
-                      key={interest}
-                      className="px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 text-green-700 rounded-full text-sm border border-green-300 font-medium"
-                    >
-                      #{interest}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {profile.photos && profile.photos.length > 0 && (
-              <div className="mt-6">
-                <h2 className="font-semibold mb-3 text-green-800">Photos</h2>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  {profile.photos.map(photo => (
-                    <Image
-                      key={photo.id}
-                      src={photo.url}
-                      alt=""
-                      width={96}
-                      height={96}
-                      className="w-full h-24 object-cover rounded-lg border border-green-200 hover:border-green-400 transition-colors"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -4,10 +4,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="text-center space-y-2">
           <p className="text-sm text-green-700 font-medium">
-            © 2024 Matcha
+            © 2025 Matcha
           </p>
           <p className="text-xs text-green-600 italic">
-            Where connections brew naturally, one cup at a time
+            Where connections brew naturally, one cup at a time, just pass us please!
           </p>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { Profile } from '@/types';
 import { Star, Leaf } from 'lucide-react';
-import { generateAvatarUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toDisplayNumber } from '@/lib/neo4j-utils';
@@ -12,8 +12,8 @@ interface ProfileCardProps {
 }
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
-  const profileId = profile.id || profile.userId;
-  const displayName = (profile as Profile & {firstName?: string, username?: string}).firstName || (profile as Profile & {firstName?: string, username?: string}).username || `User ${profileId}`;
+  const profileId = profile.id;
+  const displayName = profile.firstName || profile.username || `User ${profileId}`;
   
   return (
     <Link
@@ -22,10 +22,11 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     >
       <div className="relative h-64">
         <Image
-          src={profile.profilePhoto || generateAvatarUrl(displayName, profileId)}
+          src={profile.photo0 ? api.getPhoto(profile.photo0) : generateAvatarUrl(displayName, profileId)}
           alt={`Profile ${profileId}`}
           width={300}
           height={256}
+          unoptimized
           className="w-full h-full object-cover"
         />
         
@@ -35,11 +36,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-green-900/70 to-transparent p-4">
           <h3 className="text-white font-semibold text-lg">
-            {displayName}{profile.age ? `, ${toDisplayNumber(profile.age)}` : ''}
+            {displayName}
           </h3>
           <p className="text-white/80 text-sm">
-            {profile.location?.city || 'Unknown'}
-            {profile.location?.distance && ` • ${profile.location.distance} km`}
+            @{profile.username}
           </p>
         </div>
       </div>
@@ -50,35 +50,11 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             {toDisplayNumber(profile.fameRating, '0')}/100
           </span>
-          {profile.hasLikedMe && (
-            <span className="text-xs bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-2 py-1 rounded-full flex items-center gap-1">
-              <Leaf className="w-3 h-3" />
-              Likes you
-            </span>
-          )}
         </div>
 
         <p className="text-sm text-green-800 line-clamp-2 mb-2">
           {profile.biography || 'No bio yet'}
         </p>
-
-        {profile.interests && profile.interests.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {profile.interests.slice(0, 3).map(interest => (
-              <span
-                key={interest}
-                className="text-xs px-2 py-1 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-full border border-green-200"
-              >
-                #{interest}
-              </span>
-            ))}
-            {profile.interests.length > 3 && (
-              <span className="text-xs text-green-600">
-                +{profile.interests.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </Link>
   );

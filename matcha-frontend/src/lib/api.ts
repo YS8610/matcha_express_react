@@ -163,64 +163,22 @@ class ApiClient {
     });
   }
 
-  async getSuggestions(filters?: Record<string, unknown>) {
-    const params = new URLSearchParams(filters as Record<string, string>).toString();
-    return this.request(`/browse/suggestions?${params}`);
-  }
-
-  async search(criteria: Record<string, unknown>) {
-    const params = new URLSearchParams(criteria as Record<string, string>).toString();
-    return this.request(`/search?${params}`);
-  }
-
-  async likeProfile(userId: string) {
-    return this.request(`/interactions/like/${userId}`, { method: 'POST' });
-  }
-
-  async unlikeProfile(userId: string) {
-    return this.request(`/interactions/unlike/${userId}`, { method: 'POST' });
-  }
-
-  async blockUser(userId: string) {
-    return this.request(`/interactions/block/${userId}`, { method: 'POST' });
-  }
-
-  async reportUser(userId: string, reason: string) {
-    return this.request(`/interactions/report/${userId}`, {
+  async likeUser(userid: string) {
+    return this.request('/api/user/liked', {
       method: 'POST',
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ userid }),
     });
   }
 
-  async getConversations() {
-    return this.request('/chat/conversations');
-  }
-
-  async getMessages(userId: string) {
-    return this.request(`/chat/messages/${userId}`);
-  }
-
-  async sendMessage(userId: string, message: string) {
-    return this.request(`/chat/messages/${userId}`, {
-      method: 'POST',
-      body: JSON.stringify({ message }),
+  async unlikeUser(userid: string) {
+    return this.request('/api/user/liked', {
+      method: 'DELETE',
+      body: JSON.stringify({ userid }),
     });
   }
 
-  async getNotifications() {
-    return this.request('/notifications');
-  }
-
-  async markNotificationRead(notificationId: string) {
-    return this.request(`/notifications/${notificationId}/read`, { method: 'POST' });
-  }
-
-  async getProfileViews() {
-    return this.request('/stats/views');
-  }
-
-  async getLikes() {
-    return this.request('/stats/likes');
+  async getUsersWhoLikedMe() {
+    return this.request('/api/user/liked/by');
   }
 
   async ping() {

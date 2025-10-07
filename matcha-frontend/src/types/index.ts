@@ -12,21 +12,29 @@ export interface User {
 
 export interface Profile {
   id: string;
-  userId: string;
-  gender: 'male' | 'female' | 'other';
-  sexualPreference: 'male' | 'female' | 'both';
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: number;
+  sexualPreference: number;
   biography: string;
-  interests: string[];
-  photos: Photo[];
-  profilePhoto?: string;
-  age: number;
-  location: Location;
+  birthDate: string;
   fameRating: number;
-  isLiked?: boolean;
-  hasLikedMe?: boolean;
-  isConnected?: boolean;
-  isBlocked?: boolean;
-  isOnline?: boolean;
+  photo0: string;
+  photo1: string;
+  photo2: string;
+  photo3: string;
+  photo4: string;
+}
+
+export interface ProfileShort {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  photo0: string;
+  fameRating: number;
 }
 
 export interface Photo {

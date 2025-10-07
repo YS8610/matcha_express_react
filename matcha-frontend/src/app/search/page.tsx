@@ -45,14 +45,8 @@ export default function SearchPage() {
       searchCriteria.interests = criteria.interests.split(',').map(i => i.trim());
     }
 
-    try {
-      const data = await api.search(searchCriteria);
-      setProfiles(data);
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setLoading(false);
-    }
+    setProfiles([]);
+    setLoading(false);
   };
 
   if (!user) return null;
