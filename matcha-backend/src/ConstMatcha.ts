@@ -261,6 +261,23 @@ export default class ConstMatcha {
     MATCH (v:PROFILE { id: $likedUserId })
     DELETE (u)-[:LIKED]->(v)
   `;
+
+  static readonly NEO4j_STMT_GET_USER_BLOCKED_BY_ID = `
+    MATCH (u:PROFILE { id: $userId })-[:BLOCKED]->(v:PROFILE)
+    RETURN v{.*}
+  `;
+
+  static readonly NEO4j_STMT_CREATE_USER_BLOCKED_REL = `
+    MATCH (u:PROFILE { id: $userId }) with u
+    MATCH (v:PROFILE { id: $blockedUserId })
+    MERGE (u)-[:BLOCKED]->(v)
+  `;
+
+  static readonly NEO4j_STMT_DELETE_USER_BLOCKED_REL = `
+    MATCH (u:PROFILE { id: $userId }) with u
+    MATCH (v:PROFILE { id: $blockedUserId })
+    DELETE (u)-[:BLOCKED]->(v)
+  `;
 }
 
 // MATCH (u:PROFILE { id: "37e4428f-d7ec-4b93-8b78-b81d42b4c8b5" }) with u

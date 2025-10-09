@@ -11,6 +11,7 @@ import userPhotoRoute from "./routes/auth/userPhotoRoute.js";
 import photoRoute from "./routes/auth/photoRoute.js";
 import userViewedRoute from "./routes/auth/userViewedRoute.js";
 import userLikedRoute from "./routes/auth/userLikedRoute.js";
+import userBlockRoute from "./routes/auth/userBlockRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -35,6 +36,7 @@ const appfunc = () => {
   app.use("/api/user/photo", userPhotoRoute);
   app.use("/api/user/viewed", userViewedRoute);
   app.use("/api/user/liked", userLikedRoute);
+  app.use("/api/user/block", userBlockRoute);
 
   app.use("/", (req, res, next) => {
     next(new BadRequestError({
