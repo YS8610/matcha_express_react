@@ -34,6 +34,9 @@ export default function Header() {
                   <Link href="/likes" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                     Likes
                   </Link>
+                  <Link href="/blocked" className="text-green-700 hover:text-green-900 font-medium transition-colors">
+                    Blocked
+                  </Link>
                   <Link href="/messages" className="text-green-700 hover:text-green-900 font-medium transition-colors">
                     Messages
                   </Link>

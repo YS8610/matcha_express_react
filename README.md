@@ -48,3 +48,6 @@ All working so far, photo test endpoint only.
 - GET /api/user/liked/by
 - POST /api/user/liked
 - DELETE /api/user/liked
+- GET /api/user/block
+- POST /api/user/block
+- DELETE /api/user/block

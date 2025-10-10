@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toDisplayNumber } from '@/lib/neo4j-utils';
+import { ShieldBan } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
   userId: string;
@@ -16,7 +18,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const { user } = useAuth();
+  const router = useRouter();
 
   const loadProfile = useCallback(async () => {
     if (!userId) {
@@ -61,6 +65,27 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       alert('Profile liked!');
     } catch (error) {
       console.error('Failed to like:', error);
+    }
+  };
+
+  const handleBlock = async () => {
+    if (!profile || !userId) {
+      console.error('Cannot block: profile or userId is missing');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to block @${profile.username}?`)) {
+      return;
+    }
+
+    try {
+      await api.blockUser(userId);
+      setIsBlocked(true);
+      alert('User blocked successfully!');
+      router.push('/browse');
+    } catch (error) {
+      console.error('Failed to block user:', error);
+      alert('Failed to block user. Please try again.');
     }
   };
 
@@ -109,6 +134,15 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 className="flex-1 py-2 rounded-md bg-green-500 text-white hover:bg-green-600"
               >
                 Like
+              </button>
+              <button
+                onClick={handleBlock}
+                disabled={isBlocked}
+                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                title="Block this user"
+              >
+                <ShieldBan className="w-4 h-4" />
+                {isBlocked ? 'Blocked' : 'Block'}
               </button>
             </div>
           )}

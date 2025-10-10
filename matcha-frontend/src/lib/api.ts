@@ -248,6 +248,24 @@ class ApiClient {
       body: formData as BodyInit,
     });
   }
+
+  async getBlockedUsers() {
+    return this.request('/api/user/block');
+  }
+
+  async blockUser(userId: string) {
+    return this.request('/api/user/block', {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async unblockUser(userId: string) {
+    return this.request('/api/user/block', {
+      method: 'DELETE',
+      body: JSON.stringify({ userId }),
+    });
+  }
 }
 
 export const api = new ApiClient();
