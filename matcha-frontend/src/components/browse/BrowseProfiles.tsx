@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '@/lib/api';
 import { Profile, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
@@ -28,7 +27,7 @@ export default function BrowseProfiles() {
     setAllProfiles([]);
     setCurrentPage(1);
     setLoading(false);
-  }, [filters]);
+  }, []);
 
   useEffect(() => {
     loadProfiles();

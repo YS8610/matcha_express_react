@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -8,8 +7,6 @@ import { MessageCircle, Construction, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ChatPage() {
-  const params = useParams();
-  const userId = params.id as string;
   const { user, loading } = useAuth();
   const router = useRouter();
 

@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Leaf } from 'lucide-react';
 import Link from 'next/link';
+import NotificationCenter from '@/components/NotificationCenter';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -54,6 +55,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
+                <NotificationCenter />
                 <span className="text-sm text-green-700 font-medium">
                   {user.username}
                 </span>

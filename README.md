@@ -51,3 +51,19 @@ All working so far, photo test endpoint only.
 - GET /api/user/block
 - POST /api/user/block
 - DELETE /api/user/block
+
+## Websockets Client to Server Events
+
+- isOnline
+
+## Websockets Server to Client Events
+
+- onlineStatus
+- notification
+- error
+
+## Websockets Connection Events
+
+- connection
+- disconnect
+

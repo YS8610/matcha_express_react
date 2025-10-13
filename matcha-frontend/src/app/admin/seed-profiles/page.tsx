@@ -108,7 +108,7 @@ const createProfile = async (profile: FakeProfile, index: number, count: number,
   }
 };
 
-const StatCard = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: number, color: 'green' | 'red' }) => (
+const StatCard = ({ icon: Icon, label, value, color }: { icon: React.ElementType, label: string, value: number, color: 'green' | 'red' }) => (
   <div className={`bg-${color}-50 border border-${color}-200 rounded-lg p-4`}>
     <div className={`flex items-center gap-2 text-${color}-700`}>
       <Icon className="w-5 h-5" />

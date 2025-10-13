@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { HealthStatusBanner } from "@/components/HealthStatusBanner";
@@ -42,13 +43,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <RouteChangeProgress />
-          <HealthStatusBanner />
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <WebSocketProvider>
+            <RouteChangeProgress />
+            <HealthStatusBanner />
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </WebSocketProvider>
         </AuthProvider>
       </body>
     </html>

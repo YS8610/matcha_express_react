@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
 import Image from 'next/image';
 import { toDisplayNumber } from '@/lib/neo4j-utils';
 import { ShieldBan } from 'lucide-react';
@@ -17,7 +16,6 @@ interface ProfileViewProps {
 export default function ProfileView({ userId }: ProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showReportModal, setShowReportModal] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const { user } = useAuth();
   const router = useRouter();

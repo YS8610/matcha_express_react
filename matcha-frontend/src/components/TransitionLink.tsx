@@ -21,7 +21,6 @@ export default function TransitionLink({ href, children, className, onClick }: T
       onClick();
     }
 
-    // Small delay to allow any UI changes from onClick to be visible
     setTimeout(() => {
       router.push(href);
     }, 50);

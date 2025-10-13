@@ -1,7 +1,7 @@
 'use client';
 
 import { Profile } from '@/types';
-import { Star, Leaf } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
