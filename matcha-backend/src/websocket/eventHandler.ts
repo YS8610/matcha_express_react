@@ -3,7 +3,7 @@ import { clogger } from "../service/loggerSvc.js";
 import { AuthToken } from "../model/token.js";
 import { authWSmiddleware } from "../middleware/auth.js";
 import ConstMatcha from "../ConstMatcha.js";
-import { NotificationManager } from "../service/NotificationManager.js";
+import { NotificationManager } from "../service/notificationSvc.js";
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -38,6 +38,7 @@ const eventHandlers = (io: Server) => {
           io.to(sockId).emit("notification", data);
         return;
       }
+      // testing only
       socket.emit("notification", data);
     });
 

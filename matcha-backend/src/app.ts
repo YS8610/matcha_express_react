@@ -12,6 +12,7 @@ import photoRoute from "./routes/auth/photoRoute.js";
 import userViewedRoute from "./routes/auth/userViewedRoute.js";
 import userLikedRoute from "./routes/auth/userLikedRoute.js";
 import userBlockRoute from "./routes/auth/userBlockRoute.js";
+import userNotificationRoute from "./routes/auth/userNotificationRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -27,7 +28,7 @@ const appfunc = () => {
 
   // setup public api routes here
   app.use("/pubapi", rootRoute);
-  // auth api routes
+  // auth protected api routes
   app.use("/api", authMiddleware);
   app.use("/api/photo", photoRoute);
   app.use("/api/user/profile", userProfileRoute);
@@ -37,8 +38,9 @@ const appfunc = () => {
   app.use("/api/user/viewed", userViewedRoute);
   app.use("/api/user/liked", userLikedRoute);
   app.use("/api/user/block", userBlockRoute);
-
-  app.use("/", (req, res, next) => {
+  app.use("/api/user/notification", userNotificationRoute);
+  // default route for invalid endpoint
+  app.use("/", (req:Request, res:Response, next:NextFunction) => {
     next(new BadRequestError({
       message: "invalid endpoint",
       logging: false,

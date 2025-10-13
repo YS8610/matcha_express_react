@@ -51,6 +51,13 @@ export default class ConstMatcha {
   static readonly SEXUAL_PREFERENCE_FEMALE = 2;
   static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
 
+// notification type
+  static readonly NOTIFICATION_TYPE_PROFILE_VIEW = "profile_view";
+  static readonly NOTIFICATION_TYPE_LIKE = "like";
+  static readonly NOTIFICATION_TYPE_UNLIKE = "unlike";
+  static readonly NOTIFICATION_TYPE_MATCH = "match";
+  static readonly NOTIFICATION_TYPE_MESSAGE = "message";
+
   // statement for neo4j
   // constraints
   static readonly NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID = `
@@ -287,6 +294,25 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_GET_NOTIFICATIONS_BY_USER_ID = `
     MATCH (n:NOTIFICATION { userId: $userId })
     RETURN n{.*}
+    ORDER BY n.createdAt DESC
+    LIMIT $limit
+    OFFSET $offset
+  `;
+
+  static readonly NEO4j_STMT_CREATE_NOTIFICATION = `
+    CREATE (n:NOTIFICATION {
+      id: $id,
+      userId: $userId,
+      type: $type,
+      message: $message,
+      createdAt: $createdAt,
+      read: false,
+    })
+  `;
+
+  static readonly NEO4j_STMT_DELETE_NOTIFICATION_BY_ID = `
+    MATCH (n:NOTIFICATION { id: $notificationId, userId: $userId })
+    DELETE n
   `;
 }
 
