@@ -5,6 +5,8 @@ dotenv.config();
 
 export default class ConstMatcha {
 
+  static readonly wsmap = new Map<string, Set<string>>();
+
   // constants for the app
   static readonly DEFAULT_PORT: number = 8080;
 
@@ -22,6 +24,9 @@ export default class ConstMatcha {
   // constant for jwt secret
   static readonly JWT_SECRET = process.env.JWT_SECRET || "jwtsecret";
   static readonly JWT_EXPIRY = "20d";
+
+  // default value for redis
+  static readonly REDIS_DEFAULT_HOST = 'redis://localhost:6379';
 
   // default value for neo4j
   static readonly NEO4j_DEFAULT_URI = 'bolt://localhost:7687';
@@ -277,6 +282,11 @@ export default class ConstMatcha {
     MATCH (u:PROFILE { id: $userId }) with u
     MATCH (v:PROFILE { id: $blockedUserId })
     DELETE (u)-[:BLOCKED]->(v)
+  `;
+
+  static readonly NEO4j_STMT_GET_NOTIFICATIONS_BY_USER_ID = `
+    MATCH (n:NOTIFICATION { userId: $userId })
+    RETURN n{.*}
   `;
 }
 

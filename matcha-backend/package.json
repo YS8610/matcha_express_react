@@ -1,7 +1,7 @@
 {
   "name": "matcha_backend",
   "version": "1.0.0",
-  "description": "expressjs typescript template",
+  "description": "Matcha Backend",
   "main": "build/index.js",
   "type": "module",
   "scripts": {
@@ -28,6 +28,8 @@
     "nodemailer": "^7.0.6",
     "pg": "^8.13.0",
     "pino": "^9.4.0",
+    "redis": "^5.8.3",
+    "socket.io": "^4.8.1",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -38,6 +40,7 @@
     "@types/node": "^22.7.4",
     "@types/nodemailer": "^7.0.1",
     "@types/pg": "^8.11.10",
+    "@types/redis": "^4.0.10",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.7",
