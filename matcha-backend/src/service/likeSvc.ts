@@ -34,3 +34,17 @@ export const removeLiked = async (id: string, likedUserId: string): Promise<void
   session.close();
 };
 
+export const isLiked = async (userId: string, otherUserId: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<{ isLiked: boolean }>(ConstMatcha.NEO4j_STMT_CHECK_USER_LIKED, { userId, otherUserId });
+  session.close();
+  return result.records[0].get("isLiked");
+};
+
+// check if user with userId and otherUserId have liked each other
+export const isMatch = async (userId: string, otherUserId: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<{ matchCount: number }>(ConstMatcha.NEO4j_STMT_IS_MATCHED, { userId, otherUserId });
+  session.close();
+  return result.records[0].get("matchCount") >= 2;
+}

@@ -26,7 +26,6 @@ export const hashPW = async(pw:string) =>{
 
 
 export const loginSvc = async (username: string, password: string): Promise<string> => {
-  // todo: implement login logic here
   const user = await serverErrorWrapper(() => getUserByUsername(username), "Failed to get user by username");
   if (!user)
     return "";

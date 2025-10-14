@@ -1,5 +1,5 @@
 import ConstMatcha from "../ConstMatcha.js";
-import { ProfileDb, ProfileGetJson, ProfilePutJson } from "../model/profile.js";
+import { ProfileDb, ProfileGetJson, ProfilePutJson, ProfileShort } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
@@ -40,6 +40,13 @@ export const getUsers = async (): Promise<ProfileDb[]> => {
 export const getUserById = async (id: string): Promise<ProfileDb | null> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
+  session.close();
+  return result.records.length == 1 ? result.records[0].get(0) : null;
+};
+
+export const getShortProfileById = async (id: string): Promise<ProfileShort | null> => {
+  const session = driver.session();
+  const result = await session.run<ProfileShort>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
   session.close();
   return result.records.length == 1 ? result.records[0].get(0) : null;
 };

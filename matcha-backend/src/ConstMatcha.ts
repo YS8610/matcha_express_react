@@ -52,7 +52,7 @@ export default class ConstMatcha {
   static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
 
 // notification type
-  static readonly NOTIFICATION_TYPE_PROFILE_VIEW = "profile_view";
+  static readonly NOTIFICATION_TYPE_PROFILE_VIEW = "view";
   static readonly NOTIFICATION_TYPE_LIKE = "like";
   static readonly NOTIFICATION_TYPE_UNLIKE = "unlike";
   static readonly NOTIFICATION_TYPE_MATCH = "match";
@@ -105,6 +105,11 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_GET_USER_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
     RETURN u{.*}
+  `;
+
+  static readonly NEO4j_STMT_GET_SHORT_PROFILE_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
+    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME = `
@@ -238,12 +243,17 @@ export default class ConstMatcha {
 
   static readonly NEO4j_STMT_GET_USER_VIEWED_BY = `
     MATCH (u:PROFILE { id: $userId })<-[:VIEWED]-(v:PROFILE)
-    RETURN v{.*}
+    RETURN v{.id, .firstName, .lastName, .username, .fameRating, .photo0}
   `;
 
   static readonly NEO4j_STMT_GET_USER_VIEWED = `
     MATCH (u:PROFILE { id: $userId })-[:VIEWED]->(v:PROFILE)
-    RETURN v{.*}
+    RETURN v{.id, .firstName, .lastName, .username, .fameRating, .photo0}
+  `;
+
+  static readonly NEO4j_STMT_CHECK_USER_VIEWED = `
+    MATCH (:PROFILE { id: $userId })-[r:VIEWED]->(:PROFILE { id: $otherUserId })
+    RETURN count(r) > 0 as isViewed
   `;
 
   static readonly NEO4j_STMT_CREATE_USER_VIEWED_REL = `
@@ -274,6 +284,16 @@ export default class ConstMatcha {
     DELETE (u)-[:LIKED]->(v)
   `;
 
+  static readonly NEO4j_STMT_CHECK_USER_LIKED = `
+    MATCH (:PROFILE { id: $userId })-[r:LIKED]->(:PROFILE { id: $otherUserId })
+    RETURN count(r) > 0 as isLiked
+  `;
+
+  static readonly NEO4j_STMT_IS_MATCHED = `
+    MATCH (u:PROFILE { id: $userId })-[r:LIKED]-(v:PROFILE {id : $otherUserId})
+    RETURN count(r) as matchCount
+  `;
+
   static readonly NEO4j_STMT_GET_USER_BLOCKED_BY_ID = `
     MATCH (u:PROFILE { id: $userId })-[:BLOCKED]->(v:PROFILE)
     RETURN v{.*}
@@ -289,6 +309,11 @@ export default class ConstMatcha {
     MATCH (u:PROFILE { id: $userId }) with u
     MATCH (v:PROFILE { id: $blockedUserId })
     DELETE (u)-[:BLOCKED]->(v)
+  `;
+
+  static readonly NEO4j_STMT_CHECK_USER_BLOCKED = `
+    MATCH (:PROFILE { id: $userId })-[r:BLOCKED]-(:PROFILE { id: $otherUserId })
+    RETURN count(r) > 0 as isBlocked
   `;
 
   static readonly NEO4j_STMT_GET_NOTIFICATIONS_BY_USER_ID = `
@@ -314,6 +339,17 @@ export default class ConstMatcha {
     MATCH (n:NOTIFICATION { id: $notificationId, userId: $userId })
     DELETE n
   `;
+
+  static readonly NEO4j_STMT_SET_USER_NOTIFICATION_READ = `
+    MATCH (n:NOTIFICATION { id: $notificationId, userId: $userId })
+    SET n.read = true
+  `;
+
+  static readonly NEO4j_STMT_CHECK_NOTIFICATION_EXISTS = `
+    MATCH (n:NOTIFICATION { id: $notificationID, userId: $userId })
+    RETURN count(n) > 0 as exists
+  `;
+
 }
 
 // MATCH (u:PROFILE { id: "37e4428f-d7ec-4b93-8b78-b81d42b4c8b5" }) with u

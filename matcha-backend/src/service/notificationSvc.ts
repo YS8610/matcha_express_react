@@ -32,7 +32,6 @@ export class NotificationManager extends EventEmitter {
 
 export const notifyUser = async (data: Notification_Matcha) => {
   NotificationManager.getInstance().notify("event", data);
-  // todo: persist to redis or neo4j for offline users
   await serverErrorWrapper(() => createNotification(data), "failed to create notification");
 }
 
@@ -57,4 +56,17 @@ export const createNotification = async(data: { id: string, userId: string, type
   const session = driver.session();
   await session.run(ConstMatcha.NEO4j_STMT_CREATE_NOTIFICATION, data);
   session.close();
+}
+
+export const markNotificationAsRead = async(userId: string, notificationId: string): Promise<void> => {
+  const session = driver.session();
+  await session.run(ConstMatcha.NEO4j_STMT_SET_USER_NOTIFICATION_READ, { userId, notificationId });
+  session.close();
+}
+
+export const isNotificationExists = async(notificationID:string, userId:string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<{ exists: boolean }>(ConstMatcha.NEO4j_STMT_CHECK_NOTIFICATION_EXISTS, { notificationID, userId });
+  session.close();
+  return result.records[0].get("exists");
 }

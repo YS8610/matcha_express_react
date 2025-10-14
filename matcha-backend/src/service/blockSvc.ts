@@ -22,3 +22,10 @@ export const deleteBlockedById = async (userId: string, blockedUserId: string): 
   session.close();
   return;
 }
+
+export const getBlockedRel = async (userId: string, otherUserId: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<{ isBlocked: boolean }>(ConstMatcha.NEO4j_STMT_CHECK_USER_BLOCKED, { userId, otherUserId });
+  session.close();
+  return result.records[0].get("isBlocked");
+}
