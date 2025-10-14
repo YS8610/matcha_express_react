@@ -79,16 +79,22 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     newSocket.on('notification', (data: unknown) => {
       console.log('[WebSocket] Notification received:', data);
 
-      const notifData = data as { id?: string; type?: string; fromUserId?: string; fromUsername?: string; message?: string; createdAt?: string | number };
+      const notifData = data as {
+        id?: string;
+        userId?: string;
+        type?: string;
+        message?: string;
+        createdAt?: number;
+        read?: boolean;
+      };
 
       const notification: Notification = {
         id: notifData.id || `notif-${Date.now()}`,
+        userId: notifData.userId || '',
         type: (notifData.type as Notification['type']) || 'message',
-        fromUserId: notifData.fromUserId || '',
-        fromUsername: notifData.fromUsername || 'Unknown',
         message: notifData.message || 'New notification',
-        read: false,
-        createdAt: new Date(notifData.createdAt || Date.now())
+        read: notifData.read || false,
+        createdAt: notifData.createdAt || Date.now()
       };
 
       setNotifications(prev => [notification, ...prev]);

@@ -20,22 +20,24 @@ npm run dev
 
 All working so far, photo test endpoint only.
 
-- GET /pubapi/ping
-- POST /pubapi/ping
-- GET /pubapi/photo/:name
-- POST /pubapi/login
-- POST /pubapi/register
-- GET /pubapi/activate/:token
-- POST /pubapi/reset-password
-- POST /pubapi/reset-password/:userId/:token
+- GET   /pubapi/ping
+- POST  /pubapi/ping
+- GET   /pubapi/photo/:name
+- POST  /pubapi/login
+- POST  /pubapi/register
+- GET   /pubapi/activate/:token
+- POST  /pubapi/reset-password
+- POST  /pubapi/reset-password/:userId/:token
 
 ## Endpoints need jwt
 
-- GET /api/user/profile
-- PUT /api/user/profile
-- GET /api/user/tag
-- POST /api/user/tag
-- DELETE /api/user/tag
+- GET       /api/user/profile
+- PUT       /api/user/profile
+- GET       /api/profile/short/:userId
+- GET       /api/profile/:userId
+- GET       /api/user/tag
+- POST      /api/user/tag
+- DELETE    /api/user/tag
 - PUT /api/user/pw
 - GET /api/user/photo
 - PUT /api/user/photo/:no
@@ -51,6 +53,10 @@ All working so far, photo test endpoint only.
 - GET /api/user/block
 - POST /api/user/block
 - DELETE /api/user/block
+- GET /api/user/notification
+- DELETE /api/user/notification
+- PUT /api/user/notification
+
 
 ## Websockets Client to Server Events
 
@@ -61,9 +67,4 @@ All working so far, photo test endpoint only.
 - onlineStatus
 - notification
 - error
-
-## Websockets Connection Events
-
-- connection
-- disconnect
 

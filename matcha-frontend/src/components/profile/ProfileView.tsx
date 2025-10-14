@@ -28,7 +28,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     try {
-      const data = await api.getProfile(userId);
+      const data = user && user.id === userId
+        ? await api.getProfile()
+        : await api.getUserFullProfile(userId);
       setProfile(data);
 
       if (user && user.id !== userId) {

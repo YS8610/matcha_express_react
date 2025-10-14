@@ -54,12 +54,11 @@ export interface Location {
 
 export interface Notification {
   id: string;
+  userId: string;
   type: 'like' | 'view' | 'message' | 'match' | 'unlike';
-  fromUserId: string;
-  fromUsername: string;
   message: string;
   read: boolean;
-  createdAt: Date;
+  createdAt: number;
 }
 
 export interface Message {

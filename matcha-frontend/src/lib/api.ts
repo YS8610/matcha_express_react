@@ -266,6 +266,32 @@ class ApiClient {
       body: JSON.stringify({ userId }),
     });
   }
+
+  async getNotifications(limit: number = 20, offset: number = 0) {
+    return this.request(`/api/user/notification?limit=${limit}&offset=${offset}`);
+  }
+
+  async deleteNotification(notificationId: string) {
+    return this.request('/api/user/notification', {
+      method: 'DELETE',
+      body: JSON.stringify({ notificationId }),
+    });
+  }
+
+  async markNotificationAsRead(notificationId: string) {
+    return this.request('/api/user/notification', {
+      method: 'PUT',
+      body: JSON.stringify({ notificationId }),
+    });
+  }
+
+  async getUserShortProfile(userId: string) {
+    return this.request(`/api/profile/short/${userId}`);
+  }
+
+  async getUserFullProfile(userId: string) {
+    return this.request(`/api/profile/${userId}`);
+  }
 }
 
 export const api = new ApiClient();

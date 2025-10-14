@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Heart, Eye, MessageCircle, UserX } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Notification } from '@/types';
+import { api } from '@/lib/api';
 
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
@@ -24,16 +25,73 @@ const getNotificationIcon = (type: Notification['type']) => {
 
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
-  const { notifications, isConnected, markNotificationRead, clearNotifications } = useWebSocket();
+  const { notifications: wsNotifications, isConnected, markNotificationRead, clearNotifications } = useWebSocket();
+  const [apiNotifications, setApiNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  useEffect(() => {
+    if (isOpen) {
+      loadNotifications();
+    }
+  }, [isOpen]);
 
-  const handleNotificationClick = (notification: Notification) => {
-    markNotificationRead(notification.id);
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.getNotifications(20, 0);
+      setApiNotifications(response || []);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClearAll = () => {
-    clearNotifications();
+  const allNotifications = [
+    ...wsNotifications,
+    ...apiNotifications.filter(
+      apiNotif => !wsNotifications.some(wsNotif => wsNotif.id === apiNotif.id)
+    )
+  ].sort((a, b) => {
+    const timeA = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
+    const timeB = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
+    return timeB - timeA;
+  });
+
+  const unreadCount = allNotifications.filter(n => !n.read).length;
+
+  const handleNotificationClick = async (notification: Notification) => {
+    try {
+      await api.markNotificationAsRead(notification.id);
+      markNotificationRead(notification.id);
+      setApiNotifications(prev =>
+        prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.deleteNotification(notificationId);
+      setApiNotifications(prev => prev.filter(n => n.id !== notificationId));
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      for (const notification of apiNotifications) {
+        await api.deleteNotification(notification.id);
+      }
+      setApiNotifications([]);
+      clearNotifications();
+    } catch (error) {
+      console.error('Failed to clear all notifications:', error);
+    }
   };
 
   return (
@@ -68,7 +126,7 @@ export default function NotificationCenter() {
                   <span className="text-xs text-red-500 font-medium">Disconnected</span>
                 )}
               </div>
-              {notifications.length > 0 && (
+              {allNotifications.length > 0 && (
                 <button
                   onClick={handleClearAll}
                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
@@ -79,14 +137,19 @@ export default function NotificationCenter() {
             </div>
 
             <div className="overflow-y-auto flex-1">
-              {notifications.length === 0 ? (
+              {loading ? (
+                <div className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">Loading notifications...</p>
+                </div>
+              ) : allNotifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p className="text-sm">No notifications yet</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100">
-                  {notifications.map((notification) => (
+                  {allNotifications.map((notification) => (
                     <div
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
@@ -99,9 +162,6 @@ export default function NotificationCenter() {
                           {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">
-                            {notification.fromUsername}
-                          </p>
                           <p className="text-sm text-gray-600 mt-0.5">
                             {notification.message}
                           </p>
@@ -109,11 +169,20 @@ export default function NotificationCenter() {
                             {formatTimeAgo(notification.createdAt)}
                           </p>
                         </div>
-                        {!notification.read && (
-                          <div className="flex-shrink-0">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {!notification.read && (
+                            <div className="flex-shrink-0">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                          )}
+                          <button
+                            onClick={(e) => handleDeleteNotification(notification.id, e)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            title="Delete notification"
+                          >
+                            <UserX className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -127,9 +196,10 @@ export default function NotificationCenter() {
   );
 }
 
-function formatTimeAgo(date: Date): string {
+function formatTimeAgo(date: Date | number): string {
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
+  const timestamp = typeof date === 'number' ? date : new Date(date).getTime();
+  const diffInSeconds = Math.floor((now.getTime() - timestamp) / 1000);
 
   if (diffInSeconds < 60) {
     return 'Just now';
