@@ -31,6 +31,7 @@ All working so far, photo test endpoint only.
 
 ## Endpoints need jwt
 
+- GET       /api/photo/:name
 - GET       /api/user/profile
 - PUT       /api/user/profile
 - GET       /api/profile/short/:userId
@@ -38,33 +39,45 @@ All working so far, photo test endpoint only.
 - GET       /api/user/tag
 - POST      /api/user/tag
 - DELETE    /api/user/tag
-- PUT /api/user/pw
-- GET /api/user/photo
-- PUT /api/user/photo/:no
-- DELETE /api/user/photo/:no
-- PUT /api/user/photo/order
-- GET /api/photo/:name
-- GET /api/user/viewed
-- GET /api/user/viewed/by
-- POST /api/user/viewed
-- GET /api/user/liked/by
-- POST /api/user/liked
-- DELETE /api/user/liked
-- GET /api/user/block
-- POST /api/user/block
-- DELETE /api/user/block
-- GET /api/user/notification
-- DELETE /api/user/notification
-- PUT /api/user/notification
+- PUT       /api/user/pw
+- GET       /api/user/photo
+- PUT       /api/user/photo/:no
+- DELETE    /api/user/photo/:no
+- PUT       /api/user/photo/order
+- GET       /api/user/viewed
+- GET       /api/user/viewed/by
+- POST      /api/user/viewed
+- GET       /api/user/liked/by
+- POST      /api/user/liked
+- DELETE    /api/user/liked
+- GET       /api/user/liked/matched 
+- GET       /api/user/block
+- POST      /api/user/block
+- DELETE    /api/user/block
+- GET       /api/user/notification?limit=20&offset=0
+- DELETE    /api/user/notification
+- PUT       /api/user/notification
 
 
 ## Websockets Client to Server Events
 
-- isOnline
+- isOnline - Check online status of users
+    - Payload: userIds: string[]
+- chatMessage - Send chat message
+    - Payload: {fromUserId, toUserId, content, timestamp}
 
 ## Websockets Server to Client Events
 
-- onlineStatus
-- notification
-- error
+- notification - Receive notifications
+    - Types: VIEW, LIKE, MATCH, UNLIKE
+- onlineStatus - Receive online status response
+    - Payload: Record<string, boolean>
+- serverChatmsg - Receive chat messages
+    - Payload: {fromUserId, toUserId, content, timestamp}
+- error - Error messages
+    - Payload: {msg: string}
 
+## Connection Events
+
+- connection - User connects to WebSocket
+- disconnect - User disconnects from WebSocket

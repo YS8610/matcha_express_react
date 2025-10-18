@@ -3,17 +3,21 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { Notification } from '@/types';
+import { Notification, ChatMessage } from '@/types';
 
 interface WebSocketContextType {
   socket: Socket | null;
   isConnected: boolean;
   notifications: Notification[];
   onlineUsers: Record<string, boolean>;
+  chatMessages: Record<string, ChatMessage[]>;
   checkOnlineStatus: (userIds: string[]) => void;
   addNotification: (notification: Notification) => void;
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
+  sendChatMessage: (toUserId: string, content: string) => void;
+  getChatHistory: (userId: string) => ChatMessage[];
+  clearChatHistory: (userId: string) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -26,6 +30,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
@@ -105,6 +110,15 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setOnlineUsers(prev => ({ ...prev, ...statuses }));
     });
 
+    newSocket.on('serverChatmsg', (data: ChatMessage) => {
+      console.log('[WebSocket] Chat message received:', data);
+      const otherUserId = data.fromUserId === user?.id ? data.toUserId : data.fromUserId;
+      setChatMessages(prev => ({
+        ...prev,
+        [otherUserId]: [...(prev[otherUserId] || []), data]
+      }));
+    });
+
     newSocket.on('error', (error: unknown) => {
       console.error('[WebSocket] Error:', error);
 
@@ -143,6 +157,32 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     setNotifications([]);
   }, []);
 
+  const sendChatMessage = useCallback((toUserId: string, content: string) => {
+    if (socket && isConnected && user) {
+      const message: ChatMessage = {
+        fromUserId: user.id,
+        toUserId,
+        content,
+        timestamp: Date.now()
+      };
+      socket.emit('chatMessage', message);
+    } else {
+      console.warn('[WebSocket] Cannot send message: socket not connected');
+    }
+  }, [socket, isConnected, user]);
+
+  const getChatHistory = useCallback((userId: string): ChatMessage[] => {
+    return chatMessages[userId] || [];
+  }, [chatMessages]);
+
+  const clearChatHistory = useCallback((userId: string) => {
+    setChatMessages(prev => {
+      const updated = { ...prev };
+      delete updated[userId];
+      return updated;
+    });
+  }, []);
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -150,10 +190,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         isConnected,
         notifications,
         onlineUsers,
+        chatMessages,
         checkOnlineStatus,
         addNotification,
         markNotificationRead,
-        clearNotifications
+        clearNotifications,
+        sendChatMessage,
+        getChatHistory,
+        clearChatHistory
       }}
     >
       {children}

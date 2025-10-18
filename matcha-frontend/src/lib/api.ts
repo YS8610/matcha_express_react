@@ -181,6 +181,10 @@ class ApiClient {
     return this.request('/api/user/liked/by');
   }
 
+  async getMatchedUsers() {
+    return this.request('/api/user/liked/matched');
+  }
+
   async ping() {
     return this.request('/pubapi/ping');
   }

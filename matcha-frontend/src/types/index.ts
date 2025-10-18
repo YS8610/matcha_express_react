@@ -70,6 +70,13 @@ export interface Message {
   read: boolean;
 }
 
+export interface ChatMessage {
+  fromUserId: string;
+  toUserId: string;
+  content: string;
+  timestamp: number;
+}
+
 export interface Conversation {
   userId: string;
   username: string;

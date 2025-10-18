@@ -242,7 +242,6 @@ export default function ProfileSetup() {
               Upload Photos (Max 5)
             </label>
 
-            {/* Custom file upload button */}
             <div className="relative">
               <input
                 type="file"
@@ -273,7 +272,6 @@ export default function ProfileSetup() {
               </label>
             </div>
 
-            {/* Selected photos preview */}
             {formData.photos.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm text-gray-600 mb-2">
