@@ -4,6 +4,10 @@ import { AuthToken } from "../model/token.js";
 import { authWSmiddleware } from "../middleware/auth.js";
 import ConstMatcha from "../ConstMatcha.js";
 import { NotificationManager } from "../service/notificationSvc.js";
+import { ChatMessage } from "../model/Response.js";
+import { getBlockedRel } from "../service/blockSvc.js";
+import { isMatch } from "../service/likeSvc.js";
+import { saveChatmsg } from "../service/chatSvc.js";
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -23,7 +27,7 @@ const eventHandlers = (io: Server) => {
       ConstMatcha.wsmap.set(socket.user.id, ConstMatcha.wsmap.get(socket.user.id)?.add(socket.id) ?? new Set([socket.id]));
     clogger.info(`[socket]: User connected: ${socket.id}`);
 
-    // online status check 
+    // online status check
     socket.on("isOnline", async (userIds: string[]) => {
       const onlineStatuses: Record<string, boolean> = {};
       for (const id of userIds)
@@ -42,6 +46,44 @@ const eventHandlers = (io: Server) => {
       socket.emit("notification", data);
     });
 
+    // chat message event
+    socket.on("chatMessage", async (data: ChatMessage) => {
+      if (!data.fromUserId || !data.toUserId || !data.content || !data.timestamp) {
+        io.to(socket.id).emit("error", { msg: "Invalid chat message format" });
+        return;
+      }
+      if (data.fromUserId == data.toUserId) {
+        io.to(socket.id).emit("error", { msg: "Cannot send message to yourself" });
+        return;
+      }
+      // check if recipent is not blocked
+      const blockedBySender = await getBlockedRel(data.fromUserId, data.toUserId);
+      if (blockedBySender) {
+        io.to(socket.id).emit("error", { msg: "Cannot send message to this user due to blocked status" });
+        return;
+      }
+      // check if sender is matched with recipient
+      const isMatched = await isMatch(data.fromUserId, data.toUserId);
+      if (!isMatched) {
+        io.to(socket.id).emit("error", { msg: "Cannot send message to this user as you are not matched" });
+        return;
+      }
+      // store message in db
+      try {
+        await saveChatmsg(data);
+      } catch (err) {
+        io.to(socket.id).emit("error", { msg: "Failed to store chat message" });
+        return;
+      }
+      // send msg to recipient and user socket if online
+      if (ConstMatcha.wsmap.has(data.toUserId as string))
+        for (const sockId of ConstMatcha.wsmap.get(data.toUserId as string) || [])
+          io.to(sockId).emit("serverChatmsg", data);
+      if (ConstMatcha.wsmap.has(data.fromUserId as string))
+        for (const sockId of ConstMatcha.wsmap.get(data.fromUserId as string) || [])
+          io.to(sockId).emit("serverChatmsg", data);
+    });
+
     // Handle disconnection and remove the socket ID from the map
     socket.on("disconnect", () => {
       clogger.info(`[socket]: User disconnected: ${socket.id}`);
@@ -57,6 +99,7 @@ const eventHandlers = (io: Server) => {
       }
     });
 
+    // Handle errors
     socket.on("error", (err) => {
       clogger.error(`[socket]: Error from ${socket.id}: ${err.message}`);
       socket.emit("error", { msg: err.message });

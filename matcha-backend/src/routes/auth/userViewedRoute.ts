@@ -1,13 +1,13 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { ProfileShort, Reslocal } from "../../model/profile.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
-import { getShortProfileById, getUserProfileById, isUserExistsById } from "../../service/userSvc.js";
+import { isUserExistsById } from "../../service/userSvc.js";
 import { addViewed, getViewedById, getVisitedById, isViewed } from "../../service/viewedSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ResMsg } from "../../model/Response.js";
 import { notifyUser } from "../../service/notificationSvc.js";
 import { v4 as uuidv4 } from "uuid";
-import ConstMatcha from "../../ConstMatcha.js";
+import { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { getBlockedRel } from "../../service/blockSvc.js";
 
 let router = express.Router();
@@ -73,7 +73,7 @@ router.post("/", async (req: Request<{}, {}, { viewedUserID: string }>, res: Res
   await serverErrorWrapper(() => addViewed(id, viewedUserID), "Failed to record viewed user");
   await serverErrorWrapper(() => notifyUser({
     userId: viewedUserID,
-    type: ConstMatcha.NOTIFICATION_TYPE_PROFILE_VIEW,
+    type: NOTIFICATION_TYPE.VIEW,
     message: `${username} has viewed your profile`,
     createdAt: Date.now(),
     id: uuidv4(),

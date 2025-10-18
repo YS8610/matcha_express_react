@@ -1,5 +1,5 @@
 import ConstMatcha from "../ConstMatcha.js";
-import { ProfileGetJson } from "../model/profile.js";
+import { ProfileGetJson, ProfileShort } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 
 // get profile of users who liked the user with given id
@@ -48,3 +48,10 @@ export const isMatch = async (userId: string, otherUserId: string): Promise<bool
   session.close();
   return result.records[0].get("matchCount") >= 2;
 }
+
+export const getMatchedUsersShortProfile = async (userId: string): Promise<ProfileShort[]> => {
+  const session = driver.session();
+  const result = await session.run<ProfileShort[]>(ConstMatcha.NEO4j_STMT_GET_MATCHED_USERS_SHORT_PROFILE_WITH_ID, { userId });
+  session.close();
+  return result.records.map(record => record.get(0));
+};

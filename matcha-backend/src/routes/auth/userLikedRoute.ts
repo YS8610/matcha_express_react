@@ -3,11 +3,11 @@ import { ProfileShort, Reslocal } from "../../model/profile.js";
 import { ResMsg } from "../../model/Response.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { isUserExistsById } from "../../service/userSvc.js";
-import { addLiked, getLikedById, isLiked, isMatch, removeLiked } from "../../service/likeSvc.js";
+import { addLiked, getLikedById, getMatchedUsersShortProfile, isLiked, isMatch, removeLiked } from "../../service/likeSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { addViewed } from "../../service/viewedSvc.js";
 import { notifyUser } from "../../service/notificationSvc.js";
-import ConstMatcha from "../../ConstMatcha.js";
+import { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { v4 as uuidv4 } from "uuid";
 
 let router = express.Router();
@@ -48,7 +48,7 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
       context: { userid: "self_like" }
     }));
   const isUser = await serverErrorWrapper(() => isUserExistsById(userid), "Error checking if user exists");
-  if (!isUser) 
+  if (!isUser)
     return next( new BadRequestError({
       code: 404,
       message: "user not found",
@@ -67,19 +67,18 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
   await serverErrorWrapper(() => addViewed(id, userid), "Error viewing user");
   await serverErrorWrapper(() => notifyUser({
     userId: userid,
-    type: ConstMatcha.NOTIFICATION_TYPE_LIKE,
+    type: NOTIFICATION_TYPE.LIKE,
     message: `${username} has liked you`,
     createdAt: Date.now(),
     id: uuidv4(),
     read: false
   }), "Failed to send profile like notification");
-  // todo: if they also liked you, it's a match! notify both users
   const matched = await serverErrorWrapper(() => isMatch(userid, id), "Error checking for match");
   if (matched) {
     // notify the other users of the match
     await serverErrorWrapper(() => notifyUser({
       userId: userid,
-      type: ConstMatcha.NOTIFICATION_TYPE_MATCH,
+      type: NOTIFICATION_TYPE.MATCH,
       message: `${username} and you have liked each other`,
       createdAt: Date.now(),
       id: uuidv4(),
@@ -88,7 +87,7 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
     // notify the authenticated user of the match
     await serverErrorWrapper(() => notifyUser({
       userId: id,
-      type: ConstMatcha.NOTIFICATION_TYPE_MATCH,
+      type: NOTIFICATION_TYPE.MATCH,
       message: `You have just matched!`,
       createdAt: Date.now(),
       id: uuidv4(),
@@ -127,13 +126,19 @@ router.delete("/", async (req: Request<{},{},{userid:string}>, res: Response<Res
   await serverErrorWrapper(() => removeLiked(id, userid), "Error unliking user");
   await serverErrorWrapper(() => notifyUser({
     userId: userid,
-    type: ConstMatcha.NOTIFICATION_TYPE_UNLIKE,
+    type: NOTIFICATION_TYPE.UNLIKE,
     message: `${username} has unliked you`,
     createdAt: Date.now(),
     id: uuidv4(),
     read: false
   }), "Failed to send profile unlike notification");
   res.status(200).json({ msg: "unliked" });
+});
+
+router.get("/matched", async (req: Request, res: Response<{ data: ProfileShort[] }>, next: NextFunction) => {
+  const { authenticated, username, id, activated } = res.locals as Reslocal;
+  const profiles = await serverErrorWrapper(() => getMatchedUsersShortProfile(id), "Error getting matched users");
+  res.status(200).json({ data: profiles });
 });
 
 export default router;

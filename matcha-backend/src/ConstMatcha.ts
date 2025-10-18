@@ -3,6 +3,15 @@ import { argon2i } from "argon2";
 
 dotenv.config();
 
+// notification types
+export enum NOTIFICATION_TYPE {
+    VIEW = "view",
+    LIKE = "like",
+    UNLIKE = "unlike",
+    MATCH = "match",
+    MESSAGE = "message"
+  }
+
 export default class ConstMatcha {
 
   static readonly wsmap = new Map<string, Set<string>>();
@@ -28,6 +37,14 @@ export default class ConstMatcha {
   // default value for redis
   static readonly REDIS_DEFAULT_HOST = 'redis://localhost:6379';
 
+  // default value for mongo
+  static readonly MONGO_DEFAULT_URI = 'mongodb://localhost:27017/';
+  static readonly MONGO_DEFAULT_DB = 'matcha';
+  static readonly MONGO_DEFAULT_POOL = 50;
+  static readonly MONGO_DEFAULT_TIMEOUT = 5000;
+  static readonly MONGO_COLLECTION_NOTIFICATIONS = 'notifications';
+  static readonly MONGO_COLLECTION_CHATMESSAGES = 'chatmessages';
+
   // default value for neo4j
   static readonly NEO4j_DEFAULT_URI = 'bolt://localhost:7687';
   static readonly NEO4j_DEFAULT_USERNAME = 'neo4j';
@@ -42,7 +59,7 @@ export default class ConstMatcha {
   static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
   static readonly DEFAULT_BIOGRAPHY = "\"\"";
 
-  // user limit 
+  // user limit
   static readonly NEO4j_USER_MAX_TAGS = 10;
   static readonly NEO4j_USER_MAX_PHOTOS = 5;
 
@@ -50,13 +67,6 @@ export default class ConstMatcha {
   static readonly SEXUAL_PREFERENCE_MALE = 1;
   static readonly SEXUAL_PREFERENCE_FEMALE = 2;
   static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
-
-// notification type
-  static readonly NOTIFICATION_TYPE_PROFILE_VIEW = "view";
-  static readonly NOTIFICATION_TYPE_LIKE = "like";
-  static readonly NOTIFICATION_TYPE_UNLIKE = "unlike";
-  static readonly NOTIFICATION_TYPE_MATCH = "match";
-  static readonly NOTIFICATION_TYPE_MESSAGE = "message";
 
   // statement for neo4j
   // constraints
@@ -135,7 +145,7 @@ export default class ConstMatcha {
 
   static readonly NEO4j_STMT_GET_PW_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
-    RETURN u.pw as pw 
+    RETURN u.pw as pw
   `;
 
   static readonly NEO4j_STMT_SET_PW_BY_USERNAME = `
@@ -257,7 +267,7 @@ export default class ConstMatcha {
   `;
 
   static readonly NEO4j_STMT_CREATE_USER_VIEWED_REL = `
-    MATCH (u:PROFILE { id: $userId }) with u 
+    MATCH (u:PROFILE { id: $userId }) with u
     MATCH (v:PROFILE { id: $viewedUserId })
     MERGE (u)-[:VIEWED]->(v)
   `;
@@ -292,6 +302,12 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_IS_MATCHED = `
     MATCH (u:PROFILE { id: $userId })-[r:LIKED]-(v:PROFILE {id : $otherUserId})
     RETURN count(r) as matchCount
+  `;
+
+  static readonly NEO4j_STMT_GET_MATCHED_USERS_SHORT_PROFILE_WITH_ID = `
+    MATCH (u:PROFILE { id: $userId })-[:LIKED]->(v:PROFILE),
+    (v)-[:LIKED]->(u)
+    RETURN v{.id, .firstName, .lastName, .username, .fameRating, .photo0}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BLOCKED_BY_ID = `

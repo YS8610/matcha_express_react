@@ -1,10 +1,11 @@
-import  ConstMatcha  from "../ConstMatcha.js";
+import  { NOTIFICATION_TYPE }  from "../ConstMatcha.js";
 
-type NotificationType = 
-  | typeof ConstMatcha.NOTIFICATION_TYPE_PROFILE_VIEW
-  | typeof ConstMatcha.NOTIFICATION_TYPE_LIKE
-  | typeof ConstMatcha.NOTIFICATION_TYPE_UNLIKE
-  | typeof ConstMatcha.NOTIFICATION_TYPE_MATCH;
+type NotificationType =
+  typeof NOTIFICATION_TYPE.VIEW |
+  typeof NOTIFICATION_TYPE.LIKE |
+  typeof NOTIFICATION_TYPE.UNLIKE |
+  typeof NOTIFICATION_TYPE.MATCH |
+  typeof NOTIFICATION_TYPE.MESSAGE;
 
 export interface Notification_Matcha {
   id: string;
