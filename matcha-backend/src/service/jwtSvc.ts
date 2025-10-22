@@ -2,11 +2,10 @@ import ConstMatcha from "../ConstMatcha.js";
 import BadRequestError from "../errors/BadRequestError.js";
 import ServerRequestError from "../errors/ServerRequestError.js";
 import pkg from "jsonwebtoken";
-const { sign, verify } = pkg;
 
 export const createToken = (id: string, email: string, username: string, activated: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const token = sign(
+    const token = pkg.sign(
       { id, email, username, activated },
       ConstMatcha.JWT_SECRET,
       { algorithm: "HS512", expiresIn: ConstMatcha.JWT_EXPIRY },
@@ -25,7 +24,7 @@ export const createToken = (id: string, email: string, username: string, activat
 
 export const verifyToken = (token: string): Promise<string | object> => {
   return new Promise((resolve, reject) => {
-    verify(token, ConstMatcha.JWT_SECRET, { algorithms: ["HS512"] }, (err, decoded) => {
+    pkg.verify(token, ConstMatcha.JWT_SECRET, { algorithms: ["HS512"] }, (err, decoded) => {
       if (err || !decoded)
         return reject(new BadRequestError({
           message: "invalid token",
@@ -40,9 +39,9 @@ export const verifyToken = (token: string): Promise<string | object> => {
 
 export const createPWResetToken = (id:string, email: string, username: string, hashedpw:string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const token = sign(
+    const token = pkg.sign(
       { id, email, username },
-      hashedpw, 
+      hashedpw,
       { algorithm: "HS512", expiresIn: "1h" },
       (err, token) => {
         if (err || !token)
@@ -59,7 +58,7 @@ export const createPWResetToken = (id:string, email: string, username: string, h
 
 export const verifyPWResetToken = (token: string, hashedpw:string): Promise<string | object> => {
   return new Promise((resolve, reject) => {
-    verify(token, hashedpw, { algorithms: ["HS512"] }, (err, decoded) => {
+    pkg.verify(token, hashedpw, { algorithms: ["HS512"] }, (err, decoded) => {
       if (err || !decoded)
         return reject(new BadRequestError({
           message: "invalid password reset token",

@@ -1,15 +1,15 @@
 import { describe, expect, it, beforeAll, vi, afterEach } from "vitest";
-import appfunc from "../app.js";
+import appfunc from "../../app.js";
 import request from "supertest";
 import { type Express } from "express-serve-static-core";
-import * as authSvc from "../service/authSvc.js";
-import * as userSvc from "../service/userSvc.js";
-import * as jwtSvc from "../service/jwtSvc.js";
-import ServerRequestError from "../errors/ServerRequestError.js";
-import { createToken, verifyToken } from "../service/jwtSvc.js";
+import * as authSvc from "../../service/authSvc.js";
+import * as userSvc from "../../service/userSvc.js";
+import * as jwtSvc from "../../service/jwtSvc.js";
+import ServerRequestError from "../../errors/ServerRequestError.js";
+import { createToken, verifyToken } from "../../service/jwtSvc.js";
 import { sign } from "jsonwebtoken";
-import ConstMatcha from "../ConstMatcha.js";
-import { AuthToken } from "../model/token.js";
+import ConstMatcha from "../../ConstMatcha.js";
+import { AuthToken } from "../../model/token.js";
 
 let app: Express;
 
@@ -302,7 +302,7 @@ describe("Route /pubapi/register", () => {
 
   it("post with email missing should return a 400 status code", async () => {
     const response = await request(app).post("/pubapi/register").send({
-      username : "johndoe",
+      username: "johndoe",
       pw: "password",
       pw2: "password",
       firstName: "John",
@@ -506,7 +506,13 @@ describe("Route /pubapi/register", () => {
     expect(response.status).toBe(400);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: { pw: "invalid" },
+      context: {
+        "lower case": "present",
+        "min 8 char": "missing",
+        "number": "missing",
+        "special char": "missing",
+        "upper case": "missing",
+      },
       message: "Password does not meet complexity requirements"
     });
   });
@@ -1057,7 +1063,11 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
       context: {
-        newPassword: "invalid"
+        "lower case": "present",
+        "min 8 char": "missing",
+        "number": "missing",
+        "special char": "missing",
+        "upper case": "missing",
       },
       message: "New password does not meet complexity requirements"
     });
@@ -1076,7 +1086,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, but wrong token should return 400", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce("");
     const response = await request(app)
       .post("/pubapi/reset-password/1/invalidtoken")
@@ -1090,7 +1100,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token but decoded value is missing id", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ email: "test@example.com", username: "username" });
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
@@ -1104,7 +1114,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token but decoded value is missing email", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", username: "username" });
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
@@ -1118,7 +1128,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token but decoded value is missing username", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", email: "test@example.com" });
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
@@ -1137,16 +1147,16 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
       .send({ newPassword: "Validpass1!", newPassword2: "Validpass1!" });
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: { token: "invalid" },
-      message: "Invalid token"
+      context: { id: "invalid" },
+      message: "Invalid id"
     });
   });
 
-  it("post with correct body, valid userid and token but there is getHashedPwByUsername svc error should return 500", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockRejectedValueOnce(new Error("Database error"));
+  it("post with correct body, valid userid and token but there is getHashedPwById svc error should return 500", async () => {
+    vi.spyOn(userSvc, "getHashedPwById").mockRejectedValueOnce(new Error("Database error"));
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
       .send({ newPassword: "Validpass1!", newPassword2: "Validpass1!" });
@@ -1159,7 +1169,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token but there is verifyPWResetToken svc error should return 500", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockRejectedValueOnce(new Error("Token verification error"));
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
@@ -1173,7 +1183,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token but hashPW return error should return 500", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", email: "test@example.com", username: "username" });
     vi.spyOn(authSvc, "hashPW").mockRejectedValueOnce(new Error("Hashing error"));
     const response = await request(app)
@@ -1188,7 +1198,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
   });
 
   it("post with correct body, valid userid and token should return 200", async () => {
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
     vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", email: "test@example.com", username: "username" });
     vi.spyOn(authSvc, "hashPW").mockResolvedValueOnce("newhashedpassword");
     vi.spyOn(userSvc, "setPwById").mockResolvedValueOnce();
