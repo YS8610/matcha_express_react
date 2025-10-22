@@ -11,7 +11,7 @@ export const saveChatmsg = async (msg: ChatMessage): Promise<void> => {
   );
 };
 
-export const getChatHistoryBetweenUsers = async (userAId: string, userBId: string, start: number, limit: number = 50): Promise<ChatMessage[]> => {
+export const getChatHistoryBetweenUsers = async (userAId: string, userBId: string, skipno: number = 0, limit: number = 50): Promise<ChatMessage[]> => {
   const messages = await serverErrorWrapper(
     () => db.collection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES)
       .find({
@@ -21,7 +21,7 @@ export const getChatHistoryBetweenUsers = async (userAId: string, userBId: strin
         ]
       })
       .sort({ timestamp: -1 })
-      .skip(start)
+      .skip(skipno)
       .limit(limit)
       .toArray(),
     'Failed to retrieve chat history from DB'

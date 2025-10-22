@@ -1,6 +1,6 @@
 import  { NOTIFICATION_TYPE }  from "../ConstMatcha.js";
 
-type NotificationType =
+export type NotificationType =
   typeof NOTIFICATION_TYPE.VIEW |
   typeof NOTIFICATION_TYPE.LIKE |
   typeof NOTIFICATION_TYPE.UNLIKE |

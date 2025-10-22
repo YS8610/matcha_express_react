@@ -7,7 +7,7 @@ import { NotificationManager } from "../service/notificationSvc.js";
 import { ChatMessage } from "../model/Response.js";
 import { getBlockedRel } from "../service/blockSvc.js";
 import { isMatch } from "../service/likeSvc.js";
-import { saveChatmsg } from "../service/chatSvc.js";
+import { getChatHistoryBetweenUsers, saveChatmsg } from "../service/chatSvc.js";
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -96,6 +96,27 @@ const eventHandlers = (io: Server) => {
           else
             ConstMatcha.wsmap.set(socket.user.id, userSockets);
         }
+      }
+    });
+
+    // get chat history between two users using websocket
+    socket.on("getChatHistory", async (data: { otherId: string, limit?: number, skipno?: number }) => {
+      const { otherId, limit = 50, skipno = 0 } = data;
+      const userId = socket.user?.id;
+      if (!userId) {
+        io.to(socket.id).emit("error", { message: "Authentication error" });
+        return;
+      }
+      if (!otherId) {
+        io.to(socket.id).emit("error", { message: "otherId is required" });
+        return;
+      }
+      try {
+        const chatHistory = await getChatHistoryBetweenUsers(userId, otherId, skipno, limit);
+        for (const sId of ConstMatcha.wsmap.get(userId) || [])
+          io.to(sId).emit("chatHistory", chatHistory);
+      } catch (err) {
+        io.to(socket.id).emit("error", { message: "Failed to retrieve chat history" });
       }
     });
 
