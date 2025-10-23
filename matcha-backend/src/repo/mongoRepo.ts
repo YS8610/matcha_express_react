@@ -2,6 +2,7 @@ import { Document, MongoClient } from "mongodb";
 import ServerRequestError from "../errors/ServerRequestError.js";
 import ConstMatcha from "../ConstMatcha.js";
 import { clogger } from "../service/loggerSvc.js";
+import { chatmessagesValidator, notificationsValidator, reportsValidator } from "../model/mongoDBValidator.js";
 
 const connectionString = process.env.MONGODB || ConstMatcha.MONGO_DEFAULT_URI;
 const client = new MongoClient(connectionString, {
@@ -48,64 +49,15 @@ db.listCollections().toArray()
         clogger.info('Chatmessage collection creation skipped: ' + e.message);
       });
     }
+    if (!collections.has(ConstMatcha.MONGO_COLLECTION_REPORTS)) {
+      db.createCollection(ConstMatcha.MONGO_COLLECTION_REPORTS, { validator: reportsValidator })
+      .catch((e: Error) => {
+        clogger.info('Report collection creation skipped: ' + e.message);
+      });
+    }
   })
+  .catch((e: Error) => {
+    clogger.error('Error listing collections: ' + e.message);
+  });
 
 export default db;
-
-const notificationsValidator: Document = {
-  $jsonSchema: {
-    bsonType: "object",
-    required: ["id", "userId", "type", "message", "createdAt", "read"],
-    properties: {
-      id: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      userId: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      type: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      message: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      createdAt: {
-        bsonType: "number",
-        description: "must be a number and is required"
-      },
-      read: {
-        bsonType: "bool",
-        description: "must be a boolean and is required"
-      }
-    }
-  }
-}
-
-const chatmessagesValidator: Document = {
-  $jsonSchema: {
-    bsonType: "object",
-    required: ["fromUserId", "toUserId", "content", "timestamp"],
-    properties: {
-      fromUserId: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      toUserId: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      content: {
-        bsonType: "string",
-        description: "must be a string and is required"
-      },
-      timestamp: {
-        bsonType: "number",
-        description: "must be a number and is required"
-      }
-    }
-  }
-}

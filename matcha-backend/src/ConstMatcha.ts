@@ -44,6 +44,8 @@ export default class ConstMatcha {
   static readonly MONGO_DEFAULT_TIMEOUT = 5000;
   static readonly MONGO_COLLECTION_NOTIFICATIONS = 'notifications';
   static readonly MONGO_COLLECTION_CHATMESSAGES = 'chatmessages';
+  static readonly MONGO_COLLECTION_REPORTS = 'reports';
+  static readonly MONGO_COLLECTION_LOCATION = 'location';
 
   // default value for neo4j
   static readonly NEO4j_DEFAULT_URI = 'bolt://localhost:7687';
