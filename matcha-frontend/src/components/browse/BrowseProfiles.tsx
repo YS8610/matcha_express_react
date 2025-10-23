@@ -5,6 +5,7 @@ import { Profile, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users } from 'lucide-react';
+import { api } from '@/lib/api';
 
 const PROFILES_PER_PAGE = 12;
 
@@ -24,9 +25,31 @@ export default function BrowseProfiles() {
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
-    setAllProfiles([]);
-    setCurrentPage(1);
-    setLoading(false);
+    try {
+      const likedByMeResponse = await Promise.all([
+        api.getUsersWhoLikedMe().catch(() => ({ data: [] })),
+        api.getUsersWhoViewedMe().catch(() => ({ data: [] })),
+        api.getMatchedUsers().catch(() => ({ data: [] })),
+      ]);
+
+      const profiles = new Map<string, Profile>();
+
+      [likedByMeResponse[0]?.data || [], likedByMeResponse[1]?.data || [], likedByMeResponse[2]?.data || []]
+        .flat()
+        .forEach((profile: Profile) => {
+          if (profile && profile.id && !profiles.has(profile.id)) {
+            profiles.set(profile.id, profile);
+          }
+        });
+
+      setAllProfiles(Array.from(profiles.values()));
+      setCurrentPage(1);
+    } catch (error) {
+      console.error('Failed to load profiles:', error);
+      setAllProfiles([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

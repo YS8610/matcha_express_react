@@ -296,6 +296,20 @@ class ApiClient {
   async getUserFullProfile(userId: string) {
     return this.request(`/api/profile/${userId}`);
   }
+
+  async reportUser(userId: string, reason: string) {
+    return this.request(`/api/user/report/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getChatHistory(otherId: string, limit: number = 50, skipno: number = 0) {
+    return this.request(`/api/user/chat?limit=${limit}&skipno=${skipno}`, {
+      method: 'GET',
+      body: JSON.stringify({ otherid: otherId }),
+    });
+  }
 }
 
 export const api = new ApiClient();

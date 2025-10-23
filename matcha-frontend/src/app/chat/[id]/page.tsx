@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { ArrowLeft, Send, Circle } from 'lucide-react';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
@@ -19,9 +19,12 @@ export default function ChatPage() {
   const { sendChatMessage, getChatHistory, onlineUsers, checkOnlineStatus, isConnected } = useWebSocket();
   const [profile, setProfile] = useState<ProfileShort | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState('');
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  const [skipno, setSkipno] = useState(0);
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,25 +33,7 @@ export default function ChatPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (chatUserId) {
-      loadProfile();
-      checkOnlineStatus([chatUserId]);
-    }
-  }, [chatUserId]);
-
-  useEffect(() => {
-    if (chatUserId) {
-      const chatHistory = getChatHistory(chatUserId);
-      setMessages(chatHistory);
-    }
-  }, [chatUserId, getChatHistory]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -59,7 +44,73 @@ export default function ChatPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [chatUserId]);
+
+  const loadChatHistoryFromAPI = useCallback(async () => {
+    if (!chatUserId) return;
+
+    setLoadingHistory(true);
+    try {
+      const response = await api.getChatHistory(chatUserId, 50, skipno);
+      const historyMessages = response.data || [];
+
+      if (skipno === 0) {
+        const webSocketMessages = getChatHistory(chatUserId);
+        const combinedMessages = [...historyMessages, ...webSocketMessages];
+
+        const uniqueMessages = Array.from(
+          new Map(
+            combinedMessages.map(msg => [
+              `${msg.fromUserId}-${msg.toUserId}-${msg.timestamp}-${msg.content}`,
+              msg
+            ])
+          ).values()
+        );
+
+        uniqueMessages.sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(uniqueMessages);
+      } else {
+        setMessages(prev => [...historyMessages, ...prev]);
+      }
+
+      setHasMoreHistory(historyMessages.length === 50);
+    } catch (err) {
+      console.error('Failed to load chat history:', err);
+      const webSocketMessages = getChatHistory(chatUserId);
+      setMessages(webSocketMessages);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [chatUserId, skipno, getChatHistory]);
+
+  useEffect(() => {
+    if (chatUserId) {
+      loadProfile();
+      checkOnlineStatus([chatUserId]);
+      loadChatHistoryFromAPI();
+    }
+  }, [chatUserId, loadProfile, checkOnlineStatus, loadChatHistoryFromAPI]);
+
+  useEffect(() => {
+    if (chatUserId) {
+      const webSocketMessages = getChatHistory(chatUserId);
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => `${m.fromUserId}-${m.toUserId}-${m.timestamp}-${m.content}`));
+        const newMessages = webSocketMessages.filter(
+          m => !existingIds.has(`${m.fromUserId}-${m.toUserId}-${m.timestamp}-${m.content}`)
+        );
+
+        if (newMessages.length > 0) {
+          return [...prev, ...newMessages].sort((a, b) => a.timestamp - b.timestamp);
+        }
+        return prev;
+      });
+    }
+  }, [chatUserId, getChatHistory]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -152,37 +203,53 @@ export default function ChatPage() {
         )}
 
         <div className="flex-1 bg-white rounded-2xl shadow-md border border-green-100 overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
             {messages.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <p>No messages yet. Start the conversation!</p>
               </div>
             ) : (
-              messages.map((msg, idx) => {
-                const isFromMe = msg.fromUserId === user.id;
-                return (
-                  <div
-                    key={idx}
-                    className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[70%] px-4 py-2 rounded-2xl ${
-                        isFromMe
-                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
+              <>
+                {hasMoreHistory && (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => {
+                        setSkipno(prev => prev + 50);
+                        loadChatHistoryFromAPI();
+                      }}
+                      disabled={loadingHistory}
+                      className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <p className="break-words">{msg.content}</p>
-                      <p className={`text-xs mt-1 ${isFromMe ? 'text-green-100' : 'text-gray-500'}`}>
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                    </div>
+                      {loadingHistory ? 'Loading older messages...' : 'Load Older Messages'}
+                    </button>
                   </div>
-                );
-              })
+                )}
+                {messages.map((msg, idx) => {
+                  const isFromMe = msg.fromUserId === user.id;
+                  return (
+                    <div
+                      key={idx}
+                      className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[70%] px-4 py-2 rounded-2xl ${
+                          isFromMe
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        <p className="break-words">{msg.content}</p>
+                        <p className={`text-xs mt-1 ${isFromMe ? 'text-green-100' : 'text-gray-500'}`}>
+                          {new Date(msg.timestamp).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
             )}
             <div ref={messagesEndRef} />
           </div>

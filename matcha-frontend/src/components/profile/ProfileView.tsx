@@ -6,7 +6,7 @@ import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import { toDisplayNumber } from '@/lib/neo4j-utils';
-import { ShieldBan } from 'lucide-react';
+import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
@@ -17,6 +17,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState('');
   const { user } = useAuth();
   const router = useRouter();
 
@@ -89,6 +93,37 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
   };
 
+  const handleReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!reportReason.trim() || reportReason.trim().length < 10) {
+      setReportError('Report reason must be at least 10 characters long');
+      return;
+    }
+
+    if (!profile || !userId) {
+      console.error('Cannot report: profile or userId is missing');
+      return;
+    }
+
+    setReportLoading(true);
+    setReportError('');
+
+    try {
+      await api.reportUser(userId, reportReason.trim());
+      alert('Thank you for reporting this user. Our team will review it.');
+      setShowReportModal(false);
+      setReportReason('');
+      router.push('/browse');
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'Failed to report user. Please try again.';
+      setReportError(errorMessage);
+      console.error('Failed to report user:', error);
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (!profile) return <div>Profile not found</div>;
 
@@ -144,10 +179,88 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 <ShieldBan className="w-4 h-4" />
                 {isBlocked ? 'Blocked' : 'Block'}
               </button>
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2"
+                title="Report this user"
+              >
+                <Flag className="w-4 h-4" />
+                Report
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">Report User</h2>
+              <button
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportError('');
+                  setReportReason('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleReport} className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Please tell us why you&apos;re reporting @{profile.username}. This helps us maintain a safe community.
+              </p>
+
+              {reportError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+                  {reportError}
+                </div>
+              )}
+
+              <textarea
+                value={reportReason}
+                onChange={(e) => {
+                  setReportReason(e.target.value);
+                  setReportError('');
+                }}
+                placeholder="Please provide details about why you're reporting this user (minimum 10 characters)..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                rows={5}
+                disabled={reportLoading}
+              />
+
+              <p className="text-xs text-gray-500 mt-2">
+                {reportReason.length}/10 minimum characters
+              </p>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportError('');
+                    setReportReason('');
+                  }}
+                  disabled={reportLoading}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportLoading || reportReason.trim().length < 10}
+                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {reportLoading ? 'Reporting...' : 'Submit Report'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

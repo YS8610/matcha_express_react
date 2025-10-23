@@ -6,6 +6,7 @@ import ProfileCard from '@/components/browse/ProfileCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Search, Leaf, MapPin, Star, Calendar, Heart } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function SearchPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -29,23 +30,68 @@ export default function SearchPage() {
     }
   }, [user, router]);
 
+  const calculateAge = (birthDate: string): number => {
+    try {
+      const birth = new Date(birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    } catch {
+      return 0;
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setSearched(true);
 
-    const searchCriteria: Record<string, string | number | string[]> = {};
-    if (criteria.ageMin) searchCriteria.ageMin = parseInt(criteria.ageMin);
-    if (criteria.ageMax) searchCriteria.ageMax = parseInt(criteria.ageMax);
-    if (criteria.fameMin) searchCriteria.fameMin = parseInt(criteria.fameMin);
-    if (criteria.fameMax) searchCriteria.fameMax = parseInt(criteria.fameMax);
-    if (criteria.location) searchCriteria.location = criteria.location;
-    if (criteria.interests) {
-      searchCriteria.interests = criteria.interests.split(',').map(i => i.trim());
-    }
+    try {
+      const [likedByMeResp, viewedByMeResp, matchedResp] = await Promise.all([
+        api.getUsersWhoLikedMe().catch(() => ({ data: [] })),
+        api.getUsersWhoViewedMe().catch(() => ({ data: [] })),
+        api.getMatchedUsers().catch(() => ({ data: [] })),
+      ]);
 
-    setProfiles([]);
-    setLoading(false);
+      const allProfiles = new Map<string, Profile>();
+      [likedByMeResp?.data || [], viewedByMeResp?.data || [], matchedResp?.data || []]
+        .flat()
+        .forEach((profile: Profile) => {
+          if (profile && profile.id && !allProfiles.has(profile.id)) {
+            allProfiles.set(profile.id, profile);
+          }
+        });
+
+      let filtered = Array.from(allProfiles.values());
+
+      if (criteria.ageMin || criteria.ageMax) {
+        filtered = filtered.filter(profile => {
+          const age = calculateAge(profile.birthDate);
+          const minAge = criteria.ageMin ? parseInt(criteria.ageMin) : 0;
+          const maxAge = criteria.ageMax ? parseInt(criteria.ageMax) : 150;
+          return age >= minAge && age <= maxAge;
+        });
+      }
+
+      if (criteria.fameMin || criteria.fameMax) {
+        filtered = filtered.filter(profile => {
+          const fameMin = criteria.fameMin ? parseInt(criteria.fameMin) : 0;
+          const fameMax = criteria.fameMax ? parseInt(criteria.fameMax) : 100;
+          return profile.fameRating >= fameMin && profile.fameRating <= fameMax;
+        });
+      }
+
+      setProfiles(filtered);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setProfiles([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!user) return null;
