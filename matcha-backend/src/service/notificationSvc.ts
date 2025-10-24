@@ -2,7 +2,7 @@ import EventEmitter from "events";
 import { Notification_Matcha } from "../model/notification.js";
 import ConstMatcha, { NOTIFICATION_TYPE } from "../ConstMatcha.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
-import db from "../repo/mongoRepo.js";
+import { getDb } from "../repo/mongoRepo.js";
 import { WithId, Document } from "mongodb";
 
 export class NotificationManager extends EventEmitter {
@@ -70,25 +70,29 @@ const toNotification = (d: WithId<Document>): Notification_Matcha | null => {
 }
 
 export const getNotificationByUserID = async(userId: string, limit = 20, offset = 0): Promise<Notification_Matcha[]> => {
+  const db = await getDb();
   // fetch from mongodb
   const noti = await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).find({ userId })
-    .sort({ createdAt: -1 })
-    .skip(offset)
-    .limit(limit)
-    .toArray();
+  .sort({ createdAt: -1 })
+  .skip(offset)
+  .limit(limit)
+  .toArray();
   return noti.map(n => toNotification(n)).filter((n: Notification_Matcha | null) => n !== null) as Notification_Matcha[];
 }
 
 export const deleteNotificationByUserID = async(userId: string, notificationId: string): Promise<void> => {
+  const db = await getDb();
   // delete from mongodb
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).deleteOne({ userId, id: notificationId });
 }
 
 export const createNotification = async(data: { id: string, userId: string, type: string, message: string, createdAt: number}): Promise<void> => {
+  const db = await getDb();
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).insertOne({ ...data, read: false });
 }
 
 export const markNotificationAsRead = async(userId: string, notificationId: string): Promise<void> => {
+  const db = await getDb();
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).updateOne(
     { userId, id: notificationId },
     { $set: { read: true } }
@@ -96,6 +100,7 @@ export const markNotificationAsRead = async(userId: string, notificationId: stri
 }
 
 export const isNotificationExists = async(notificationID:string, userId:string): Promise<boolean> => {
+  const db = await getDb();
   const count = await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).countDocuments({ id: notificationID, userId });
   return count > 0;
 }

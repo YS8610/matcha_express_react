@@ -14,6 +14,7 @@ import userLikedRoute from "./routes/auth/userLikedRoute.js";
 import userBlockRoute from "./routes/auth/userBlockRoute.js";
 import userNotificationRoute from "./routes/auth/userNotificationRoute.js";
 import userReportRoute from "./routes/auth/userReportRoute.js";
+import userLocationRoute from "./routes/auth/userLocationRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -41,7 +42,7 @@ const appfunc = () => {
   app.use("/api/user/block", userBlockRoute);
   app.use("/api/user/notification", userNotificationRoute);
   app.use("/api/user/report", userReportRoute);
-
+  app.use("/api/user/location", userLocationRoute);
   // default route for invalid endpoint
   app.use("/", (req:Request, res:Response, next:NextFunction) => {
     next(new BadRequestError({

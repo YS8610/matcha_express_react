@@ -9,6 +9,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import eventHandlers from "./websocket/eventHandler.js";
 import  redisClient from "./repo/redisRepo.js";
+import { closeClient } from "./repo/mongoRepo.js";
 
 dotenv.config();
 const port = process.env.PORT || ConstMatcha.DEFAULT_PORT;
@@ -42,4 +43,6 @@ process.on('exit', async () => {
   clogger.info('[server]: Server closed to new connections');
   server.closeAllConnections();
   clogger.info('[server]: All existing socket io connections closed');
+  await closeClient();
+  clogger.info('[server]: MongoDB client closed');
 });

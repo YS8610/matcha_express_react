@@ -1,10 +1,11 @@
 import { Document, WithId } from "mongodb";
 import ConstMatcha from "../ConstMatcha.js";
 import { ChatMessage } from "../model/Response.js";
-import db from "../repo/mongoRepo.js";
+import {getDb } from "../repo/mongoRepo.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
 
 export const saveChatmsg = async (msg: ChatMessage): Promise<void> => {
+  const db =  await getDb();
   await serverErrorWrapper(
     () => db.collection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES).insertOne(msg),
     'Failed to save chat message in DB'
@@ -12,9 +13,10 @@ export const saveChatmsg = async (msg: ChatMessage): Promise<void> => {
 };
 
 export const getChatHistoryBetweenUsers = async (userAId: string, userBId: string, skipno: number = 0, limit: number = 50): Promise<ChatMessage[]> => {
+  const db =  await getDb();
   const messages = await serverErrorWrapper(
     () => db.collection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES)
-      .find({
+      .find<ChatMessage>({
         $or: [
           { fromUserId: userAId, toUserId: userBId },
           { fromUserId: userBId, toUserId: userAId }
@@ -26,9 +28,10 @@ export const getChatHistoryBetweenUsers = async (userAId: string, userBId: strin
       .toArray(),
     'Failed to retrieve chat history from DB'
   );
-  return messages.map(
-    m => toChatMessage(m)).filter((m : ChatMessage | null) => m !== null
-  );
+  // return messages.map(
+  //   m => toChatMessage(m)).filter((m : ChatMessage | null) => m !== null
+  // );
+  return messages;
 };
 
 const toChatMessage = (d: WithId<Document>): ChatMessage | null => {

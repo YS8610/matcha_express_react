@@ -83,3 +83,55 @@ export const reportsValidator: Document = {
     }
   }
 }
+
+export const locationValidator: Document = {
+  $jsonSchema: {
+    bsonType: "object",
+    required: ["userId", "username", "location", "updatedAt"],
+    properties: {
+      userId: {
+        bsonType: "string",
+        description: "must be a string and is required"
+      },
+      username: {
+        bsonType: "string",
+        description: "must be a string and is required"
+      },
+      location: {
+        bsonType: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: {
+            bsonType: "string",
+            enum: ["Point"],
+            description: "must be 'Point' and is required"
+          },
+          coordinates: {
+            description: "GeoJSON coordinates for the given type",
+            bsonType: "array",
+            minItems: 2,
+            maxItems: 2,
+            items: [
+              {
+                bsonType: "double",
+                description: "must be a double representing longitude",
+                minimum: -180,
+                maximum: 180
+              },
+              {
+                bsonType: "double",
+                description: "must be a double representing latitude",
+                minimum: -90,
+                maximum: 90
+              }
+            ]
+          }
+        },
+      },
+      updatedAt: {
+        bsonType: ["double", "int", "long"],
+        description: "must be a numeric timestamp and is required"
+      }
+    }
+  }
+}

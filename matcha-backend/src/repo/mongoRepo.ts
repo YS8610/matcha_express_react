@@ -1,8 +1,13 @@
-import { Document, MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import ServerRequestError from "../errors/ServerRequestError.js";
 import ConstMatcha from "../ConstMatcha.js";
 import { clogger } from "../service/loggerSvc.js";
-import { chatmessagesValidator, notificationsValidator, reportsValidator } from "../model/mongoDBValidator.js";
+import {
+  chatmessagesValidator,
+  locationValidator,
+  notificationsValidator,
+  reportsValidator,
+} from "../model/mongoDBValidator.js";
 
 const connectionString = process.env.MONGODB || ConstMatcha.MONGO_DEFAULT_URI;
 const client = new MongoClient(connectionString, {
@@ -10,54 +15,78 @@ const client = new MongoClient(connectionString, {
   serverSelectionTimeoutMS: ConstMatcha.MONGO_DEFAULT_TIMEOUT,
 });
 
-let conn;
-try {
-  conn = await client.connect();
-} catch (e) {
-  throw new ServerRequestError({
-    message: 'mongoDB connection failed',
-    code: 500,
-    context: { err: e },
-  });
-}
-if (!conn) {
-  throw new ServerRequestError({
-    message: 'Database connection failed',
-    code: 500,
-    context: { err: 'MongoDB connection' },
-  });
-}
-let db = conn.db("matcha");
+let cachedDb: Db | null = null;
 
-// Ensure collections exist with proper validation
-let collections: Set<string> = new Set();
-db.listCollections().toArray()
-  .then((cols) => {
-    cols.forEach((col) => collections.add(col.name));
-  })
-  .then(() => {
+// Single promise that performs connection + collection/index setup.
+// Consumers should await dbPromise or call getDb().
+export const dbPromise: Promise<Db> = (async (): Promise<Db> => {
+  try {
+    const conn = await client.connect();
+    clogger.info("Connected successfully to mongoDB");
+    const dbName = (ConstMatcha as any).MONGO_DEFAULT_DB ?? "matcha";
+    const db = conn.db(dbName);
+
+    // list existing collections
+    const cols = await db.listCollections().toArray();
+    const collections = new Set(cols.map((c) => c.name));
+
+    // notifications
     if (!collections.has(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS)) {
-      db.createCollection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS, { validator: notificationsValidator })
-      .catch((e: Error) => {
-        clogger.info('Notification collection creation skipped: ' + e.message);
+      const coll = await db.createCollection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS, {
+        validator: notificationsValidator,
       });
+      await coll.createIndex({ userId: 1, id: 1 }, { unique: true });
     }
-    if (!collections.has(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES)) {
-      db.createCollection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES, { validator: chatmessagesValidator })
-      .catch((e: Error) => {
-        // collection probably exists
-        clogger.info('Chatmessage collection creation skipped: ' + e.message);
-      });
-    }
-    if (!collections.has(ConstMatcha.MONGO_COLLECTION_REPORTS)) {
-      db.createCollection(ConstMatcha.MONGO_COLLECTION_REPORTS, { validator: reportsValidator })
-      .catch((e: Error) => {
-        clogger.info('Report collection creation skipped: ' + e.message);
-      });
-    }
-  })
-  .catch((e: Error) => {
-    clogger.error('Error listing collections: ' + e.message);
-  });
 
-export default db;
+    // chat messages
+    if (!collections.has(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES)) {
+      const coll = await db.createCollection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES, {
+        validator: chatmessagesValidator,
+      });
+      // create any required indexes here (awaited)
+      await coll.createIndex({ userId: 1, id: 1 });
+    }
+
+    // reports
+    if (!collections.has(ConstMatcha.MONGO_COLLECTION_REPORTS)) {
+      const coll = await db.createCollection(ConstMatcha.MONGO_COLLECTION_REPORTS, {
+        validator: reportsValidator,
+      });
+      await coll.createIndex({ reporterId: 1, reportedId: 1 }, { unique: true });
+    }
+
+    // location
+    if (!collections.has(ConstMatcha.MONGO_COLLECTION_LOCATION)) {
+      const coll = await db.createCollection(ConstMatcha.MONGO_COLLECTION_LOCATION, {
+        validator: locationValidator,
+      });
+      await coll.createIndex({ location: "2dsphere" });
+    }
+
+    cachedDb = db;
+    return db;
+  } catch (err) {
+    clogger.error("MongoDB initialization error: " + (err as Error).message);
+    // rethrow so application startup (or tests) can handle/fail fast
+    throw new ServerRequestError({
+      message: "mongoDB initialization failed",
+      code: 500,
+      context: { err },
+    });
+  }
+})();
+
+export const getDb = async (): Promise<Db> => {
+  if (cachedDb) return cachedDb;
+  cachedDb = await dbPromise;
+  return cachedDb;
+};
+
+export const closeClient = async (): Promise<void> => {
+  try {
+    await client.close();
+    clogger.info("MongoDB client closed");
+  } catch (e) {
+    clogger.error("Error closing MongoDB client: " + (e as Error).message);
+  }
+};
