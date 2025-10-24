@@ -57,13 +57,17 @@ export default class ConstMatcha {
   static readonly DEFAULT_TAG_PROFILE = "PROFILE";
   static readonly DEFAULT_TAG_TAG = "TAG";
   static readonly DEFAULT_GENDER = 0;
-  static readonly DEFAULT_FAME_RATING = 0;
+  static readonly DEFAULT_FAME_RATING = 50;
   static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
   static readonly DEFAULT_BIOGRAPHY = "\"\"";
 
   // user limit
   static readonly NEO4j_USER_MAX_TAGS = 10;
   static readonly NEO4j_USER_MAX_PHOTOS = 5;
+  static readonly NEO4j_FAME_INCREMENT_LIKE = 10;
+  static readonly NEO4j_FAME_DECREMENT_UNLIKE = -10;
+  static readonly NEO4j_FAME_DECREMENT_BLOCK = -5;
+  static readonly NEO4j_FAME_DECREMENT_UNBLOCK = 5;
 
   // sexual preference
   static readonly SEXUAL_PREFERENCE_MALE = 1;
@@ -366,6 +370,16 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_CHECK_NOTIFICATION_EXISTS = `
     MATCH (n:NOTIFICATION { id: $notificationID, userId: $userId })
     RETURN count(n) > 0 as exists
+  `;
+
+  static readonly NEO4j_STMT_GET_FAME_RATING_BY_USER_ID = `
+    MATCH (u:PROFILE { id: $userId })
+    RETURN u.fameRating as fameRating
+  `;
+
+  static readonly NEO4j_STMT_SET_FAME_RATING_BY_USER_ID = `
+    MATCH (u:PROFILE { id: $userId })
+    SET u.fameRating = $fameRating
   `;
 
 }

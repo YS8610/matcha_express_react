@@ -23,7 +23,7 @@ export const dbPromise: Promise<Db> = (async (): Promise<Db> => {
   try {
     const conn = await client.connect();
     clogger.info("Connected successfully to mongoDB");
-    const dbName = (ConstMatcha as any).MONGO_DEFAULT_DB ?? "matcha";
+    const dbName = ConstMatcha.MONGO_DEFAULT_DB ?? "matcha";
     const db = conn.db(dbName);
 
     // list existing collections
