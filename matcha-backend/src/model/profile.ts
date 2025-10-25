@@ -68,6 +68,7 @@ export interface ProfileGetJson {
   photo2: string;
   photo3: string;
   photo4: string;
+  lastOnline: number;
 }
 
 export interface Reslocal{
@@ -84,4 +85,5 @@ export interface ProfileShort{
   lastName: string;
   fameRating: number;
   photo0: string;
+  lastOnline: number;
 }

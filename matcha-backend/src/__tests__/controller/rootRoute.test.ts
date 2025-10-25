@@ -597,7 +597,8 @@ describe("Route /pubapi/register", () => {
       "John",
       "Doe",
       "johndoe",
-      "1990-01-01"
+      "1990-01-01",
+      expect.any(Number)
     );
   });
 });

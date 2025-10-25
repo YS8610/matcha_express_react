@@ -22,6 +22,7 @@ router.get("/", async (req: Request, res: Response<{data : ProfileShort[]}>, nex
       lastName: user.lastName,
       fameRating: user.fameRating,
       photo0: user.photo0,
+      lastOnline: user.lastOnline,
     });
   });
   res.status(200).json({ data });

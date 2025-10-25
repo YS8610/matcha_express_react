@@ -2,7 +2,7 @@ import ConstMatcha from '../ConstMatcha.js';
 import * as argon2 from "argon2";
 import { createToken } from './jwtSvc.js';
 import BadRequestError from '../errors/BadRequestError.js';
-import { getUserByUsername } from './userSvc.js';
+import { getUserByUsername, setLastOnlineById } from './userSvc.js';
 import { serverErrorWrapper } from '../util/wrapper.js';
 
 export const option = {
@@ -41,5 +41,6 @@ export const loginSvc = async (username: string, password: string): Promise<stri
   if (!isValid)
     return "";
   const token = await createToken(user.id, user.email, user.username, user.activated);
+  await serverErrorWrapper(() => setLastOnlineById(user.id, Date.now()), "Failed to set last online");
   return token;
 };

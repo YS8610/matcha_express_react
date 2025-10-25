@@ -108,6 +108,7 @@ export default class ConstMatcha {
       photo3: "",
       photo4: "",
       activated: false,
+      lastOnline: $lastOnline,
       createdAt: datetime(),
       updatedAt: datetime()
     })
@@ -190,6 +191,11 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_GET_TAG_BY_NAME = `
     MATCH (t:TAG { name: $name })
     RETURN t{.*}
+  `;
+
+  static readonly NEO4j_STMT_SET_LAST_ONLINE_BY_ID = `
+    MATCH (u:PROFILE { id: $id })
+    SET u.lastOnline = $timestamp
   `;
 
   static readonly NEO4j_STMT_CREATE_TAG = `

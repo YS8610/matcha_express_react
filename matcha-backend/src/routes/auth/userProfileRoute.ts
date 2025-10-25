@@ -34,6 +34,7 @@ router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFu
     photo2: profile.photo2 ?? "",
     photo3: profile.photo3 ?? "",
     photo4: profile.photo4 ?? "",
+    lastOnline: profile.lastOnline ?? Date.now(),
   };
   res.status(200).json(profileResponse);
 });

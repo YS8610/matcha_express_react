@@ -8,6 +8,7 @@ import { ChatMessage } from "../model/Response.js";
 import { getBlockedRel } from "../service/blockSvc.js";
 import { isMatch } from "../service/likeSvc.js";
 import { getChatHistoryBetweenUsers, saveChatmsg } from "../service/chatSvc.js";
+import { setLastOnlineById } from "../service/userSvc.js";
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -42,8 +43,6 @@ const eventHandlers = (io: Server) => {
           io.to(sockId).emit("notification", data);
         return;
       }
-      // testing only
-      socket.emit("notification", data);
     });
 
     // chat message event
@@ -91,8 +90,10 @@ const eventHandlers = (io: Server) => {
         const userSockets = ConstMatcha.wsmap.get(socket.user.id);
         if (userSockets) {
           userSockets.delete(socket.id);
-          if (userSockets.size === 0)
+          if (userSockets.size === 0){
             ConstMatcha.wsmap.delete(socket.user.id);
+            setLastOnlineById(socket.user.id, Date.now());
+          }
           else
             ConstMatcha.wsmap.set(socket.user.id, userSockets);
         }

@@ -167,7 +167,7 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
     }));
   const hashedpw = await serverErrorWrapper(() => hashPW(pw), "Failed to hash password");
   const id = uuidv4();
-  await serverErrorWrapper(() => createUser(id, email, hashedpw, firstName, lastName, username, birthDate), "Failed to create user");
+  await serverErrorWrapper(() => createUser(id, email, hashedpw, firstName, lastName, username, birthDate, Date.now()), "Failed to create user");
   const token = await createToken(id, email, username, false);
   console.log("this is activation link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`);
   // todo: send email verification link with jwt token

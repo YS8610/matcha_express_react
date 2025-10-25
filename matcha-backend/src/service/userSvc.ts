@@ -100,9 +100,9 @@ export const setPwById = async (id: string, hashedpw: string): Promise<void> => 
   return;
 }
 
-export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string): Promise<void> => {
+export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string, lastOnline: number): Promise<void> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate });
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate, lastOnline });
   session.close();
 };
 
@@ -120,20 +120,27 @@ export const getUserProfileById = async (id: string): Promise<ProfileGetJson | n
   return result.records.length == 1 ? result.records[0].get(0) : null;
 };
 
+export const setLastOnlineById = async (id: string, timestamp: number): Promise<void> => {
+  const session = driver.session();
+  await session.run(ConstMatcha.NEO4j_STMT_SET_LAST_ONLINE_BY_ID, { id, timestamp });
+  session.close();
+  return;
+}
+
 // password validation function (e.g., length, complexity)
 export const isPwValid = (pw: string): number => {
   let mask = 0;
   // Minimum length of 8 characters
-  if (pw.length < 8) 
-    mask |= 1; 
+  if (pw.length < 8)
+    mask |= 1;
   // At least one uppercase letter
-  if (!/[A-Z]/.test(pw)) 
-    mask |= 2; 
+  if (!/[A-Z]/.test(pw))
+    mask |= 2;
   // At least one lowercase letter
-  if (!/[a-z]/.test(pw)) 
-    mask |= 4; 
+  if (!/[a-z]/.test(pw))
+    mask |= 4;
   // At least one number
-  if (!/[0-9]/.test(pw)) 
+  if (!/[0-9]/.test(pw))
     mask |= 8;
   // At least one special character
   if (!/[!@#$%^&*]/.test(pw))
@@ -146,7 +153,7 @@ export const isValidDateStr = (dateStr: string): boolean => {
   dateStr = dateStr.trim();
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) 
+  if (isNaN(date.getTime()))
     return false; // Invalid date
   return dateRegex.test(dateStr);
 }
