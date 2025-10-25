@@ -26,6 +26,7 @@ export interface Profile {
   photo2: string;
   photo3: string;
   photo4: string;
+  location?: Location;
 }
 
 export interface ProfileShort {
@@ -35,6 +36,7 @@ export interface ProfileShort {
   lastName: string;
   photo0: string;
   fameRating: number;
+  distance?: number;
 }
 
 export interface Photo {

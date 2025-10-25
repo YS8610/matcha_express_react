@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { toDisplayNumber } from '@/lib/neo4j-utils';
 
 interface ProfileCardProps {
-  profile: Profile;
+  profile: Profile & { distance?: number };
 }
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
@@ -50,6 +50,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             {toDisplayNumber(profile.fameRating, '0')}/100
           </span>
+          {profile.distance !== undefined && (
+            <span className="text-sm text-blue-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {(profile.distance / 1000).toFixed(1)} km
+            </span>
+          )}
         </div>
 
         <p className="text-sm text-green-800 line-clamp-2 mb-2">

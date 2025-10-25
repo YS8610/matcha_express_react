@@ -16,12 +16,38 @@ export default function ProfileSetup() {
     interests: [] as string[],
     birthDate: '',
     photos: [] as File[],
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [interestInput, setInterestInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+
+  const handleGetLocation = () => {
+    setLocationLoading(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData({
+            ...formData,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLocationLoading(false);
+        },
+        (error) => {
+          setError('Failed to get your location: ' + error.message);
+          setLocationLoading(false);
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser');
+      setLocationLoading(false);
+    }
+  };
 
   const handleAddInterest = () => {
     if (interestInput && !formData.interests.includes(interestInput)) {
@@ -67,6 +93,14 @@ export default function ProfileSetup() {
         biography: formData.biography,
         birthDate: formData.birthDate,
       });
+
+      if (formData.latitude !== null && formData.longitude !== null) {
+        try {
+          await api.updateUserLocation(formData.latitude, formData.longitude);
+        } catch (locationError) {
+          console.error('Failed to update location:', locationError);
+        }
+      }
 
       for (const interest of formData.interests) {
         try {
@@ -151,6 +185,42 @@ export default function ProfileSetup() {
               className="w-full px-3 py-2 border rounded-md"
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Location</label>
+            <button
+              type="button"
+              onClick={handleGetLocation}
+              disabled={locationLoading}
+              className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {locationLoading ? 'Getting location...' : 'Use My Current Location'}
+            </button>
+            {formData.latitude && formData.longitude && (
+              <p className="text-xs text-green-600 mt-1">
+                ✓ Location set ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
+              </p>
+            )}
           </div>
 
           <button

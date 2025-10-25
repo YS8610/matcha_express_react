@@ -310,6 +310,13 @@ class ApiClient {
       body: JSON.stringify({ otherid: otherId }),
     });
   }
+
+  async updateUserLocation(latitude: number, longitude: number) {
+    return this.request('/api/user/location', {
+      method: 'PUT',
+      body: JSON.stringify({ latitude, longitude }),
+    });
+  }
 }
 
 export const api = new ApiClient();

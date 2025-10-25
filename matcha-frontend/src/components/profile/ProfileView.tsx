@@ -151,10 +151,19 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         </div>
 
         <div className="p-6">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-6 mb-6 flex-wrap">
             <span className="text-sm text-gray-600">
               Fame Rating: {toDisplayNumber(profile.fameRating, '0')}/100
             </span>
+            {profile.location && (
+              <span className="text-sm text-blue-600 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {profile.location.latitude.toFixed(2)}, {profile.location.longitude.toFixed(2)}
+              </span>
+            )}
           </div>
 
           <div className="mb-6">
