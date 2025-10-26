@@ -20,7 +20,7 @@ logs:
 
 clean:
 	docker compose down -v
-	docker system prune -af
+	docker volume prune -af
 
 re: clean
 	docker compose build --no-cache

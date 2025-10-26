@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
-import { toDisplayNumber } from '@/lib/neo4j-utils';
+import { toDisplayNumber, getLastSeenString } from '@/lib/neo4j-utils';
 
 interface ProfileCardProps {
   profile: Profile & { distance?: number };
@@ -14,7 +14,9 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const profileId = profile.id;
   const displayName = profile.firstName || profile.username || `User ${profileId}`;
-  
+
+  const isOnline = profile.lastOnline ? (Date.now() - profile.lastOnline) < 5 * 60 * 1000 : false;
+
   return (
     <Link
       href={`/profile/${profileId}`}
@@ -29,8 +31,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           unoptimized
           className="w-full h-full object-cover"
         />
-        
-        {(profile as Profile & {isOnline?: boolean}).isOnline && (
+
+        {isOnline && (
           <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         )}
         
@@ -41,6 +43,11 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           <p className="text-white/80 text-sm">
             @{profile.username}
           </p>
+          {profile.lastOnline && (
+            <p className="text-white/70 text-xs mt-1">
+              {isOnline ? 'Online now' : `Last seen ${getLastSeenString(profile.lastOnline)}`}
+            </p>
+          )}
         </div>
       </div>
 

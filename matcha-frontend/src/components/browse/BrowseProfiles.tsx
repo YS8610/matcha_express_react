@@ -77,11 +77,14 @@ export default function BrowseProfiles() {
           }
         });
 
-      setAllProfiles(Array.from(profiles.values()));
+      const loadedProfiles = Array.from(profiles.values());
+      setAllProfiles(loadedProfiles);
+      setRawProfiles(loadedProfiles);
       setCurrentPage(1);
     } catch (error) {
       console.error('Failed to load profiles:', error);
       setAllProfiles([]);
+      setRawProfiles([]);
     } finally {
       setLoading(false);
     }
@@ -101,10 +104,6 @@ export default function BrowseProfiles() {
   }, []);
 
   const [rawProfiles, setRawProfiles] = useState<(Profile & { distance?: number })[]>([]);
-
-  useEffect(() => {
-    setRawProfiles(allProfiles);
-  }, []);
 
   useEffect(() => {
     let processedProfiles = [...rawProfiles];

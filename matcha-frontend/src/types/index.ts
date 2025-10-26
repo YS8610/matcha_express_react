@@ -8,6 +8,7 @@ export interface User {
   profileComplete: boolean;
   lastSeen: Date;
   isOnline: boolean;
+  lastOnline?: number;
 }
 
 export interface Profile {
@@ -27,6 +28,7 @@ export interface Profile {
   photo3: string;
   photo4: string;
   location?: Location;
+  lastOnline: number;
 }
 
 export interface ProfileShort {
@@ -37,6 +39,7 @@ export interface ProfileShort {
   photo0: string;
   fameRating: number;
   distance?: number;
+  lastOnline: number;
 }
 
 export interface Photo {
@@ -86,6 +89,7 @@ export interface Conversation {
   lastMessage?: Message;
   unreadCount: number;
   isOnline: boolean;
+  lastOnline?: number;
 }
 
 export interface SearchFilters {

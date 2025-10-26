@@ -5,7 +5,7 @@ import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import { toDisplayNumber } from '@/lib/neo4j-utils';
+import { toDisplayNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -162,6 +162,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 {profile.location.latitude.toFixed(2)}, {profile.location.longitude.toFixed(2)}
+              </span>
+            )}
+            {profile.lastOnline && (
+              <span className="text-sm text-gray-600">
+                Last seen: {getLastSeenString(profile.lastOnline)}
               </span>
             )}
           </div>
