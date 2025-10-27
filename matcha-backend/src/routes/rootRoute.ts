@@ -10,6 +10,7 @@ import { serverErrorWrapper } from "../util/wrapper.js";
 import { v4 as uuidv4 } from "uuid";
 import upload from "../middleware/uploadMulter.js";
 import { ResMsg } from "../model/Response.js";
+import { getAproximateUserLocation, updateUserLocation } from "../service/locationSvc.js";
 
 let router = express.Router();
 
@@ -203,6 +204,8 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
   }
   const activatedtoken = await createToken(id, email, username, true);
   res.status(200).json({ msg: activatedtoken });
+  const loc = await getAproximateUserLocation(req.ip || "");
+  await updateUserLocation(id, username, loc?.latitude || 0, loc?.longitude || 0);
 });
 
 // password reset request
