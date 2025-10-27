@@ -21,6 +21,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [reportReason, setReportReason] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
+  const [hasUserLiked, setHasUserLiked] = useState(false);
+  const [hasProfileLikedUser, setHasProfileLikedUser] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [likeError, setLikeError] = useState('');
   const { user } = useAuth();
   const router = useRouter();
 
@@ -43,6 +47,22 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         } catch (viewError) {
           console.error('Failed to record profile view:', viewError);
         }
+
+        try {
+          const likedByMe = await api.getUsersWhoLikedMe().catch(() => ({ data: [] }));
+          const profileLikedMe = likedByMe.data && Array.isArray(likedByMe.data)
+            ? likedByMe.data.some((p: Profile) => p.id === userId)
+            : false;
+          setHasProfileLikedUser(profileLikedMe);
+
+          const matched = await api.getMatchedUsers().catch(() => ({ data: [] }));
+          const isUserMatched = matched.data && Array.isArray(matched.data)
+            ? matched.data.some((p: Profile) => p.id === userId)
+            : false;
+          setIsConnected(isUserMatched);
+        } catch (error) {
+          console.error('Failed to fetch like status:', error);
+        }
       }
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -64,11 +84,31 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       console.error('Cannot like: profile or userId is missing');
       return;
     }
+
+    if (!user) {
+      return;
+    }
+
     try {
+      const currentUserProfile = await api.getProfile();
+      if (!currentUserProfile.photo0) {
+        setLikeError('You must add a profile picture before you can like someone');
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to fetch current user profile:', error);
+      setLikeError('Failed to verify profile picture requirement');
+      return;
+    }
+
+    try {
+      setLikeError('');
       await api.likeUser(userId);
+      setHasUserLiked(true);
       alert('Profile liked!');
     } catch (error) {
       console.error('Failed to like:', error);
+      setLikeError('Failed to like this profile. Please try again.');
     }
   };
 
@@ -169,6 +209,16 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 Last seen: {getLastSeenString(profile.lastOnline)}
               </span>
             )}
+            {user && user.id !== userId && hasProfileLikedUser && (
+              <span className="text-sm px-3 py-1 bg-pink-100 text-pink-700 rounded-full font-medium">
+                ♥ They liked you!
+              </span>
+            )}
+            {user && user.id !== userId && isConnected && (
+              <span className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+                💬 Connected
+              </span>
+            )}
           </div>
 
           <div className="mb-6">
@@ -177,30 +227,39 @@ export default function ProfileView({ userId }: ProfileViewProps) {
           </div>
 
           {user && user.id !== userId && (
-            <div className="flex gap-2">
-              <button
-                onClick={handleLike}
-                className="flex-1 py-2 rounded-md bg-green-500 text-white hover:bg-green-600"
-              >
-                Like
-              </button>
-              <button
-                onClick={handleBlock}
-                disabled={isBlocked}
-                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
-                title="Block this user"
-              >
-                <ShieldBan className="w-4 h-4" />
-                {isBlocked ? 'Blocked' : 'Block'}
-              </button>
-              <button
-                onClick={() => setShowReportModal(true)}
-                className="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2"
-                title="Report this user"
-              >
-                <Flag className="w-4 h-4" />
-                Report
-              </button>
+            <div>
+              {likeError && (
+                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {likeError}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleLike}
+                  disabled={hasUserLiked || isConnected}
+                  title={hasUserLiked ? 'You already liked this profile' : isConnected ? 'You are already connected' : 'Like this profile'}
+                  className="flex-1 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {hasUserLiked ? '❤️ Liked' : isConnected ? '💬 Connected' : 'Like'}
+                </button>
+                <button
+                  onClick={handleBlock}
+                  disabled={isBlocked}
+                  className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  title="Block this user"
+                >
+                  <ShieldBan className="w-4 h-4" />
+                  {isBlocked ? 'Blocked' : 'Block'}
+                </button>
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2"
+                  title="Report this user"
+                >
+                  <Flag className="w-4 h-4" />
+                  Report
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -109,10 +109,6 @@ class HealthCheckService {
   private notifyListeners(result: HealthCheckResult): void {
     this.listeners.forEach(callback => callback(result));
   }
-
-  getLastResult(): HealthCheckResult | null {
-    return this.lastResult;
-  }
 }
 
 export const healthCheckService = new HealthCheckService();

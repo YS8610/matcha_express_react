@@ -28,6 +28,21 @@ const calculateDistance = (
   return R * c;
 };
 
+const isOrientationCompatible = (currentUser: Profile | null, profile: Profile): boolean => {
+  if (!currentUser) return true;
+
+  const currentUserPreference = currentUser.sexualPreference || 3; 
+  const profileGender = profile.gender || 0;
+
+  const userPref = currentUserPreference === 0 ? 3 : currentUserPreference;
+
+  if (profileGender === 0) return true;
+
+  if (userPref === 1) return profileGender === 1;
+  if (userPref === 2) return profileGender === 2;
+  return true;
+};
+
 export default function BrowseProfiles() {
   const [allProfiles, setAllProfiles] = useState<(Profile & { distance?: number })[]>([]);
   const [displayedProfiles, setDisplayedProfiles] = useState<(Profile & { distance?: number })[]>([]);
@@ -40,15 +55,17 @@ export default function BrowseProfiles() {
     order: 'asc',
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
 
   const totalPages = Math.ceil(allProfiles.length / PROFILES_PER_PAGE);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const currentUser = await api.getProfile();
-      if (currentUser?.location) {
-        setCurrentUserLocation(currentUser.location);
+      const fetchedCurrentUser = await api.getProfile();
+      setCurrentUser(fetchedCurrentUser);
+      if (fetchedCurrentUser?.location) {
+        setCurrentUserLocation(fetchedCurrentUser.location);
       }
 
       const likedByMeResponse = await Promise.all([
@@ -63,10 +80,10 @@ export default function BrowseProfiles() {
         .flat()
         .forEach((profile: Profile) => {
           if (profile && profile.id && !profiles.has(profile.id)) {
-            if (currentUser?.location && profile.location) {
+            if (fetchedCurrentUser?.location && profile.location) {
               const distance = calculateDistance(
-                currentUser.location.latitude,
-                currentUser.location.longitude,
+                fetchedCurrentUser.location.latitude,
+                fetchedCurrentUser.location.longitude,
                 profile.location.latitude,
                 profile.location.longitude
               );
@@ -138,6 +155,10 @@ export default function BrowseProfiles() {
       });
     }
 
+    processedProfiles = processedProfiles.filter((profile) =>
+      isOrientationCompatible(currentUser, profile)
+    );
+
     if (filters.sortBy) {
       processedProfiles.sort((a, b) => {
         let compareValue = 0;
@@ -172,7 +193,7 @@ export default function BrowseProfiles() {
 
     setAllProfiles(processedProfiles);
     setCurrentPage(1);
-  }, [filters, rawProfiles, currentUserLocation]);
+  }, [filters, rawProfiles, currentUserLocation, currentUser]);
 
   useEffect(() => {
     const start = (currentPage - 1) * PROFILES_PER_PAGE;

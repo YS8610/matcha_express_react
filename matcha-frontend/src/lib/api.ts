@@ -98,10 +98,6 @@ class ApiClient {
     return response;
   }
 
-  async logout() {
-    this.clearToken();
-  }
-
   async activateAccount(token: string) {
     const response = await this.request(`/pubapi/activate/${token}`);
     if (response.msg) {
@@ -170,13 +166,6 @@ class ApiClient {
     });
   }
 
-  async unlikeUser(userid: string) {
-    return this.request('/api/user/liked', {
-      method: 'DELETE',
-      body: JSON.stringify({ userid }),
-    });
-  }
-
   async getUsersWhoLikedMe() {
     return this.request('/api/user/liked/by');
   }
@@ -238,21 +227,6 @@ class ApiClient {
     });
   }
 
-  getPublicPhoto(photoName: string): string {
-    const url = `${API_URL}/pubapi/photo/${photoName}`;
-    return url;
-  }
-
-  async testUploadPhoto(file: File) {
-    const formData = new FormData();
-    formData.append('photo', file);
-
-    return this.request('/pubapi/ping', {
-      method: 'POST',
-      body: formData as BodyInit,
-    });
-  }
-
   async getBlockedUsers() {
     return this.request('/api/user/block');
   }
@@ -287,10 +261,6 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify({ notificationId }),
     });
-  }
-
-  async getUserShortProfile(userId: string) {
-    return this.request(`/api/profile/short/${userId}`);
   }
 
   async getUserFullProfile(userId: string) {
@@ -362,8 +332,4 @@ export function generateAvatarUrl(name?: string, id?: string): string {
   });
 
   return `https://ui-avatars.com/api/?${params.toString()}`;
-}
-
-export function generatePlaceholderImage(width = 400, height = 400, text = 'No Image'): string {
-  return `https://via.placeholder.com/${width}x${height}/e0e0e0/666666?text=${encodeURIComponent(text)}`;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useWebSocket as useWSContext } from '@/contexts/WebSocketContext';
 
 interface UseWebSocketOptions {
@@ -12,12 +12,10 @@ interface UseWebSocketOptions {
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
   const {
-    socket,
     isConnected,
     notifications,
     onlineUsers,
     checkOnlineStatus,
-    addNotification,
     markNotificationRead,
     clearNotifications
   } = useWSContext();
@@ -51,33 +49,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     }
   }, [checkOnlineUsers, isConnected, checkOnlineStatus]);
 
-  const emit = useCallback((event: string, data?: unknown) => {
-    if (socket && isConnected) {
-      socket.emit(event, data);
-    } else {
-      console.warn('[useWebSocket] Cannot emit: socket not connected');
-    }
-  }, [socket, isConnected]);
-
-  const on = useCallback((event: string, callback: (data: unknown) => void) => {
-    if (socket) {
-      socket.on(event, callback);
-      return () => {
-        socket.off(event, callback);
-      };
-    }
-  }, [socket]);
-
   return {
-    socket,
     isConnected,
     notifications,
     onlineUsers,
     checkOnlineStatus,
-    addNotification,
     markNotificationRead,
-    clearNotifications,
-    emit,
-    on
+    clearNotifications
   };
 }

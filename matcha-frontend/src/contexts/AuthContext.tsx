@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
-import { getCookie, deleteCookie } from '@/lib/cookies';
+import { deleteCookie } from '@/lib/cookies';
 
 interface AuthContextType {
   user: User | null;
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token') || getCookie('token');
+      const token = localStorage.getItem('token');
       if (token) {
         const tokenParts = token.split('.');
         if (tokenParts.length === 3) {

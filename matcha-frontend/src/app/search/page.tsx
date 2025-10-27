@@ -85,6 +85,43 @@ export default function SearchPage() {
         });
       }
 
+      if (criteria.location && user?.latitude && user?.longitude) {
+        const userLat = user.latitude;
+        const userLon = user.longitude;
+        filtered = filtered.filter(profile => {
+          if (!profile.location) return false;
+
+          const R = 6371000;
+          const dLat = ((profile.location.latitude - userLat) * Math.PI) / 180;
+          const dLon = ((profile.location.longitude - userLon) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((userLat * Math.PI) / 180) *
+              Math.cos((profile.location.latitude * Math.PI) / 180) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distanceKm = (R * c) / 1000;
+
+          const maxDistance = parseInt(criteria.location) || 50;
+          return distanceKm <= maxDistance;
+        });
+      }
+
+      if (criteria.interests) {
+        const searchInterests = criteria.interests
+          .split(',')
+          .map(tag => tag.trim().toLowerCase())
+          .filter(tag => tag.length > 0);
+
+        if (searchInterests.length > 0) {
+          filtered = filtered.filter(profile => {
+            if (!profile.location) return true;
+            return true;
+          });
+        }
+      }
+
       setProfiles(filtered);
     } catch (error) {
       console.error('Search failed:', error);

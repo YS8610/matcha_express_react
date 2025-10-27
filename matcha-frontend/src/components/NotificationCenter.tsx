@@ -5,6 +5,7 @@ import { Bell, Heart, Eye, MessageCircle, UserX } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Notification } from '@/types';
 import { api } from '@/lib/api';
+import { getLastSeenString } from '@/lib/neo4j-utils';
 
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
@@ -166,7 +167,7 @@ export default function NotificationCenter() {
                             {notification.message}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {formatTimeAgo(notification.createdAt)}
+                            {getLastSeenString(notification.createdAt)}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -194,25 +195,4 @@ export default function NotificationCenter() {
       )}
     </div>
   );
-}
-
-function formatTimeAgo(date: Date | number): string {
-  const now = new Date();
-  const timestamp = typeof date === 'number' ? date : new Date(date).getTime();
-  const diffInSeconds = Math.floor((now.getTime() - timestamp) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'Just now';
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  } else if (diffInSeconds < 604800) {
-    const days = Math.floor(diffInSeconds / 86400);
-    return `${days} day${days > 1 ? 's' : ''} ago`;
-  } else {
-    return new Date(date).toLocaleDateString();
-  }
 }
