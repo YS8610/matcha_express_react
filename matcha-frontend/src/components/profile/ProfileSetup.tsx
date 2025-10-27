@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { api } from '@/lib/api';
@@ -23,8 +23,20 @@ export default function ProfileSetup() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [isAutoDetectedLocation, setIsAutoDetectedLocation] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (user?.latitude !== undefined && user?.longitude !== undefined && formData.latitude === null && formData.longitude === null) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: user.latitude as number,
+        longitude: user.longitude as number,
+      }));
+      setIsAutoDetectedLocation(true);
+    }
+  }, [user?.latitude, user?.longitude, formData.latitude, formData.longitude]);
 
   const handleGetLocation = () => {
     setLocationLoading(true);
@@ -36,6 +48,7 @@ export default function ProfileSetup() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          setIsAutoDetectedLocation(false);
           setLocationLoading(false);
         },
         (error) => {
@@ -189,6 +202,16 @@ export default function ProfileSetup() {
 
           <div>
             <label className="block text-sm font-medium mb-2">Location</label>
+            {formData.latitude && formData.longitude && isAutoDetectedLocation && (
+              <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-xs text-blue-600">
+                  ✓ Location auto-detected during account activation ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
+                </p>
+                <p className="text-xs text-blue-500 mt-1">
+                  Click the button below to update if you&apos;d like a more precise location
+                </p>
+              </div>
+            )}
             <button
               type="button"
               onClick={handleGetLocation}
@@ -216,7 +239,7 @@ export default function ProfileSetup() {
               </svg>
               {locationLoading ? 'Getting location...' : 'Use My Current Location'}
             </button>
-            {formData.latitude && formData.longitude && (
+            {formData.latitude && formData.longitude && !isAutoDetectedLocation && (
               <p className="text-xs text-green-600 mt-1">
                 ✓ Location set ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
               </p>

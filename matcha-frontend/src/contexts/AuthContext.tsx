@@ -41,7 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             emailVerified: payload.activated || false,
             profileComplete: false,
             lastSeen: new Date(),
-            isOnline: false
+            isOnline: false,
+            latitude: payload.latitude,
+            longitude: payload.longitude
           });
         }
       }
@@ -70,7 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           emailVerified: payload.activated || false,
           profileComplete: false,
           lastSeen: new Date(),
-          isOnline: false
+          isOnline: false,
+          latitude: payload.latitude,
+          longitude: payload.longitude
         });
       }
     }
@@ -115,7 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           emailVerified: true,
           profileComplete: false,
           lastSeen: new Date(),
-          isOnline: false
+          isOnline: false,
+          latitude: payload.latitude,
+          longitude: payload.longitude
         });
       }
     }

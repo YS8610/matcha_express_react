@@ -9,6 +9,8 @@ export interface User {
   lastSeen: Date;
   isOnline: boolean;
   lastOnline?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Profile {
