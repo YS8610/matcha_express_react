@@ -51,11 +51,21 @@ export const getShortProfileById = async (id: string): Promise<ProfileShort | nu
   return result.records.length == 1 ? result.records[0].get(0) : null;
 };
 
+export const getShortProfilebyIdFiltered = async (id: string, minAge: number, maxAge: number, minFameRating: number, maxFameRating: number, sexualPreference: number, skip: number, limit: number): Promise<ProfileShort[] | null> => {
+  const session = driver.session();
+  const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_FILTERED, { id, minAge, maxAge, minFameRating, maxFameRating, sexualPreference, skip, limit });
+  session.close();
+  const mappedResults : ProfileShort[] = [];
+  for (let record of result.records)
+    mappedResults.push( {...record.get("u"), userTags: record.get("userTags") } );
+  return mappedResults;
+}
+
 export const getUserByUsername = async (username: string): Promise<ProfileDb | null> => {
-    const session = driver.session();
-    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
-    session.close();
-    return result.records.length == 1 ? result.records[0].get(0) : null;
+  const session = driver.session();
+  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+  session.close();
+  return result.records.length == 1 ? result.records[0].get(0) : null;
 }
 
 export const getUserIdByUsername = async (username: string): Promise<string> => {
@@ -69,17 +79,17 @@ export const getHashedPwById = async (id: string): Promise<string> => {
   const session = driver.session();
   const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_ID, { id });
   session.close();
-  return result.records.length == 1 ? result.records[0].get("pw"): "";
+  return result.records.length == 1 ? result.records[0].get("pw") : "";
 };
 
 export const getHashedPwByUsername = async (username: string): Promise<string> => {
   const session = driver.session();
   const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_USERNAME, { username });
   session.close();
-  return result.records.length == 1 ? result.records[0].get("pw"): "";
+  return result.records.length == 1 ? result.records[0].get("pw") : "";
 };
 
-export const setUserProfileById = async (id : string, profileUpdateJson : ProfilePutJson): Promise<void> => {
+export const setUserProfileById = async (id: string, profileUpdateJson: ProfilePutJson): Promise<void> => {
   const session = driver.session();
   await session.run(ConstMatcha.NEO4j_STMT_SET_USER_PROFILE_BY_ID, { id, ...profileUpdateJson });
   session.close();
@@ -100,7 +110,7 @@ export const setPwById = async (id: string, hashedpw: string): Promise<void> => 
   return;
 }
 
-export const createUser = async (id:string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string, lastOnline: number): Promise<void> => {
+export const createUser = async (id: string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string, lastOnline: number): Promise<void> => {
   const session = driver.session();
   const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate, lastOnline });
   session.close();

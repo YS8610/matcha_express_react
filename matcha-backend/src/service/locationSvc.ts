@@ -21,6 +21,14 @@ export const updateUserLocation = async (userId: string, username: string, latit
   );
 };
 
+export const getUserLocation = async (userId: string): Promise<{ latitude: number, longitude: number } | null> => {
+  const db = await getDb();
+  const locationDoc = await db.collection(ConstMatcha.MONGO_COLLECTION_LOCATION).findOne<{ location: { type: string, coordinates: number[] } }>({ userId });
+  if (!locationDoc) return null;
+  const [longitude, latitude] = locationDoc.location.coordinates;
+  return { longitude, latitude };
+};
+
 export const getAproximateUserLocation = async (ip: string): Promise<{ latitude: number, longitude: number } | null> => {
   try {
     const response = await fetch(`${ConstMatcha.IP_API_URL}/${ip}/json`);
@@ -39,9 +47,21 @@ export const getAproximateUserLocation = async (ip: string): Promise<{ latitude:
   }
 };
 
-export const getNearbyUsers = async (latitude: number, longitude: number, maxDistanceMeters: number): Promise<{ userId: string, username: string, distance: number }[]> => {
+export const getNearbyUsers = async (latitude: number, longitude: number, maxDistanceMeters: number): Promise<{
+  userId: string,
+  username: string,
+  distance: number,
+  latitude: number,
+  longitude: number
+}[]> => {
   const db = await getDb();
-  const users = await db.collection(ConstMatcha.MONGO_COLLECTION_LOCATION).aggregate<{ userId: string, username: string, distance: number }>([
+  const users = await db.collection(ConstMatcha.MONGO_COLLECTION_LOCATION).aggregate<{
+    userId: string;
+    username: string;
+    distance: number;
+    latitude: number;
+    longitude: number;
+  }>([
     {
       $geoNear: {
         near: {
@@ -57,7 +77,9 @@ export const getNearbyUsers = async (latitude: number, longitude: number, maxDis
       $project: {
         userId: 1,
         username: 1,
-        distance: { $round: ["$distance", 2] }
+        distance: { $round: ["$distance", 2] },
+        longitude: { $round: [{ $arrayElemAt: ["$location.coordinates", 0] }, 6] },
+        latitude: { $round: [{ $arrayElemAt: ["$location.coordinates", 1] }, 6] }
       }
     }
   ]).toArray();

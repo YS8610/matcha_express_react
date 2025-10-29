@@ -23,6 +23,7 @@ router.get("/", async (req: Request, res: Response<{data : ProfileShort[]}>, nex
       fameRating: user.fameRating,
       photo0: user.photo0,
       lastOnline: user.lastOnline,
+      birthDate: user.birthDate
     });
   });
   res.status(200).json({ data });

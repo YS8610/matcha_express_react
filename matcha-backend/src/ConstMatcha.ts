@@ -129,7 +129,7 @@ export default class ConstMatcha {
 
   static readonly NEO4j_STMT_GET_SHORT_PROFILE_BY_ID = `
     MATCH (u:PROFILE { id: $id })
-    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0}
+    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME = `
@@ -152,6 +152,28 @@ export default class ConstMatcha {
     SET u.activated = true
     RETURN u{.*}
   `;
+
+  static readonly NEO4j_STMT_GET_SHORT_PROFILE_FILTERED = `
+    MATCH (u:PROFILE)
+    WHERE u.activated = true AND
+    u.fameRating >= $minFameRating AND
+    u.fameRating <= $maxFameRating AND
+    u.id <> $userId AND
+    NOT ( (:PROFILE { id: $userId })-[:BLOCKED]-(u) )
+    AND date().year - u.birthDate.year >= $minAge
+    AND date().year - u.birthDate.year <= $maxAge
+    AND u.gender IN CASE
+      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_BISEXUAL} THEN [1,2,3]
+      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_MALE} THEN [2]
+      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_FEMALE} THEN [1]
+      ELSE [1,2,3]
+    END
+    OPTIONAL MATCH (u)-[:HAS_TAG]->(t:TAG)
+    WITH u, collect(t.name) as userTags
+    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}, userTags
+    SKIP $skipno
+    LIMIT $limit
+  `
 
   static readonly NEO4j_STMT_GET_PW_BY_USERNAME = `
     MATCH (u:PROFILE { username: $username })
@@ -322,7 +344,7 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_GET_MATCHED_USERS_SHORT_PROFILE_WITH_ID = `
     MATCH (u:PROFILE { id: $userId })-[:LIKED]->(v:PROFILE),
     (v)-[:LIKED]->(u)
-    RETURN v{.id, .firstName, .lastName, .username, .fameRating, .photo0}
+    RETURN v{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}
   `;
 
   static readonly NEO4j_STMT_GET_USER_BLOCKED_BY_ID = `

@@ -15,6 +15,7 @@ import userBlockRoute from "./routes/auth/userBlockRoute.js";
 import userNotificationRoute from "./routes/auth/userNotificationRoute.js";
 import userReportRoute from "./routes/auth/userReportRoute.js";
 import userLocationRoute from "./routes/auth/userLocationRoute.js";
+import profileRoute from "./routes/auth/profileRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -33,6 +34,7 @@ const appfunc = () => {
   // auth protected api routes
   app.use("/api", authMiddleware);
   app.use("/api/photo", photoRoute);
+  app.use("/api/profile", profileRoute);
   app.use("/api/user/profile", userProfileRoute);
   app.use("/api/user/tag", userTagRoute);
   app.use("/api/user/pw", userPwRoute);

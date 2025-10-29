@@ -86,4 +86,8 @@ export interface ProfileShort{
   fameRating: number;
   photo0: string;
   lastOnline: number;
+  birthDate: DateTypeNeo4j;
+  userTags?: string[];
+  latitude?: number;
+  longitude?: number;
 }

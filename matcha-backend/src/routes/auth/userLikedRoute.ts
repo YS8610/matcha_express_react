@@ -27,6 +27,7 @@ router.get("/by", async (req: Request, res: Response<{ data: ProfileShort[] }>, 
       photo0: profile.photo0,
       fameRating: profile.fameRating,
       lastOnline: profile.lastOnline,
+      birthDate: profile.birthDate
     });
   res.status(200).json({ data : profileforSending });
 });
