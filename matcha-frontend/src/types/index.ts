@@ -42,6 +42,10 @@ export interface ProfileShort {
   fameRating: number;
   distance?: number;
   lastOnline: number;
+  birthDate?: string;
+  userTags?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Photo {

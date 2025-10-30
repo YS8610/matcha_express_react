@@ -1,6 +1,6 @@
 'use client';
 
-import { Profile } from '@/types';
+import { ProfileShort } from '@/types';
 import { Star } from 'lucide-react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { toDisplayNumber, getLastSeenString } from '@/lib/neo4j-utils';
 
 interface ProfileCardProps {
-  profile: Profile & { distance?: number };
+  profile: ProfileShort & { distance?: number };
 }
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
@@ -67,10 +67,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </span>
           )}
         </div>
-
-        <p className="text-sm text-green-800 line-clamp-2 mb-2">
-          {profile.biography || 'No bio yet'}
-        </p>
       </div>
     </Link>
   );

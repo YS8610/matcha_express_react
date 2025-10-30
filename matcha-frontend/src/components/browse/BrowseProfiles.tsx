@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Profile, SearchFilters } from '@/types';
+import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users } from 'lucide-react';
@@ -9,103 +9,49 @@ import { api } from '@/lib/api';
 
 const PROFILES_PER_PAGE = 12;
 
-const calculateDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number => {
-  const R = 6371000;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-const isOrientationCompatible = (currentUser: Profile | null, profile: Profile): boolean => {
-  if (!currentUser) return true;
-
-  const currentUserPreference = currentUser.sexualPreference || 3; 
-  const profileGender = profile.gender || 0;
-
-  const userPref = currentUserPreference === 0 ? 3 : currentUserPreference;
-
-  if (profileGender === 0) return true;
-
-  if (userPref === 1) return profileGender === 1;
-  if (userPref === 2) return profileGender === 2;
-  return true;
-};
-
 export default function BrowseProfiles() {
-  const [allProfiles, setAllProfiles] = useState<(Profile & { distance?: number })[]>([]);
-  const [displayedProfiles, setDisplayedProfiles] = useState<(Profile & { distance?: number })[]>([]);
+  const [allProfiles, setAllProfiles] = useState<ProfileShort[]>([]);
+  const [displayedProfiles, setDisplayedProfiles] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [currentUserLocation, setCurrentUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [totalProfiles, setTotalProfiles] = useState(0);
   const [filters, setFilters] = useState<SearchFilters>({
-    sortBy: 'distance',
-    order: 'asc',
+    ageMin: 18,
+    ageMax: 100,
+    fameMin: 0,
+    fameMax: 100,
   });
   const [showFilters, setShowFilters] = useState(false);
-  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
 
-  const totalPages = Math.ceil(allProfiles.length / PROFILES_PER_PAGE);
+  const totalPages = Math.ceil(totalProfiles / PROFILES_PER_PAGE);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const fetchedCurrentUser = await api.getProfile();
-      setCurrentUser(fetchedCurrentUser);
-      if (fetchedCurrentUser?.location) {
-        setCurrentUserLocation(fetchedCurrentUser.location);
-      }
+      const skip = (currentPage - 1) * PROFILES_PER_PAGE;
+      const response = await api.getFilteredProfiles({
+        minAge: filters.ageMin || 18,
+        maxAge: filters.ageMax || 100,
+        distancekm: filters.distanceMax || 20100,
+        minFameRating: filters.fameMin || 0,
+        maxFameRating: filters.fameMax || 100,
+        skip,
+        limit: PROFILES_PER_PAGE,
+      });
 
-      const likedByMeResponse = await Promise.all([
-        api.getUsersWhoLikedMe().catch(() => ({ data: [] })),
-        api.getUsersWhoViewedMe().catch(() => ({ data: [] })),
-        api.getMatchedUsers().catch(() => ({ data: [] })),
-      ]);
-
-      const profiles = new Map<string, Profile & { distance?: number }>();
-
-      [likedByMeResponse[0]?.data || [], likedByMeResponse[1]?.data || [], likedByMeResponse[2]?.data || []]
-        .flat()
-        .forEach((profile: Profile) => {
-          if (profile && profile.id && !profiles.has(profile.id)) {
-            if (fetchedCurrentUser?.location && profile.location) {
-              const distance = calculateDistance(
-                fetchedCurrentUser.location.latitude,
-                fetchedCurrentUser.location.longitude,
-                profile.location.latitude,
-                profile.location.longitude
-              );
-              profiles.set(profile.id, { ...profile, distance });
-            } else {
-              profiles.set(profile.id, profile);
-            }
-          }
-        });
-
-      const loadedProfiles = Array.from(profiles.values());
-      setAllProfiles(loadedProfiles);
-      setRawProfiles(loadedProfiles);
+      const profiles = Array.isArray(response) ? response : response.data || [];
+      setAllProfiles(profiles);
+      setTotalProfiles(profiles.length > 0 ? skip + profiles.length + 1 : 0);
       setCurrentPage(1);
     } catch (error) {
       console.error('Failed to load profiles:', error);
       setAllProfiles([]);
-      setRawProfiles([]);
+      setTotalProfiles(0);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, filters]);
 
   useEffect(() => {
     loadProfiles();
@@ -120,92 +66,15 @@ export default function BrowseProfiles() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const [rawProfiles, setRawProfiles] = useState<(Profile & { distance?: number })[]>([]);
-
   useEffect(() => {
-    let processedProfiles = [...rawProfiles];
-
-    if (filters.distanceMax && currentUserLocation) {
-      processedProfiles = processedProfiles.filter(
-        (p) => !p.distance || p.distance <= filters.distanceMax! * 1000 
-      );
-    }
-
-    if (filters.ageMin || filters.ageMax) {
-      const today = new Date();
-      processedProfiles = processedProfiles.filter((p) => {
-        if (!p.birthDate) return true;
-        const birthDate = new Date(p.birthDate);
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        const adjustedAge = monthDiff < 0 ? age - 1 : age;
-
-        if (filters.ageMin && adjustedAge < filters.ageMin) return false;
-        if (filters.ageMax && adjustedAge > filters.ageMax) return false;
-        return true;
-      });
-    }
-
-    if (filters.fameMin || filters.fameMax) {
-      processedProfiles = processedProfiles.filter((p) => {
-        const fame = p.fameRating || 0;
-        if (filters.fameMin && fame < filters.fameMin) return false;
-        if (filters.fameMax && fame > filters.fameMax) return false;
-        return true;
-      });
-    }
-
-    processedProfiles = processedProfiles.filter((profile) =>
-      isOrientationCompatible(currentUser, profile)
-    );
-
-    if (filters.sortBy) {
-      processedProfiles.sort((a, b) => {
-        let compareValue = 0;
-
-        switch (filters.sortBy) {
-          case 'distance':
-            const distA = a.distance ?? Infinity;
-            const distB = b.distance ?? Infinity;
-            compareValue = distA - distB;
-            break;
-          case 'fame':
-            compareValue = (a.fameRating || 0) - (b.fameRating || 0);
-            break;
-          case 'age': {
-            const today = new Date();
-            const getAge = (birthDate: string) => {
-              const birth = new Date(birthDate);
-              const age = today.getFullYear() - birth.getFullYear();
-              const monthDiff = today.getMonth() - birth.getMonth();
-              return monthDiff < 0 ? age - 1 : age;
-            };
-            compareValue = getAge(a.birthDate) - getAge(b.birthDate);
-            break;
-          }
-          default:
-            compareValue = 0;
-        }
-
-        return filters.order === 'desc' ? -compareValue : compareValue;
-      });
-    }
-
-    setAllProfiles(processedProfiles);
-    setCurrentPage(1);
-  }, [filters, rawProfiles, currentUserLocation, currentUser]);
-
-  useEffect(() => {
-    const start = (currentPage - 1) * PROFILES_PER_PAGE;
-    const end = start + PROFILES_PER_PAGE;
-    setDisplayedProfiles(allProfiles.slice(start, end));
-
+    setDisplayedProfiles(allProfiles);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage, allProfiles]);
+  }, [allProfiles]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
     setShowFilters(false);
+    setCurrentPage(1);
   };
 
   const scrollToTop = () => {

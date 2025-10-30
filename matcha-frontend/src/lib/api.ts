@@ -287,6 +287,27 @@ class ApiClient {
       body: JSON.stringify({ latitude, longitude }),
     });
   }
+
+  async getFilteredProfiles(filters: {
+    minAge?: number;
+    maxAge?: number;
+    distancekm?: number;
+    minFameRating?: number;
+    maxFameRating?: number;
+    skip?: number;
+    limit?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (filters.minAge !== undefined) queryParams.append('minAge', filters.minAge.toString());
+    if (filters.maxAge !== undefined) queryParams.append('maxAge', filters.maxAge.toString());
+    if (filters.distancekm !== undefined) queryParams.append('distancekm', filters.distancekm.toString());
+    if (filters.minFameRating !== undefined) queryParams.append('minFameRating', filters.minFameRating.toString());
+    if (filters.maxFameRating !== undefined) queryParams.append('maxFameRating', filters.maxFameRating.toString());
+    if (filters.skip !== undefined) queryParams.append('skip', filters.skip.toString());
+    if (filters.limit !== undefined) queryParams.append('limit', filters.limit.toString());
+
+    return this.request(`/api/profile?${queryParams.toString()}`);
+  }
 }
 
 export const api = new ApiClient();
