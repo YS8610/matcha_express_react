@@ -1,0 +1,19 @@
+{
+  "[python]": {
+    "editor.tabSize": 4
+  },
+  "[javascript]": {
+    "editor.tabSize": 2
+  },
+  "[typescript]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[java]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "redhat.java"
+  },
+  "editor.renderWhitespace": "all",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.trimAutoWhitespace": true
+}
