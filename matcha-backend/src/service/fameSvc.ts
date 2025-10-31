@@ -3,7 +3,7 @@ import BadRequestError from "../errors/BadRequestError.js";
 import driver from "../repo/neo4jRepo.js";
 import { isUserExistsById } from "./userSvc.js";
 
-const getFame = async (userId: string): Promise<number | null> => {
+export const getFame = async (userId: string): Promise<number | null> => {
   const session = driver.session();
   const result = await session.run<{ fameRating: number }>(
     ConstMatcha.NEO4j_STMT_GET_FAME_RATING_BY_USER_ID,
@@ -15,14 +15,14 @@ const getFame = async (userId: string): Promise<number | null> => {
   return result.records[0].get("fameRating");
 };
 
-const setFame = async (userId: string, fame: number): Promise<void> => {
+export const setFame = async (userId: string, fame: number): Promise<void> => {
   const session = driver.session();
   const exist = await isUserExistsById(userId);
   if (!exist)
     throw new BadRequestError({
       message: `User with id ${userId} does not exist`,
       code: 400,
-      context: { error : "UserNotFound" },
+      context: { error: "UserNotFound" },
     });
   await session.run(
     ConstMatcha.NEO4j_STMT_SET_FAME_RATING_BY_USER_ID,
@@ -31,13 +31,17 @@ const setFame = async (userId: string, fame: number): Promise<void> => {
   await session.close();
 };
 
-export const updateFameRating = async (userId: string, increment: number): Promise<number> => {
+export const updateFameRating = async (
+  userId: string,
+  increment: number,
+  getFame: (userid: string) => Promise<number | null>,
+  setFame: (userid: string, fame: number) => Promise<void>): Promise<number> => {
   const currentFame = await getFame(userId);
   if (currentFame === null)
     throw new BadRequestError({
       message: `User with id ${userId} does not exist`,
       code: 400,
-      context: { error : "UserNotFound" },
+      context: { error: "UserNotFound" },
     });
   const newFame = (currentFame ?? 0) + increment;
   await setFame(userId, newFame);

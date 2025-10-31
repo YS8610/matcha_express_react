@@ -5,7 +5,8 @@ import driver from "../repo/neo4jRepo.js";
 export const getBlockedById = async (id: string): Promise<ProfileGetJson[]> => {
   const session = driver.session();
   const result = await session.run<ProfileGetJson>(ConstMatcha.NEO4j_STMT_GET_USER_BLOCKED_BY_ID, { userId: id });
-  const blockedUser = result.records.map(record => record.get(0));
+  const blockedUser : ProfileGetJson[] = result.records.map(record => record.get(0));
+  session.close();
   return blockedUser;
 }
 

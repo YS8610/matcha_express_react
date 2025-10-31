@@ -9,7 +9,7 @@ import { addViewed } from "../../service/viewedSvc.js";
 import { notifyUser } from "../../service/notificationSvc.js";
 import ConstMatcha, { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { v4 as uuidv4 } from "uuid";
-import { updateFameRating } from "../../service/fameSvc.js";
+import { getFame, setFame, updateFameRating } from "../../service/fameSvc.js";
 
 let router = express.Router();
 
@@ -68,7 +68,7 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
     }));
   await serverErrorWrapper(() => addLiked(id, userid), "Error liking user");
   await serverErrorWrapper(() => addViewed(id, userid), "Error viewing user");
-  await updateFameRating(userid, ConstMatcha.NEO4j_FAME_INCREMENT_LIKE);
+  await serverErrorWrapper(() => updateFameRating(userid, ConstMatcha.NEO4j_FAME_INCREMENT_LIKE, getFame, setFame), "Error updating fame rating");
   await serverErrorWrapper(() => notifyUser({
     userId: userid,
     type: NOTIFICATION_TYPE.LIKE,
@@ -128,7 +128,7 @@ router.delete("/", async (req: Request<{},{},{userid:string}>, res: Response<Res
       context: { userid: "not_found" }
     }));
   await serverErrorWrapper(() => removeLiked(id, userid), "Error unliking user");
-  await updateFameRating(userid, ConstMatcha.NEO4j_FAME_DECREMENT_UNLIKE);
+  await serverErrorWrapper(() => updateFameRating(userid, ConstMatcha.NEO4j_FAME_DECREMENT_UNLIKE, getFame, setFame), "Error updating fame rating");
   await serverErrorWrapper(() => notifyUser({
     userId: userid,
     type: NOTIFICATION_TYPE.UNLIKE,
