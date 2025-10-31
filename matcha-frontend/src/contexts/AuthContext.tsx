@@ -10,7 +10,14 @@ interface AuthContextType {
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (data: {username: string, email: string, firstName: string, lastName: string, birthDate: string, password: string, password2?: string}) => Promise<void>;
+  register: (data: {
+    username: string,
+    email: string,
+    firstName: string,
+    lastName: string,
+    birthDate: string,
+    password: string,
+    password2?: string}) => Promise<void>;
   activateAccount: (token: string) => Promise<void>;
   updateUser: (user: User) => void;
 }

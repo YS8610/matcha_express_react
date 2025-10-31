@@ -46,9 +46,6 @@ export default function Header() {
                   </Link>
                 </>
               )}
-              <Link href="/admin/seed-profiles" className="text-yellow-700 hover:text-yellow-900 font-medium transition-colors border-l border-green-300 pl-4">
-                Generate Users
-              </Link>
             </nav>
           </div>
 
