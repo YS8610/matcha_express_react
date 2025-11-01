@@ -82,6 +82,7 @@ Need time for manual test, below are just guidelines.
 
 ## General UX (All sections)
 
+  - Light Dark mode properly managed
   - Mobile-friendly layout on smaller screens
   - Proper form validation with error messages
   - Header, main section, and footer present

@@ -8,17 +8,22 @@
   --matcha-cream: #f5f3e9;
   --matcha-brown: #795548;
   --matcha-accent: #9ccc65;
-  
+
   --background: #fafaf8;
   --foreground: #2d3a2d;
   --card-bg: #ffffff;
   --border: #e0e6db;
-  
+  --input-bg: #ffffff;
+  --input-border: #d0d8cc;
+  --input-text: #2d3a2d;
+  --input-placeholder: #8a9d82;
+
   --primary: var(--matcha-medium);
   --primary-hover: var(--matcha-dark);
   --secondary: var(--matcha-light);
   --accent: var(--matcha-accent);
   --text-muted: #6b7c5e;
+  --bg-gradient-end: #f5f3e9;
 }
 
 @theme inline {
@@ -37,19 +42,92 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1f1a;
+    --background: #0f1410;
     --foreground: #e8f0e3;
-    --card-bg: #2d3a2d;
-    --border: #3d4a3d;
+    --card-bg: #1a2418;
+    --border: #2d3a2d;
+    --input-bg: #1f2a1f;
+    --input-border: #3d4a3d;
+    --input-text: #e8f0e3;
+    --input-placeholder: #7a8b74;
     --text-muted: #a3b899;
+    --bg-gradient-end: #1a2418;
+  }
+}
+
+html.dark {
+  --background: #0f1410;
+  --foreground: #e8f0e3;
+  --card-bg: #1a2418;
+  --border: #2d3a2d;
+  --input-bg: #1f2a1f;
+  --input-border: #3d4a3d;
+  --input-text: #e8f0e3;
+  --input-placeholder: #7a8b74;
+  --text-muted: #a3b899;
+  --bg-gradient-end: #1a2418;
+}
+
+html.light {
+  --background: #fafaf8;
+  --foreground: #2d3a2d;
+  --card-bg: #ffffff;
+  --border: #e0e6db;
+  --input-bg: #ffffff;
+  --input-border: #d0d8cc;
+  --input-text: #2d3a2d;
+  --input-placeholder: #8a9d82;
+  --text-muted: #6b7c5e;
+  --bg-gradient-end: #f5f3e9;
+}
+
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
   }
 }
 
 body {
-  background: linear-gradient(135deg, var(--background) 0%, var(--matcha-cream) 100%);
+  background: linear-gradient(135deg, var(--background) 0%, var(--bg-gradient-end) 100%);
   min-height: 100vh;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+p {
+  font-size: 1.05rem;
+}
+
+label {
+  font-size: 1rem;
+}
+
+a {
+  font-size: 1.05rem;
+}
+
+input,
+textarea,
+select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--matcha-medium);
 }
 
 * {

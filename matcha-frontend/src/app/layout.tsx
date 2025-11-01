@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { HealthStatusBanner } from "@/components/HealthStatusBanner";
@@ -33,6 +34,11 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#689f38',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -45,17 +51,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <WebSocketProvider>
-            <RouteChangeProgress />
-            <HealthStatusBanner />
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </WebSocketProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <WebSocketProvider>
+              <RouteChangeProgress />
+              <HealthStatusBanner />
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </WebSocketProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

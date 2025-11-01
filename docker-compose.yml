@@ -33,7 +33,11 @@ services:
       start_period: 30s
 
   backend:
-    build: ./matcha-backend
+    build:
+      context: ./matcha-backend
+      dockerfile: Dockerfile
+      cache_from:
+        - matcha-backend:latest
     container_name: matcha-backend
     ports:
       - "3001:3001" # localhost:3001 to access backend api
@@ -51,7 +55,11 @@ services:
     command: sh -c "sleep 10 && npm run serve"
 
   frontend:
-    build: ./matcha-frontend
+    build:
+      context: ./matcha-frontend
+      dockerfile: Dockerfile
+      cache_from:
+        - matcha-frontend:latest
     container_name: matcha-frontend
     ports:
       - "3000:3000" # localhost:3000 to access website
