@@ -16,6 +16,7 @@ import userNotificationRoute from "./routes/auth/userNotificationRoute.js";
 import userReportRoute from "./routes/auth/userReportRoute.js";
 import userLocationRoute from "./routes/auth/userLocationRoute.js";
 import profileRoute from "./routes/auth/profileRoute.js";
+import userChatRoute from "./routes/auth/userChatRoute.js";
 
 // func to create app is created for automated testing using supertest
 const appfunc = () => {
@@ -42,6 +43,7 @@ const appfunc = () => {
   app.use("/api/user/viewed", userViewedRoute);
   app.use("/api/user/liked", userLikedRoute);
   app.use("/api/user/block", userBlockRoute);
+  app.use("/api/user/chat", userChatRoute);
   app.use("/api/user/notification", userNotificationRoute);
   app.use("/api/user/report", userReportRoute);
   app.use("/api/user/location", userLocationRoute);
