@@ -25,6 +25,7 @@ services:
       - MONGO_INITDB_DATABASE=matcha
     volumes:
       - mongodb_data:/data/db
+    command: mongod --quiet --logpath=/dev/null --bind_ip_all
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
