@@ -9,7 +9,7 @@ export const updateUserLocation = async (userId: string, username: string, latit
     username,
     location: {
       type: "Point",
-      coordinates: [longitude, latitude]
+      coordinates: [longitude+0.000000001, latitude+0.000000001] // slight offset to avoid mongo geo indexing issues
     },
     updatedAt: Date.now()
   };

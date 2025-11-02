@@ -203,9 +203,9 @@ router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}
     return;
   }
   const activatedtoken = await createToken(id, email, username, true);
-  res.status(200).json({ msg: activatedtoken });
   const loc = await getAproximateUserLocation(req.ip || "");
-  await updateUserLocation(id, username, loc?.latitude || 0, loc?.longitude || 0);
+  await serverErrorWrapper(() => updateUserLocation(id, username, loc?.latitude || 0, loc?.longitude || 0), "Failed to update user location");
+  res.status(200).json({ msg: activatedtoken });
 });
 
 // password reset request
