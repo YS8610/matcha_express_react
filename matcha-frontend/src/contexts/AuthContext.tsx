@@ -39,6 +39,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const tokenParts = token.split('.');
         if (tokenParts.length === 3) {
           const payload = JSON.parse(atob(tokenParts[1]));
+
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < currentTime) {
+            console.log('Token expired, clearing authentication');
+            localStorage.removeItem('token');
+            deleteCookie('token');
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+
+          if (!payload.activated || !payload.email || !payload.username) {
+            console.log('Token missing required fields');
+            localStorage.removeItem('token');
+            deleteCookie('token');
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+
           setUser({
             id: payload.username || 'user',
             username: payload.username || 'user',
