@@ -4,7 +4,6 @@ import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { getBlockedRel } from "../../service/blockSvc.js";
 import { getShortProfileById, getShortProfilebyIdFiltered, getUserProfileById } from "../../service/userSvc.js";
-import { parse } from "path";
 import { getNearbyUsers, getUserLocation } from "../../service/locationSvc.js";
 
 let router = express.Router();
@@ -29,7 +28,17 @@ router.get("/", async (req: Request<{}, {}, {}, { minAge: string, maxAge: string
       context: { id: "not_found" }
     }));
   const userLocation = await serverErrorWrapper(() => getUserLocation(id), "Error getting user location");
-  const filteredProfiles = await serverErrorWrapper(() => getShortProfilebyIdFiltered(id, parsedMinAge, parsedMaxAge, parsedMinFameRating, parsedMaxFameRating, profile.sexualPreference, parsedSkip, parsedLimit), "Error getting user profiles");
+  const filteredProfiles = await serverErrorWrapper(
+    () => getShortProfilebyIdFiltered(
+      id,
+      parsedMinAge,
+      parsedMaxAge,
+      parsedMinFameRating,
+      parsedMaxFameRating,
+      profile.sexualPreference.low,
+      parsedSkip,
+      parsedLimit
+    ), "Error getting user profiles");
   for (const prof of filteredProfiles || []) {
     const profLocation = await serverErrorWrapper(() => getUserLocation(prof.id), "Error getting profile location");
     prof.latitude = profLocation?.latitude || 0;

@@ -1,6 +1,7 @@
 import ConstMatcha from "../ConstMatcha.js";
 import { ProfileDb, ProfileGetJson, ProfilePutJson, ProfileShort } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
+import { int } from "neo4j-driver";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
   const session = driver.session();
@@ -51,9 +52,19 @@ export const getShortProfileById = async (id: string): Promise<ProfileShort | nu
   return result.records.length == 1 ? result.records[0].get(0) : null;
 };
 
-export const getShortProfilebyIdFiltered = async (id: string, minAge: number, maxAge: number, minFameRating: number, maxFameRating: number, sexualPreference: number, skip: number, limit: number): Promise<ProfileShort[] | null> => {
+export const getShortProfilebyIdFiltered = async (userId: string, minAge: number, maxAge: number, minFameRating: number, maxFameRating: number, sexualPreference: number, skip: number, limit: number): Promise<ProfileShort[] | null> => {
   const session = driver.session();
-  const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_FILTERED, { id, minAge, maxAge, minFameRating, maxFameRating, sexualPreference, skip, limit });
+  const param = {
+    userId,
+    minAge: int(minAge),
+    maxAge: int(maxAge),
+    minFameRating: int(minFameRating),
+    maxFameRating: int(maxFameRating),
+    sexualPreference: int(sexualPreference),
+    skip: int(skip),
+    limit: int(limit)
+  };
+  const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_FILTERED, param);
   session.close();
   const mappedResults : ProfileShort[] = [];
   for (let record of result.records)

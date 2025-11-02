@@ -171,7 +171,8 @@ export default class ConstMatcha {
     OPTIONAL MATCH (u)-[:HAS_TAG]->(t:TAG)
     WITH u, collect(t.name) as userTags
     RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}, userTags
-    SKIP $skipno
+    ORDER BY u.fameRating DESC
+    SKIP $skip
     LIMIT $limit
   `
 
@@ -367,40 +368,6 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_CHECK_USER_BLOCKED = `
     MATCH (:PROFILE { id: $userId })-[r:BLOCKED]-(:PROFILE { id: $otherUserId })
     RETURN count(r) > 0 as isBlocked
-  `;
-
-  static readonly NEO4j_STMT_GET_NOTIFICATIONS_BY_USER_ID = `
-    MATCH (n:NOTIFICATION { userId: $userId })
-    RETURN n{.*}
-    ORDER BY n.createdAt DESC
-    LIMIT $limit
-    OFFSET $offset
-  `;
-
-  static readonly NEO4j_STMT_CREATE_NOTIFICATION = `
-    CREATE (n:NOTIFICATION {
-      id: $id,
-      userId: $userId,
-      type: $type,
-      message: $message,
-      createdAt: $createdAt,
-      read: false,
-    })
-  `;
-
-  static readonly NEO4j_STMT_DELETE_NOTIFICATION_BY_ID = `
-    MATCH (n:NOTIFICATION { id: $notificationId, userId: $userId })
-    DELETE n
-  `;
-
-  static readonly NEO4j_STMT_SET_USER_NOTIFICATION_READ = `
-    MATCH (n:NOTIFICATION { id: $notificationId, userId: $userId })
-    SET n.read = true
-  `;
-
-  static readonly NEO4j_STMT_CHECK_NOTIFICATION_EXISTS = `
-    MATCH (n:NOTIFICATION { id: $notificationID, userId: $userId })
-    RETURN count(n) > 0 as exists
   `;
 
   static readonly NEO4j_STMT_GET_FAME_RATING_BY_USER_ID = `

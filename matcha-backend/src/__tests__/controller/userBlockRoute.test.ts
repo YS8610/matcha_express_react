@@ -77,7 +77,7 @@ describe("Route /api/user/block", () => {
         email: "blockedUser1@example.com",
         biography: "",
         gender: 1,
-        sexualPreference: 1,
+        sexualPreference: { low: 1, high: 0 },
         photo0: "photoUrl1",
         photo1: "",
         photo2: "",

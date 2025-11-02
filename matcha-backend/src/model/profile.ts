@@ -61,7 +61,7 @@ export interface ProfileGetJson {
   birthDate: DateTypeNeo4j;
   biography: string;
   gender: number;
-  sexualPreference: number;
+  sexualPreference: IntTypeNeo4j;
   fameRating: number;
   photo0: string;
   photo1: string;
