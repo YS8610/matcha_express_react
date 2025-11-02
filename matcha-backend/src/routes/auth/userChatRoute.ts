@@ -4,6 +4,7 @@ import { getChatHistoryBetweenUsers } from "../../service/chatSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ChatMessage } from "../../model/Response.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
+import { getDb } from "../../repo/mongoRepo.js";
 
 let router = express.Router();
 
@@ -25,7 +26,7 @@ router.get("/", async (req: Request<{}, {}, {otherid:string}, {limit:string, ski
   const { limit, skipno } = req.query;
   const lim = parseInt(limit as string, 10) || 50;
   const skip = parseInt(skipno as string, 10) || 0;
-  const chatHistory = await serverErrorWrapper(() => getChatHistoryBetweenUsers(id, otherid, skip, lim), "failed to get chat history between users");
+  const chatHistory = await serverErrorWrapper(() => getChatHistoryBetweenUsers(getDb, id, otherid, skip, lim), "failed to get chat history between users");
   res.send(chatHistory);
 });
 

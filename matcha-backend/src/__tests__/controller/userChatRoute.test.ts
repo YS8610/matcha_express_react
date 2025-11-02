@@ -3,6 +3,7 @@ import appfunc from "../../app.js";
 import request from "supertest";
 import { type Express } from "express-serve-static-core";
 import { createToken } from "../../service/jwtSvc.js";
+import { getDb } from "../../repo/mongoRepo.js";
 
 
 let app: Express;
@@ -70,7 +71,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 200 and chat history if valid request with query string", async () => {
@@ -95,7 +96,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 5, 10);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 5, 10);
     });
 
     it("should return 200 and chat history if valid request with invalid query string", async () => {
@@ -120,7 +121,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 500 if there is a server error", async () => {
@@ -136,7 +137,7 @@ describe("Route /api/user/chat", () => {
         context: { error: {} },
         message: "failed to get chat history between users"
       });
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 200 and empty array if no chat history exists", async () => {
@@ -147,7 +148,7 @@ describe("Route /api/user/chat", () => {
         .send({ otherid: "2" });
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 200 and chat history with special characters", async () => {
@@ -172,7 +173,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 200 when skip query params is missing", async () => {
@@ -197,7 +198,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 20);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb,"1", "2", 0, 20);
     });
 
     it("should return 200 when limit query params is missing", async () => {
@@ -222,7 +223,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 15, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 15, 50);
     });
 
     it("should return 200 and chat history when skip is not a number", async () => {
@@ -247,7 +248,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
     it("should return 200 and chat history when limit is not a number", async () => {
@@ -272,7 +273,7 @@ describe("Route /api/user/chat", () => {
           timestamp: expect.any(Number)
         }
       ]);
-      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith("1", "2", 0, 50);
+      expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
     });
 
   });

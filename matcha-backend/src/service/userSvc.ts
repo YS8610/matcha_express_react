@@ -171,6 +171,7 @@ export const isPwValid = (pw: string): number => {
 
 export const isValidDateStr = (dateStr: string): boolean => {
   // Check if the date string is in a valid format (YYYY-MM-DD)
+  if (!dateStr) return false;
   dateStr = dateStr.trim();
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   const date = new Date(dateStr);

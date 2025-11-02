@@ -1,18 +1,17 @@
-import { Document, WithId } from "mongodb";
+import { Db, Document, WithId } from "mongodb";
 import ConstMatcha from "../ConstMatcha.js";
 import { ChatMessage } from "../model/Response.js";
-import {getDb } from "../repo/mongoRepo.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
 
-export const saveChatmsg = async (msg: ChatMessage): Promise<void> => {
-  const db =  await getDb();
+export const saveChatmsg = async (getDb: () => Promise<Db>, msg: ChatMessage): Promise<void> => {
+  const db = await getDb();
   await serverErrorWrapper(
     () => db.collection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES).insertOne(msg),
     'Failed to save chat message in DB'
   );
 };
 
-export const getChatHistoryBetweenUsers = async (userAId: string, userBId: string, skipno: number = 0, limit: number = 50): Promise<ChatMessage[]> => {
+export const getChatHistoryBetweenUsers = async ( getDb : () => Promise<Db>, userAId: string, userBId: string, skipno: number = 0, limit: number = 50): Promise<ChatMessage[]> => {
   const db =  await getDb();
   const messages = await serverErrorWrapper(
     () => db.collection(ConstMatcha.MONGO_COLLECTION_CHATMESSAGES)

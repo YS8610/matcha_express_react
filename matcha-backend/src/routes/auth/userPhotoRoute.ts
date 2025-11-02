@@ -5,6 +5,7 @@ import { deletePhotoByName, getAllPhotoNameByUserId, isValidOrder, reorderPhotos
 import { catchErrorWrapper, serverErrorWrapper } from "../../util/wrapper.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ResMsg } from "../../model/Response.js";
+import fs from "fs/promises";
 
 let router = express.Router();
 
@@ -82,7 +83,7 @@ router.delete("/:no", async (req: Request<{ no: string }>, res: Response<ResMsg>
       code: 400,
       context: { err : "No photo to delete"}
     })));
-  await deletePhotoByName(photoNames[photoNumber]);
+  await deletePhotoByName(fs.unlink, photoNames[photoNumber]);
   const [error] = await catchErrorWrapper(setPhotobyUserId(id, "", photoNumber));
   if (error)
     return next(error);
@@ -100,11 +101,11 @@ router.put("/order", async (req: Request<{}, {}, {newOrder: number[]}>, res: Res
       code: 400,
       context: { err : "pls provide a valid photo order"}
     }));
-  if (!Array.isArray(newOrder) || 
-      newOrder.length !== 5 || 
+  if (!Array.isArray(newOrder) ||
+      newOrder.length !== 5 ||
       !newOrder.every(n => typeof n === 'number' && n >= 0 && n <= 4) ||
       !isValidOrder(newOrder)
-  ) 
+  )
     return next(new BadRequestError({
       message: "Invalid photo order",
       logging: false,

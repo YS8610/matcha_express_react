@@ -6,7 +6,7 @@ import fs from "fs/promises";
 
 export const setPhotobyUserId = async (userId: string, photoUrl: string, photoNumber: number): Promise<void> => {
   const session = driver.session();
-  if (photoNumber < 0 || photoNumber > ConstMatcha.NEO4j_USER_MAX_PHOTOS) {
+  if (photoNumber < 0 || photoNumber >= ConstMatcha.NEO4j_USER_MAX_PHOTOS) {
     session.close();
     throw new BadRequestError({
       message: "Invalid photo number",
@@ -39,13 +39,13 @@ export const setPhotobyUserId = async (userId: string, photoUrl: string, photoNu
   return;
 }
 
-export const deletePhotoByName = async(photoName : string): Promise<boolean> => {
+export const deletePhotoByName = async(unlink:(path:string) => Promise<void>, photoName : string): Promise<boolean> => {
   const filePath = `${ConstMatcha.PHOTO_DUMP_DIR}/${photoName}`;
   try {
-    await fs.unlink(filePath);
+    await unlink(filePath);
     return true;
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') 
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT')
       return false;
     throw new ServerRequestError({
       message: "Failed to delete photo",
@@ -60,6 +60,8 @@ export const getAllPhotoNameByUserId = async(userId : string) : Promise<string[]
   const session = driver.session();
   const result = await session.run<{ photoNames: string[] }>(ConstMatcha.NEO4j_STMT_GET_ALL_PHOTO_NAME_BY_USER_ID, { userId });
   session.close();
+  if (result.records.length == 0)
+    return [];
   return result.records[0].get("photoNames");
 }
 

@@ -9,6 +9,7 @@ import { getBlockedRel } from "../service/blockSvc.js";
 import { isMatch } from "../service/likeSvc.js";
 import { getChatHistoryBetweenUsers, saveChatmsg } from "../service/chatSvc.js";
 import { setLastOnlineById } from "../service/userSvc.js";
+import { getDb } from "../repo/mongoRepo.js";
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -69,7 +70,7 @@ const eventHandlers = (io: Server) => {
       }
       // store message in db
       try {
-        await saveChatmsg(data);
+        await saveChatmsg(getDb, data);
       } catch (err) {
         io.to(socket.id).emit("error", { msg: "Failed to store chat message" });
         return;
@@ -113,7 +114,7 @@ const eventHandlers = (io: Server) => {
         return;
       }
       try {
-        const chatHistory = await getChatHistoryBetweenUsers(userId, otherId, skipno, limit);
+        const chatHistory = await getChatHistoryBetweenUsers(getDb, userId, otherId, skipno, limit);
         for (const sId of ConstMatcha.wsmap.get(userId) || [])
           io.to(sId).emit("chatHistory", chatHistory);
       } catch (err) {
