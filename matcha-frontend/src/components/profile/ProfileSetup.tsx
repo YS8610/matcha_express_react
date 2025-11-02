@@ -38,6 +38,16 @@ export default function ProfileSetup() {
     }
   }, [user?.latitude, user?.longitude, formData.latitude, formData.longitude]);
 
+  useEffect(() => {
+    if (user?.birthDate && formData.birthDate === '') {
+      setFormData(prev => ({
+        ...prev,
+        birthDate: user.birthDate as string
+      }));
+      setStep(2);
+    }
+  }, [user?.birthDate]);
+
   const handleGetLocation = () => {
     setLocationLoading(true);
     if (navigator.geolocation) {
@@ -198,6 +208,7 @@ export default function ProfileSetup() {
               className="w-full px-3 py-2 border rounded-md"
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
             />
+            <p className="text-xs text-gray-600 mt-1">You must be at least 18 years old</p>
           </div>
 
           <div>

@@ -70,7 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             lastSeen: new Date(),
             isOnline: false,
             latitude: payload.latitude,
-            longitude: payload.longitude
+            longitude: payload.longitude,
+            birthDate: payload.birthDate
           });
         }
       }
@@ -101,7 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
-          longitude: payload.longitude
+          longitude: payload.longitude,
+          birthDate: payload.birthDate
         });
       }
     }
@@ -148,7 +150,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
-          longitude: payload.longitude
+          longitude: payload.longitude,
+          birthDate: payload.birthDate
         });
       }
     }

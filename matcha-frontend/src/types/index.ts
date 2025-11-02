@@ -11,6 +11,7 @@ export interface User {
   lastOnline?: number;
   latitude?: number;
   longitude?: number;
+  birthDate?: string;
 }
 
 export interface Profile {

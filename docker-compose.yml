@@ -61,11 +61,15 @@ services:
       dockerfile: Dockerfile
       cache_from:
         - matcha-frontend:latest
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:3001
+        - NEXT_PUBLIC_WS_URL=http://localhost:3001
     container_name: matcha-frontend
     ports:
       - "3000:3000" # localhost:3000 to access website
     environment:
-      - NODE_NO_WARNINGS=1
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_WS_URL=http://localhost:3001
     depends_on:
       - backend
 
