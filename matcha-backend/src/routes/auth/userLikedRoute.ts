@@ -6,10 +6,12 @@ import { isUserExistsById } from "../../service/userSvc.js";
 import { addLiked, getLikedById, getMatchedUsersShortProfile, isLiked, isMatch, removeLiked } from "../../service/likeSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { addViewed } from "../../service/viewedSvc.js";
-import { notifyUser } from "../../service/notificationSvc.js";
+import { createNotification, notifyUser } from "../../service/notificationSvc.js";
 import ConstMatcha, { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { v4 as uuidv4 } from "uuid";
 import { getFame, setFame, updateFameRating } from "../../service/fameSvc.js";
+import { get } from "http";
+import { getDb } from "../../repo/mongoRepo.js";
 
 let router = express.Router();
 
@@ -17,7 +19,7 @@ let router = express.Router();
 router.get("/by", async (req: Request, res: Response<{ data: ProfileShort[] }>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const profiles = await serverErrorWrapper(() => getLikedById(id), "Error getting users who liked you");
-  const profileforSending : ProfileShort[] = [];
+  const profileforSending: ProfileShort[] = [];
   for (const profile of profiles)
     profileforSending.push({
       id: profile.id,
@@ -29,22 +31,22 @@ router.get("/by", async (req: Request, res: Response<{ data: ProfileShort[] }>, 
       lastOnline: profile.lastOnline,
       birthDate: profile.birthDate
     });
-  res.status(200).json({ data : profileforSending });
+  res.status(200).json({ data: profileforSending });
 });
 
 // like another user
-router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMsg>, next: NextFunction) => {
+router.post("/", async (req: Request<{}, {}, { userid: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { userid } = req.body;
   if (!userid)
-    return next( new BadRequestError({
+    return next(new BadRequestError({
       code: 400,
       message: "userid is required",
       logging: false,
       context: { userid: "missing" }
     }));
   if (userid === id)
-    return next( new BadRequestError({
+    return next(new BadRequestError({
       code: 400,
       message: "you cannot like yourself",
       logging: false,
@@ -52,7 +54,7 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
     }));
   const isUser = await serverErrorWrapper(() => isUserExistsById(userid), "Error checking if user exists");
   if (!isUser)
-    return next( new BadRequestError({
+    return next(new BadRequestError({
       code: 404,
       message: "user not found",
       logging: false,
@@ -60,7 +62,7 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
     }));
   const isAlreadyLiked = await serverErrorWrapper(() => isLiked(id, userid), "Error checking if user already liked");
   if (isAlreadyLiked)
-    return next( new BadRequestError({
+    return next(new BadRequestError({
       code: 400,
       message: "you have already liked this user",
       logging: false,
@@ -69,40 +71,49 @@ router.post("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMs
   await serverErrorWrapper(() => addLiked(id, userid), "Error liking user");
   await serverErrorWrapper(() => addViewed(id, userid), "Error viewing user");
   await serverErrorWrapper(() => updateFameRating(userid, ConstMatcha.NEO4j_FAME_INCREMENT_LIKE, getFame, setFame), "Error updating fame rating");
-  await serverErrorWrapper(() => notifyUser({
-    userId: userid,
-    type: NOTIFICATION_TYPE.LIKE,
-    message: `${username} has liked you`,
-    createdAt: Date.now(),
-    id: uuidv4(),
-    read: false
-  }), "Failed to send profile like notification");
+  await serverErrorWrapper(() => notifyUser(
+    getDb,
+    createNotification,
+    {
+      userId: userid,
+      type: NOTIFICATION_TYPE.LIKE,
+      message: `${username} has liked you`,
+      createdAt: Date.now(),
+      id: uuidv4(),
+      read: false
+    }), "Failed to send profile like notification");
   const matched = await serverErrorWrapper(() => isMatch(userid, id), "Error checking for match");
   if (matched) {
     // notify the other users of the match
-    await serverErrorWrapper(() => notifyUser({
-      userId: userid,
-      type: NOTIFICATION_TYPE.MATCH,
-      message: `${username} and you have liked each other`,
-      createdAt: Date.now(),
-      id: uuidv4(),
-      read: false
-    }), "Failed to send profile match notification");
+    await serverErrorWrapper(() => notifyUser(
+      getDb,
+      createNotification,
+      {
+        userId: userid,
+        type: NOTIFICATION_TYPE.MATCH,
+        message: `${username} and you have liked each other`,
+        createdAt: Date.now(),
+        id: uuidv4(),
+        read: false
+      }), "Failed to send profile match notification");
     // notify the authenticated user of the match
-    await serverErrorWrapper(() => notifyUser({
-      userId: id,
-      type: NOTIFICATION_TYPE.MATCH,
-      message: `You have just matched!`,
-      createdAt: Date.now(),
-      id: uuidv4(),
-      read: false
-    }), "Failed to send profile match notification");
+    await serverErrorWrapper(() => notifyUser(
+      getDb,
+      createNotification,
+      {
+        userId: id,
+        type: NOTIFICATION_TYPE.MATCH,
+        message: `You have just matched!`,
+        createdAt: Date.now(),
+        id: uuidv4(),
+        read: false
+      }), "Failed to send profile match notification");
   }
   res.status(201).json({ msg: "liked" });
 });
 
 // unlike another user
-router.delete("/", async (req: Request<{},{},{userid:string}>, res: Response<ResMsg>, next: NextFunction) => {
+router.delete("/", async (req: Request<{}, {}, { userid: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { userid } = req.body;
   if (!userid)
@@ -129,14 +140,17 @@ router.delete("/", async (req: Request<{},{},{userid:string}>, res: Response<Res
     }));
   await serverErrorWrapper(() => removeLiked(id, userid), "Error unliking user");
   await serverErrorWrapper(() => updateFameRating(userid, ConstMatcha.NEO4j_FAME_DECREMENT_UNLIKE, getFame, setFame), "Error updating fame rating");
-  await serverErrorWrapper(() => notifyUser({
-    userId: userid,
-    type: NOTIFICATION_TYPE.UNLIKE,
-    message: `${username} has unliked you`,
-    createdAt: Date.now(),
-    id: uuidv4(),
-    read: false
-  }), "Failed to send profile unlike notification");
+  await serverErrorWrapper(() => notifyUser(
+    getDb,
+    createNotification,
+    {
+      userId: userid,
+      type: NOTIFICATION_TYPE.UNLIKE,
+      message: `${username} has unliked you`,
+      createdAt: Date.now(),
+      id: uuidv4(),
+      read: false
+    }), "Failed to send profile unlike notification");
   res.status(200).json({ msg: "unliked" });
 });
 

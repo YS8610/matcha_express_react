@@ -4,6 +4,8 @@ import request from "supertest";
 import { type Express } from "express-serve-static-core";
 import { createToken } from "../../service/jwtSvc.js";
 import { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
+import { getDb } from "../../repo/mongoRepo.js";
+import { createNotification } from "../../service/notificationSvc.js";
 
 let app: Express;
 
@@ -221,6 +223,8 @@ describe("Route /api/user/viewed", () => {
       expect(mockedisViewed).toHaveBeenCalledWith("1", "2");
       expect(mockedrecordView).toHaveBeenCalledWith("1", "2");
       expect(mockednotifyUser).toHaveBeenCalledWith(
+        getDb,
+        createNotification,
         {
           userId: "2",
           type: NOTIFICATION_TYPE.VIEW,

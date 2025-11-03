@@ -5,10 +5,11 @@ import { isUserExistsById } from "../../service/userSvc.js";
 import { addViewed, getViewedById, getVisitedById, isViewed } from "../../service/viewedSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ResMsg } from "../../model/Response.js";
-import { notifyUser } from "../../service/notificationSvc.js";
+import { createNotification, notifyUser } from "../../service/notificationSvc.js";
 import { v4 as uuidv4 } from "uuid";
 import { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { getBlockedRel } from "../../service/blockSvc.js";
+import { getDb } from "../../repo/mongoRepo.js";
 
 let router = express.Router();
 
@@ -71,14 +72,17 @@ router.post("/", async (req: Request<{}, {}, { viewedUserID: string }>, res: Res
       context: { viewedUserID: "already_viewed" }
     }));
   await serverErrorWrapper(() => addViewed(id, viewedUserID), "Failed to record viewed user");
-  await serverErrorWrapper(() => notifyUser({
-    userId: viewedUserID,
-    type: NOTIFICATION_TYPE.VIEW,
-    message: `${username} has viewed your profile`,
-    createdAt: Date.now(),
-    id: uuidv4(),
-    read: false
-  }), "Failed to send profile view notification");
+  await serverErrorWrapper(() => notifyUser(
+    getDb,
+    createNotification,
+    {
+      userId: viewedUserID,
+      type: NOTIFICATION_TYPE.VIEW,
+      message: `${username} has viewed your profile`,
+      createdAt: Date.now(),
+      id: uuidv4(),
+      read: false
+    }), "Failed to send profile view notification");
   res.status(201).json({ msg: `view recorded` });
 });
 

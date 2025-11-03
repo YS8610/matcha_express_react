@@ -5,6 +5,7 @@ import { Notification_Matcha } from "../../model/notification.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ResMsg } from "../../model/Response.js";
+import { getDb } from "../../repo/mongoRepo.js";
 
 
 let router = express.Router();
@@ -15,7 +16,7 @@ router.get("/", async (req: Request<{},{},{}, {limit:string, offset:string}>, re
   const { limit = "20", offset = "0" } = req.query;
   const lim = parseInt(limit as string, 10);
   const off = parseInt(offset as string, 10);
-  const notifications = await serverErrorWrapper(() => getNotificationByUserID(id, lim, off), "failed to get notifications for user");
+  const notifications = await serverErrorWrapper(() => getNotificationByUserID(getDb,id, lim, off), "failed to get notifications for user");
   res.status(200).json(notifications);
 });
 
@@ -23,14 +24,14 @@ router.get("/", async (req: Request<{},{},{}, {limit:string, offset:string}>, re
 router.delete("/", async (req: Request<{},{},{notificationId:string}>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { notificationId } = req.body;
-  if (!notificationId) 
+  if (!notificationId)
     return next(new BadRequestError({
       message: "bad request. Missing notificationId in request body",
       code: 400,
       logging: false,
       context: { err: "notificationId is required" }
     }));
-  await serverErrorWrapper(() => deleteNotificationByUserID(id, notificationId), "failed to delete notifications for user");
+  await serverErrorWrapper(() => deleteNotificationByUserID(getDb, id, notificationId), "failed to delete notifications for user");
   res.status(200).json({ msg: "notification deleted" });
 });
 
@@ -38,14 +39,14 @@ router.delete("/", async (req: Request<{},{},{notificationId:string}>, res: Resp
 router.put("/", async (req: Request<{},{},{notificationId:string}>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { notificationId } = req.body;
-  if (!notificationId) 
+  if (!notificationId)
     return next(new BadRequestError({
       message: "bad request. Missing notificationId in request body",
       code: 400,
       logging: false,
       context: { err: "notificationId is required" }
     }));
-  const isExist = await serverErrorWrapper(()=> isNotificationExists(id, notificationId), "failed to check if notification exists");
+  const isExist = await serverErrorWrapper(()=> isNotificationExists(getDb, id, notificationId), "failed to check if notification exists");
   if (!isExist)
     return next(new BadRequestError({
       message: "notification not found",
@@ -53,7 +54,7 @@ router.put("/", async (req: Request<{},{},{notificationId:string}>, res: Respons
       logging: false,
       context: { err: "notification not found" }
     }));
-  await serverErrorWrapper(() => markNotificationAsRead(id, notificationId), "failed to mark notification as read");
+  await serverErrorWrapper(() => markNotificationAsRead(getDb, id, notificationId), "failed to mark notification as read");
   res.status(200).json({ msg: "notification marked as read" });
 });
 

@@ -2,8 +2,7 @@ import EventEmitter from "events";
 import { Notification_Matcha } from "../model/notification.js";
 import ConstMatcha, { NOTIFICATION_TYPE } from "../ConstMatcha.js";
 import { serverErrorWrapper } from "../util/wrapper.js";
-import { getDb } from "../repo/mongoRepo.js";
-import { WithId, Document } from "mongodb";
+import { WithId, Document, Db } from "mongodb";
 
 export class NotificationManager extends EventEmitter {
   private static instance: NotificationManager;
@@ -31,9 +30,13 @@ export class NotificationManager extends EventEmitter {
   }
 }
 
-export const notifyUser = async (data: Notification_Matcha) => {
+export const notifyUser = async (
+  getDb: () => Promise<Db>,
+  createNotification : (getDb: () => Promise<Db>, data: Notification_Matcha) => Promise<void>,
+  data: Notification_Matcha
+) => {
   NotificationManager.getInstance().notify("event", data);
-  await serverErrorWrapper(() => createNotification(data), "failed to create notification");
+  await serverErrorWrapper(() => createNotification(getDb, data), "failed to create notification");
 }
 
 const isNotificationType = (v: any): boolean => {
@@ -69,7 +72,7 @@ const toNotification = (d: WithId<Document>): Notification_Matcha | null => {
   return null;
 }
 
-export const getNotificationByUserID = async(userId: string, limit = 20, offset = 0): Promise<Notification_Matcha[]> => {
+export const getNotificationByUserID = async(getDb: () => Promise<Db>, userId: string, limit = 20, offset = 0): Promise<Notification_Matcha[]> => {
   const db = await getDb();
   // fetch from mongodb
   const noti = await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).find({ userId })
@@ -80,18 +83,18 @@ export const getNotificationByUserID = async(userId: string, limit = 20, offset 
   return noti.map(n => toNotification(n)).filter((n: Notification_Matcha | null) => n !== null) as Notification_Matcha[];
 }
 
-export const deleteNotificationByUserID = async(userId: string, notificationId: string): Promise<void> => {
+export const deleteNotificationByUserID = async(getDb: () => Promise<Db>, userId: string, notificationId: string): Promise<void> => {
   const db = await getDb();
   // delete from mongodb
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).deleteOne({ userId, id: notificationId });
 }
 
-export const createNotification = async(data: { id: string, userId: string, type: string, message: string, createdAt: number}): Promise<void> => {
+export const createNotification = async(getDb: () => Promise<Db>, data: { id: string, userId: string, type: string, message: string, createdAt: number}): Promise<void> => {
   const db = await getDb();
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).insertOne({ ...data, read: false });
 }
 
-export const markNotificationAsRead = async(userId: string, notificationId: string): Promise<void> => {
+export const markNotificationAsRead = async(getDb: () => Promise<Db>, userId: string, notificationId: string): Promise<void> => {
   const db = await getDb();
   await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).updateOne(
     { userId, id: notificationId },
@@ -99,7 +102,7 @@ export const markNotificationAsRead = async(userId: string, notificationId: stri
   );
 }
 
-export const isNotificationExists = async(notificationID:string, userId:string): Promise<boolean> => {
+export const isNotificationExists = async(getDb: () => Promise<Db>, notificationID:string, userId:string): Promise<boolean> => {
   const db = await getDb();
   const count = await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).countDocuments({ id: notificationID, userId });
   return count > 0;
