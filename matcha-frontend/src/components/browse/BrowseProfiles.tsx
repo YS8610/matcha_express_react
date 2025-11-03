@@ -16,12 +16,7 @@ export default function BrowseProfiles() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [totalProfiles, setTotalProfiles] = useState(0);
-  const [filters, setFilters] = useState<SearchFilters>({
-    ageMin: 18,
-    ageMax: 100,
-    fameMin: 0,
-    fameMax: 100,
-  });
+  const [filters, setFilters] = useState<SearchFilters>({});
   const [showFilters, setShowFilters] = useState(false);
 
   const totalPages = Math.ceil(totalProfiles / PROFILES_PER_PAGE);
@@ -30,15 +25,18 @@ export default function BrowseProfiles() {
     setLoading(true);
     try {
       const skip = (currentPage - 1) * PROFILES_PER_PAGE;
-      const response = await api.getFilteredProfiles({
-        minAge: filters.ageMin || 18,
-        maxAge: filters.ageMax || 100,
-        distancekm: filters.distanceMax || 20100,
-        minFameRating: filters.fameMin || 0,
-        maxFameRating: filters.fameMax || 100,
+      const requestFilters: any = {
         skip,
         limit: PROFILES_PER_PAGE,
-      });
+      };
+
+      if (filters.ageMin !== undefined) requestFilters.minAge = filters.ageMin;
+      if (filters.ageMax !== undefined) requestFilters.maxAge = filters.ageMax;
+      if (filters.distanceMax !== undefined) requestFilters.distancekm = filters.distanceMax;
+      if (filters.fameMin !== undefined) requestFilters.minFameRating = filters.fameMin;
+      if (filters.fameMax !== undefined) requestFilters.maxFameRating = filters.fameMax;
+
+      const response = await api.getFilteredProfiles(requestFilters);
 
       const profiles = Array.isArray(response) ? response : response.data || [];
       setAllProfiles(profiles);
