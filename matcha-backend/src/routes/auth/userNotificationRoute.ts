@@ -14,8 +14,8 @@ let router = express.Router();
 router.get("/", async (req: Request<{},{},{}, {limit:string, offset:string}>, res: Response<Notification_Matcha[]>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const { limit = "20", offset = "0" } = req.query;
-  const lim = parseInt(limit as string, 10);
-  const off = parseInt(offset as string, 10);
+  const lim = parseInt(limit as string, 10) || 20;
+  const off = parseInt(offset as string, 0) || 0;
   const notifications = await serverErrorWrapper(() => getNotificationByUserID(getDb,id, lim, off), "failed to get notifications for user");
   res.status(200).json(notifications);
 });
@@ -23,6 +23,13 @@ router.get("/", async (req: Request<{},{},{}, {limit:string, offset:string}>, re
 // delete a notification for the user
 router.delete("/", async (req: Request<{},{},{notificationId:string}>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is missing",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { notificationId } = req.body;
   if (!notificationId)
     return next(new BadRequestError({

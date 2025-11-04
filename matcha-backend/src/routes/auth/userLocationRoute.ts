@@ -9,6 +9,13 @@ let router = express.Router();
 
 router.put("/", async (req: Request<{},{},{latitude: number, longitude: number}>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
+  if (!req.body)
+    return next(new BadRequestError({
+      message: "Request body is required",
+      logging: false,
+      code: 400,
+      context: { body: 'missing' },
+    }));
   const { latitude, longitude } = req.body;
   if (!latitude || !longitude)
     return next(new BadRequestError({

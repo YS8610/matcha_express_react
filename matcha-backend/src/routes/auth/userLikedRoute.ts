@@ -10,7 +10,6 @@ import { createNotification, notifyUser } from "../../service/notificationSvc.js
 import ConstMatcha, { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { v4 as uuidv4 } from "uuid";
 import { getFame, setFame, updateFameRating } from "../../service/fameSvc.js";
-import { get } from "http";
 import { getDb } from "../../repo/mongoRepo.js";
 
 let router = express.Router();
@@ -37,6 +36,13 @@ router.get("/by", async (req: Request, res: Response<{ data: ProfileShort[] }>, 
 // like another user
 router.post("/", async (req: Request<{}, {}, { userid: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is missing",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { userid } = req.body;
   if (!userid)
     return next(new BadRequestError({
@@ -115,6 +121,13 @@ router.post("/", async (req: Request<{}, {}, { userid: string }>, res: Response<
 // unlike another user
 router.delete("/", async (req: Request<{}, {}, { userid: string }>, res: Response<ResMsg>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is missing",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { userid } = req.body;
   if (!userid)
     return next(new BadRequestError({

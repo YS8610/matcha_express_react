@@ -17,6 +17,13 @@ router.get("/", async (req: Request, res: Response<{ tags: string[] }>, next: Ne
 
 // Add a new tag for the authenticated user
 router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<ResMsg>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is missing",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { tagName } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!tagName || tagName.trim() === "") {
@@ -43,6 +50,13 @@ router.post("/", async (req: Request<{}, {}, { tagName: string }>, res: Response
 
 // Remove a tag for the authenticated user
 router.delete("/", async (req: Request<{}, {}, { tagName: string }>, res: Response<ResMsg>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is missing",
+      logging: false,
+      context: { body: "missing" }
+    }));
   const { tagName } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   if (!tagName || tagName.trim() === "") {
