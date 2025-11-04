@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { User, Star, Heart, Eye, Edit, Leaf } from 'lucide-react';
-import { toDisplayNumber, toGenderString, toSexualPreferenceString } from '@/lib/neo4j-utils';
+import { formatFameRating, toGenderString, toSexualPreferenceString } from '@/lib/neo4j-utils';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -101,7 +101,7 @@ export default function MyProfilePage() {
                   <p className="flex items-center gap-1">
                     <span className="font-medium text-green-800">Fame Rating:</span>
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                    {toDisplayNumber(profile.fameRating, '0')}/100
+                    {formatFameRating(profile.fameRating)}
                   </p>
                 </div>
               </div>

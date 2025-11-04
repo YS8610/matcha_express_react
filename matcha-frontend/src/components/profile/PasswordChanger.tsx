@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { api } from '@/lib/api';
+import { getPasswordValidationChecks } from '@/lib/validation';
 
 interface PasswordChangerProps {
   className?: string;
@@ -23,26 +24,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const validatePassword = (password: string) => {
-    const checks = {
-      length: password.length >= 8,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      number: /\d/.test(password),
-      special: /[@$!%*?&]/.test(password),
-    };
-
-    const commonWords = ['password', 'qwerty', 'admin', 'letmein', 'welcome'];
-    const hasCommonWord = commonWords.some(word => password.toLowerCase().includes(word));
-
-    return {
-      ...checks,
-      commonWord: !hasCommonWord,
-      isValid: Object.values(checks).every(Boolean) && !hasCommonWord,
-    };
-  };
-
-  const passwordValidation = validatePassword(formData.newPassword);
+  const passwordValidation = getPasswordValidationChecks(formData.newPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

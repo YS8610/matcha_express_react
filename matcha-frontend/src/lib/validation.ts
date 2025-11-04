@@ -7,16 +7,6 @@ const COMMON_PASSWORDS = [
   'monkey', '123456', 'abc123', 'dragon', 'master'
 ];
 
-export interface ValidationError {
-  field: string;
-  message: string;
-}
-
-export interface ValidationResult {
-  isValid: boolean;
-  errors: ValidationError[];
-}
-
 export const validateEmail = (email: string): string | null => {
   if (!email.trim()) {
     return 'Email is required';
@@ -216,4 +206,22 @@ export const validateLoginForm = (username: string, password: string): Record<st
   }
 
   return errors;
+};
+
+export const getPasswordValidationChecks = (password: string) => {
+  const checks = {
+    length: password.length >= 8,
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[@$!%*?&]/.test(password),
+  };
+
+  const hasCommonWord = COMMON_PASSWORDS.some(word => password.toLowerCase().includes(word));
+
+  return {
+    ...checks,
+    commonWord: !hasCommonWord,
+    isValid: Object.values(checks).every(Boolean) && !hasCommonWord,
+  };
 };

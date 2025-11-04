@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { User } from '@/types';
-import { deleteCookie } from '@/lib/cookies';
 
 interface AuthContextType {
   user: User | null;
@@ -44,7 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (payload.exp && payload.exp < currentTime) {
             console.log('Token expired, clearing authentication');
             localStorage.removeItem('token');
-            deleteCookie('token');
+            if (typeof document !== 'undefined') {
+              document.cookie = `token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+            }
             setUser(null);
             setLoading(false);
             return;
@@ -53,7 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!payload.activated || !payload.email || !payload.username) {
             console.log('Token missing required fields');
             localStorage.removeItem('token');
-            deleteCookie('token');
+            if (typeof document !== 'undefined') {
+              document.cookie = `token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+            }
             setUser(null);
             setLoading(false);
             return;
@@ -78,7 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('token');
-      deleteCookie('token');
+      if (typeof document !== 'undefined') {
+        document.cookie = `token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+      }
     } finally {
       setLoading(false);
     }

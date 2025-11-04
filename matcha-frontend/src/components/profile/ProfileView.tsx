@@ -5,7 +5,7 @@ import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import { toDisplayNumber, getLastSeenString } from '@/lib/neo4j-utils';
+import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
 import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -193,7 +193,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         <div className="p-6">
           <div className="flex items-center gap-6 mb-6 flex-wrap">
             <span className="text-sm text-gray-600">
-              Fame Rating: {toDisplayNumber(profile.fameRating, '0')}/100
+              Fame Rating: {formatFameRating(profile.fameRating)}
             </span>
             {profile.location && (
               <span className="text-sm text-blue-600 flex items-center gap-1">

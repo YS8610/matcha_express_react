@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
-import { toDisplayNumber, getLastSeenString } from '@/lib/neo4j-utils';
+import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
@@ -55,7 +55,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-green-700 flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            {toDisplayNumber(profile.fameRating, '0')}/100
+            {formatFameRating(profile.fameRating)}
           </span>
           {profile.distance !== undefined && (
             <span className="text-sm text-blue-600 flex items-center gap-1">

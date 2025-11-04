@@ -25,9 +25,9 @@ export function toNumber(value: unknown): number | null {
   return null;
 }
 
-export function toDisplayNumber(value: unknown, fallback = 'N/A'): string {
+export function formatFameRating(value: unknown, fallback = '0'): string {
   const num = toNumber(value);
-  return num !== null ? String(num) : fallback;
+  return `${num !== null ? String(num) : fallback}/100`;
 }
 
 export function toGenderString(value: unknown): string {

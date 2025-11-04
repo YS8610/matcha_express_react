@@ -1,5 +1,3 @@
-import { setCookie, deleteCookie } from './cookies';
-
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 
 class ApiClient {
@@ -15,7 +13,6 @@ class ApiClient {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
-      setCookie('token', token, 7);
     }
   }
 
@@ -23,7 +20,6 @@ class ApiClient {
     this.token = null;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
-      deleteCookie('token');
     }
   }
 
