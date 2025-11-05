@@ -13,6 +13,7 @@ class ApiClient {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
+      document.cookie = `token=${token};path=/;max-age=${7 * 24 * 60 * 60};SameSite=Lax`;
     }
   }
 
@@ -20,6 +21,7 @@ class ApiClient {
     this.token = null;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
+      document.cookie = `token=;path=/;max-age=0`;
     }
   }
 

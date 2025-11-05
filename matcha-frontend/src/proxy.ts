@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const publicPaths = ['/', '/login', '/register', '/activate', '/reset-password', '/admin/seed-profiles'];
+const publicPaths = ['/', '/login', '/register', '/activate', '/reset-password'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get('token');
   const pathname = request.nextUrl.pathname;
 

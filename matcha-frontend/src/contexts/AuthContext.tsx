@@ -62,6 +62,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
+          if (typeof document !== 'undefined') {
+            document.cookie = `token=${token};path=/;max-age=${7 * 24 * 60 * 60};SameSite=Lax`;
+          }
+
           setUser({
             id: payload.username || 'user',
             username: payload.username || 'user',
