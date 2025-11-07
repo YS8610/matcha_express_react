@@ -520,7 +520,16 @@ export default function ProfileSetup() {
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm">{error}</div>
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <p className="text-red-800 text-sm font-medium mb-2">{error}</p>
+              {Object.keys(fieldErrors).length > 0 && (
+                <ul className="list-disc list-inside text-red-700 text-xs space-y-1">
+                  {Object.entries(fieldErrors).map(([field, message]) => (
+                    <li key={field}>{message}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
 
           <div className="flex gap-2">

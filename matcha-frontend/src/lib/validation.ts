@@ -12,8 +12,8 @@ const TAG_REGEX = /^[a-zA-Z0-9\s-]{1,30}$/;
 
 const URL_REGEX = /^https?:\/\/.{1,2000}$/;
 
-const GENDER_REGEX = /^(male|female|non-binary)$/i;
-const SEXUALITY_REGEX = /^(straight|gay|lesbian|bisexual|asexual|other)$/i;
+const GENDER_REGEX = /^(male|female|other)$/i;
+const SEXUALITY_REGEX = /^(male|female|both)$/i;
 
 const COMMON_PASSWORDS = [
   'password', 'qwerty', 'admin', 'letmein', 'welcome',
