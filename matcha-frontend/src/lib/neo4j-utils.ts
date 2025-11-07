@@ -1,13 +1,4 @@
-interface Neo4jInteger {
-  low: number;
-  high: number;
-}
-
-export interface Neo4jDate {
-  year: Neo4jInteger | number;
-  month: Neo4jInteger | number;
-  day: Neo4jInteger | number;
-}
+import type { Neo4jInteger, Neo4jDate } from '@/types';
 
 export function toNumber(value: unknown): number | null {
   if (value === null || value === undefined) {

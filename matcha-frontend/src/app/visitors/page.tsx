@@ -4,16 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, Users } from 'lucide-react';
 import Image from 'next/image';
+import type { ProfileViewed } from '@/types';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface ProfileViewed {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  photo0: string;
-}
 
 export default function VisitorsPage() {
   const router = useRouter();

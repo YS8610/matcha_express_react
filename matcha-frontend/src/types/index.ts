@@ -109,3 +109,126 @@ export interface SearchFilters {
   sortBy?: 'age' | 'distance' | 'fame' | 'commonTags';
   order?: 'asc' | 'desc';
 }
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  password: string;
+  password2?: string;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  msg: string;
+}
+
+export interface ApiResponse<T = any> {
+  msg?: string;
+  message?: string;
+  data?: T;
+  errors?: Array<{ message: string }>;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  activateAccount: (token: string) => Promise<void>;
+  updateUser: (user: User) => void;
+}
+
+export type Theme = 'light' | 'dark';
+
+export interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
+}
+
+export interface WebSocketContextType {
+  socket: any | null;
+  isConnected: boolean;
+  notifications: Notification[];
+  onlineUsers: Record<string, boolean>;
+  chatMessages: Record<string, ChatMessage[]>;
+  checkOnlineStatus: (userIds: string[]) => void;
+  addNotification: (notification: Notification) => void;
+  markNotificationRead: (id: string) => void;
+  clearNotifications: () => void;
+  sendChatMessage: (toUserId: string, content: string) => void;
+  getChatHistory: (userId: string) => ChatMessage[];
+  clearChatHistory: (userId: string) => void;
+}
+
+export interface UseWebSocketOptions {
+  onNotification?: (notification: Notification) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  checkOnlineUsers?: string[];
+}
+
+export interface RateLimitRule {
+  maxRequests: number;
+  windowMs: number;
+  message?: string;
+}
+
+export interface RateLimitEntry {
+  timestamps: number[];
+  count: number;
+  firstRequestTime?: number;
+}
+
+export interface RateLimitStatus {
+  allowed: boolean;
+  remainingRequests: number;
+  retryAfterMs: number;
+  message?: string;
+}
+
+export interface Neo4jInteger {
+  low: number;
+  high: number;
+}
+
+export interface Neo4jDate {
+  year: Neo4jInteger | number;
+  month: Neo4jInteger | number;
+  day: Neo4jInteger | number;
+}
+
+export interface TokenPayload {
+  id: string;
+  email: string;
+  username: string;
+  activated: boolean;
+  latitude?: number;
+  longitude?: number;
+  birthDate?: string;
+  iat?: number;
+  exp?: number;
+  nbf?: number;
+}
+
+export interface TokenValidationResult {
+  valid: boolean;
+  reason?: string;
+}
+
+export interface ProfileViewed {
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  photo0: string;
+  viewedAt: number;
+}

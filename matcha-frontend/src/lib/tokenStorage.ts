@@ -1,3 +1,5 @@
+import type { TokenPayload, TokenValidationResult } from '@/types';
+
 const TOKEN_KEY = 'token';
 const TOKEN_EXPIRY_KEY = 'tokenExpiry';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -112,10 +114,7 @@ export function getTokenPayload(token?: string): Record<string, any> | null {
   return payload;
 }
 
-export function validateTokenStructure(token: string): {
-  valid: boolean;
-  reason?: string;
-} {
+export function validateTokenStructure(token: string): TokenValidationResult {
   if (!token) {
     return { valid: false, reason: 'Token is empty' };
   }

@@ -2,24 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { User } from '@/types';
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (data: {
-    username: string,
-    email: string,
-    firstName: string,
-    lastName: string,
-    birthDate: string,
-    password: string,
-    password2?: string}) => Promise<void>;
-  activateAccount: (token: string) => Promise<void>;
-  updateUser: (user: User) => void;
-}
+import type { User, AuthContextType, RegisterData, LoginRequest } from '@/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -94,7 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (username: string, password: string) => {
-    const response = await api.login(username, password);
+    const credentials: LoginRequest = { username, password };
+    const response = await api.login(credentials);
     if (response.msg) {
       const token = response.msg;
       const tokenParts = token.split('.');
@@ -137,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: {username: string, email: string, firstName: string, lastName: string, birthDate: string, password: string, password2?: string}) => {
+  const register = async (data: RegisterData) => {
     await api.register(data);
   };
 

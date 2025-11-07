@@ -1,14 +1,4 @@
-interface RateLimitRule {
-  maxRequests: number;
-  windowMs: number;
-  message?: string;
-}
-
-interface RateLimitEntry {
-  timestamps: number[];
-  count: number;
-  firstRequestTime?: number;
-}
+import type { RateLimitRule, RateLimitEntry, RateLimitStatus } from '@/types';
 
 const defaultRateLimits = new Map<string, RateLimitRule>([
   ['auth:login', { maxRequests: 5, windowMs: 60000, message: 'Too many login attempts, please wait 1 minute' }],
@@ -30,12 +20,7 @@ const rateLimitStore = new Map<string, RateLimitEntry>();
 export function checkRateLimit(
   endpoint: string,
   customRule?: RateLimitRule
-): {
-  allowed: boolean;
-  remainingRequests: number;
-  retryAfterMs: number;
-  message?: string;
-} {
+): RateLimitStatus {
   const now = Date.now();
   const rule = customRule || defaultRateLimits.get(endpoint) || defaultRateLimits.get('api:general')!;
 

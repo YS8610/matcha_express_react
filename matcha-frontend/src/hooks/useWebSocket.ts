@@ -2,13 +2,7 @@
 
 import { useEffect } from 'react';
 import { useWebSocket as useWSContext } from '@/contexts/WebSocketContext';
-
-interface UseWebSocketOptions {
-  onNotification?: (notification: unknown) => void;
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-  checkOnlineUsers?: string[];
-}
+import type { UseWebSocketOptions, Notification } from '@/types';
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
   const {

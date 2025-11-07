@@ -3,22 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { Notification, ChatMessage } from '@/types';
-
-interface WebSocketContextType {
-  socket: Socket | null;
-  isConnected: boolean;
-  notifications: Notification[];
-  onlineUsers: Record<string, boolean>;
-  chatMessages: Record<string, ChatMessage[]>;
-  checkOnlineStatus: (userIds: string[]) => void;
-  addNotification: (notification: Notification) => void;
-  markNotificationRead: (id: string) => void;
-  clearNotifications: () => void;
-  sendChatMessage: (toUserId: string, content: string) => void;
-  getChatHistory: (userId: string) => ChatMessage[];
-  clearChatHistory: (userId: string) => void;
-}
+import type { Notification, ChatMessage, WebSocketContextType } from '@/types';
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 

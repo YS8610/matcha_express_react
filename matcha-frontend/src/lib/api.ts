@@ -1,3 +1,5 @@
+import type { RegisterData, LoginRequest, LoginResponse, ApiResponse } from '@/types';
+
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 
 class ApiClient {
@@ -25,7 +27,7 @@ class ApiClient {
     }
   }
 
-  async request(endpoint: string, options: RequestInit = {}) {
+  async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
     const headers: HeadersInit = {
       ...(this.token && { Authorization: `Bearer ${this.token}` }),
@@ -66,10 +68,10 @@ class ApiClient {
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    return response.json() as Promise<ApiResponse<T>>;
   }
 
-  async register(data: {username: string, email: string, firstName: string, lastName: string, password: string, password2?: string, birthDate: string}) {
+  async register(data: RegisterData) {
     const requestData = {
       email: data.email,
       pw: data.password,
@@ -85,23 +87,23 @@ class ApiClient {
     });
   }
 
-  async login(username: string, password: string) {
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
     const response = await this.request('/pubapi/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(credentials),
     });
     if (response.msg) {
       this.setToken(response.msg);
     }
-    return response;
+    return response as LoginResponse;
   }
 
-  async activateAccount(token: string) {
+  async activateAccount(token: string): Promise<LoginResponse> {
     const response = await this.request(`/pubapi/activate/${token}`);
     if (response.msg) {
       this.setToken(response.msg);
     }
-    return response;
+    return response as LoginResponse;
   }
 
   async requestPasswordReset(email: string, username: string) {
