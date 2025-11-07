@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateLoginForm } from '@/lib/validation';
-import { checkRateLimit, getRateLimitStatus } from '@/lib/rateLimiter';
+import { checkRateLimit } from '@/lib/rateLimiter';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -83,8 +83,7 @@ export default function LoginForm() {
 
     const loginRateLimit = checkRateLimit('api:login');
     if (!loginRateLimit.allowed) {
-      const status = getRateLimitStatus('api:login');
-      const waitTime = status ? Math.ceil(status.resetIn / 1000) : 60;
+      const waitTime = Math.ceil(loginRateLimit.retryAfterMs / 1000);
       setRateLimitWarning(
         `Too many login attempts. Please try again in ${waitTime} seconds.`
       );

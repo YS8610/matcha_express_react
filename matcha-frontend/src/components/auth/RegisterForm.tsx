@@ -15,7 +15,7 @@ import {
   validateConfirmPassword,
   validateRegisterForm,
 } from '@/lib/validation';
-import { checkRateLimit, getRateLimitStatus } from '@/lib/rateLimiter';
+import { checkRateLimit } from '@/lib/rateLimiter';
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -114,8 +114,7 @@ export default function RegisterForm() {
 
     const registerRateLimit = checkRateLimit('api:register');
     if (!registerRateLimit.allowed) {
-      const status = getRateLimitStatus('api:register');
-      const waitTime = status ? Math.ceil(status.resetIn / 1000) : 300;
+      const waitTime = Math.ceil(registerRateLimit.retryAfterMs / 1000);
       setRateLimitWarning(
         `Too many registration attempts from this email. Please try again in ${waitTime} seconds.`
       );

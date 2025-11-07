@@ -63,30 +63,6 @@ export function resetAllRateLimits(): void {
   rateLimitStore.clear();
 }
 
-export function getRateLimitStatus(endpoint: string): {
-  remaining: number;
-  limit: number;
-  resetIn: number;
-} | null {
-  const entry = rateLimitStore.get(endpoint);
-  if (!entry) return null;
-
-  const rule = defaultRateLimits.get(endpoint);
-  if (!rule) return null;
-
-  const now = Date.now();
-  const validTimestamps = entry.timestamps.filter((ts) => now - ts < rule.windowMs);
-
-  const oldestRequest = validTimestamps[0];
-  const resetIn = oldestRequest ? Math.max(0, rule.windowMs - (now - oldestRequest)) : 0;
-
-  return {
-    remaining: Math.max(0, rule.maxRequests - validTimestamps.length),
-    limit: rule.maxRequests,
-    resetIn,
-  };
-}
-
 export async function waitForRateLimit(endpoint: string): Promise<void> {
   return new Promise((resolve) => {
     const checkLimit = () => {
@@ -125,16 +101,6 @@ export function getAllRateLimitRules(): Map<string, RateLimitRule> {
   return new Map(defaultRateLimits);
 }
 
-export function isSuspiciousBehavior(endpoint: string): boolean {
-  const entry = rateLimitStore.get(endpoint);
-  if (!entry) return false;
-
-  const rule = defaultRateLimits.get(endpoint);
-  if (!rule) return false;
-
-  return entry.timestamps.length >= rule.maxRequests * 0.9;
-}
-
 export function getRateLimitedEndpoints(): string[] {
   const now = Date.now();
   const limited = Array.from(rateLimitStore.entries())
@@ -150,10 +116,10 @@ export function getRateLimitedEndpoints(): string[] {
 }
 
 export function debugRateLimits(): void {
-  console.group('Rate Limit Status');
+  console.group('Rate Limit Rules');
   defaultRateLimits.forEach((rule, endpoint) => {
-    const status = getRateLimitStatus(endpoint);
-    console.log(`${endpoint}:`, status || 'No requests yet', `- Rule: ${rule.maxRequests}/${rule.windowMs}ms`);
+    const status = checkRateLimit(endpoint);
+    console.log(`${endpoint}:`, `Allowed: ${status.allowed}, Remaining: ${status.remainingRequests}/${rule.maxRequests}, RetryAfter: ${status.retryAfterMs}ms`);
   });
   console.groupEnd();
 }
