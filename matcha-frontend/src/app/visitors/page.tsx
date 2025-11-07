@@ -51,11 +51,11 @@ export default function VisitorsPage() {
   const ProfileCard = ({ profile }: { profile: ProfileViewed }) => {
     const photoUrl = profile.photo0
       ? api.getPhoto(profile.photo0)
-      : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
+      : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId);
 
     return (
       <div
-        onClick={() => handleProfileClick(profile.id)}
+        onClick={() => handleProfileClick(profile.userId)}
         className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       >
         <div className="relative h-48">
@@ -167,7 +167,7 @@ export default function VisitorsPage() {
                 {viewedMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedMe.map((profile) => (
-                      <ProfileCard key={profile.id} profile={profile} />
+                      <ProfileCard key={profile.userId} profile={profile} />
                     ))}
                   </div>
                 ) : (
@@ -181,7 +181,7 @@ export default function VisitorsPage() {
                 {viewedByMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedByMe.map((profile) => (
-                      <ProfileCard key={profile.id} profile={profile} />
+                      <ProfileCard key={profile.userId} profile={profile} />
                     ))}
                   </div>
                 ) : (

@@ -6,6 +6,14 @@ import Image from 'next/image';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import imageCompression from 'browser-image-compression';
+import {
+  validateGender,
+  validateSexuality,
+  validateBiography,
+  validateTag,
+  validateCoordinates,
+  validateFile,
+} from '@/lib/validation';
 
 export default function ProfileSetup() {
   const [step, setStep] = useState(1);
@@ -24,8 +32,35 @@ export default function ProfileSetup() {
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [isAutoDetectedLocation, setIsAutoDetectedLocation] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const { user } = useAuth();
+
+  const validateFormField = (fieldName: string, value: any): string | null => {
+    switch (fieldName) {
+      case 'gender':
+        return validateGender(value);
+      case 'sexualPreference':
+        return validateSexuality(value);
+      case 'biography':
+        return validateBiography(value);
+      case 'interests':
+        return validateTag(value);
+      case 'coordinates':
+        if (formData.latitude !== null && formData.longitude !== null) {
+          return validateCoordinates(formData.latitude, formData.longitude);
+        }
+        return null;
+      case 'photos':
+        if (value && value.length > 0) {
+          const firstPhoto = value[0];
+          return validateFile(firstPhoto);
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     if (user?.latitude !== undefined && user?.longitude !== undefined && formData.latitude === null && formData.longitude === null) {
@@ -74,9 +109,21 @@ export default function ProfileSetup() {
 
   const handleAddInterest = () => {
     if (interestInput && !formData.interests.includes(interestInput)) {
+      const tagError = validateTag(interestInput);
+      if (tagError) {
+        setFieldErrors(prev => ({
+          ...prev,
+          interests: tagError,
+        }));
+        return;
+      }
       setFormData({
         ...formData,
         interests: [...formData.interests, interestInput.toLowerCase()],
+      });
+      setFieldErrors(prev => {
+        const { interests, ...rest } = prev;
+        return rest;
       });
       setInterestInput('');
     }
@@ -92,16 +139,59 @@ export default function ProfileSetup() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files).slice(0, 5);
+
+      let fileError: string | null = null;
+      for (const file of files) {
+        fileError = validateFile(file);
+        if (fileError) break;
+      }
+
+      if (fileError) {
+        setFieldErrors(prev => ({
+          ...prev,
+          photos: fileError,
+        }));
+        return;
+      }
+
       setFormData({
         ...formData,
         photos: files,
+      });
+      setFieldErrors(prev => {
+        const { photos, ...rest } = prev;
+        return rest;
       });
     }
   };
 
   const handleSubmit = async () => {
     setError('');
+    setFieldErrors({});
     setLoading(true);
+
+    const genderError = validateGender(formData.gender);
+    const sexualityError = validateSexuality(formData.sexualPreference);
+    const biographyError = validateBiography(formData.biography);
+    const coordinatesError =
+      formData.latitude !== null && formData.longitude !== null
+        ? validateCoordinates(formData.latitude, formData.longitude)
+        : null;
+
+    const newErrors: Record<string, string> = {};
+    if (genderError) newErrors.gender = genderError;
+    if (sexualityError) newErrors.sexualPreference = sexualityError;
+    if (biographyError) newErrors.biography = biographyError;
+    if (coordinatesError) newErrors.coordinates = coordinatesError;
+    if (formData.interests.length === 0) newErrors.interests = 'Add at least one interest';
+    if (formData.photos.length === 0) newErrors.photos = 'Upload at least one photo';
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      setLoading(false);
+      setError('Please fix the errors below');
+      return;
+    }
 
     try {
       const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
@@ -183,6 +273,9 @@ export default function ProfileSetup() {
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
+            {fieldErrors.gender && (
+              <p className="text-xs text-red-500 mt-1">{fieldErrors.gender}</p>
+            )}
           </div>
 
           <div>
@@ -197,6 +290,9 @@ export default function ProfileSetup() {
               <option value="female">Female</option>
               <option value="both">Both</option>
             </select>
+            {fieldErrors.sexualPreference && (
+              <p className="text-xs text-red-500 mt-1">{fieldErrors.sexualPreference}</p>
+            )}
           </div>
 
           <div>
@@ -279,9 +375,14 @@ export default function ProfileSetup() {
               className="w-full px-3 py-2 border rounded-md"
               placeholder="Tell us about yourself..."
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {formData.biography.length}/500 characters
-            </p>
+            <div className="flex justify-between items-start mt-1">
+              <p className="text-xs text-gray-500">
+                {formData.biography.length}/500 characters
+              </p>
+              {fieldErrors.biography && (
+                <p className="text-xs text-red-500">{fieldErrors.biography}</p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -303,6 +404,9 @@ export default function ProfileSetup() {
                 Add
               </button>
             </div>
+            {fieldErrors.interests && (
+              <p className="text-xs text-red-500 mb-2">{fieldErrors.interests}</p>
+            )}
             <div className="flex flex-wrap gap-2">
               {formData.interests.map(interest => (
                 <span
@@ -375,6 +479,9 @@ export default function ProfileSetup() {
                 Choose Photos
               </label>
             </div>
+            {fieldErrors.photos && (
+              <p className="text-xs text-red-500 mt-2">{fieldErrors.photos}</p>
+            )}
 
             {formData.photos.length > 0 && (
               <div className="mt-4">

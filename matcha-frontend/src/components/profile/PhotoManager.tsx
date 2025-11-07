@@ -25,7 +25,8 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
     try {
       setLoading(true);
       const response = await api.getUserPhotos();
-      setPhotos(response.photoNames || []);
+      const photoData = response.data as { photoNames?: string[] } | null;
+      setPhotos(photoData?.photoNames || []);
     } catch (err) {
       setError((err as Error).message || 'Failed to load photos');
     } finally {

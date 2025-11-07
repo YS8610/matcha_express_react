@@ -37,8 +37,8 @@ export default function ChatPage() {
     try {
       setLoading(true);
       setError('');
-      const response = await api.request(`/api/profile/short/${chatUserId}`);
-      setProfile(response);
+      const response = await api.request<ProfileShort>(`/api/profile/short/${chatUserId}`);
+      setProfile(response.data || null);
     } catch (err) {
       setError((err as Error).message || 'Failed to load profile');
     } finally {

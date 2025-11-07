@@ -15,6 +15,7 @@ import {
   validateConfirmPassword,
   validateRegisterForm,
 } from '@/lib/validation';
+import { checkRateLimit, getRateLimitStatus } from '@/lib/rateLimiter';
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -31,6 +32,7 @@ export default function RegisterForm() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rateLimitWarning, setRateLimitWarning] = useState('');
   const { register } = useAuth();
   const router = useRouter();
 
@@ -100,6 +102,7 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setRateLimitWarning('');
 
     const errors = validateRegisterForm(formData);
 
@@ -107,6 +110,22 @@ export default function RegisterForm() {
       setFieldErrors(errors);
       setError('Please fix the errors below');
       return;
+    }
+
+    const registerRateLimit = checkRateLimit('api:register');
+    if (!registerRateLimit.allowed) {
+      const status = getRateLimitStatus('api:register');
+      const waitTime = status ? Math.ceil(status.resetIn / 1000) : 300;
+      setRateLimitWarning(
+        `Too many registration attempts from this email. Please try again in ${waitTime} seconds.`
+      );
+      return;
+    }
+
+    if (registerRateLimit.remainingRequests <= 1) {
+      setRateLimitWarning(
+        `⚠️ Only ${registerRateLimit.remainingRequests} registration attempt remaining. Please verify your information carefully.`
+      );
     }
 
     setLoading(true);
@@ -383,6 +402,23 @@ export default function RegisterForm() {
           <p className="text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             {error}
+          </p>
+        </div>
+      )}
+
+      {rateLimitWarning && (
+        <div className={`p-3 border rounded-md ${
+          rateLimitWarning.includes('Too many')
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+            : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+        }`}>
+          <p className={`text-sm flex items-center gap-2 ${
+            rateLimitWarning.includes('Too many')
+              ? 'text-red-700 dark:text-red-300'
+              : 'text-yellow-700 dark:text-yellow-300'
+          }`}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            {rateLimitWarning}
           </p>
         </div>
       )}

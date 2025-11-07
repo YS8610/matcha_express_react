@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
+import { stripAndEncode, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -28,6 +29,27 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const { user } = useAuth();
   const router = useRouter();
 
+  const displayName = useMemo(
+    () => {
+      const name = stripAndEncode(profile?.firstName || profile?.username || 'User');
+      return name.length > 50 ? name.substring(0, 47) + '...' : name;
+    },
+    [profile?.firstName, profile?.username]
+  );
+
+  const displayUsername = useMemo(
+    () => {
+      const username = stripAndEncode(profile?.username || 'user');
+      return username.length > 30 ? username.substring(0, 27) + '...' : username;
+    },
+    [profile?.username]
+  );
+
+  const displayBiography = useMemo(
+    () => sanitizeInput(profile?.biography || 'No biography available.'),
+    [profile?.biography]
+  );
+
   const loadProfile = useCallback(async () => {
     if (!userId) {
       console.error('No userId provided');
@@ -36,10 +58,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     try {
-      const data = user && user.id === userId
+      const response = user && user.id === userId
         ? await api.getProfile()
         : await api.getUserFullProfile(userId);
-      setProfile(data);
+      setProfile(response.data || null);
 
       if (user && user.id !== userId) {
         try {
@@ -90,8 +112,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     try {
-      const currentUserProfile = await api.getProfile();
-      if (!currentUserProfile.photo0) {
+      const response = await api.getProfile();
+      const currentUserProfile = response.data;
+      if (!currentUserProfile?.photo0) {
         setLikeError('You must add a profile picture before you can like someone');
         return;
       }
@@ -182,10 +205,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
             <h1 className="text-3xl font-bold text-white">
-              {profile.firstName || profile.username || 'User'}
+              {displayName}
             </h1>
             <p className="text-white/90">
-              @{profile.username}
+              @{displayUsername}
             </p>
           </div>
         </div>
@@ -223,7 +246,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">About</h2>
-            <p className="text-gray-700">{profile.biography || 'No biography available.'}</p>
+            <p className="text-gray-700">{displayBiography}</p>
           </div>
 
           {user && user.id !== userId && (
@@ -284,7 +307,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
             <form onSubmit={handleReport} className="p-6">
               <p className="text-sm text-gray-600 mb-4">
-                Please tell us why you&apos;re reporting @{profile.username}. This helps us maintain a safe community.
+                Please tell us why you&apos;re reporting @{displayUsername}. This helps us maintain a safe community.
               </p>
 
               {reportError && (

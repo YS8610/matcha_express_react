@@ -40,7 +40,7 @@ export default function NotificationCenter() {
     try {
       setLoading(true);
       const response = await api.getNotifications(20, 0);
-      setApiNotifications(response || []);
+      setApiNotifications(response.data || []);
     } catch (error) {
       console.error('Failed to load notifications:', error);
     } finally {

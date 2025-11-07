@@ -1,11 +1,13 @@
 'use client';
 
+import { useMemo } from 'react';
 import { ProfileShort } from '@/types';
 import { Star } from 'lucide-react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
+import { stripAndEncode } from '@/lib/security';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
@@ -13,7 +15,22 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const profileId = profile.id;
-  const displayName = profile.firstName || profile.username || `User ${profileId}`;
+
+  const displayName = useMemo(
+    () => {
+      const name = stripAndEncode(profile.firstName || profile.username || `User ${profileId}`);
+      return name.length > 30 ? name.substring(0, 27) + '...' : name;
+    },
+    [profile.firstName, profile.username, profileId]
+  );
+
+  const displayUsername = useMemo(
+    () => {
+      const username = stripAndEncode(profile.username || 'user');
+      return username.length > 25 ? username.substring(0, 22) + '...' : username;
+    },
+    [profile.username]
+  );
 
   const isOnline = profile.lastOnline ? (Date.now() - profile.lastOnline) < 5 * 60 * 1000 : false;
 
@@ -41,7 +58,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             {displayName}
           </h3>
           <p className="text-white/80 text-sm">
-            @{profile.username}
+            @{displayUsername}
           </p>
           {profile.lastOnline && (
             <p className="text-white/70 text-xs mt-1">

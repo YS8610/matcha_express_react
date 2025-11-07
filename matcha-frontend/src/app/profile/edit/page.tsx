@@ -35,7 +35,13 @@ export default function EditProfilePage() {
 
     const loadProfile = async () => {
       try {
-        const data = await api.getProfile();
+        const response = await api.getProfile();
+        const data = response.data;
+
+        if (!data) {
+          setError('Failed to load profile data');
+          return;
+        }
 
         const genderReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 0: 'other', '-1': '' };
         const sexualPreferenceReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 3: 'both', '-1': '' };

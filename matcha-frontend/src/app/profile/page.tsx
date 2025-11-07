@@ -26,8 +26,8 @@ export default function MyProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const data = await api.getProfile();
-      setProfile(data);
+      const response = await api.getProfile();
+      setProfile(response.data || null);
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
