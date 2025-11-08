@@ -5,6 +5,7 @@ import { serverErrorWrapper } from "../../util/wrapper.js";
 import { getBlockedRel } from "../../service/blockSvc.js";
 import { getShortProfileById, getShortProfilebyIdFiltered, getUserProfileById } from "../../service/userSvc.js";
 import { getNearbyUsers, getUserLocation } from "../../service/locationSvc.js";
+import { isLiked, isLikedBack, isMatch } from "../../service/likeSvc.js";
 
 let router = express.Router();
 
@@ -91,6 +92,15 @@ router.get("/short/:userId", async (req: Request<{ userId: string }>, res: Respo
       logging: false,
       context: { id: "not_found" }
     }));
+  const matched = await serverErrorWrapper(() => isMatch(id, userId), "Error checking match status");
+  const liked = await serverErrorWrapper(() => isLiked(id, userId), "Error checking liked status");
+  const likedBack = await serverErrorWrapper(() => isLikedBack(userId, id), "Error checking liked back status");
+  profile.connectionStatus = {
+    userid: userId,
+    matched,
+    liked,
+    likedBack
+  };
   res.status(200).json(profile);
 });
 
@@ -121,6 +131,15 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<Pr
       logging: false,
       context: { id: "not_found" }
     }));
+  const matched = await serverErrorWrapper(() => isMatch(id, userId), "Error checking match status");
+  const liked = await serverErrorWrapper(() => isLiked(id, userId), "Error checking liked status");
+  const likedBack = await serverErrorWrapper(() => isLikedBack(userId, id), "Error checking liked back status");
+  profile.connectionStatus = {
+    userid: userId,
+    matched,
+    liked,
+    likedBack
+  };
   res.status(200).json(profile);
 });
 

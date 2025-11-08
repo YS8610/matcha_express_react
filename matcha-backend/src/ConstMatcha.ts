@@ -337,6 +337,11 @@ export default class ConstMatcha {
     RETURN count(r) > 0 as isLiked
   `;
 
+  static readonly NEO4j_STMT_CHECK_USER_LIKED_BACK = `
+    MATCH (:PROFILE { id: $otherUserId })-[r:LIKED]->(:PROFILE { id: $userId })
+    RETURN count(r) > 0 as isLikedBack
+  `;
+
   static readonly NEO4j_STMT_IS_MATCHED = `
     MATCH (u:PROFILE { id: $userId })-[r:LIKED]-(v:PROFILE {id : $otherUserId})
     RETURN count(r) as matchCount

@@ -14,8 +14,8 @@ export interface ProfileRegJson extends Profile {
   sexualPreference?: string;
 };
 
-export interface ProfileDb extends Profile{
-  id:string;
+export interface ProfileDb extends Profile {
+  id: string;
   birthDate: string;
   biography?: string;
   gender?: number;
@@ -53,7 +53,7 @@ export interface DateTypeNeo4j {
 }
 
 export interface ProfileGetJson {
-  id:string;
+  id: string;
   firstName: string;
   lastName: string;
   username: string;
@@ -69,17 +69,23 @@ export interface ProfileGetJson {
   photo3: string;
   photo4: string;
   lastOnline: number;
+  connectionStatus?: {
+    userid: string;
+    matched: boolean;
+    liked: boolean;
+    likedBack: boolean;
+  }
 }
 
-export interface Reslocal{
-  authenticated:boolean;
-  username:string;
-  id:string;
-  activated:boolean;
+export interface Reslocal {
+  authenticated: boolean;
+  username: string;
+  id: string;
+  activated: boolean;
 }
 
-export interface ProfileShort{
-  id :string;
+export interface ProfileShort {
+  id: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -90,4 +96,10 @@ export interface ProfileShort{
   userTags?: string[];
   latitude?: number;
   longitude?: number;
+  connectionStatus?: {
+    userid: string;
+    matched: boolean;
+    liked: boolean;
+    likedBack: boolean;
+  }
 }

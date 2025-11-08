@@ -41,6 +41,13 @@ export const isLiked = async (userId: string, otherUserId: string): Promise<bool
   return result.records[0].get("isLiked");
 };
 
+export const isLikedBack = async (userId: string, otherUserId: string): Promise<boolean> => {
+  const session = driver.session();
+  const result = await session.run<{ isLikedBack: boolean }>(ConstMatcha.NEO4j_STMT_CHECK_USER_LIKED_BACK, { userId, otherUserId });
+  session.close();
+  return result.records[0].get("isLikedBack");
+};
+
 // check if user with userId and otherUserId have liked each other
 export const isMatch = async (userId: string, otherUserId: string): Promise<boolean> => {
   const session = driver.session();
