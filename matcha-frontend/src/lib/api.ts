@@ -59,6 +59,14 @@ class ApiClient {
         requestBody: options.body
       });
 
+      if (response.status === 401) {
+        this.clearToken();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('unauthorized'));
+          window.location.href = '/login';
+        }
+      }
+
       if (errorData.errors && errorData.errors[0]) {
         throw new Error(errorData.errors[0].message || `HTTP error! status: ${response.status}`);
       }

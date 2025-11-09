@@ -84,6 +84,26 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </span>
           )}
         </div>
+
+        {profile.connectionStatus && (
+          <div className="flex flex-wrap gap-2">
+            {profile.connectionStatus.matched && (
+              <span className="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                ❤️ Matched
+              </span>
+            )}
+            {profile.connectionStatus.likedBack && !profile.connectionStatus.matched && (
+              <span className="inline-block bg-pink-100 text-pink-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                💗 Liked you
+              </span>
+            )}
+            {profile.connectionStatus.liked && !profile.connectionStatus.matched && !profile.connectionStatus.likedBack && (
+              <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                👍 Liked
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   );

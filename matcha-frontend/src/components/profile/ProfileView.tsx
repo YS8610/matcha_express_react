@@ -70,20 +70,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
           console.error('Failed to record profile view:', viewError);
         }
 
-        try {
-          const likedByMe = await api.getUsersWhoLikedMe().catch(() => ({ data: [] }));
-          const profileLikedMe = likedByMe.data && Array.isArray(likedByMe.data)
-            ? likedByMe.data.some((p: Profile) => p.id === userId)
-            : false;
-          setHasProfileLikedUser(profileLikedMe);
-
-          const matched = await api.getMatchedUsers().catch(() => ({ data: [] }));
-          const isUserMatched = matched.data && Array.isArray(matched.data)
-            ? matched.data.some((p: Profile) => p.id === userId)
-            : false;
-          setIsConnected(isUserMatched);
-        } catch (error) {
-          console.error('Failed to fetch like status:', error);
+        if (response.data?.connectionStatus) {
+          setHasProfileLikedUser(response.data.connectionStatus.likedBack);
+          setIsConnected(response.data.connectionStatus.matched);
         }
       }
     } catch (error) {

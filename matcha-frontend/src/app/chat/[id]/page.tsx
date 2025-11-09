@@ -187,11 +187,15 @@ export default function ChatPage() {
                   {isOnline ? 'Online' : 'Offline'}
                 </div>
               </div>
-              {!isConnected && (
+              {profile?.connectionStatus?.matched ? (
+                <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                  ❤️ Matched
+                </div>
+              ) : !isConnected ? (
                 <div className="text-sm text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full">
                   Connecting...
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

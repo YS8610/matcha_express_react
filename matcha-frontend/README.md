@@ -6,8 +6,8 @@ Need time for manual test, below are just guidelines.
 
   - User registration form (email, username, last name, first name, password)
   - Password validation (reject common English words)
-  - Email verification link sent after registration (no email for now)
-  - Email verification link functionality (no email for now)
+  - Email verification link sent after registration
+  - Email verification link functionality
   - Login with username and password
   - Password reset email request
   - Logout button (accessible from any page)

@@ -32,6 +32,14 @@ export interface Profile {
   photo4: string;
   location?: Location;
   lastOnline: number;
+  connectionStatus?: ConnectionStatus;
+}
+
+export interface ConnectionStatus {
+  userid: string;
+  matched: boolean;
+  liked: boolean;
+  likedBack: boolean;
 }
 
 export interface ProfileShort {
@@ -47,6 +55,7 @@ export interface ProfileShort {
   userTags?: string[];
   latitude?: number;
   longitude?: number;
+  connectionStatus?: ConnectionStatus;
 }
 
 export interface Photo {
