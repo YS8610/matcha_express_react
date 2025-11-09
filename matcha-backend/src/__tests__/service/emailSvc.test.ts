@@ -1,5 +1,4 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import ConstMatcha from "../../ConstMatcha.js";
 import {sendMail as sendEmail} from "../../service/emailSvc.js";
 
 describe("Testing emailSvc", () => {

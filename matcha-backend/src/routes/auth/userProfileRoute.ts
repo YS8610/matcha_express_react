@@ -51,12 +51,7 @@ router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<ResMs
       context: { birthDate: "invalid" }
     }));
   }
-  try {
-    await setUserProfileById(id, { firstName, lastName, email, gender, sexualPreference, biography, birthDate });
-  } catch (error) {
-    res.status(500).json({ msg: "Error updating profile" });
-    return;
-  }
+  await serverErrorWrapper(() => setUserProfileById(id, { firstName, lastName, email, gender, sexualPreference, biography, birthDate }), "Error updating profile");
   res.status(200).json({ msg: "profile updated" });
 });
 
