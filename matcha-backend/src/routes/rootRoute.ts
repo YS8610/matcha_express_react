@@ -11,11 +11,12 @@ import { v4 as uuidv4 } from "uuid";
 import upload from "../middleware/uploadMulter.js";
 import { ResMsg } from "../model/Response.js";
 import { getAproximateUserLocation, updateUserLocation } from "../service/locationSvc.js";
+import { sendMail } from "../service/emailSvc.js";
 
 let router = express.Router();
 
 // testing fileupload. will be removed later
-router.post("/ping", upload.single("photo"), async (req: Request<{},{},{ }>, res: Response, next: NextFunction) => {
+router.post("/ping", upload.single("photo"), async (req: Request<{}, {}, {}>, res: Response, next: NextFunction) => {
   console.log("In rootRoute POST /ping");
   console.log("File received:", req.file);
   const photoUrl = req.file?.path;
@@ -38,11 +39,11 @@ router.get("/photo/:name", async (req: Request<{ name: string }>, res: Response,
   res.sendFile(`/${ConstMatcha.PHOTO_DUMP_DIR}/` + name, { root: '.' }, (err) => {
     if (err) {
       console.error("Error sending file:", err);
-      next( new BadRequestError({
+      next(new BadRequestError({
         message: "file not found",
         logging: false,
         code: 404,
-        context: { msg : "The requested file does not exist." },
+        context: { msg: "The requested file does not exist." },
       }));
     }
   });
@@ -137,11 +138,11 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
       message: "Password does not meet complexity requirements",
       logging: false,
       context: {
-        "min 8 char": (bitPWValid & 1) > 0? "missing" : "present",
-        "upper case": (bitPWValid & 2) > 0? "missing" : "present",
-        "lower case": (bitPWValid & 4) > 0? "missing" : "present",
-        "number": (bitPWValid & 8) > 0? "missing" : "present",
-        "special char": (bitPWValid & 16) > 0? "missing" : "present"
+        "min 8 char": (bitPWValid & 1) > 0 ? "missing" : "present",
+        "upper case": (bitPWValid & 2) > 0 ? "missing" : "present",
+        "lower case": (bitPWValid & 4) > 0 ? "missing" : "present",
+        "number": (bitPWValid & 8) > 0 ? "missing" : "present",
+        "special char": (bitPWValid & 16) > 0 ? "missing" : "present"
       }
     }));
   if (!isValidDateStr(birthDate))
@@ -171,7 +172,14 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
   await serverErrorWrapper(() => createUser(id, email, hashedpw, firstName, lastName, username, birthDate, Date.now()), "Failed to create user");
   const token = await createToken(id, email, username, false);
   console.log("this is activation link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`);
-  // todo: send email verification link with jwt token
+  await serverErrorWrapper(() => {
+    sendMail(
+      ConstMatcha.MAIL_FROM,
+      email,
+      ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
+      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/activate/${token}`
+    );
+  }, "Failed to send activation email");
   res.status(201).json({ msg: "registered and activation email sent to " + email });
 });
 
@@ -237,7 +245,14 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
   const hashedpw = await serverErrorWrapper(() => getHashedPwByUsername(username), "Failed to get hashed password");
   const pwResetToken = await createPWResetToken(userId, email, username, hashedpw);
   console.log("this is email reset link " + `http://localhost:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`);
-  // todo: send email with reset link and user id
+  await serverErrorWrapper(() =>
+    sendMail(
+      ConstMatcha.MAIL_FROM,
+      email,
+      ConstMatcha.EMAIL_PASSWORD_RESET_SUBJECT,
+      `Please click the following link to reset your password: ${ConstMatcha.DOMAIN_NAME}:${process.env.PORT || ConstMatcha.DEFAULT_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`
+    ), "Failed to send password reset email"
+  );
   res.status(200).json({ msg: "Password reset email sent" });
 });
 
@@ -280,11 +295,11 @@ router.post("/reset-password/:userId/:token", async (req: Request<{ userId: stri
       message: "New password does not meet complexity requirements",
       logging: false,
       context: {
-        "min 8 char": (bitPWValid & 1) > 0? "missing" : "present",
-        "upper case": (bitPWValid & 2) > 0? "missing" : "present",
-        "lower case": (bitPWValid & 4) > 0? "missing" : "present",
-        "number": (bitPWValid & 8) > 0? "missing" : "present",
-        "special char": (bitPWValid & 16) > 0? "missing" : "present"
+        "min 8 char": (bitPWValid & 1) > 0 ? "missing" : "present",
+        "upper case": (bitPWValid & 2) > 0 ? "missing" : "present",
+        "lower case": (bitPWValid & 4) > 0 ? "missing" : "present",
+        "number": (bitPWValid & 8) > 0 ? "missing" : "present",
+        "special char": (bitPWValid & 16) > 0 ? "missing" : "present"
       }
     }));
   const hashedpw = await serverErrorWrapper(() => getHashedPwById(userId), "Failed to get hashed password");

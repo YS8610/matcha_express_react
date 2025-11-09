@@ -37,6 +37,12 @@ export default class ConstMatcha {
   static readonly JWT_SECRET = process.env.JWT_SECRET || "jwtsecret";
   static readonly JWT_EXPIRY = "20d";
 
+  // constants for mail
+  static readonly MAIL_FROM = process.env.MAIL_USERNAME || "no_reply@matcha.com";
+  static readonly DOMAIN_NAME = process.env.DOMAIN_NAME || "http://localhost";
+  static readonly EMAIL_VERIFICATION_SUBJECT = "Matcha Account Activation";
+  static readonly EMAIL_PASSWORD_RESET_SUBJECT = "Matcha Password Reset";
+
   // default value for redis
   static readonly REDIS_DEFAULT_HOST = 'redis://localhost:6379';
 
