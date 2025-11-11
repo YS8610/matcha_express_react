@@ -36,7 +36,7 @@ router.get("/", async (req: Request<{}, {}, {}, { minAge: string, maxAge: string
       parsedMaxAge,
       parsedMinFameRating,
       parsedMaxFameRating,
-      profile.sexualPreference.low,
+      profile.sexualPreference.low ?? profile.sexualPreference,
       parsedSkip,
       parsedLimit
     ), "Error getting user profiles");

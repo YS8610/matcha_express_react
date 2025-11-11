@@ -5,19 +5,19 @@ import redisClient from "../repo/redisRepo.js";
 export const serverErrorWrapper = async <T>(fn: () => T, errorMsg: string, log: boolean = true, code: number = 500): Promise<T> => {
   try {
     return await fn();
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof CustomError)
       throw error;
     throw new ServerRequestError({
       code,
       message: errorMsg,
       logging: log,
-      context: { error }
+      context: { error, errorMsg: (error as Error)?.message, errorstack: (error as Error)?.stack }
     });
   }
 };
 
-export const catchErrorWrapper = async <T>(promise : Promise<T>): Promise<[undefined, T] | [Error]> => {
+export const catchErrorWrapper = async <T>(promise: Promise<T>): Promise<[undefined, T] | [Error]> => {
   try {
     const result = await promise;
     return [undefined, result] as [undefined, T];
@@ -26,12 +26,12 @@ export const catchErrorWrapper = async <T>(promise : Promise<T>): Promise<[undef
   }
 };
 
-export const catchTypedErrorWrapper = async <T, E extends new (message?:string) => Error>(promise: Promise<T>, ErrorTypetoCatch?: E[]): Promise<[undefined, T] | [InstanceType<E>]> => {
+export const catchTypedErrorWrapper = async <T, E extends new (message?: string) => Error>(promise: Promise<T>, ErrorTypetoCatch?: E[]): Promise<[undefined, T] | [InstanceType<E>]> => {
   try {
     const result = await promise;
     return [undefined, result] as [undefined, T];
   } catch (error) {
-    if (!ErrorTypetoCatch || ErrorTypetoCatch.length === 0) 
+    if (!ErrorTypetoCatch || ErrorTypetoCatch.length === 0)
       return [error as InstanceType<E>];
     if (ErrorTypetoCatch.some((ErrorType) => error instanceof ErrorType))
       return [error as InstanceType<E>];
@@ -46,8 +46,8 @@ export const cacheFunc = <T>(key: string, fn: (input: string) => Promise<T>, exp
       if (cached)
         return resolve(JSON.parse(cached));
       const result = await fn(key);
-      await redisClient.set(key, JSON.stringify(result),{ 
-        expiration:{ type :"EX", value: expirySeconds}
+      await redisClient.set(key, JSON.stringify(result), {
+        expiration: { type: "EX", value: expirySeconds }
       });
       resolve(result);
     } catch (error) {

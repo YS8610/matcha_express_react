@@ -40,6 +40,7 @@ export default class ConstMatcha {
   // constants for mail
   static readonly MAIL_FROM = process.env.MAIL_USERNAME || "no_reply@matcha.com";
   static readonly DOMAIN_NAME = process.env.DOMAIN_NAME || "http://localhost";
+  static readonly DOMAIN_FE_PORT = process.env.DOMAIN_FE_PORT || 3001;
   static readonly EMAIL_VERIFICATION_SUBJECT = "Matcha Account Activation";
   static readonly EMAIL_PASSWORD_RESET_SUBJECT = "Matcha Password Reset";
 
