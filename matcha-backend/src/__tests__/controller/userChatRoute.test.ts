@@ -134,7 +134,7 @@ describe("Route /api/user/chat", () => {
         .send({ otherid: "2" });
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "failed to get chat history between users"
       });
       expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);

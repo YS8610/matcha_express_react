@@ -69,7 +69,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedgetVisitedById).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to get viewed users",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String)}
       })
     });
   });
@@ -123,7 +123,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedgetViewedById).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to get users who viewed you",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String)}
       })
     });
   });
@@ -247,7 +247,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedisUserExistsById).toHaveBeenCalledWith("2");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to check if user exists",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -263,7 +263,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedgetBlockedRel).toHaveBeenCalledWith("1", "2");
       expect(response.body.errors[0]).toEqual({
         message: "Error checking if user is blocked",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -281,7 +281,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedisViewed).toHaveBeenCalledWith("1", "2");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to check if already viewed",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -301,7 +301,7 @@ describe("Route /api/user/viewed", () => {
       expect(mockedrecordView).toHaveBeenCalledWith("1", "2");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to record viewed user",
-        context: { error: {} }
+        context: { error: {}, errorMsg : "Database error", errorStack: expect.any(String) }
       });
     });
   });

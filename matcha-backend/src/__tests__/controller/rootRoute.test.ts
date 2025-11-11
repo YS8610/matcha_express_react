@@ -5,11 +5,13 @@ import { type Express } from "express-serve-static-core";
 import * as authSvc from "../../service/authSvc.js";
 import * as userSvc from "../../service/userSvc.js";
 import * as jwtSvc from "../../service/jwtSvc.js";
+import * as locationSvc from "../../service/locationSvc.js";
 import ServerRequestError from "../../errors/ServerRequestError.js";
 import { createToken, verifyToken } from "../../service/jwtSvc.js";
 import { sign } from "jsonwebtoken";
 import ConstMatcha from "../../ConstMatcha.js";
 import { AuthToken } from "../../model/token.js";
+import * as emailSvc from "../../service/emailSvc.js";
 
 let app: Express;
 
@@ -180,11 +182,13 @@ describe("Route /pubapi/login", () => {
   });
 
   it("post with wrong username and password should return a 401 status code", async () => {
+    const mockedLoginSvc = vi.spyOn(authSvc, "loginSvc").mockResolvedValue("");
     const response = await request(app)
       .post("/pubapi/login")
       .send({ username: "testuser", password: "testpassword" });
     expect(response.status).toBe(401);
     expect(response.type).toBe("application/json");
+    expect(mockedLoginSvc).toHaveBeenCalledWith("testuser", "testpassword");
     expect(response.body.errors[0]).toEqual({
       context: {
         username: "invalid", password: "invalid"
@@ -194,17 +198,18 @@ describe("Route /pubapi/login", () => {
   });
 
   it("post with correct username and password should return a 200 status code and a JWT token", async () => {
-    vi.spyOn(authSvc, "loginSvc").mockResolvedValue("mocked-jwt-token");
+    const mockedLoginSvc = vi.spyOn(authSvc, "loginSvc").mockResolvedValue("mocked-jwt-token");
     const response = await request(app)
       .post("/pubapi/login")
       .send({ username: "admin", password: "admin" });
     expect(response.status).toBe(200);
     expect(response.type).toBe("application/json");
+    expect(mockedLoginSvc).toHaveBeenCalledWith("admin", "admin");
     expect(response.body).toEqual({ msg: "mocked-jwt-token" });
   });
 
   it("post with correct username and password but loginSvc throws error should return a 500 status code", async () => {
-    vi.spyOn(authSvc, "loginSvc").mockRejectedValue(new ServerRequestError({
+    const mockedLoginSvc = vi.spyOn(authSvc, "loginSvc").mockRejectedValue(new ServerRequestError({
       message: "Failed to get user by username",
       code: 500,
       logging: true,
@@ -213,6 +218,7 @@ describe("Route /pubapi/login", () => {
     const response = await request(app)
       .post("/pubapi/login")
       .send({ username: "admin", password: "admin" });
+    expect(mockedLoginSvc).toHaveBeenCalledWith("admin", "admin");
     expect(response.status).toBe(500);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
@@ -224,7 +230,6 @@ describe("Route /pubapi/login", () => {
   });
 });
 
-// todo: route tests for /pubapi/register
 describe("Route /pubapi/register", () => {
   beforeAll(() => {
     app = appfunc();
@@ -557,7 +562,8 @@ describe("Route /pubapi/register", () => {
   });
 
   it("post with all valid fields but user already exists should return a 409 status code", async () => {
-    vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(true);
+    const mockedIsUserByUsername = vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(true);
+    const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
     const response = await request(app).post("/pubapi/register").send({
       email: "user@example.com",
       username: "johndoe",
@@ -569,6 +575,8 @@ describe("Route /pubapi/register", () => {
     });
     expect(response.status).toBe(409);
     expect(response.type).toBe("application/json");
+    expect(mockedIsUserByUsername).toHaveBeenCalledWith("johndoe");
+    expect(mockedIsPwValid).toHaveBeenCalledWith("Pa55word!");
     expect(response.body.errors[0]).toEqual({
       context: { username: "already taken" },
       message: "Username is already taken"
@@ -576,8 +584,13 @@ describe("Route /pubapi/register", () => {
   });
 
   it("post with all valid fields should return a 201 status code", async () => {
-    vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(false);
+    const mockedIsUserByUsername = vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(false);
+    const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
+    const mockedIsValidDateStr = vi.spyOn(userSvc, "isValidDateStr").mockImplementation(() => true);
     const createUserSpy = vi.spyOn(userSvc, "createUser").mockResolvedValueOnce();
+    const mockedCreateToken = vi.spyOn(jwtSvc, "createToken").mockResolvedValueOnce("mocked-activation-token");
+    const mockedhashedpw = vi.spyOn(authSvc, "hashPW").mockResolvedValueOnce("mocked-hashed-password");
+    const mockedsendMail = vi.spyOn(emailSvc, "sendMail").mockResolvedValueOnce();
     const response = await request(app).post("/pubapi/register").send({
       email: "user@example.com",
       username: "johndoe",
@@ -590,6 +603,17 @@ describe("Route /pubapi/register", () => {
     expect(response.status).toBe(201);
     expect(response.type).toBe("application/json");
     expect(response.body).toEqual({ msg: "registered and activation email sent to user@example.com" });
+    expect(mockedIsUserByUsername).toHaveBeenCalledWith("johndoe");
+    expect(mockedIsPwValid).toHaveBeenCalledWith("Pa55word!");
+    expect(mockedIsValidDateStr).toHaveBeenCalledWith("1990-01-01");
+    expect(mockedCreateToken).toHaveBeenCalledWith(expect.any(String), "user@example.com", "johndoe", false);
+    expect(mockedhashedpw).toHaveBeenCalledWith("Pa55word!");
+    expect(mockedsendMail).toHaveBeenCalledWith(
+      ConstMatcha.MAIL_FROM,
+      "user@example.com",
+      ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
+      expect.any(String)
+    );
     expect(createUserSpy).toHaveBeenCalledWith(
       expect.any(String),
       "user@example.com",
@@ -618,9 +642,7 @@ describe("Route /pubapi/activate/:token", () => {
     expect(response.status).toBe(404);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: {
-        msg: "The requested endpoint does not exist."
-      },
+      context: { msg: "The requested endpoint does not exist." },
       "message": "invalid endpoint"
     });
   });
@@ -630,9 +652,7 @@ describe("Route /pubapi/activate/:token", () => {
     expect(response.status).toBe(404);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: {
-        msg: "The requested endpoint does not exist."
-      },
+      context: { msg: "The requested endpoint does not exist." },
       "message": "invalid endpoint"
     });
   });
@@ -642,9 +662,7 @@ describe("Route /pubapi/activate/:token", () => {
     expect(response.status).toBe(404);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: {
-        msg: "The requested endpoint does not exist."
-      },
+      context: { msg: "The requested endpoint does not exist." },
       "message": "invalid endpoint"
     });
   });
@@ -666,9 +684,7 @@ describe("Route /pubapi/activate/:token", () => {
     expect(response.status).toBe(401);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: {
-        token: "Invalid token. Please log in again."
-      },
+      context: { token: "Invalid token. Please log in again." },
       message: "invalid token"
     });
   });
@@ -715,11 +731,26 @@ describe("Route /pubapi/activate/:token", () => {
 
   it("get with valid unactivated token should return a 200 status code", async () => {
     const mockedToken = await createToken("1", "user@example.com", "username", false);
-    vi.spyOn(userSvc, "activateUserByUsername").mockResolvedValueOnce(true);
+    const mockedverifyToken = vi.spyOn(jwtSvc, "verifyToken").mockResolvedValueOnce({
+      id: "1",
+      email: "user@example.com",
+      username: "username",
+      activated: false
+    });
+    const mockedactivateUserByUsername = vi.spyOn(userSvc, "activateUserByUsername").mockResolvedValueOnce(true);
+    const mockedgetAproximateUserLocation = vi.spyOn(locationSvc, "getAproximateUserLocation").mockResolvedValueOnce({
+      longitude : 0,
+      latitude: 0,
+    });
+    const mockedupdateUserLocation = vi.spyOn(locationSvc, "updateUserLocation").mockResolvedValueOnce();
     const response = await request(app).get(`/pubapi/activate/${mockedToken}`);
     expect(response.status).toBe(200);
     expect(response.type).toBe("application/json");
     const tokenPayload = await verifyToken(response.body.msg) as AuthToken;
+    expect(mockedverifyToken).toHaveBeenCalledWith(mockedToken);
+    expect(mockedactivateUserByUsername).toHaveBeenCalledWith("username");
+    expect(mockedgetAproximateUserLocation).toHaveBeenCalledWith(expect.any(String));
+    expect(mockedupdateUserLocation).toHaveBeenCalledWith("1", "username", 0, 0);
     expect(tokenPayload.id).toEqual("1");
     expect(tokenPayload.email).toEqual("user@example.com");
     expect(tokenPayload.username).toEqual("username");
@@ -733,9 +764,7 @@ describe("Route /pubapi/activate/:token", () => {
     expect(response.status).toBe(500);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: {
-        error: {}
-      },
+      context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
       message: "Failed to activate user"
     });
   });
@@ -874,7 +903,7 @@ describe("Route /pubapi/reset-password", () => {
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
       message: "Failed to check if user exists",
-      context: { error: {} }
+      context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
     });
   });
 
@@ -888,7 +917,7 @@ describe("Route /pubapi/reset-password", () => {
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
       message: "Failed to get user ID",
-      context: { error: {} }
+      context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
     });
   });
 
@@ -903,16 +932,16 @@ describe("Route /pubapi/reset-password", () => {
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
       message: "Failed to get hashed password",
-      context: { error: {} }
+      context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
     });
   });
 
   it("post with valid email and username should return 200", async () => {
-    vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(true);
-    vi.spyOn(userSvc, "getUserIdByUsername").mockResolvedValueOnce("1");
-    vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    const mockedIsUserByEmailUsername = vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(true);
+    const mockedGetUserIdByUsername = vi.spyOn(userSvc, "getUserIdByUsername").mockResolvedValueOnce("1");
+    const mockedGetHashedPwByUsername = vi.spyOn(userSvc, "getHashedPwByUsername").mockResolvedValueOnce("hashedpassword");
+    const mockedSendEmail = vi.spyOn(emailSvc, "sendMail").mockResolvedValueOnce();
     const create = vi.spyOn(jwtSvc, "createPWResetToken");
-
     const response = await request(app)
       .post("/pubapi/reset-password")
       .send({ email: "user@example.com", username: "username" });
@@ -921,6 +950,16 @@ describe("Route /pubapi/reset-password", () => {
     expect(response.body).toEqual({ msg: "Password reset email sent" });
     expect(create).toHaveBeenCalledOnce();
     expect(create).toHaveBeenCalledWith("1", "user@example.com", "username", "hashedpassword");
+    expect(mockedIsUserByEmailUsername).toHaveBeenCalledWith("user@example.com", "username");
+    expect(mockedGetUserIdByUsername).toHaveBeenCalledWith("username");
+    expect(mockedGetHashedPwByUsername).toHaveBeenCalledWith("username");
+    expect(mockedSendEmail).toHaveBeenCalledOnce();
+    expect(mockedSendEmail).toHaveBeenCalledWith(
+      ConstMatcha.MAIL_FROM,
+      "user@example.com",
+      ConstMatcha.EMAIL_PASSWORD_RESET_SUBJECT,
+      expect.any(String)
+    );
   });
 });
 
@@ -1164,7 +1203,7 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
     expect(response.status).toBe(500);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: { error: {} },
+      context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
       message: "Failed to get hashed password"
     });
   });
@@ -1193,21 +1232,25 @@ describe("Route /pubapi/reset-password/:id/:token", () => {
     expect(response.status).toBe(500);
     expect(response.type).toBe("application/json");
     expect(response.body.errors[0]).toEqual({
-      context: { error: {} },
+      context: { error: {}, errorMsg: "Hashing error", errorStack: expect.any(String) },
       message: "Failed to hash new password"
     });
   });
 
   it("post with correct body, valid userid and token should return 200", async () => {
-    vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
-    vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", email: "test@example.com", username: "username" });
-    vi.spyOn(authSvc, "hashPW").mockResolvedValueOnce("newhashedpassword");
-    vi.spyOn(userSvc, "setPwById").mockResolvedValueOnce();
+    const mockedGetHashedPwById = vi.spyOn(userSvc, "getHashedPwById").mockResolvedValueOnce("hashedpassword");
+    const mockedVerifyPWResetToken = vi.spyOn(jwtSvc, "verifyPWResetToken").mockResolvedValueOnce({ id: "1", email: "test@example.com", username: "username" });
+    const mockedHashPW = vi.spyOn(authSvc, "hashPW").mockResolvedValueOnce("newhashedpassword");
+    const mockedSetPwById = vi.spyOn(userSvc, "setPwById").mockResolvedValueOnce();
     const response = await request(app)
       .post("/pubapi/reset-password/1/validtoken")
       .send({ newPassword: "Validpass1!", newPassword2: "Validpass1!" });
     expect(response.status).toBe(200);
     expect(response.type).toBe("application/json");
+    expect(mockedGetHashedPwById).toHaveBeenCalledWith("1");
+    expect(mockedVerifyPWResetToken).toHaveBeenCalledWith("validtoken", "hashedpassword");
+    expect(mockedHashPW).toHaveBeenCalledWith("Validpass1!");
+    expect(mockedSetPwById).toHaveBeenCalledWith("1", "newhashedpassword");
     expect(response.body).toEqual({ msg: "Password has been reset successfully. Pls login again with new pw" });
   });
 });

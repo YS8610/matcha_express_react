@@ -156,7 +156,7 @@ describe("Route /api/user/pw", () => {
       expect(getHashedPwByIdMock).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to get hashed password",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "DB error", errorStack: expect.any(String) }
       });
     });
 
@@ -172,7 +172,7 @@ describe("Route /api/user/pw", () => {
       expect(verifyPWMock).toHaveBeenCalledWith("$2b$10$abcdefghijklmnopqrstuv", "CorrectOldPass123!");
       expect(response.body.errors[0]).toEqual({
         message: "Failed to verify password",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Hashing error", errorStack: expect.any(String) }
       });
     });
   });
@@ -190,7 +190,7 @@ describe("Route /api/user/pw", () => {
     expect(verifyPWMock).toHaveBeenCalledWith("$2b$10$abcdefghijklmnopqrstuv", "CorrectOldPass123!");
     expect(response.body.errors[0]).toEqual({
       message: "Failed to hash password",
-      context: { error: {} }
+      context: { error: {}, errorMsg: "Hashing error", errorStack: expect.any(String) }
     });
   });
 
@@ -210,7 +210,7 @@ describe("Route /api/user/pw", () => {
     expect(updateUserPwByIdMock).toHaveBeenCalledWith("1", "$2b$10$newhashedpasswordvalue");
     expect(response.body.errors[0]).toEqual({
       message: "Failed to update password",
-      context: { error: {} }
+      context: { error: {}, errorMsg: "DB error", errorStack: expect.any(String) }
     });
   });
 });

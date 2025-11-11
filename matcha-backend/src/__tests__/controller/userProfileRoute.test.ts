@@ -84,7 +84,7 @@ describe("Route /api/user/profile", () => {
       expect(res.status).toBe(500);
       expect(res.body.errors[0]).toEqual({
         message: "Error getting user profile",
-        context:{error :{}}
+        context:{error :{}, errorMsg : "Database error", errorStack : expect.any(String)}
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
@@ -149,7 +149,7 @@ describe("Route /api/user/profile", () => {
       expect(res.status).toBe(500);
       expect(res.body.errors[0]).toEqual({
         message: "Error updating profile",
-        context:{error :{}}
+        context:{error :{}, errorMsg : "Database error", errorStack : expect.any(String)}
       });
       expect(mockedsetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedsetUserProfileById).toHaveBeenCalledWith("1", {

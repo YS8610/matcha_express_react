@@ -59,7 +59,7 @@ describe("Route /api/user/block", () => {
       expect(mockGetBlockedById).toHaveBeenCalledWith("1");
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "Error getting blocked users for user"
       });
     });
@@ -159,7 +159,7 @@ describe("Route /api/user/block", () => {
       expect(mockSetBlockedById).toHaveBeenCalledWith("1", "2");
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "Error blocking user"
       });
     });
@@ -175,7 +175,7 @@ describe("Route /api/user/block", () => {
       expect(mockUpdateFameRating).toHaveBeenCalledWith("2", ConstMatcha.NEO4j_FAME_DECREMENT_BLOCK, fameSvc.getFame, fameSvc.setFame);
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "Error updating fame rating for blocked user"
       });
     });
@@ -236,7 +236,7 @@ describe("Route /api/user/block", () => {
       expect(mockDeleteBlockedById).toHaveBeenCalledWith("1", "2");
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "Error unblocking user"
       });
     });
@@ -252,7 +252,7 @@ describe("Route /api/user/block", () => {
       expect(mockUpdateFameRating).toHaveBeenCalledWith("2", ConstMatcha.NEO4j_FAME_DECREMENT_UNBLOCK, fameSvc.getFame, fameSvc.setFame);
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "Error updating fame rating for unblocked user"
       });
     });

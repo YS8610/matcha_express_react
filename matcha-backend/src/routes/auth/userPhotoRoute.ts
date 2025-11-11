@@ -2,7 +2,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import upload from "../../middleware/uploadMulter.js";
 import { Reslocal } from "../../model/profile.js";
 import { deletePhotoByName, getAllPhotoNameByUserId, isValidOrder, reorderPhotosByID, setPhotobyUserId } from "../../service/photoSvc.js";
-import { catchErrorWrapper, serverErrorWrapper } from "../../util/wrapper.js";
+import { serverErrorWrapper } from "../../util/wrapper.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { ResMsg } from "../../model/Response.js";
 import fs from "fs/promises";
@@ -14,6 +14,40 @@ router.get("/", async (req: Request, res: Response<{photoNames: string[]}>, next
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const photoNames = await serverErrorWrapper(() => {return getAllPhotoNameByUserId(id)}, "Failed to get photo names");
   res.status(200).json({ photoNames });
+});
+
+// reorder photos by new order array
+router.put("/order", async (req: Request<{}, {}, {newOrder: number[]}>, res: Response<ResMsg>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      message: "No body provided",
+      logging: false,
+      code: 400,
+      context: { err : "pls provide a valid photo order"}
+    }));
+  const { authenticated, username, id, activated } = res.locals as Reslocal;
+  const { newOrder } = req.body;
+  if (!newOrder)
+    return next(new BadRequestError({
+      message: "No new order provided",
+      logging: false,
+      code: 400,
+      context: { err : "pls provide a valid photo order"}
+    }));
+  if (!Array.isArray(newOrder) ||
+      newOrder.length !== 5 ||
+      !newOrder.every(n => typeof n === 'number' && n >= 0 && n <= 4) ||
+      !isValidOrder(newOrder)
+  )
+    return next(new BadRequestError({
+      message: "Invalid photo order",
+      logging: false,
+      code: 400,
+      context: { err : "pls provide a valid photo order"}
+    }));
+  const oldOrder = await serverErrorWrapper(() => {return getAllPhotoNameByUserId(id)}, "Failed to get photo names");
+  await serverErrorWrapper(() => {return reorderPhotosByID(id, newOrder, oldOrder)}, "Failed to reorder photos");
+  res.status(200).json({ msg: "Photo order updated successfully" });
 });
 
 // upload user photo by photo number
@@ -83,38 +117,9 @@ router.delete("/:no", async (req: Request<{ no: string }>, res: Response<ResMsg>
       code: 400,
       context: { err : "No photo to delete"}
     })));
-  await deletePhotoByName(fs.unlink, photoNames[photoNumber]);
-  const [error] = await catchErrorWrapper(setPhotobyUserId(id, "", photoNumber));
-  if (error)
-    return next(error);
+  await serverErrorWrapper(() => deletePhotoByName(fs.unlink, photoNames[photoNumber]), "Failed to delete photo");
+  await serverErrorWrapper(() => setPhotobyUserId(id, "", photoNumber), "Failed to set photo");
   res.status(200).json({ msg: "Photo deleted successfully" });
-});
-
-// reorder photos by new order array
-router.put("/order", async (req: Request<{}, {}, {newOrder: number[]}>, res: Response<ResMsg>, next: NextFunction) => {
-  const { authenticated, username, id, activated } = res.locals as Reslocal;
-  const { newOrder } = req.body;
-  if (!newOrder)
-    return next(new BadRequestError({
-      message: "No new order provided",
-      logging: false,
-      code: 400,
-      context: { err : "pls provide a valid photo order"}
-    }));
-  if (!Array.isArray(newOrder) ||
-      newOrder.length !== 5 ||
-      !newOrder.every(n => typeof n === 'number' && n >= 0 && n <= 4) ||
-      !isValidOrder(newOrder)
-  )
-    return next(new BadRequestError({
-      message: "Invalid photo order",
-      logging: false,
-      code: 400,
-      context: { err : "pls provide a valid photo order"}
-    }));
-  const oldOrder = await serverErrorWrapper(() => {return getAllPhotoNameByUserId(id)}, "Failed to get photo names");
-  await serverErrorWrapper(() => {return reorderPhotosByID(id, newOrder, oldOrder)}, "Failed to reorder photos");
-  res.status(200).json({ msg: "Photo order updated successfully" });
 });
 
 export default router;

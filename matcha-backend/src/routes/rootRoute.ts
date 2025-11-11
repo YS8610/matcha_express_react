@@ -16,58 +16,41 @@ import { sendMail } from "../service/emailSvc.js";
 let router = express.Router();
 
 // testing fileupload. will be removed later
-router.post("/ping", upload.single("photo"), async (req: Request<{}, {}, {}>, res: Response, next: NextFunction) => {
-  console.log("In rootRoute POST /ping");
-  console.log("File received:", req.file);
-  const photoUrl = req.file?.path;
-  // Logic to add a new photo URL for the user
-  if (!req.file) {
-    return next(new BadRequestError({
-      code: 400,
-      message: "No file uploaded",
-      logging: false,
-      context: { file: "missing" }
-    }));
-  }
-  res.status(201).json({ message: "Photo URL added successfully", photoUrl });
-});
+// router.post("/ping", upload.single("photo"), async (req: Request<{}, {}, {}>, res: Response, next: NextFunction) => {
+//   console.log("In rootRoute POST /ping");
+//   console.log("File received:", req.file);
+//   const photoUrl = req.file?.path;
+//   // Logic to add a new photo URL for the user
+//   if (!req.file) {
+//     return next(new BadRequestError({
+//       code: 400,
+//       message: "No file uploaded",
+//       logging: false,
+//       context: { file: "missing" }
+//     }));
+//   }
+//   res.status(201).json({ message: "Photo URL added successfully", photoUrl });
+// });
 
 // testing retrieve photo by name. will be removed later
-router.get("/photo/:name", async (req: Request<{ name: string }>, res: Response, next: NextFunction) => {
-  const { name } = req.params;
-  // Logic to get photo URLs by name
-  res.sendFile(`/${ConstMatcha.PHOTO_DUMP_DIR}/` + name, { root: '.' }, (err) => {
-    if (err) {
-      console.error("Error sending file:", err);
-      next(new BadRequestError({
-        message: "file not found",
-        logging: false,
-        code: 404,
-        context: { msg: "The requested file does not exist." },
-      }));
-    }
-  });
-});
+// router.get("/photo/:name", async (req: Request<{ name: string }>, res: Response, next: NextFunction) => {
+//   const { name } = req.params;
+//   // Logic to get photo URLs by name
+//   res.sendFile(`/${ConstMatcha.PHOTO_DUMP_DIR}/` + name, { root: '.' }, (err) => {
+//     if (err) {
+//       console.error("Error sending file:", err);
+//       next(new BadRequestError({
+//         message: "file not found",
+//         logging: false,
+//         code: 404,
+//         context: { msg: "The requested file does not exist." },
+//       }));
+//     }
+//   });
+// });
 
 // testing purpose
 router.get("/ping", async (req: Request, res: Response<ResMsg>) => {
-  // const session = driver.session();
-  // const result = await session.run<{u:{properties:{email:string, pw:string}}}>("CREATE (u:Profile {email:'t2@yahoo.com' ,pw:'123456' }) RETURN u");
-  // console.log("this is result0 " + result.records[0].get("u")); // Should log the created user
-  // console.log(result.records[0].get("u").properties); // Should log the created user
-  // const result2 = await session.run(ConstMatcha.NEO4j_STMT_GET_ALL_USERS);
-  // console.log("this is result2 " + result2.records[0].get("u")); // Should log the created user
-  // session.close();
-  // console.log(result2.records[0].get("u").properties);
-  // try {
-  //   const token = await createToken("t2@yahoo.com", "testuser");
-  //   const decode = await verifyToken(token);
-  //   console.log("this is decode " + JSON.stringify(decode));
-  //   res.status(200).json({ msg: "pong " + token });
-
-  // } catch (error) {
-  //   res.status(500).json({ msg: "failed to create token" });
-  // }
   res.status(200).json({ msg: "pong" });
 });
 

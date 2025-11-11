@@ -146,7 +146,7 @@ describe("Route /api/user/notification", () => {
       expect(mockdeletenotification).toHaveBeenCalledWith(getDb, "1", "notif1");
       expect(response.body.errors[0]).toEqual({
         message: "failed to delete notifications for user",
-        context: { error: {}}
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String)}
       });
     });
   });
@@ -209,7 +209,7 @@ describe("Route /api/user/notification", () => {
       expect(mockmarkNotificationAsRead).toHaveBeenCalledWith(getDb, "1", "notif1");
       expect(response.body.errors[0]).toEqual({
         message: "failed to mark notification as read",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -223,7 +223,7 @@ describe("Route /api/user/notification", () => {
       expect(mockisNotificationExists).toHaveBeenCalledWith(getDb, "1", "notif1");
       expect(response.body.errors[0]).toEqual({
         message: "failed to check if notification exists",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
   });

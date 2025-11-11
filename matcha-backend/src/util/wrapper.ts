@@ -12,7 +12,7 @@ export const serverErrorWrapper = async <T>(fn: () => T, errorMsg: string, log: 
       code,
       message: errorMsg,
       logging: log,
-      context: { error, errorMsg: (error as Error)?.message, errorstack: (error as Error)?.stack }
+      context: { error, errorMsg: (error as Error)?.message, errorStack: (error as Error)?.stack }
     });
   }
 };

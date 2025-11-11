@@ -111,7 +111,7 @@ describe("Route /api/user/report", () => {
         .send({ reason: "This is a valid reason for reporting" });
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "failed to check if user exists"
       });
     });
@@ -127,7 +127,7 @@ describe("Route /api/user/report", () => {
         .send({ reason: "This is a valid reason for reporting" });
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "failed to check if user is already reported"
       });
     });
@@ -144,7 +144,7 @@ describe("Route /api/user/report", () => {
         .send({ reason: "This is a valid reason for reporting" });
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
-        context: { error: {} },
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
         message: "failed to report user"
       });
     });

@@ -45,7 +45,7 @@ describe("Route /api/user/tag", () => {
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
         message: "Error getting tags for user",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
   });
@@ -128,7 +128,7 @@ describe("Route /api/user/tag", () => {
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
         message: "Error getting tag count for user",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -143,7 +143,7 @@ describe("Route /api/user/tag", () => {
       expect(mockGetTagCountById).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Error creating tag for user",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
   });
@@ -210,7 +210,7 @@ describe("Route /api/user/tag", () => {
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
         message: "Error deleting tag for user",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
   });

@@ -70,7 +70,7 @@ describe("Route /api/user/location", () => {
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toStrictEqual({
         message: "error updating user location",
-        context: { error: {  }}
+        context: { error: { }, errorMsg: "Database error", errorStack: expect.any(String) }
       });
       expect(updateUserLocationSpy).toHaveBeenCalledOnce();
       expect(updateUserLocationSpy).toHaveBeenCalledWith("1", "testuser", 40.7128, -74.0060);

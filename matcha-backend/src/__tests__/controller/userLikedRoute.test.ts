@@ -51,7 +51,7 @@ describe("Route /api/user/liked", () => {
       expect(mockgetLikedById).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Error getting users who liked you",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
 
@@ -373,7 +373,7 @@ describe("Route /api/user/liked", () => {
       expect(mockgetMatchedById).toHaveBeenCalledWith("1");
       expect(response.body.errors[0]).toEqual({
         message: "Error getting matched users",
-        context: { error: {} }
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
     });
   });
