@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
           source: '/pubapi/activate/:token',
           destination: '/activate/:token',
         },
+        {
+          source: '/pubapi/reset-password/:id/:token',
+          destination: '/reset-password/:id/:token',
+        },
       ],
       afterFiles: [
         {

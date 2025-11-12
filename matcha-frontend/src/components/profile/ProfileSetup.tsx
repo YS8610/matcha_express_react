@@ -75,9 +75,21 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     if (user?.birthDate && formData.birthDate === '') {
+      let birthDateStr = user.birthDate as string;
+
+      if (birthDateStr.includes('/')) {
+        const parts = birthDateStr.split('/');
+        if (parts.length === 3) {
+          const month = parts[0].padStart(2, '0');
+          const day = parts[1].padStart(2, '0');
+          const year = parts[2];
+          birthDateStr = `${year}-${month}-${day}`;
+        }
+      }
+
       setFormData(prev => ({
         ...prev,
-        birthDate: user.birthDate as string
+        birthDate: birthDateStr
       }));
       setStep(2);
     }
@@ -261,6 +273,19 @@ export default function ProfileSetup() {
 
       {step === 1 && (
         <div className="space-y-6">
+          {!isAutoDetectedLocation && !user?.birthDate && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Birth Date</label>
+              <input
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md"
+                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+              />
+              <p className="text-xs text-gray-600 mt-1">You must be at least 18 years old</p>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium mb-2">Gender</label>
             <select
@@ -293,18 +318,6 @@ export default function ProfileSetup() {
             {fieldErrors.sexualPreference && (
               <p className="text-xs text-red-500 mt-1">{fieldErrors.sexualPreference}</p>
             )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Birth Date</label>
-            <input
-              type="date"
-              value={formData.birthDate}
-              onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-              className="w-full px-3 py-2 border rounded-md"
-              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-            />
-            <p className="text-xs text-gray-600 mt-1">You must be at least 18 years old</p>
           </div>
 
           <div>
@@ -355,7 +368,7 @@ export default function ProfileSetup() {
 
           <button
             onClick={() => setStep(2)}
-            disabled={!formData.gender || !formData.sexualPreference || !formData.birthDate}
+            disabled={!formData.gender || !formData.sexualPreference || (!formData.birthDate && !user?.birthDate)}
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
           >
             Next

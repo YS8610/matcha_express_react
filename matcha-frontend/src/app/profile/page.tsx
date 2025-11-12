@@ -13,6 +13,7 @@ import { formatFameRating, toGenderString, toSexualPreferenceString } from '@/li
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -24,29 +25,47 @@ export default function MyProfilePage() {
     loadProfile();
   }, [user, router]);
 
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/profile/setup');
+    }
+  }, [shouldRedirect, router]);
+
   const loadProfile = async () => {
     try {
       const response = await api.getProfile();
-      setProfile(response.data || null);
+      const profileData = response.data || null;
+
+      if (!profileData) {
+        console.error('No profile data returned');
+        setShouldRedirect(true);
+        return;
+      }
+
+      setProfile(profileData);
+      setLoading(false);
     } catch (error) {
       console.error('Failed to load profile:', error);
-    } finally {
-      setLoading(false);
+      setShouldRedirect(true);
     }
   };
 
-  if (loading) return (
+  if (loading || shouldRedirect) return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-        <p className="mt-4 text-green-700">Loading your profile...</p>
+        <p className="mt-4 text-green-700">
+          {shouldRedirect ? 'Redirecting to profile setup...' : 'Loading your profile...'}
+        </p>
       </div>
     </div>
   );
-  
+
   if (!profile) return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center py-12 text-green-700">Profile not found</div>
+      <div className="text-center py-12">
+        <p className="text-green-700 mb-4">Profile not found</p>
+      </div>
     </div>
   );
 

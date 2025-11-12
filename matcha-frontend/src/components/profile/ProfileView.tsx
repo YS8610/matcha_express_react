@@ -176,8 +176,29 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!profile) return <div>Profile not found</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600">Loading profile...</p>
+      </div>
+    </div>
+  );
+
+  if (!profile) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Profile Not Found</h2>
+        <p className="text-gray-600 mb-6">This user's profile doesn't exist or has been deleted.</p>
+        <button
+          onClick={() => router.push('/browse')}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Back to Browse
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto p-6">
