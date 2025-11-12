@@ -24,12 +24,12 @@ export const sendMail = async (
   };
   try {
     await transporter.sendMail(mailOptions);
-  } catch (err) {
+  } catch (error) {
     throw new ServerRequestError({
       code: 500,
       message: "Failed to send email",
       logging: true,
-      context: { error: err }
+      context: { error }
     });
   }
 }
