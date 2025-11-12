@@ -35,22 +35,22 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-gradient-to-b from-transparent via-transparent to-transparent">
       <div className="animate-pulse">
-        <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-matcha-medium dark:border-matcha-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
 
       <div className="text-center">
         <button
           onClick={handlePing}
           disabled={pinging}
-          className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
+          className="px-6 py-2 bg-gradient-to-r from-matcha-medium to-matcha-light text-white rounded-full hover:from-matcha-dark hover:to-matcha-medium disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
         >
           {pinging ? 'Pinging...' : 'Test API Connection'}
         </button>
         {pingResult && (
-          <div className="mt-4 p-3 rounded-lg bg-gray-100">
-            <code className="text-sm">{pingResult}</code>
+          <div className="mt-4 p-3 rounded-lg bg-matcha-cream dark:bg-background-secondary border border-border dark:border-border">
+            <code className="text-sm text-foreground dark:text-foreground">{pingResult}</code>
           </div>
         )}
 

@@ -397,12 +397,6 @@ export const validateCoordinates = (latitude: number | null, longitude: number |
   return null;
 };
 
-export const normalizeForDisplay = (text: string): string => {
-  if (!text) return '';
-
-  return stripAndEncode(normalizeInput(sanitizeInput(text)));
-};
-
 export const validateProfileUpdate = (profileData: {
   firstName?: string;
   lastName?: string;

@@ -5,6 +5,28 @@ import type { Theme, ThemeContextType } from '@/types';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const ThemeScript = () => {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            const savedTheme = localStorage.getItem('theme');
+            let theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+            if (theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+          })();
+        `,
+      }}
+    />
+  );
+};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [isClient, setIsClient] = useState(false);
@@ -13,16 +35,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setIsClient(true);
 
     const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
 
-    if (savedTheme) {
-      setThemeState(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initialTheme = prefersDark ? 'dark' : 'light';
-      setThemeState(initialTheme);
-      applyTheme(initialTheme);
-    }
+    setThemeState(initialTheme);
+    applyTheme(initialTheme);
   }, []);
 
   const applyTheme = (newTheme: Theme) => {
@@ -32,6 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       htmlElement.classList.remove('dark');
     }
+    htmlElement.setAttribute('data-theme', newTheme);
   };
 
   const toggleTheme = () => {
@@ -45,14 +63,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('theme', newTheme);
   };
 
-  if (!isClient) {
-    return <>{children}</>;
-  }
-
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
+    <>
+      <ThemeScript />
+      <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+        {children}
+      </ThemeContext.Provider>
+    </>
   );
 }
 

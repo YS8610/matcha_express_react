@@ -10,16 +10,24 @@ const nextConfig: NextConfig = {
       ? 'http://matcha-backend:3001'
       : (process.env.BACKEND_URL || 'http://localhost:3001');
 
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*`,
-      },
-      {
-        source: '/pubapi/:path*',
-        destination: `${backendUrl}/pubapi/:path*`,
-      },
-    ];
+    return {
+      beforeFiles: [
+        {
+          source: '/pubapi/activate/:token',
+          destination: '/activate/:token',
+        },
+      ],
+      afterFiles: [
+        {
+          source: '/api/:path*',
+          destination: `${backendUrl}/api/:path*`,
+        },
+        {
+          source: '/pubapi/:path*',
+          destination: `${backendUrl}/pubapi/:path*`,
+        },
+      ],
+    };
   },
 
   async headers() {

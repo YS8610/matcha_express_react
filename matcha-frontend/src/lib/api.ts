@@ -44,17 +44,27 @@ class ApiClient {
     };
 
     const response = await fetch(url, config);
+    const contentType = response.headers.get('content-type') || '';
+    let responseData: any;
+
+    try {
+      if (contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = { message: await response.text() };
+      }
+    } catch (e) {
+      responseData = { message: 'Failed to parse response' };
+    }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
-
       console.error('API Request Failed:', {
         url,
         method: config.method || 'GET',
         status: response.status,
         statusText: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
-        errorData,
+        errorData: responseData,
         requestHeaders: config.headers,
         requestBody: options.body
       });
@@ -67,16 +77,16 @@ class ApiClient {
         }
       }
 
-      if (errorData.errors && errorData.errors[0]) {
-        throw new Error(errorData.errors[0].message || `HTTP error! status: ${response.status}`);
+      if (responseData.errors && responseData.errors[0]) {
+        throw new Error(responseData.errors[0].message || `HTTP error! status: ${response.status}`);
       }
-      if (errorData.msg) {
-        throw new Error(errorData.msg);
+      if (responseData.msg) {
+        throw new Error(responseData.msg);
       }
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(responseData.message || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json() as Promise<ApiResponse<T>>;
+    return responseData as Promise<ApiResponse<T>>;
   }
 
   async register(data: RegisterData) {

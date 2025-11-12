@@ -11,19 +11,6 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<>"'\/]/g, (char) => map[char]);
 }
 
-export function unescapeHtml(text: string): string {
-  if (!text) return '';
-  const map: Record<string, string> = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&#x2F;': '/',
-  };
-  return text.replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g, (entity) => map[entity]);
-}
-
 export function sanitizeInput(input: string, maxLength: number = 1000): string {
   if (!input) return '';
 
@@ -65,16 +52,6 @@ export function sanitizeHtml(html: string, allowedTags: string[] = []): string {
   return div.innerHTML;
 }
 
-export function encodeAttrValue(value: string): string {
-  if (!value) return '';
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/'/g, '&#x27;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
 export function encodeJs(value: string): string {
   if (!value) return '';
   return value
@@ -92,14 +69,6 @@ export function encodeJs(value: string): string {
 export function encodeUrl(value: string): string {
   if (!value) return '';
   return encodeURIComponent(value);
-}
-
-export function encodeCss(value: string): string {
-  if (!value) return '';
-  return value.replace(/[^a-zA-Z0-9-_]/g, (char) => {
-    const code = char.charCodeAt(0);
-    return '\\' + code.toString(16).padStart(2, '0') + ' ';
-  });
 }
 
 export function isValidUrl(url: string): boolean {
@@ -168,14 +137,6 @@ export function safeJsonStringify(obj: any, maxDepth: number = 10): string {
   }
 }
 
-export function truncateHtml(html: string, maxLength: number = 100): string {
-  if (!html) return '';
-
-  const text = removeTags(html);
-
-  return truncateText(text, maxLength);
-}
-
 export function normalizeInput(input: string): string {
   if (!input) return '';
   return input.trim().replace(/\s+/g, ' ');
@@ -242,6 +203,3 @@ export function stripAndEncode(text: string): string {
   return escapeHtml(removeTags(text));
 }
 
-export function createSafeText(text: string): string {
-  return sanitizeInput(stripAndEncode(normalizeInput(text)));
-}
