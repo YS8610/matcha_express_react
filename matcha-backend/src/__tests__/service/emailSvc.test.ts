@@ -53,7 +53,7 @@ describe("Testing emailSvc", () => {
       code: 500,
       message: "Failed to send email",
       logging: true,
-      context: { err: Error("SMTP connection failed") }
+      context: { error : Error("SMTP connection failed") }
     }));
     expect(mockCreateTransport).toHaveBeenCalledTimes(1);
     expect(mockSendMail).toHaveBeenCalledTimes(1);

@@ -1,8 +1,6 @@
 import { describe, expect, it, beforeAll, vi, afterEach } from "vitest";
 import driver from "../../repo/neo4jRepo.js";
 import BadRequestError from "../../errors/BadRequestError.js";
-import { mock } from "node:test";
-import { get } from "http";
 import { getFame, setFame } from "../../service/fameSvc.js";
 
 describe("testing fameSvc", () => {

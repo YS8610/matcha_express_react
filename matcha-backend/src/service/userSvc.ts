@@ -5,147 +5,200 @@ import { int } from "neo4j-driver";
 
 export const isUserByEmail = async (email: string): Promise<boolean> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL, { email });
-  session.close();
-  return result.records.length == 1;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL, { email });
+    return result.records.length == 1;
+  } finally {
+    await session.close();
+  }
 };
 
 export const isUserByUsername = async (username: string): Promise<boolean> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
-  session.close();
-  return result.records.length > 0;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+    return result.records.length > 0;
+  } finally {
+    await session.close();
+  }
 };
 
 export const isUserExistsById = async (id: string): Promise<boolean> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
-  session.close();
-  return result.records.length > 0;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
+    return result.records.length > 0;
+  } finally {
+    await session.close();
+  }
 };
 
 export const isUserByEmailUsername = async (email: string, username: string): Promise<boolean> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME, { email, username });
-  session.close();
-  return result.records.length > 0;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME, { email, username });
+    return result.records.length > 0;
+  } finally {
+    await session.close();
+  }
 };
 
 export const getUsers = async (): Promise<ProfileDb[]> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_ALL_USERS);
-  session.close();
-  return result.records.map(record => record.get(0));
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_ALL_USERS);
+    return result.records.map(record => record.get(0));
+  } finally {
+    await session.close();
+  }
 };
 
 export const getUserById = async (id: string): Promise<ProfileDb | null> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get(0) : null;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_ID, { id });
+    return result.records.length == 1 ? result.records[0].get(0) : null;
+  } finally {
+    await session.close();
+  }
 };
 
 export const getShortProfileById = async (id: string): Promise<ProfileShort | null> => {
   const session = driver.session();
-  const result = await session.run<ProfileShort>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get(0) : null;
+  try {
+    const result = await session.run<ProfileShort>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
+    return result.records.length == 1 ? result.records[0].get(0) : null;
+  } finally {
+    await session.close();
+  }
 };
 
 export const getShortProfilebyIdFiltered = async (userId: string, minAge: number, maxAge: number, minFameRating: number, maxFameRating: number, sexualPreference: number, skip: number, limit: number): Promise<ProfileShort[] | null> => {
   const session = driver.session();
-  const param = {
-    userId,
-    minAge: int(minAge),
-    maxAge: int(maxAge),
-    minFameRating: int(minFameRating),
-    maxFameRating: int(maxFameRating),
-    sexualPreference: int(sexualPreference),
-    skip: int(skip),
-    limit: int(limit)
-  };
-  const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_FILTERED, param);
-  session.close();
-  const mappedResults : ProfileShort[] = [];
-  for (let record of result.records)
-    mappedResults.push( {...record.get("u"), userTags: record.get("userTags") } );
-  return mappedResults;
+  try {
+    const param = {
+      userId,
+      minAge: int(minAge),
+      maxAge: int(maxAge),
+      minFameRating: int(minFameRating),
+      maxFameRating: int(maxFameRating),
+      sexualPreference: int(sexualPreference),
+      skip: int(skip),
+      limit: int(limit)
+    };
+    const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_FILTERED, param);
+    const mappedResults: ProfileShort[] = [];
+    for (let record of result.records)
+      mappedResults.push({ ...record.get("u"), userTags: record.get("userTags") });
+    return mappedResults;
+  } finally {
+    await session.close();
+  }
 }
 
 export const getUserByUsername = async (username: string): Promise<ProfileDb | null> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get(0) : null;
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+    return result.records.length == 1 ? result.records[0].get(0) : null;
+  } finally {
+    await session.close();
+  }
 }
 
 export const getUserIdByUsername = async (username: string): Promise<string> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get(0).id : "";
+  try {
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_GET_USER_BY_USERNAME, { username });
+    return result.records.length == 1 ? result.records[0].get(0).id : "";
+  } finally {
+    await session.close();
+  }
 };
 
 export const getHashedPwById = async (id: string): Promise<string> => {
   const session = driver.session();
-  const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_ID, { id });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get("pw") : "";
+  try {
+    const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_ID, { id });
+    return result.records.length == 1 ? result.records[0].get("pw") : "";
+  } finally {
+    await session.close();
+  }
 };
 
 export const getHashedPwByUsername = async (username: string): Promise<string> => {
   const session = driver.session();
-  const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_USERNAME, { username });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get("pw") : "";
+  try {
+    const result = await session.run<{ pw: string }>(ConstMatcha.NEO4j_STMT_GET_PW_BY_USERNAME, { username });
+    return result.records.length == 1 ? result.records[0].get("pw") : "";
+  } finally {
+    await session.close();
+  }
 };
 
 export const setUserProfileById = async (id: string, profileUpdateJson: ProfilePutJson): Promise<void> => {
   const session = driver.session();
-  await session.run(ConstMatcha.NEO4j_STMT_SET_USER_PROFILE_BY_ID, { id, ...profileUpdateJson });
-  session.close();
-  return;
+  try {
+    await session.run(ConstMatcha.NEO4j_STMT_SET_USER_PROFILE_BY_ID, { id, ...profileUpdateJson });
+  } finally {
+    await session.close();
+  }
 }
 
 export const setPwByUsername = async (username: string, hashedpw: string): Promise<void> => {
   const session = driver.session();
-  await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_USERNAME, { username, hashedpw });
-  session.close();
-  return;
+  try {
+    await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_USERNAME, { username, hashedpw });
+  } finally {
+    await session.close();
+  }
 }
 
 export const setPwById = async (id: string, hashedpw: string): Promise<void> => {
   const session = driver.session();
-  await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_ID, { id, hashedpw });
-  session.close();
-  return;
+  try{
+    await session.run(ConstMatcha.NEO4j_STMT_SET_PW_BY_ID, { id, hashedpw });
+  } finally {
+    await session.close();
+  }
 }
 
 export const createUser = async (id: string, email: string, hashedPassword: string, firstName: string, lastName: string, username: string, birthDate: string, lastOnline: number): Promise<void> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate, lastOnline });
-  session.close();
+  try{
+    await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_CREATE_USER, { id, email, password: hashedPassword, firstName, lastName, username, birthDate, lastOnline });
+  } finally {
+    await session.close();
+  }
 };
 
 export const activateUserByUsername = async (username: string): Promise<boolean> => {
   const session = driver.session();
-  const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_ACTIVATE_USER_BY_USERNAME, { username });
-  session.close();
-  return result.records.length > 0;
+  try{
+    const result = await session.run<ProfileDb>(ConstMatcha.NEO4j_STMT_ACTIVATE_USER_BY_USERNAME, { username });
+    return result.records.length > 0;
+  } finally {
+    await session.close();
+  }
 }
 
 export const getUserProfileById = async (id: string): Promise<ProfileGetJson | null> => {
   const session = driver.session();
-  const result = await session.run<ProfileGetJson>(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
-  session.close();
-  return result.records.length == 1 ? result.records[0].get(0) : null;
+  try{
+    const result = await session.run<ProfileGetJson>(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
+    return result.records.length == 1 ? result.records[0].get(0) : null;
+  } finally {
+    await session.close();
+  }
 };
 
 export const setLastOnlineById = async (id: string, timestamp: number): Promise<void> => {
   const session = driver.session();
-  await session.run(ConstMatcha.NEO4j_STMT_SET_LAST_ONLINE_BY_ID, { id, timestamp });
-  session.close();
-  return;
+  try{
+    await session.run(ConstMatcha.NEO4j_STMT_SET_LAST_ONLINE_BY_ID, { id, timestamp });
+  } finally {
+    await session.close();
+  }
 }
 
 // password validation function (e.g., length, complexity)

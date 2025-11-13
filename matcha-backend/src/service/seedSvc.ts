@@ -50,41 +50,44 @@ export const seedingProfiles = (num: number) => {
 export const seeding = async (qty: number, seedingProfiles: (num: number) => { email: string, pw: string, firstName: string, lastName: string, username: string, birthDate: string }[]) => {
   const seedProfiles = seedingProfiles(qty);
   const session = driver.session();
-  const dbsize = await session.run<{ count: number }>(`MATCH (n:${ConstMatcha.DEFAULT_TAG_PROFILE}) RETURN count(n) AS count`);
-  if (dbsize.records[0].get("count") >= qty)
-    return;
-  for (const profile of seedProfiles) {
-    const NEO4J_SEED = `
-      CREATE (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {
-        id: $id,
-        firstName: $firstName,
-        lastName: $lastName,
-        email: $email,
-        username: $username,
-        pw: $password,
-        birthDate: date($birthDate),
-        biography: ${ConstMatcha.DEFAULT_BIOGRAPHY},
-        gender: $gender,
-        sexualPreference: $sexualPreference,
-        fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
-        photo0: $photo0,
-        photo1: "",
-        photo2: "",
-        photo3: "",
-        photo4: "",
-        activated: true,
-        lastOnline: $lastOnline,
-        createdAt: datetime(),
-        updatedAt: datetime()
-      })`;
-    fs.appendFileSync("./logs/seed_responses.log", `${JSON.stringify(profile)}\n`);
-    const hashpw = await hashPW(profile.pw);
-    await session.run(
-      NEO4J_SEED,
-      { id: uuidv4(), firstName: profile.firstName, lastName: profile.lastName, email: profile.email, username: profile.username, password: hashpw, birthDate: profile.birthDate, gender: randomInt(1, 3), sexualPreference: randomInt(1, 3), photo0: "default.png", lastOnline: Date.now() }
-    );
-    console.log(`Seeded profile: ${profile.username}`);
+  try {
+    const dbsize = await session.run<{ count: number }>(`MATCH (n:${ConstMatcha.DEFAULT_TAG_PROFILE}) RETURN count(n) AS count`);
+    if (dbsize.records[0].get("count") >= qty)
+      return;
+    for (const profile of seedProfiles) {
+      const NEO4J_SEED = `
+        CREATE (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {
+          id: $id,
+          firstName: $firstName,
+          lastName: $lastName,
+          email: $email,
+          username: $username,
+          pw: $password,
+          birthDate: date($birthDate),
+          biography: ${ConstMatcha.DEFAULT_BIOGRAPHY},
+          gender: $gender,
+          sexualPreference: $sexualPreference,
+          fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
+          photo0: $photo0,
+          photo1: "",
+          photo2: "",
+          photo3: "",
+          photo4: "",
+          activated: true,
+          lastOnline: $lastOnline,
+          createdAt: datetime(),
+          updatedAt: datetime()
+        })`;
+      fs.appendFileSync("./logs/seed_responses.log", `${JSON.stringify(profile)}\n`);
+      const hashpw = await hashPW(profile.pw);
+      await session.run(
+        NEO4J_SEED,
+        { id: uuidv4(), firstName: profile.firstName, lastName: profile.lastName, email: profile.email, username: profile.username, password: hashpw, birthDate: profile.birthDate, gender: randomInt(1, 3), sexualPreference: randomInt(1, 3), photo0: "default.png", lastOnline: Date.now() }
+      );
+      console.log(`Seeded profile: ${profile.username}`);
+    }
+  } finally {
+    await session.close();
   }
-  await session.close();
 }
 // match (n:PROFILE) delete n
