@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import BadRequestError from "../errors/BadRequestError.js";
 import { ProfileRegJson } from "../model/profile.js";
-import { activateUserByUsername, createUser, getHashedPwById, getHashedPwByUsername, getUserIdByUsername, isPwValid, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById } from "../service/userSvc.js";
+import { activateUserByUsername, createUser, getHashedPwById, getHashedPwByUsername, getUserIdByUsername, isPwValid, isUserByEmail, isUserByEmailUsername, isUserByUsername, isValidDateStr, setPwById } from "../service/userSvc.js";
 import { hashPW, loginSvc } from "../service/authSvc.js";
 import { createPWResetToken, createToken, verifyPWResetToken, verifyToken } from "../service/jwtSvc.js";
 import { AuthToken, token } from "../model/token.js";
@@ -142,13 +142,16 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
       logging: false,
       context: { birthDate: "too young" }
     }));
+  const emailExists = await serverErrorWrapper(() => isUserByEmail(email), "Failed to check if email exists");
+  let mask = emailExists ? 1 : 0;
   const userExists = await serverErrorWrapper(() => isUserByUsername(username), "Failed to check if user exists");
-  if (userExists)
+  mask |= userExists ? 2 : 0;
+  if (mask != 0)
     return next(new BadRequestError({
       code: 409,
-      message: "Username is already taken",
+      message: "Email/username is already registered",
       logging: false,
-      context: { username: "already taken" }
+      context: { email: mask & 1 ? "registered by someone" : "available", username: mask & 2 ? "registered by someone" : "available" }
     }));
   const hashedpw = await serverErrorWrapper(() => hashPW(pw), "Failed to hash password");
   const id = uuidv4();

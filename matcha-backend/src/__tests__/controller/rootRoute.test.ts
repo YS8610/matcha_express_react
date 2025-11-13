@@ -564,6 +564,7 @@ describe("Route /pubapi/register", () => {
   it("post with all valid fields but user already exists should return a 409 status code", async () => {
     const mockedIsUserByUsername = vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(true);
     const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
+    const mockedIsUserByEmail = vi.spyOn(userSvc, "isUserByEmail").mockResolvedValueOnce(false);
     const response = await request(app).post("/pubapi/register").send({
       email: "user@example.com",
       username: "johndoe",
@@ -578,8 +579,54 @@ describe("Route /pubapi/register", () => {
     expect(mockedIsUserByUsername).toHaveBeenCalledWith("johndoe");
     expect(mockedIsPwValid).toHaveBeenCalledWith("Pa55word!");
     expect(response.body.errors[0]).toEqual({
-      context: { username: "already taken" },
-      message: "Username is already taken"
+      context: { email: "available", username: "registered by someone" },
+      message: "Email/username is already registered"
+    });
+  });
+
+  it("post with all valid fields but email already exists should return a 409 status code", async () => {
+    const mockedIsUserByUsername = vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(false);
+    const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
+    const mockedIsUserByEmail = vi.spyOn(userSvc, "isUserByEmail").mockResolvedValueOnce(true);
+    const response = await request(app).post("/pubapi/register").send({
+      email: "user@example.com",
+      username: "johndoe",
+      pw: "Pa55word!",
+      pw2: "Pa55word!",
+      firstName: "John",
+      lastName: "Doe",
+      birthDate: "1990-01-01"
+    });
+    expect(response.status).toBe(409);
+    expect(response.type).toBe("application/json");
+    expect(mockedIsUserByUsername).toHaveBeenCalledWith("johndoe");
+    expect(mockedIsPwValid).toHaveBeenCalledWith("Pa55word!");
+    expect(response.body.errors[0]).toEqual({
+      context: { email: "registered by someone", username: "available" },
+      message: "Email/username is already registered"
+    });
+  });
+
+  it("post with all valid fields but email and username already exists should return a 409 status code", async () => {
+    const mockedIsUserByUsername = vi.spyOn(userSvc, "isUserByUsername").mockResolvedValueOnce(true);
+    const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
+    const mockedIsUserByEmail = vi.spyOn(userSvc, "isUserByEmail").mockResolvedValueOnce(true);
+    const response = await request(app).post("/pubapi/register").send({
+      email: "user@example.com",
+      username: "johndoe",
+      pw: "Pa55word!",
+      pw2: "Pa55word!",
+      firstName: "John",
+      lastName: "Doe",
+      birthDate: "1990-01-01"
+    });
+    expect(response.status).toBe(409);
+    expect(response.type).toBe("application/json");
+    expect(mockedIsUserByUsername).toHaveBeenCalledWith("johndoe");
+    expect(mockedIsPwValid).toHaveBeenCalledWith("Pa55word!");
+    expect(response.body.errors[0]).toEqual({
+      context: { email: "registered by someone", username: "registered by someone" },
+      message: "Email/username is already registered"
     });
   });
 
@@ -588,6 +635,7 @@ describe("Route /pubapi/register", () => {
     const mockedIsPwValid = vi.spyOn(userSvc, "isPwValid").mockImplementation(() => 0);
     const mockedIsValidDateStr = vi.spyOn(userSvc, "isValidDateStr").mockImplementation(() => true);
     const createUserSpy = vi.spyOn(userSvc, "createUser").mockResolvedValueOnce();
+    const mockedIsUserByEmail = vi.spyOn(userSvc, "isUserByEmail").mockResolvedValueOnce(false);
     const mockedCreateToken = vi.spyOn(jwtSvc, "createToken").mockResolvedValueOnce("mocked-activation-token");
     const mockedhashedpw = vi.spyOn(authSvc, "hashPW").mockResolvedValueOnce("mocked-hashed-password");
     const mockedsendMail = vi.spyOn(emailSvc, "sendMail").mockResolvedValueOnce();
@@ -739,7 +787,7 @@ describe("Route /pubapi/activate/:token", () => {
     });
     const mockedactivateUserByUsername = vi.spyOn(userSvc, "activateUserByUsername").mockResolvedValueOnce(true);
     const mockedgetAproximateUserLocation = vi.spyOn(locationSvc, "getAproximateUserLocation").mockResolvedValueOnce({
-      longitude : 0,
+      longitude: 0,
       latitude: 0,
     });
     const mockedupdateUserLocation = vi.spyOn(locationSvc, "updateUserLocation").mockResolvedValueOnce();
