@@ -127,6 +127,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const response = await api.activateAccount(token);
     if (response.msg) {
       const newToken = response.msg;
+
+      const stored = tokenStorage.storeToken(newToken);
+      if (!stored) {
+        throw new Error('Failed to store authentication token');
+      }
+
       const tokenParts = newToken.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
