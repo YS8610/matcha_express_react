@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import * as tokenStorage from '@/lib/tokenStorage';
 import Link from 'next/link';
 
 export default function ActivatePage({ params }: { params: Promise<{ token: string }> }) {
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'already-activated'>('loading');
   const [message, setMessage] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
-  const { activateAccount } = useAuth();
+  const { activateAccount, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,9 +33,6 @@ export default function ActivatePage({ params }: { params: Promise<{ token: stri
 
         setStatus('success');
         setMessage('Your account has been successfully activated!');
-        setTimeout(() => {
-          router.push('/profile/setup');
-        }, 3000);
       } catch (error) {
         console.error('Activation error:', error);
         console.error('Error details:', {
@@ -58,7 +56,16 @@ export default function ActivatePage({ params }: { params: Promise<{ token: stri
     };
 
     activate();
-  }, [params, activateAccount, router]);
+  }, [params, activateAccount]);
+
+  useEffect(() => {
+    if (status === 'success') {
+      const token = tokenStorage.getToken();
+      if (token) {
+        router.push('/profile/setup');
+      }
+    }
+  }, [status, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--background)' }}>
