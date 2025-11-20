@@ -11,16 +11,7 @@ const nextConfig: NextConfig = {
       : (process.env.BACKEND_URL || 'http://localhost:3001');
 
     return {
-      beforeFiles: [
-        {
-          source: '/pubapi/activate/:token',
-          destination: '/activate/:token',
-        },
-        {
-          source: '/pubapi/reset-password/:id/:token',
-          destination: '/reset-password/:id/:token',
-        },
-      ],
+      beforeFiles: [],
       afterFiles: [
         {
           source: '/api/:path*',

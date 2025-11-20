@@ -163,7 +163,8 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
       ConstMatcha.MAIL_FROM,
       email,
       ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
-      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/pubapi/activate/${token}`
+      // jegoh, i want to remove pubapi
+      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/activate/${token}`
     );
   }, "Failed to send activation email");
   res.status(201).json({ msg: "registered and activation email sent to " + email });
@@ -236,7 +237,8 @@ router.post("/reset-password", async (req: Request<{}, {}, { email: string, user
       ConstMatcha.MAIL_FROM,
       email,
       ConstMatcha.EMAIL_PASSWORD_RESET_SUBJECT,
-      `Please click the following link to reset your password: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/pubapi/reset-password/${userId}/${pwResetToken}`
+      // jegoh, i want to remove pubapi
+      `Please click the following link to reset your password: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/reset-password/${userId}/${pwResetToken}`
     ), "Failed to send password reset email"
   );
   res.status(200).json({ msg: "Password reset email sent" });

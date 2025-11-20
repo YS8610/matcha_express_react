@@ -164,27 +164,6 @@ export function removeSensitiveData<T extends Record<string, any>>(obj: T): Part
   return copy;
 }
 
-const rateLimitMap = new Map<string, number[]>();
-
-export function checkRateLimit(key: string, maxRequests: number = 10, windowMs: number = 60000): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(key) || [];
-
-  const recentTimestamps = timestamps.filter((ts) => now - ts < windowMs);
-
-  if (recentTimestamps.length < maxRequests) {
-    recentTimestamps.push(now);
-    rateLimitMap.set(key, recentTimestamps);
-    return true;
-  }
-
-  return false;
-}
-
-export function clearRateLimit(key: string): void {
-  rateLimitMap.delete(key);
-}
-
 export function isValidEmail(email: string): boolean {
   if (!email) return false;
 

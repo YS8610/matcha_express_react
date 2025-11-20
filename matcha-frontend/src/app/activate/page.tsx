@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
@@ -12,11 +12,18 @@ export default function ActivatePage() {
   const [errorDetails, setErrorDetails] = useState('');
   const { activateAccount } = useAuth();
   const router = useRouter();
+  const params = useParams();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const urlToken = params.token as string | undefined;
+    if (urlToken) {
+      setToken(urlToken);
+      performActivation(urlToken);
+    }
+  }, [params]);
 
-    if (!token.trim()) {
+  const performActivation = async (activationToken: string) => {
+    if (!activationToken.trim()) {
       setErrorDetails('Please enter an activation token');
       return;
     }
@@ -26,8 +33,8 @@ export default function ActivatePage() {
     setErrorDetails('');
 
     try {
-      console.log('Attempting to activate with token:', token);
-      await activateAccount(token);
+      console.log('Attempting to activate with token:', activationToken);
+      await activateAccount(activationToken);
       setStatus('success');
       setMessage('Your account has been successfully activated!');
       setTimeout(() => {
@@ -47,6 +54,11 @@ export default function ActivatePage() {
         setErrorDetails(errorMessage || 'An unexpected error occurred. Please try again or contact support.');
       }
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performActivation(token);
   };
 
   return (
