@@ -28,7 +28,7 @@ export const authMiddleware = async (req: Request<{}, {}, {}, { authorization?: 
     return;
   }
   const { id, email, username, activated } = decodedToken as AuthToken;
-  if (!activated){
+  if (!activated && !(req.path === "/user/profile")) {
     res.status(403).json({
       msg: "forbidden. You need to activate your account to access this resource",
     });
@@ -49,7 +49,7 @@ export const authMiddleware = async (req: Request<{}, {}, {}, { authorization?: 
 
 export const authWSmiddleware = (socket: Socket, next: (err?: ExtendedError) => void) => {
   const token = socket.handshake.auth.token || socket.handshake.query.token;
-  if (!token) 
+  if (!token)
     return next(new Error("Authentication error"));
   verifyToken(token)
     .then((decoded) => {
