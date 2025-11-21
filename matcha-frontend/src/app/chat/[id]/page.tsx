@@ -6,9 +6,9 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { ArrowLeft, Send, Circle } from 'lucide-react';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
-import { api, generateAvatarUrl } from '@/lib/api';
+import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
-import Image from 'next/image';
+import AuthImage from '@/components/AuthImage';
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
@@ -144,7 +144,7 @@ export default function ChatPage() {
   if (!user || !profile) return null;
 
   const photoUrl = profile.photo0
-    ? api.getPhoto(profile.photo0)
+    ? getPhotoUrl(profile.photo0)
     : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
   const isOnline = onlineUsers[chatUserId] || false;
@@ -165,13 +165,14 @@ export default function ChatPage() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <Image
+                  <AuthImage
                     src={photoUrl}
                     alt={profile.username}
                     width={48}
                     height={48}
                     className="object-cover"
                     unoptimized
+                    fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
                   />
                 </div>
                 {isOnline && (

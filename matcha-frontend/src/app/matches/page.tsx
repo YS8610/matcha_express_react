@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
-import Image from 'next/image';
-import { api, generateAvatarUrl } from '@/lib/api';
+import AuthImage from '@/components/AuthImage';
+import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileShort } from '@/types';
 
@@ -47,7 +47,7 @@ export default function MatchesPage() {
 
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
     const photoUrl = profile.photo0
-      ? api.getPhoto(profile.photo0)
+      ? getPhotoUrl(profile.photo0)
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
     return (
@@ -57,12 +57,13 @@ export default function MatchesPage() {
           className="cursor-pointer"
         >
           <div className="relative h-48">
-            <Image
+            <AuthImage
               src={photoUrl}
               alt={profile.username}
               fill
               className="object-cover"
               unoptimized
+              fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
             />
             <div className="absolute top-2 right-2 bg-pink-500 text-white p-2 rounded-full">
               <Heart className="w-4 h-4 fill-current" />

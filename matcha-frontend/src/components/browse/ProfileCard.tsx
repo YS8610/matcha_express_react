@@ -3,9 +3,9 @@
 import { useMemo } from 'react';
 import { ProfileShort } from '@/types';
 import { Star } from 'lucide-react';
-import { api, generateAvatarUrl } from '@/lib/api';
+import { generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import Link from 'next/link';
-import Image from 'next/image';
+import AuthImage from '@/components/AuthImage';
 import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
 import { stripAndEncode } from '@/lib/security';
 
@@ -40,13 +40,14 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       className="relative z-10 block bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border border-green-100"
     >
       <div className="relative h-64">
-        <Image
-          src={profile.photo0 ? api.getPhoto(profile.photo0) : generateAvatarUrl(displayName, profileId)}
+        <AuthImage
+          src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(displayName, profileId)}
           alt={`Profile ${profileId}`}
           width={300}
           height={256}
           unoptimized
           className="w-full h-full object-cover"
+          fallbackSrc={generateAvatarUrl(displayName, profileId)}
         />
 
         {isOnline && (

@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         setUser({
           id: payload.username || 'user',
           username: payload.username || 'user',
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: payload.activated || false,
-          profileComplete: false,
+          profileComplete: profileCompleteFromStorage,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
@@ -82,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const payload = tokenStorage.getTokenPayload(token);
       if (payload) {
+        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         setUser({
           id: payload.username || 'user',
           username: payload.username || username,
@@ -89,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: payload.activated || false,
-          profileComplete: false,
+          profileComplete: profileCompleteFromStorage,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
@@ -136,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const tokenParts = newToken.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
+        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         setUser({
           id: payload.username || 'user',
           username: payload.username || 'user',
@@ -143,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: true,
-          profileComplete: false,
+          profileComplete: profileCompleteFromStorage,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,

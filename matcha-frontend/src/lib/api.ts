@@ -196,11 +196,6 @@ class ApiClient {
     return this.request('/pubapi/ping');
   }
 
-  getPhoto(photoName: string): string {
-    const url = `${API_URL}/api/photo/${photoName}`;
-    return url;
-  }
-
   async getUserTags() {
     return this.request('/api/user/tag');
   }
@@ -326,6 +321,25 @@ class ApiClient {
 
     return this.request(`/api/profile?${queryParams.toString()}`);
   }
+
+  async getPhotoBlob(photoName: string): Promise<string> {
+    const url = `${API_URL}/api/photo/${photoName}`;
+    const headers: HeadersInit = {
+      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+    };
+
+    try {
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch photo: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    } catch (error) {
+      console.error('Error fetching photo:', error);
+      throw error;
+    }
+  }
 }
 
 export const api = new ApiClient();
@@ -371,4 +385,8 @@ export function generateAvatarUrl(name?: string, id?: string): string {
   });
 
   return `https://ui-avatars.com/api/?${params.toString()}`;
+}
+
+export function getPhotoUrl(photoName: string): string {
+  return `${API_URL}/api/photo/${photoName}`;
 }

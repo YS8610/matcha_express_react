@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { api, getPhotoUrl, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import AuthImage from '@/components/AuthImage';
 import { User, Star, Heart, Eye, Edit, Leaf } from 'lucide-react';
 import { formatFameRating, toGenderString, toSexualPreferenceString } from '@/lib/neo4j-utils';
 
@@ -75,13 +75,14 @@ export default function MyProfilePage() {
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl overflow-hidden border border-green-100">
           <div className="relative h-64">
             {profile.photo0 ? (
-              <Image
-                src={api.getPhoto(profile.photo0)}
+              <AuthImage
+                src={getPhotoUrl(profile.photo0)}
                 alt="Profile"
                 width={1024}
                 height={256}
                 className="w-full h-full object-cover"
                 unoptimized
+                fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">

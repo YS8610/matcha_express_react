@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { api, generateAvatarUrl } from '@/lib/api';
+import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import Image from 'next/image';
+import AuthImage from '@/components/AuthImage';
 import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
 import { stripAndEncode, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X } from 'lucide-react';
@@ -204,13 +204,14 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-96">
-          <Image
-            src={profile.photo0 ? api.getPhoto(profile.photo0) : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+          <AuthImage
+            src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
             alt={profile.username || 'Profile'}
             width={1024}
             height={384}
             className="w-full h-full object-cover"
             unoptimized
+            fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
           />
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">

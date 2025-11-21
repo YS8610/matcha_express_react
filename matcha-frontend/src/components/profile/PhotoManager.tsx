@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
-import Image from 'next/image';
-import { api } from '@/lib/api';
+import AuthImage from '@/components/AuthImage';
+import { api, getPhotoUrl } from '@/lib/api';
 import imageCompression from 'browser-image-compression';
 
 interface PhotoManagerProps {
@@ -141,8 +141,8 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
               <div className="aspect-square rounded-lg border-2 border-green-300 overflow-hidden bg-gray-50">
                 {hasPhoto ? (
                   <>
-                    <Image
-                      src={api.getPhoto(photoName)}
+                    <AuthImage
+                      src={getPhotoUrl(photoName)}
                       alt={`Photo ${index + 1}`}
                       fill
                       className="object-cover"

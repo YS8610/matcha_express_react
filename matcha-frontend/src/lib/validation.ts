@@ -1,4 +1,4 @@
-import { sanitizeInput, normalizeInput, stripAndEncode, isValidEmail as securityIsValidEmail } from './security';
+import { sanitizeInput, stripAndEncode, isValidEmail as securityIsValidEmail } from './security';
 
 const EMAIL_REGEX = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 

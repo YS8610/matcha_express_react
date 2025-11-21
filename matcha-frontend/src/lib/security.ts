@@ -132,11 +132,6 @@ export function safeJsonStringify(obj: any, maxDepth: number = 10): string {
   }
 }
 
-export function normalizeInput(input: string): string {
-  if (!input) return '';
-  return input.trim().replace(/\s+/g, ' ');
-}
-
 export function isSafeString(str: string, allowSpaces: boolean = true): boolean {
   if (!str) return true;
 

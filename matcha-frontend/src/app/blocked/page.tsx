@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldBan, X } from 'lucide-react';
-import Image from 'next/image';
-import { api, generateAvatarUrl } from '@/lib/api';
+import AuthImage from '@/components/AuthImage';
+import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileShort } from '@/types';
 
@@ -56,7 +56,7 @@ export default function BlockedPage() {
 
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
     const photoUrl = profile.photo0
-      ? api.getPhoto(profile.photo0)
+      ? getPhotoUrl(profile.photo0)
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
     return (
@@ -66,12 +66,13 @@ export default function BlockedPage() {
             onClick={() => handleProfileClick(profile.id)}
             className="relative w-16 h-16 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <Image
+            <AuthImage
               src={photoUrl}
               alt={profile.username}
               fill
               className="object-cover rounded-full"
               unoptimized
+              fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
             />
           </div>
           <div

@@ -30,11 +30,12 @@ export default function ProfileSetup() {
   const [interestInput, setInterestInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [locationLoading, setLocationLoading] = useState(false);
   const [isAutoDetectedLocation, setIsAutoDetectedLocation] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const validateFormField = (fieldName: string, value: any): string | null => {
     switch (fieldName) {
@@ -63,12 +64,26 @@ export default function ProfileSetup() {
   };
 
   useEffect(() => {
-    if (user?.birthDate && !formData.birthDate) {
-      setFormData(prev => ({
-        ...prev,
-        birthDate: user.birthDate,
-      }));
-    }
+    const fetchProfile = async () => {
+      try {
+        const response = await api.getProfile();
+        if (response?.data?.birthDate && !formData.birthDate) {
+          setFormData(prev => ({
+            ...prev,
+            birthDate: response.data.birthDate,
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
     if (user?.latitude !== undefined && user?.longitude !== undefined && formData.latitude === null && formData.longitude === null) {
       setFormData(prev => ({
         ...prev,
@@ -77,7 +92,7 @@ export default function ProfileSetup() {
       }));
       setIsAutoDetectedLocation(true);
     }
-  }, [user?.birthDate, user?.latitude, user?.longitude, formData.latitude, formData.longitude, formData.birthDate]);
+  }, [user?.latitude, user?.longitude, formData.latitude, formData.longitude]);
 
 
   const handleGetLocation = () => {
@@ -233,6 +248,14 @@ export default function ProfileSetup() {
         await api.uploadPhoto(compressedFile, i);
       }
 
+      if (user) {
+        updateUser({
+          ...user,
+          profileComplete: true,
+        });
+        localStorage.setItem('profileComplete', 'true');
+      }
+
       router.push('/browse');
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to setup profile');
@@ -244,6 +267,12 @@ export default function ProfileSetup() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">Complete Your Profile</h2>
+
+      {profileLoading && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-blue-800 text-sm">Loading your profile information...</p>
+        </div>
+      )}
 
       <form className="space-y-6">
         <div>

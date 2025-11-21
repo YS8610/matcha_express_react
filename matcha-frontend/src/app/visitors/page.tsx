@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, Users } from 'lucide-react';
-import Image from 'next/image';
+import AuthImage from '@/components/AuthImage';
 import type { ProfileViewed } from '@/types';
-import { api, generateAvatarUrl } from '@/lib/api';
+import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function VisitorsPage() {
@@ -50,7 +50,7 @@ export default function VisitorsPage() {
 
   const ProfileCard = ({ profile }: { profile: ProfileViewed }) => {
     const photoUrl = profile.photo0
-      ? api.getPhoto(profile.photo0)
+      ? getPhotoUrl(profile.photo0)
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId);
 
     return (
@@ -59,12 +59,13 @@ export default function VisitorsPage() {
         className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       >
         <div className="relative h-48">
-          <Image
+          <AuthImage
             src={photoUrl}
             alt={profile.username}
             fill
             className="object-cover"
             unoptimized
+            fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId)}
           />
         </div>
         <div className="p-4">
