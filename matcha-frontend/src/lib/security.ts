@@ -66,11 +66,6 @@ export function encodeJs(value: string): string {
     .replace(/\u2029/g, '\\u2029');
 }
 
-export function encodeUrl(value: string): string {
-  if (!value) return '';
-  return encodeURIComponent(value);
-}
-
 export function isValidUrl(url: string): boolean {
   if (!url) return false;
 
@@ -169,13 +164,6 @@ export function isValidEmail(email: string): boolean {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) && email.length <= 255;
-}
-
-export function isValidPhoneNumber(phone: string): boolean {
-  if (!phone) return false;
-
-  const phoneRegex = /^[\d\s\-+()]{10,}$/;
-  return phoneRegex.test(phone);
 }
 
 export function stripAndEncode(text: string): string {

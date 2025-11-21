@@ -13,6 +13,7 @@ import {
   validateTag,
   validateCoordinates,
   validateFile,
+  validateBirthDate,
 } from '@/lib/validation';
 
 export default function ProfileSetup() {
@@ -20,6 +21,7 @@ export default function ProfileSetup() {
     gender: '',
     sexualPreference: '',
     biography: '',
+    birthDate: '',
     interests: [] as string[],
     photos: [] as File[],
     latitude: null as number | null,
@@ -61,6 +63,12 @@ export default function ProfileSetup() {
   };
 
   useEffect(() => {
+    if (user?.birthDate && !formData.birthDate) {
+      setFormData(prev => ({
+        ...prev,
+        birthDate: user.birthDate,
+      }));
+    }
     if (user?.latitude !== undefined && user?.longitude !== undefined && formData.latitude === null && formData.longitude === null) {
       setFormData(prev => ({
         ...prev,
@@ -69,7 +77,7 @@ export default function ProfileSetup() {
       }));
       setIsAutoDetectedLocation(true);
     }
-  }, [user?.latitude, user?.longitude, formData.latitude, formData.longitude]);
+  }, [user?.birthDate, user?.latitude, user?.longitude, formData.latitude, formData.longitude, formData.birthDate]);
 
 
   const handleGetLocation = () => {
@@ -161,6 +169,7 @@ export default function ProfileSetup() {
 
     const genderError = validateGender(formData.gender);
     const sexualityError = validateSexuality(formData.sexualPreference);
+    const birthDateError = validateBirthDate(formData.birthDate);
     const biographyError = validateBiography(formData.biography);
     const coordinatesError =
       formData.latitude !== null && formData.longitude !== null
@@ -170,6 +179,7 @@ export default function ProfileSetup() {
     const newErrors: Record<string, string> = {};
     if (genderError) newErrors.gender = genderError;
     if (sexualityError) newErrors.sexualPreference = sexualityError;
+    if (birthDateError) newErrors.birthDate = birthDateError;
     if (biographyError) newErrors.biography = biographyError;
     if (coordinatesError) newErrors.coordinates = coordinatesError;
     if (formData.interests.length === 0) newErrors.interests = 'Add at least one interest';
@@ -193,7 +203,7 @@ export default function ProfileSetup() {
         gender: genderMap[formData.gender] ?? 0,
         sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
         biography: formData.biography,
-        birthDate: user?.birthDate || '',
+        birthDate: formData.birthDate,
       });
 
       if (formData.latitude !== null && formData.longitude !== null) {
@@ -271,13 +281,28 @@ export default function ProfileSetup() {
         </div>
 
         <div>
+          <label className="block text-sm font-medium mb-2">Birth Date</label>
+          <input
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
+          {fieldErrors.birthDate && (
+            <p className="text-xs text-red-500 mt-1">{fieldErrors.birthDate}</p>
+          )}
+        </div>
+
+        <div>
           <label className="block text-sm font-medium mb-2">Location</label>
           {formData.latitude && formData.longitude && isAutoDetectedLocation && (
-            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-xs text-blue-600">
+            <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-xs text-green-600">
                 ✓ Location auto-detected during account activation ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
               </p>
-              <p className="text-xs text-blue-500 mt-1">
+              <p className="text-xs text-green-500 mt-1">
                 Click the button below to update if you&apos;d like a more precise location
               </p>
             </div>
@@ -350,7 +375,7 @@ export default function ProfileSetup() {
             <button
               type="button"
               onClick={handleAddInterest}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
             >
               Add
             </button>
@@ -393,7 +418,7 @@ export default function ProfileSetup() {
             />
             <label
               htmlFor="photo-upload"
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer transition-colors"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer transition-colors"
             >
               <svg
                 className="w-5 h-5"
@@ -467,8 +492,8 @@ export default function ProfileSetup() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={loading || !formData.gender || !formData.sexualPreference || !formData.biography || formData.interests.length === 0 || formData.photos.length === 0}
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+          disabled={loading || !formData.gender || !formData.sexualPreference || !formData.birthDate || !formData.biography || formData.interests.length === 0 || formData.photos.length === 0}
+          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 disabled:opacity-50"
         >
           {loading ? 'Setting up...' : 'Complete Setup'}
         </button>
