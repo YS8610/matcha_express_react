@@ -41,6 +41,53 @@ describe("Route /api/user/profile", () => {
       expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
     });
 
+    it("should return 200 and user profile data if user is not activated and accessing own profile", async () => {
+      const nonActivatedToken = await createToken("1", "testuser@email.com", "testuser", false);
+      const mockProfile = {
+        id: "1",
+        username: "testuser",
+        firstName: "Test",
+        lastName: "User",
+        email: "testuser@email.com",
+        birthDate: {year:{low:1990, high:0}, month:{low:5, high:0}, day:{low:15, high:0}},
+        biography: "",
+        sexualPreference: -1,
+        fameRating: 0,
+        photo0: "",
+        photo1: "",
+        photo2: "",
+        photo3: "",
+        photo4: "",
+        lastOnline: 1234567890,
+        gender: -1,
+      };
+      const mockedgetUserProfileById = vi.spyOn(userSvc, "getUserProfileById").mockResolvedValueOnce(mockProfile as any);
+      const res = await request(app)
+        .get("/api/user/profile")
+        .set("Authorization", `Bearer ${nonActivatedToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        id: "1",
+        username: "testuser",
+        firstName: "Test",
+        lastName: "User",
+        email: "testuser@email.com",
+        birthDate: {year:{low:1990, high:0}, month:{low:5, high:0}, day:{low:15, high:0}},
+        biography: "",
+        sexualPreference: -1,
+        fameRating: 0,
+        photo0: "",
+        photo1: "",
+        photo2: "",
+        photo3: "",
+        photo4: "",
+        lastOnline: expect.any(Number),
+        gender: -1,
+      });
+      expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
+      expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
+    });
+
     it("should return 200 and user profile data", async () => {
       const mockProfile = {
         id: "1",
@@ -110,6 +157,29 @@ describe("Route /api/user/profile", () => {
       expect(res.body.errors[0]).toEqual({
         context: { birthDate: "invalid" },
         message: "Invalid birthDate format. Expected format: YYYY-MM-DD"
+      });
+    });
+
+    it("should return 200 if profile updated successfully and not activated", async () => {
+      const mockedsetUserProfileById = vi.spyOn(userSvc, "setUserProfileById").mockResolvedValueOnce();
+      const nonActivatedToken = await createToken("1", "testuser", "testuser@email.com", false);
+      const res = await request(app)
+        .put("/api/user/profile")
+        .set("Authorization", `Bearer ${nonActivatedToken}`)
+        .send({
+          firstName: "Updated",
+          lastName: "User",
+          email: "updateduser@Email.com",
+          birthDate: "1990-01-01"
+        });
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ msg: "profile updated" });
+      expect(mockedsetUserProfileById).toHaveBeenCalledOnce();
+      expect(mockedsetUserProfileById).toHaveBeenCalledWith("1", {
+        firstName: "Updated",
+        lastName: "User",
+        email: "updateduser@Email.com",
+        birthDate: "1990-01-01"
       });
     });
 
