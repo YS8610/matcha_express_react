@@ -97,12 +97,6 @@ export function removeTags(html: string): string {
   return html.replace(/<[^>]*>/g, '');
 }
 
-export function truncateText(text: string, maxLength: number = 100): string {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
-}
-
 export function safeJsonParse<T = any>(json: string, fallback: T | null = null): T | null {
   if (!json || typeof json !== 'string') return fallback;
 
