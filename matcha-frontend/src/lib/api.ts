@@ -140,7 +140,13 @@ class ApiClient {
 
   async getProfile(userId?: string) {
     const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/api/user/profile';
-    return this.request(endpoint);
+    const response = await this.request(endpoint);
+
+    if (response && typeof response === 'object' && !response.data && (response as any).username && (response as any).id) {
+      console.log('Wrapping profile response');
+      return { data: response };
+    }
+    return response;
   }
 
   async updateProfile(data: Record<string, unknown>) {

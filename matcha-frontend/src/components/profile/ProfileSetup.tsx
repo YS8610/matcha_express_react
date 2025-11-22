@@ -15,6 +15,7 @@ import {
   validateFile,
   validateBirthDate,
 } from '@/lib/validation';
+import { toDateString } from '@/lib/neo4j-utils';
 
 export default function ProfileSetup() {
   const [formData, setFormData] = useState({
@@ -68,9 +69,10 @@ export default function ProfileSetup() {
       try {
         const response = await api.getProfile();
         if (response?.data?.birthDate && !formData.birthDate) {
+          const birthDate = toDateString(response.data.birthDate);
           setFormData(prev => ({
             ...prev,
-            birthDate: response.data.birthDate,
+            birthDate,
           }));
         }
       } catch (err) {

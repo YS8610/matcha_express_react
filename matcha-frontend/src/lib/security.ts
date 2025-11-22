@@ -148,13 +148,6 @@ export function removeSensitiveData<T extends Record<string, any>>(obj: T): Part
   return copy;
 }
 
-export function isValidEmail(email: string): boolean {
-  if (!email) return false;
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email) && email.length <= 255;
-}
-
 export function stripAndEncode(text: string): string {
   return escapeHtml(removeTags(text));
 }

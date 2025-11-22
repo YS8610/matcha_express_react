@@ -32,24 +32,30 @@ export default function AuthImage({
   useEffect(() => {
     if (src && src.includes('/api/photo/')) {
       const photoName = src.split('/api/photo/')[1];
-      if (photoName) {
-        setIsLoading(true);
-        setError(false);
-        api
-          .getPhotoBlob(photoName)
-          .then((blobUrl) => {
-            setImageUrl(blobUrl);
-            setIsLoading(false);
-          })
-          .catch((err) => {
-            console.error('Failed to load protected image:', err);
-            setError(true);
-            setIsLoading(false);
-            if (fallbackSrc) {
-              setImageUrl(fallbackSrc);
-            }
-          });
+      if (!photoName) {
+        setError(true);
+        setIsLoading(false);
+        if (fallbackSrc) {
+          setImageUrl(fallbackSrc);
+        }
+        return;
       }
+      setIsLoading(true);
+      setError(false);
+      api
+        .getPhotoBlob(photoName)
+        .then((blobUrl) => {
+          setImageUrl(blobUrl);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error('Failed to load protected image:', err);
+          setError(true);
+          setIsLoading(false);
+          if (fallbackSrc) {
+            setImageUrl(fallbackSrc);
+          }
+        });
     } else {
       setIsLoading(false);
     }
