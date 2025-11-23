@@ -19,11 +19,19 @@ export default function ProfileSetupPage() {
     }
   }, [user, loading, router]);
 
+  useEffect(() => {
+    if (!loading && user?.profileComplete) {
+      router.push('/profile');
+    }
+  }, [user, loading, router]);
+
   if (loading || (!user && tokenStorage.getToken())) {
     return <div>Loading...</div>;
   }
 
   if (!user) return null;
+
+  if (user.profileComplete) return null;
 
   return <ProfileSetup />;
 }

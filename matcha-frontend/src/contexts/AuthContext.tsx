@@ -46,7 +46,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+        let profileComplete = false;
+        try {
+          const profileResponse = await api.getProfile();
+          const profileData = profileResponse?.data;
+          if (profileData && profileData.gender && profileData.sexualPreference && profileData.birthDate && profileData.biography) {
+            profileComplete = true;
+            localStorage.setItem('profileComplete', 'true');
+          }
+        } catch (profileError) {
+          console.log('Could not fetch profile for completion check:', profileError);
+          profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+        }
+
         setUser({
           id: payload.username || 'user',
           username: payload.username || 'user',
@@ -54,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: payload.activated || false,
-          profileComplete: profileCompleteFromStorage,
+          profileComplete: profileComplete,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
@@ -83,7 +95,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const payload = tokenStorage.getTokenPayload(token);
       if (payload) {
-        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+        let profileComplete = false;
+        try {
+          const profileResponse = await api.getProfile();
+          const profileData = profileResponse?.data;
+          if (profileData && profileData.gender && profileData.sexualPreference && profileData.birthDate && profileData.biography) {
+            profileComplete = true;
+            localStorage.setItem('profileComplete', 'true');
+          }
+        } catch (profileError) {
+          console.log('Could not fetch profile for completion check:', profileError);
+          profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+        }
+
         setUser({
           id: payload.username || 'user',
           username: payload.username || username,
@@ -91,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: payload.activated || false,
-          profileComplete: profileCompleteFromStorage,
+          profileComplete: profileComplete,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,
@@ -138,7 +162,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const tokenParts = newToken.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
-        const profileCompleteFromStorage = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+
+        let profileComplete = false;
+        try {
+          const profileResponse = await api.getProfile();
+          const profileData = profileResponse?.data;
+          if (profileData && profileData.gender && profileData.sexualPreference && profileData.birthDate && profileData.biography) {
+            profileComplete = true;
+            localStorage.setItem('profileComplete', 'true');
+          }
+        } catch (profileError) {
+          console.log('Could not fetch profile for completion check:', profileError);
+          profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
+        }
+
         setUser({
           id: payload.username || 'user',
           username: payload.username || 'user',
@@ -146,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firstName: '',
           lastName: '',
           emailVerified: true,
-          profileComplete: profileCompleteFromStorage,
+          profileComplete: profileComplete,
           lastSeen: new Date(),
           isOnline: false,
           latitude: payload.latitude,

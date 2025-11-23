@@ -94,7 +94,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-16 min-h-screen bg-[var(--background)]">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -105,16 +105,16 @@ export default function ResetPasswordPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">
             Reset Password
           </h1>
-          <p className="text-green-600">Request a reset email or use your reset token</p>
+          <p className="text-green-600 dark:text-green-400">Request a reset email or use your reset token</p>
         </div>
 
-        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button
             onClick={() => setActiveTab('request')}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'request'
-                ? 'bg-white text-green-700 shadow-sm'
-                : 'text-gray-500 hover:text-green-600'
+                ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-400 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400'
             }`}
           >
             Request Reset Email
@@ -123,8 +123,8 @@ export default function ResetPasswordPage() {
             onClick={() => setActiveTab('reset')}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'reset'
-                ? 'bg-white text-green-700 shadow-sm'
-                : 'text-gray-500 hover:text-green-600'
+                ? 'bg-white dark:bg-gray-700 text-green-700 dark:text-green-400 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400'
             }`}
           >
             Reset with Token
@@ -134,20 +134,20 @@ export default function ResetPasswordPage() {
         {activeTab === 'request' && (
           <div className="space-y-4">
             {requestError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded">
                 {requestError}
               </div>
             )}
 
             {requestSuccess && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded">
                 {requestSuccess}
               </div>
             )}
 
             <form onSubmit={handleRequestSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   Email
                 </label>
                 <input
@@ -157,13 +157,13 @@ export default function ResetPasswordPage() {
                   value={requestData.email}
                   onChange={handleRequestChange}
                   required
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   Username
                 </label>
                 <input
@@ -173,7 +173,7 @@ export default function ResetPasswordPage() {
                   value={requestData.username}
                   onChange={handleRequestChange}
                   required
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
                   placeholder="Enter your username"
                 />
               </div>
@@ -192,20 +192,20 @@ export default function ResetPasswordPage() {
         {activeTab === 'reset' && (
           <div className="space-y-4">
             {resetError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded">
                 {resetError}
               </div>
             )}
 
             {resetSuccess && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded">
                 {resetSuccess}
               </div>
             )}
 
             <form onSubmit={handleResetSubmit} className="space-y-4">
               <div>
-                <label htmlFor="userId" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="userId" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   User ID
                 </label>
                 <input
@@ -216,12 +216,12 @@ export default function ResetPasswordPage() {
                   onChange={handleResetChange}
                   required
                   placeholder="Paste user ID from email"
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors font-mono text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="token" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="token" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   Reset Token
                 </label>
                 <textarea
@@ -232,12 +232,12 @@ export default function ResetPasswordPage() {
                   required
                   rows={3}
                   placeholder="Paste reset token from email"
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors font-mono text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="newPassword" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   New Password
                 </label>
                 <input
@@ -248,13 +248,13 @@ export default function ResetPasswordPage() {
                   onChange={handleResetChange}
                   required
                   minLength={8}
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
                   placeholder="Enter new password (min 8 characters)"
                 />
               </div>
 
               <div>
-                <label htmlFor="newPassword2" className="block text-sm font-medium mb-1 text-green-700">
+                <label htmlFor="newPassword2" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
                   Confirm New Password
                 </label>
                 <input
@@ -265,7 +265,7 @@ export default function ResetPasswordPage() {
                   onChange={handleResetChange}
                   required
                   minLength={8}
-                  className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -281,9 +281,9 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        <div className="text-center text-sm mt-6">
+        <div className="text-center text-sm mt-6 text-gray-600 dark:text-gray-400">
           Remember your password?{' '}
-          <Link href="/login" className="text-green-600 hover:text-green-700 hover:underline transition-colors">
+          <Link href="/login" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
             Back to Login
           </Link>
         </div>

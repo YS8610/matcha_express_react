@@ -27,45 +27,6 @@ export function sanitizeInput(input: string, maxLength: number = 1000): string {
   return sanitized;
 }
 
-export function sanitizeHtml(html: string, allowedTags: string[] = []): string {
-  if (!html) return '';
-
-  const parser = typeof document !== 'undefined' ? document : null;
-  if (!parser) return escapeHtml(html);
-
-  const div = document.createElement('div');
-  div.innerHTML = html;
-
-  const dangerousTags = ['script', 'iframe', 'object', 'embed', 'frame', 'frameset', 'link', 'meta', 'style'];
-  dangerousTags.forEach((tag) => {
-    div.querySelectorAll(tag).forEach((el) => el.remove());
-  });
-
-  div.querySelectorAll('*').forEach((el) => {
-    Array.from(el.attributes).forEach((attr) => {
-      if (attr.name.startsWith('on')) {
-        el.removeAttribute(attr.name);
-      }
-    });
-  });
-
-  return div.innerHTML;
-}
-
-export function encodeJs(value: string): string {
-  if (!value) return '';
-  return value
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-    .replace(/\//g, '\\/')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
-}
-
 export function isValidUrl(url: string): boolean {
   if (!url) return false;
 
