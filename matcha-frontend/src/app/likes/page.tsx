@@ -49,7 +49,7 @@ export default function LikesPage() {
     return (
       <div
         onClick={() => handleProfileClick(profile.id)}
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       >
         <div className="relative h-48">
           <AuthImage
@@ -65,10 +65,10 @@ export default function LikesPage() {
           </div>
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-lg text-gray-800">
+          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
             {profile.firstName} {profile.lastName}
           </h3>
-          <p className="text-sm text-gray-600">@{profile.username}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
           <div className="mt-2 flex items-center gap-2">
             <div className="flex items-center text-yellow-500">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -84,10 +84,10 @@ export default function LikesPage() {
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-        <Heart className="w-8 h-8 text-gray-400" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+        <Heart className="w-8 h-8 text-gray-400 dark:text-gray-500" />
       </div>
-      <p className="text-gray-500">No one has liked you yet. Keep your profile updated to attract more interest!</p>
+      <p className="text-gray-500 dark:text-gray-400">No one has liked you yet. Keep your profile updated to attract more interest!</p>
     </div>
   );
 
@@ -103,11 +103,11 @@ export default function LikesPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-400 bg-clip-text text-transparent mb-2">
             People Who Liked You
           </h1>
-          <p className="text-gray-600">These users have shown interest in your profile</p>
+          <p className="text-gray-600 dark:text-gray-400">These users have shown interest in your profile</p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
@@ -115,11 +115,11 @@ export default function LikesPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200"></div>
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
+                <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
                 <div className="p-4">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                 </div>
               </div>
             ))}

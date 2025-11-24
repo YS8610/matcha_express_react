@@ -56,7 +56,7 @@ export default function VisitorsPage() {
     return (
       <div
         onClick={() => handleProfileClick(profile.userId)}
-        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       >
         <div className="relative h-48">
           <AuthImage
@@ -69,10 +69,10 @@ export default function VisitorsPage() {
           />
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-lg text-gray-800">
+          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
             {profile.firstName} {profile.lastName}
           </h3>
-          <p className="text-sm text-gray-600">@{profile.username}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
         </div>
       </div>
     );
@@ -80,10 +80,10 @@ export default function VisitorsPage() {
 
   const EmptyState = ({ message }: { message: string }) => (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-        <Eye className="w-8 h-8 text-gray-400" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+        <Eye className="w-8 h-8 text-gray-400 dark:text-gray-500" />
       </div>
-      <p className="text-gray-500">{message}</p>
+      <p className="text-gray-500 dark:text-gray-400">{message}</p>
     </div>
   );
 
@@ -103,19 +103,19 @@ export default function VisitorsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="flex border-b">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setActiveTab('viewed-by')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${
                 activeTab === 'viewed-by'
-                  ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 bg-green-50 dark:bg-green-950'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -132,8 +132,8 @@ export default function VisitorsPage() {
               onClick={() => setActiveTab('viewed')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${
                 activeTab === 'viewed'
-                  ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 bg-green-50 dark:bg-green-950'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -152,11 +152,11 @@ export default function VisitorsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200"></div>
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
+                <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
                 <div className="p-4">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                 </div>
               </div>
             ))}

@@ -161,34 +161,3 @@ export function hasTokenBeenTampered(token: string): boolean {
   }
 }
 
-export function getTimeUntilExpiry(token?: string): number | null {
-  const tokenToUse = token || getToken();
-  if (!tokenToUse) return null;
-
-  const expiry = getTokenExpiry(tokenToUse);
-  if (!expiry) return null;
-
-  const secondsUntilExpiry = Math.floor((expiry - Date.now()) / 1000);
-  return secondsUntilExpiry > 0 ? secondsUntilExpiry : 0;
-}
-
-export function shouldRefreshToken(token?: string): boolean {
-  const timeUntil = getTimeUntilExpiry(token);
-  if (timeUntil === null) return true;
-
-  return timeUntil < 5 * 60;
-}
-
-export function getTokenDebugInfo(): Record<string, any> {
-  const token = getToken();
-  if (!token) return { token: 'Not set' };
-
-  return {
-    tokenExists: !!token,
-    isValid: isTokenValid(token),
-    isExpired: isTokenExpired(token),
-    timeUntilExpiry: `${getTimeUntilExpiry(token)} seconds`,
-    shouldRefresh: shouldRefreshToken(token),
-    payload: getTokenPayload(token),
-  };
-}

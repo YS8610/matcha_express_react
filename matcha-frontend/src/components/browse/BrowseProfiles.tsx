@@ -129,7 +129,7 @@ export default function BrowseProfiles() {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Discover Your Match</h1>
           </div>
           {!loading && allProfiles.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+            <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full">
               <Users className="w-4 h-4" />
               <span>{allProfiles.length} profiles</span>
             </div>
@@ -156,17 +156,17 @@ export default function BrowseProfiles() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-          <p className="mt-4 text-green-700">Brewing your perfect matches...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 dark:border-green-400 border-t-transparent"></div>
+          <p className="mt-4 text-green-700 dark:text-green-300">Brewing your perfect matches...</p>
         </div>
       ) : allProfiles.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-green-700 text-lg">No profiles found</p>
-          <p className="text-sm text-green-600 mt-2">Try adjusting your filters to find your perfect blend</p>
+          <p className="text-green-700 dark:text-green-300 text-lg">No profiles found</p>
+          <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try adjusting your filters to find your perfect blend</p>
         </div>
       ) : (
         <>
-          <div className="mb-4 text-sm text-green-600">
+          <div className="mb-4 text-sm text-green-700 dark:text-green-300">
             Showing {((currentPage - 1) * PROFILES_PER_PAGE) + 1}-{Math.min(currentPage * PROFILES_PER_PAGE, allProfiles.length)} of {allProfiles.length} profiles
           </div>
 
@@ -181,7 +181,7 @@ export default function BrowseProfiles() {
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-full bg-white border border-green-300 text-green-600 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-full bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -189,7 +189,7 @@ export default function BrowseProfiles() {
               <div className="flex gap-1">
                 {getPageNumbers().map((page, index) => (
                   page === '...' ? (
-                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-green-600">...</span>
+                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-green-700 dark:text-green-300">...</span>
                   ) : (
                     <button
                       key={page}
@@ -197,7 +197,7 @@ export default function BrowseProfiles() {
                       className={`px-4 py-2 rounded-full font-medium transition-all ${
                         currentPage === page
                           ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md'
-                          : 'bg-white border border-green-300 text-green-600 hover:bg-green-50'
+                          : 'bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}
@@ -209,7 +209,7 @@ export default function BrowseProfiles() {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-full bg-white border border-green-300 text-green-600 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-full bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>

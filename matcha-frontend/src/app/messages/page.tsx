@@ -66,7 +66,7 @@ export default function MessagesPage() {
     return (
       <div
         onClick={() => router.push(`/chat/${profile.id}`)}
-        className="flex items-center gap-4 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 transition-colors"
+        className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 transition-colors"
       >
         <div className="relative">
           <div className="w-14 h-14 rounded-full overflow-hidden">
@@ -81,21 +81,21 @@ export default function MessagesPage() {
             />
           </div>
           {isOnline && (
-            <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h3 className="font-semibold text-gray-800 truncate">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate">
               {profile.firstName} {profile.lastName}
             </h3>
             {lastMessage && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {new Date(lastMessage.timestamp).toLocaleDateString()}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600 truncate">
+          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
             {lastMessage ? lastMessage.content : 'Start a conversation!'}
           </p>
         </div>
@@ -110,11 +110,11 @@ export default function MessagesPage() {
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-        <MessageCircle className="w-8 h-8 text-gray-400" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+        <MessageCircle className="w-8 h-8 text-gray-400 dark:text-gray-500" />
       </div>
-      <p className="text-gray-500 mb-2">No conversations yet</p>
-      <p className="text-gray-400 text-sm">Match with someone to start chatting</p>
+      <p className="text-gray-500 dark:text-gray-400 mb-2">No conversations yet</p>
+      <p className="text-gray-400 dark:text-gray-500 text-sm">Match with someone to start chatting</p>
       <button
         onClick={() => router.push('/matches')}
         className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200"
@@ -136,30 +136,30 @@ export default function MessagesPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">
             Messages
           </h1>
-          <p className="text-gray-600">Chat with your matches</p>
+          <p className="text-gray-600 dark:text-gray-400">Chat with your matches</p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-green-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-green-100 dark:border-green-900">
           {loading ? (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 animate-pulse">
-                  <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
+                  <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded mb-2 w-1/3"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                   </div>
                 </div>
               ))}
             </div>
           ) : matches.length > 0 ? (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {matches.map((profile) => (
                 <ConversationItem key={profile.id} profile={profile} />
               ))}

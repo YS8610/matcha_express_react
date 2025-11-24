@@ -57,8 +57,8 @@ export default function MyProfilePage() {
   if (loading || shouldRedirect) return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-        <p className="mt-4 text-green-700">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 dark:border-green-400 border-t-transparent"></div>
+        <p className="mt-4 text-green-700 dark:text-green-300">
           {shouldRedirect ? 'Redirecting to profile setup...' : 'Loading your profile...'}
         </p>
       </div>
@@ -68,7 +68,7 @@ export default function MyProfilePage() {
   if (!profile) return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center py-12">
-        <p className="text-green-700 mb-4">Profile not found</p>
+        <p className="text-green-700 dark:text-green-300 mb-4">Profile not found</p>
       </div>
     </div>
   );
@@ -150,7 +150,7 @@ export default function MyProfilePage() {
 
             <div className="mt-6">
               <h2 className="font-semibold mb-2 text-green-800 dark:text-green-400">Biography</h2>
-              <p className="text-green-700 dark:text-green-300 bg-green-50 dark:bg-gray-800 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
+              <p className="text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
             </div>
           </div>
         </div>

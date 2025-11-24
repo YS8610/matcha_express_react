@@ -142,10 +142,10 @@ export default function SearchPage() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Find Your Perfect Matcha</h1>
       </div>
       
-      <form onSubmit={handleSearch} className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-8 mb-8 border border-green-100">
+      <form onSubmit={handleSearch} className="bg-white/95 dark:bg-gray-900/95 backdrop-blur rounded-2xl shadow-xl p-8 mb-8 border border-green-100 dark:border-green-900">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               Age Range
             </label>
@@ -157,7 +157,7 @@ export default function SearchPage() {
                 placeholder="Min"
                 value={criteria.ageMin}
                 onChange={(e) => setCriteria({ ...criteria, ageMin: e.target.value })}
-                className="flex-1 px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
               />
               <input
                 type="number"
@@ -166,13 +166,13 @@ export default function SearchPage() {
                 placeholder="Max"
                 value={criteria.ageMax}
                 onChange={(e) => setCriteria({ ...criteria, ageMax: e.target.value })}
-                className="flex-1 px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
               <Star className="w-4 h-4" />
               Fame Rating
             </label>
@@ -184,7 +184,7 @@ export default function SearchPage() {
                 placeholder="Min"
                 value={criteria.fameMin}
                 onChange={(e) => setCriteria({ ...criteria, fameMin: e.target.value })}
-                className="flex-1 px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
               />
               <input
                 type="number"
@@ -193,13 +193,13 @@ export default function SearchPage() {
                 placeholder="Max"
                 value={criteria.fameMax}
                 onChange={(e) => setCriteria({ ...criteria, fameMax: e.target.value })}
-                className="flex-1 px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
               <MapPin className="w-4 h-4" />
               Location
             </label>
@@ -208,12 +208,12 @@ export default function SearchPage() {
               placeholder="City or area"
               value={criteria.location}
               onChange={(e) => setCriteria({ ...criteria, location: e.target.value })}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
               <Heart className="w-4 h-4" />
               Interests
             </label>
@@ -222,7 +222,7 @@ export default function SearchPage() {
               placeholder="e.g., music, sports, travel (comma separated)"
               value={criteria.interests}
               onChange={(e) => setCriteria({ ...criteria, interests: e.target.value })}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 dark:focus:border-green-400 transition-colors bg-white dark:bg-gray-800 text-black dark:text-white"
             />
           </div>
         </div>
@@ -249,17 +249,17 @@ export default function SearchPage() {
       {searched && (
         loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-            <p className="mt-4 text-green-700">Steeping through profiles...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 dark:border-green-400 border-t-transparent"></div>
+            <p className="mt-4 text-green-700 dark:text-green-300">Steeping through profiles...</p>
           </div>
         ) : profiles.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-green-700 text-lg">No matches found</p>
-            <p className="text-sm text-green-600 mt-2">Try adjusting your search criteria to find your perfect blend</p>
+            <p className="text-green-700 dark:text-green-300 text-lg">No matches found</p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try adjusting your search criteria to find your perfect blend</p>
           </div>
         ) : (
           <>
-            <div className="mb-4 text-sm text-green-600 bg-green-50 px-4 py-2 rounded-full inline-block">
+            <div className="mb-4 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-4 py-2 rounded-full inline-block">
               Found {profiles.length} perfect matches
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
