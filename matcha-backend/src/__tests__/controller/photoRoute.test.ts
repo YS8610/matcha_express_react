@@ -3,7 +3,8 @@ import appfunc from "../../app.js";
 import request from "supertest";
 import { type Express } from "express-serve-static-core";
 import { createToken } from "../../service/jwtSvc.js";
-import * as photoSvc from "../../service/photoSvc.js";
+import fs from "fs/promises";
+
 
 let app: Express;
 
@@ -47,6 +48,92 @@ describe("Route /api/photo", () => {
         context : { msg : "The requested endpoint does not exist." },
         message: "invalid endpoint",
       });
+    });
+
+    it("should return 400 if filename contains ..", async () => {
+      const response = await request(app)
+        .get("/api/photo/...jpg")
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        context : { msg : "Filename contains invalid characters or path traversal." },
+        message: "invalid filename",
+      });
+    });
+
+    it("should return 400 if filename contains \\", async () => {
+      const response = await request(app)
+        .get("/api/photo/invalid\\name.jpg")
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+      expect(response.status).toBe(404);
+      expect(response.body.errors[0]).toEqual({
+        context : { msg : "The requested endpoint does not exist." },
+        message: "invalid endpoint",
+      });
+    });
+
+    it("should return 400 if filename contains /", async () => {
+      const response = await request(app)
+        .get("/api/photo/invalid/name/with/slash.jpg")
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+      expect(response.status).toBe(404);
+      expect(response.body.errors[0]).toEqual({
+        context : { msg : "The requested endpoint does not exist." },
+        message: "invalid endpoint",
+      });
+    });
+
+    it("should return 200 and send file when it exists", async () => {
+      const expressModule = await import("express");
+      const sendFileSpy = vi
+        .spyOn(expressModule.response as any, "sendFile")
+        .mockImplementation(function (this: any, ...args: any[]) {
+          // sendFile(path, options?, callback?) — callback is usually the last arg
+          const cb = args.find((a) => typeof a === "function") as ((err?: Error | null) => void) | undefined;
+          // simulate successful send and respond to the callback
+          if (typeof this.status === "function") this.status(200).send("OK");
+          if (typeof cb === "function") cb(null);
+        });
+
+      vi.spyOn(fs, "stat").mockResolvedValue({ isFile: () => true } as any);
+
+      const response = await request(app)
+        .get("/api/photo/existing.jpg")
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(response.status).toBe(200);
+      expect(response.text).toBe("OK");
+
+      sendFileSpy.mockRestore();
+    });
+
+    it("should return 404 if sendFile reports an error", async () => {
+      const expressModule = await import("express");
+      const sendFileSpy = vi
+        .spyOn(expressModule.response as any, "sendFile")
+        .mockImplementation(function (this: any, ...args: any[]) {
+          const cb = args.find((a) => typeof a === "function") as ((err?: Error | null) => void) | undefined;
+          if (typeof cb === "function") cb(new Error("send error"));
+        });
+
+      vi.spyOn(fs, "stat").mockResolvedValue({ isFile: () => true } as any);
+
+      const response = await request(app)
+        .get("/api/photo/existing.jpg")
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors[0]).toEqual({
+        context: { msg: "The requested file does not exist." },
+        message: "file not found",
+      });
+
+      sendFileSpy.mockRestore();
     });
   });
 });

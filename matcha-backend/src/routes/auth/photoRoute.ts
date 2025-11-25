@@ -1,6 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import BadRequestError from "../../errors/BadRequestError.js";
 import ConstMatcha from "../../ConstMatcha.js";
+import { resolve, join, relative } from "path";
+import fs from "fs/promises";
 
 let router = express.Router();
 
@@ -17,10 +19,6 @@ router.get("/:name", async (req: Request<{ name: string }>, res: Response, next:
     }));
 
   try {
-    const pathMod = await import("path");
-    const fs = await import("fs/promises");
-    const { resolve, join, relative } = pathMod;
-
     // Resolve base directory and the requested file path
     const baseDir = resolve(ConstMatcha.PHOTO_DUMP_DIR);
     const filePath = resolve(join(baseDir, name));
