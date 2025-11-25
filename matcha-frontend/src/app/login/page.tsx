@@ -3,18 +3,43 @@ import { Leaf } from 'lucide-react';
 
 export default function LoginPage() {
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-br from-green-400 to-green-600 p-4 rounded-full">
-              <Leaf className="w-12 h-12 text-white" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-background-secondary dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-10 w-72 h-72 bg-green-300 dark:bg-green-900 rounded-full mix-blend-multiply filter blur-3xl opacity-10 dark:opacity-5"></div>
+        <div className="absolute -bottom-8 left-10 w-72 h-72 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-10 dark:opacity-5"></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm border border-green-200 dark:border-green-900/50 rounded-2xl shadow-xl dark:shadow-2xl p-8 sm:p-10">
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 rounded-full blur-lg opacity-40 dark:opacity-30"></div>
+                <div className="relative bg-gradient-to-br from-green-400 to-green-600 dark:from-green-700 dark:to-green-800 p-4 rounded-full shadow-lg">
+                  <Leaf className="w-12 h-12 text-white" />
+                </div>
+              </div>
             </div>
+
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-green-500 to-green-400 dark:from-green-300 dark:via-green-400 dark:to-green-300 bg-clip-text text-transparent mb-3">
+              Welcome Back
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Steep into your <span className="font-semibold text-green-600 dark:text-green-400">perfect</span> connections
+            </p>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">Welcome Back</h1>
-          <p className="text-green-600 dark:text-green-400">Steep into your connections</p>
+
+          <LoginForm />
+
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-slate-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              By signing in, you agree to our{' '}
+              <a href="#" className="text-green-600 dark:text-green-400 hover:underline">
+                Terms of Service
+              </a>
+            </p>
+          </div>
         </div>
-        <LoginForm />
       </div>
     </div>
   );

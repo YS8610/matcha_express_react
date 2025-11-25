@@ -26,7 +26,7 @@ eventHandlers(io);
 // start http server
 server.listen(port, async () => {
   await serverErrorWrapper(setAllConstraints, "failed to set constraints");
-  await seeding(10, seedingProfiles);
+  await seeding(500, seedingProfiles);
   // await redisClient.connect().catch(err => {
   //   clogger.error(`[redis]: Could not connect to Redis: ${err}`);
   // });

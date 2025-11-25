@@ -55,71 +55,11 @@ export function checkRateLimit(
   };
 }
 
-export function resetRateLimit(endpoint: string): void {
-  rateLimitStore.delete(endpoint);
-}
-
 export function resetAllRateLimits(): void {
   rateLimitStore.clear();
-}
-
-export async function waitForRateLimit(endpoint: string): Promise<void> {
-  return new Promise((resolve) => {
-    const checkLimit = () => {
-      const status = checkRateLimit(endpoint);
-      if (status.allowed) {
-        resolve();
-      } else {
-        setTimeout(checkLimit, Math.min(status.retryAfterMs, 1000));
-      }
-    };
-    checkLimit();
-  });
-}
-
-export function withRateLimit<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  endpoint: string,
-  customRule?: RateLimitRule
-): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async (...args: Parameters<T>) => {
-    const limit = checkRateLimit(endpoint, customRule);
-
-    if (!limit.allowed) {
-      throw new Error(limit.message || 'Rate limit exceeded, please try again later');
-    }
-
-    return fn(...args);
-  };
 }
 
 export function setRateLimit(endpoint: string, rule: RateLimitRule): void {
   defaultRateLimits.set(endpoint, rule);
 }
 
-export function getAllRateLimitRules(): Map<string, RateLimitRule> {
-  return new Map(defaultRateLimits);
-}
-
-export function getRateLimitedEndpoints(): string[] {
-  const now = Date.now();
-  const limited = Array.from(rateLimitStore.entries())
-    .filter(([endpoint, entry]) => {
-      const rule = defaultRateLimits.get(endpoint);
-      if (!rule) return false;
-      const validTimestamps = entry.timestamps.filter((ts) => now - ts < rule.windowMs);
-      return validTimestamps.length >= rule.maxRequests;
-    })
-    .map(([endpoint]) => endpoint);
-
-  return limited;
-}
-
-export function debugRateLimits(): void {
-  console.group('Rate Limit Rules');
-  defaultRateLimits.forEach((rule, endpoint) => {
-    const status = checkRateLimit(endpoint);
-    console.log(`${endpoint}:`, `Allowed: ${status.allowed}, Remaining: ${status.remainingRequests}/${rule.maxRequests}, RetryAfter: ${status.retryAfterMs}ms`);
-  });
-  console.groupEnd();
-}

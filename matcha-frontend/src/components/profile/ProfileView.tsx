@@ -67,7 +67,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         try {
           await api.recordUserView(userId);
         } catch (viewError) {
-          console.error('Failed to record profile view:', viewError);
+          const errorMsg = viewError instanceof Error ? viewError.message : String(viewError);
+          if (!errorMsg.includes('already been viewed')) {
+            console.error('Failed to record profile view:', viewError);
+          }
         }
 
         if (response.data?.connectionStatus) {

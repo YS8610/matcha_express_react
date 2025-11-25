@@ -1,25 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 
 export default function Home() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loading } = useAuth();
   const [pingResult, setPingResult] = useState('');
   const [pinging, setPinging] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && pathname === '/') {
       if (user) {
         router.replace('/browse');
       } else {
         router.replace('/login');
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   const handlePing = async () => {
     setPinging(true);

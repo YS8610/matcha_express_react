@@ -1,4 +1,4 @@
-import { sanitizeInput, stripAndEncode } from './security';
+import { sanitizeInput } from './security';
 
 const EMAIL_REGEX = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 
@@ -309,49 +309,6 @@ export const validateSexuality = (sexuality: string): string | null => {
   return null;
 };
 
-export const validateAge = (ageMin: number | null, ageMax: number | null): string | null => {
-  const minAge = 18;
-  const maxAge = 120;
-
-  if (ageMin !== null && (ageMin < minAge || ageMin > maxAge)) {
-    return `Minimum age must be between ${minAge} and ${maxAge}`;
-  }
-
-  if (ageMax !== null && (ageMax < minAge || ageMax > maxAge)) {
-    return `Maximum age must be between ${minAge} and ${maxAge}`;
-  }
-
-  if (ageMin !== null && ageMax !== null && ageMin > ageMax) {
-    return 'Minimum age must be less than maximum age';
-  }
-
-  return null;
-};
-
-export const validateDistance = (distance: number | null): string | null => {
-  if (distance === null || distance === undefined) {
-    return null;
-  }
-
-  if (distance < 0 || distance > 10000) {
-    return 'Distance must be between 0 and 10000 km';
-  }
-
-  return null;
-};
-
-export const validateFameRating = (fame: number | null): string | null => {
-  if (fame === null || fame === undefined) {
-    return null;
-  }
-
-  if (fame < 0 || fame > 100) {
-    return 'Fame rating must be between 0 and 100';
-  }
-
-  return null;
-};
-
 export const validateFile = (
   file: File,
   maxSizeBytes: number = 5 * 1024 * 1024, 
@@ -397,50 +354,3 @@ export const validateCoordinates = (latitude: number | null, longitude: number |
   return null;
 };
 
-export const validateProfileUpdate = (profileData: {
-  firstName?: string;
-  lastName?: string;
-  biography?: string;
-  gender?: string;
-  sexuality?: string;
-  tags?: string[];
-}): Record<string, string> => {
-  const errors: Record<string, string> = {};
-
-  if (profileData.firstName !== undefined) {
-    const error = validateFirstName(profileData.firstName);
-    if (error) errors.firstName = error;
-  }
-
-  if (profileData.lastName !== undefined) {
-    const error = validateLastName(profileData.lastName);
-    if (error) errors.lastName = error;
-  }
-
-  if (profileData.biography !== undefined) {
-    const error = validateBiography(profileData.biography);
-    if (error) errors.biography = error;
-  }
-
-  if (profileData.gender !== undefined) {
-    const error = validateGender(profileData.gender);
-    if (error) errors.gender = error;
-  }
-
-  if (profileData.sexuality !== undefined) {
-    const error = validateSexuality(profileData.sexuality);
-    if (error) errors.sexuality = error;
-  }
-
-  if (profileData.tags !== undefined && Array.isArray(profileData.tags)) {
-    for (let i = 0; i < profileData.tags.length; i++) {
-      const error = validateTag(profileData.tags[i]);
-      if (error) {
-        errors[`tags.${i}`] = error;
-        break;
-      }
-    }
-  }
-
-  return errors;
-};

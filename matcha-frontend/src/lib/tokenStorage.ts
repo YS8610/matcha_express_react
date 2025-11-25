@@ -17,21 +17,13 @@ function decodeJWT(token: string): any | null {
   }
 }
 
-export function getTokenExpiry(token: string): number | null {
-  if (!token) return null;
-
-  const decoded = decodeJWT(token);
-  if (!decoded || !decoded.exp) return null;
-
-  return decoded.exp * 1000;
-}
-
 export function isTokenExpired(token: string): boolean {
   if (!token) return true;
 
-  const expiry = getTokenExpiry(token);
-  if (!expiry) return true;
+  const decoded = decodeJWT(token);
+  if (!decoded || !decoded.exp) return true;
 
+  const expiry = decoded.exp * 1000;
   const buffer = 5 * 60 * 1000;
   return Date.now() + buffer > expiry;
 }
@@ -53,7 +45,8 @@ export function storeToken(token: string): boolean {
   try {
     localStorage.setItem(TOKEN_KEY, token);
 
-    const expiry = getTokenExpiry(token);
+    const decoded = decodeJWT(token);
+    const expiry = decoded && decoded.exp ? decoded.exp * 1000 : null;
     if (expiry) {
       localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toString());
     }

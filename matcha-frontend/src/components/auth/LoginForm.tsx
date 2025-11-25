@@ -109,31 +109,31 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="space-y-4 w-full max-w-md px-4 sm:px-0">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="w-full space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div className="flex items-center gap-2 p-3 sm:p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md text-red-800 dark:text-red-200 text-sm">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 text-sm animate-in fade-in slide-in-from-top">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span className="flex-1">{error}</span>
           </div>
         )}
 
         {rateLimitWarning && (
-          <div className={`flex items-center gap-2 p-3 sm:p-4 border rounded-md text-sm ${
+          <div className={`flex items-start gap-3 p-4 border rounded-lg text-sm animate-in fade-in slide-in-from-top ${
             rateLimitWarning.includes('Too many')
-              ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
               : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200'
           }`}>
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <span>{rateLimitWarning}</span>
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span className="flex-1">{rateLimitWarning}</span>
           </div>
         )}
 
-        <div>
-          <label htmlFor="username" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+        <div className="space-y-2">
+          <label htmlFor="username" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
             Username
           </label>
-          <div className="relative">
+          <div className="relative group">
             <input
               type="text"
               id="username"
@@ -142,32 +142,34 @@ export default function LoginForm() {
               onChange={handleChange}
               onBlur={handleBlur}
               required
-              className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+              className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-slate-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-base focus:outline-none ${
                 isFieldInvalid('username')
-                  ? 'border-red-500 dark:border-red-500'
+                  ? 'border-red-500 dark:border-red-500 focus:ring-2 focus:ring-red-500/20'
                   : isFieldValid('username')
-                  ? 'border-green-500 dark:border-green-500'
-                  : 'border-gray-300 dark:border-slate-600'
+                  ? 'border-green-500 dark:border-green-500 focus:ring-2 focus:ring-green-500/20'
+                  : 'border-gray-300 dark:border-slate-600 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/10'
               }`}
               placeholder="Enter your username"
             />
-            {isFieldValid('username') && (
-              <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-            )}
-            {isFieldInvalid('username') && (
-              <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-            )}
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 transition-all duration-200">
+              {isFieldValid('username') && (
+                <CheckCircle className="w-5 h-5 text-green-500 animate-in scale-in" />
+              )}
+              {isFieldInvalid('username') && (
+                <AlertCircle className="w-5 h-5 text-red-500 animate-in scale-in" />
+              )}
+            </div>
           </div>
           {isFieldInvalid('username') && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.username}</p>
+            <p className="text-xs text-red-500 dark:text-red-400 font-medium animate-in fade-in">{fieldErrors.username}</p>
           )}
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
             Password
           </label>
-          <div className="relative">
+          <div className="relative group">
             <input
               type="password"
               id="password"
@@ -176,48 +178,64 @@ export default function LoginForm() {
               onChange={handleChange}
               onBlur={handleBlur}
               required
-              className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+              className={`w-full px-4 py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-slate-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-base focus:outline-none ${
                 isFieldInvalid('password')
-                  ? 'border-red-500 dark:border-red-500'
+                  ? 'border-red-500 dark:border-red-500 focus:ring-2 focus:ring-red-500/20'
                   : isFieldValid('password')
-                  ? 'border-green-500 dark:border-green-500'
-                  : 'border-gray-300 dark:border-slate-600'
+                  ? 'border-green-500 dark:border-green-500 focus:ring-2 focus:ring-green-500/20'
+                  : 'border-gray-300 dark:border-slate-600 focus:border-green-500 dark:focus:border-green-500 focus:ring-2 focus:ring-green-500/10'
               }`}
               placeholder="Enter your password"
             />
-            {isFieldValid('password') && (
-              <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-            )}
-            {isFieldInvalid('password') && (
-              <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-            )}
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 transition-all duration-200">
+              {isFieldValid('password') && (
+                <CheckCircle className="w-5 h-5 text-green-500 animate-in scale-in" />
+              )}
+              {isFieldInvalid('password') && (
+                <AlertCircle className="w-5 h-5 text-red-500 animate-in scale-in" />
+              )}
+            </div>
           </div>
           {isFieldInvalid('password') && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.password}</p>
+            <p className="text-xs text-red-500 dark:text-red-400 font-medium animate-in fade-in">{fieldErrors.password}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-2.5 sm:py-2 rounded-full hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all transform hover:scale-105 shadow-lg text-base sm:text-base"
+          className="w-full relative overflow-hidden bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-3 rounded-lg hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-green-500/30 dark:hover:shadow-green-700/30 text-base"
         >
-          {loading ? 'Logging in...' : 'Login'}
+          <span className="flex items-center justify-center gap-2">
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Logging in...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
+          </span>
         </button>
+      </form>
 
-        <div className="text-center text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+      <div className="space-y-3 pt-4">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           {`Don't have an account? `}
-          <Link href="/register" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors font-semibold">
-            Register
+          <Link href="/register" className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
+            Create one
           </Link>
-        </div>
+        </p>
 
-        <div className="text-center text-xs sm:text-sm">
-          <Link href="/reset-password" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors font-semibold">
+        <p className="text-center text-sm">
+          <Link href="/reset-password" className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
             Forgot Password?
           </Link>
-        </div>
-      </form>
+        </p>
+      </div>
     </div>
   );
 }

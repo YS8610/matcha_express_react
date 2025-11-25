@@ -40,7 +40,7 @@ export default function BrowseProfiles() {
 
       const profiles = Array.isArray(response) ? response : response.data || [];
       setAllProfiles(profiles);
-      setTotalProfiles(profiles.length > 0 ? skip + profiles.length + 1 : 0);
+      setTotalProfiles(profiles.length);
       setCurrentPage(1);
     } catch (error) {
       console.error('Failed to load profiles:', error);
@@ -181,7 +181,14 @@ export default function BrowseProfiles() {
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-full bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--button-bg)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -194,11 +201,26 @@ export default function BrowseProfiles() {
                     <button
                       key={page}
                       onClick={() => goToPage(page as number)}
-                      className={`px-4 py-2 rounded-full font-medium transition-all ${
+                      className={`px-4 py-2 rounded-full font-medium transition-all border ${
                         currentPage === page
-                          ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md'
-                          : 'bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700'
+                          ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md border-green-600'
+                          : ''
                       }`}
+                      style={currentPage !== page ? {
+                        backgroundColor: 'var(--card-bg)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--button-bg)'
+                      } : undefined}
+                      onMouseEnter={(e) => {
+                        if (currentPage !== (page as number)) {
+                          e.currentTarget.style.backgroundColor = 'var(--input-bg)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (currentPage !== (page as number)) {
+                          e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                        }
+                      }}
                     >
                       {page}
                     </button>
@@ -209,7 +231,14 @@ export default function BrowseProfiles() {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-full bg-white dark:bg-gray-800 border border-green-300 dark:border-green-700 text-green-600 dark:text-green-300 hover:bg-green-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--button-bg)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>

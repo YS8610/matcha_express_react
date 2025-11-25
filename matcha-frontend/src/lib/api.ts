@@ -77,6 +77,14 @@ class ApiClient {
         }
       }
 
+      if (response.status === 400 && responseData.message?.includes('User profile not found')) {
+        this.clearToken();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('unauthorized'));
+          window.location.href = '/login';
+        }
+      }
+
       if (responseData.errors && responseData.errors[0]) {
         throw new Error(responseData.errors[0].message || `HTTP error! status: ${response.status}`);
       }
