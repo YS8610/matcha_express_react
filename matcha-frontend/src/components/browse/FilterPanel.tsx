@@ -18,15 +18,15 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100">
+    <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-green-800 flex items-center gap-2">
-          <Filter className="w-5 h-5 text-green-600" />
+        <h2 className="text-lg font-semibold text-green-800 dark:text-green-200 flex items-center gap-2">
+          <Filter className="w-5 h-5 text-green-600 dark:text-green-400" />
           Filter Your Matches
         </h2>
         <button
           onClick={onClose}
-          className="text-green-600 hover:text-green-800 p-1 hover:bg-green-50 rounded-full transition-colors"
+          className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 p-1 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-full transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -34,7 +34,7 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Age Range
           </label>
@@ -49,9 +49,9 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 ageMin: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Min"
-              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-20 px-2 py-1 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
-            <span className="text-green-600">-</span>
+            <span className="text-green-600 dark:text-green-400">-</span>
             <input
               type="number"
               min="18"
@@ -62,13 +62,13 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 ageMax: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Max"
-              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-20 px-2 py-1 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
             <MapPin className="w-4 h-4" />
             Distance (km)
           </label>
@@ -82,12 +82,12 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
               distanceMax: e.target.value ? parseInt(e.target.value) : undefined
             })}
             placeholder="Maximum distance"
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
             <Star className="w-4 h-4" />
             Fame Rating
           </label>
@@ -102,9 +102,9 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 fameMin: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Min"
-              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-20 px-2 py-1 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
-            <span className="text-green-600">-</span>
+            <span className="text-green-600 dark:text-green-400">-</span>
             <input
               type="number"
               min="0"
@@ -115,13 +115,13 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
                 fameMax: e.target.value ? parseInt(e.target.value) : undefined
               })}
               placeholder="Max"
-              className="w-20 px-2 py-1 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-20 px-2 py-1 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4" />
             Sort By
           </label>
@@ -131,7 +131,7 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
               ...localFilters,
               sortBy: e.target.value as 'age' | 'distance' | 'fame' | 'commonTags'
             })}
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >
             <option value="age">Age</option>
             <option value="distance">Distance</option>
@@ -141,14 +141,14 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-green-700">Order</label>
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">Order</label>
           <select
             value={localFilters.order || 'asc'}
             onChange={(e) => setLocalFilters({
               ...localFilters,
               order: e.target.value as 'asc' | 'desc'
             })}
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           >
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
@@ -158,14 +158,14 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         <div className="flex gap-2 pt-4">
           <button
             onClick={() => setLocalFilters({})}
-            className="flex-1 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 font-medium transition-all flex items-center justify-center gap-2"
+            className="flex-1 py-2 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full hover:bg-green-200 dark:hover:bg-green-900/60 font-medium transition-all flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />
             Reset
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md"
+            className="flex-1 py-2 bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white rounded-full hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 font-medium transition-all transform hover:scale-105 shadow-md"
           >
             Apply Filters
           </button>

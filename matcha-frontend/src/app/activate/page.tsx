@@ -62,18 +62,18 @@ export default function ActivatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
           Activate Your Account
         </h1>
-        <p className="text-gray-600 text-center mb-6">
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
           Enter the activation token from your email
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="token" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Activation Token
             </label>
             <input
@@ -82,7 +82,7 @@ export default function ActivatePage() {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder="Enter your activation token"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
               disabled={status === 'loading'}
             />
           </div>
@@ -107,38 +107,38 @@ export default function ActivatePage() {
         </form>
 
         {status === 'success' && (
-          <div className="mt-6 p-4 bg-green-50 rounded-lg">
+          <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <p className="text-green-600 font-medium">{message}</p>
+              <p className="text-green-600 dark:text-green-400 font-medium">{message}</p>
             </div>
-            <p className="text-sm text-gray-600 mt-2">Redirecting to profile setup...</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Redirecting to profile setup...</p>
           </div>
         )}
 
         {status === 'error' && (
-          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+          <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <div className="flex items-start">
-              <svg className="w-5 h-5 text-red-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-red-600 dark:text-red-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
-                <p className="text-red-600 font-medium">{message}</p>
-                {errorDetails && <p className="text-sm text-gray-600 mt-1">{errorDetails}</p>}
+                <p className="text-red-600 dark:text-red-400 font-medium">{message}</p>
+                {errorDetails && <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{errorDetails}</p>}
               </div>
             </div>
           </div>
         )}
 
         <div className="mt-6 text-center space-y-2">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Didn&apos;t receive an activation email?
           </p>
           <Link
             href="/register"
-            className="text-green-600 hover:text-green-700 font-medium text-sm"
+            className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium text-sm"
           >
             Register again
           </Link>
@@ -147,7 +147,7 @@ export default function ActivatePage() {
         <div className="mt-4 text-center">
           <Link
             href="/login"
-            className="text-gray-500 hover:text-gray-700 text-sm"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
           >
             Already activated? Go to login
           </Link>

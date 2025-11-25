@@ -60,7 +60,7 @@ export default function BlockedPage() {
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
     return (
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="flex items-center p-4">
           <div
             onClick={() => handleProfileClick(profile.id)}
@@ -79,10 +79,10 @@ export default function BlockedPage() {
             onClick={() => handleProfileClick(profile.id)}
             className="flex-1 ml-4 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h3 className="font-semibold text-lg text-gray-800">
+            <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
               {profile.firstName} {profile.lastName}
             </h3>
-            <p className="text-sm text-gray-600">@{profile.username}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
             <div className="mt-1 flex items-center gap-2">
               <div className="flex items-center text-yellow-500">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -106,10 +106,10 @@ export default function BlockedPage() {
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-        <ShieldBan className="w-8 h-8 text-gray-400" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+        <ShieldBan className="w-8 h-8 text-gray-400 dark:text-gray-500" />
       </div>
-      <p className="text-gray-500">You haven&apos;t blocked anyone yet.</p>
+      <p className="text-gray-500 dark:text-gray-400">You haven&apos;t blocked anyone yet.</p>
     </div>
   );
 
@@ -122,14 +122,14 @@ export default function BlockedPage() {
               <ShieldBan className="w-12 h-12 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent mb-2">
             Blocked Users
           </h1>
-          <p className="text-gray-600">Manage users you&apos;ve blocked</p>
+          <p className="text-gray-600 dark:text-gray-400">Manage users you&apos;ve blocked</p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             {error}
           </div>
         )}
@@ -137,12 +137,12 @@ export default function BlockedPage() {
         {loading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 animate-pulse">
                 <div className="flex items-center">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                   <div className="flex-1 ml-4">
-                    <div className="h-4 bg-gray-200 rounded mb-2 w-1/3"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
                   </div>
                 </div>
               </div>

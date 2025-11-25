@@ -12,7 +12,7 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">Welcome Back</h1>
-          <p className="text-green-600">Steep into your connections</p>
+          <p className="text-green-600 dark:text-green-400">Steep into your connections</p>
         </div>
         <LoginForm />
       </div>

@@ -12,7 +12,7 @@ export default function RegisterPage() {
             <Leaf className="w-10 h-10 text-green-600 animate-pulse" style={{ animationDelay: '0.5s' }} />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">Join Matcha</h1>
-          <p className="text-green-600">Start brewing meaningful connections</p>
+          <p className="text-green-600 dark:text-green-400">Start brewing meaningful connections</p>
         </div>
         <RegisterForm />
       </div>

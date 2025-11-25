@@ -117,7 +117,7 @@ export default function MessagesPage() {
       <p className="text-gray-400 dark:text-gray-500 text-sm">Match with someone to start chatting</p>
       <button
         onClick={() => router.push('/matches')}
-        className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200"
+        className="mt-4 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-700 dark:to-green-600 text-white py-2 px-6 rounded-lg hover:from-green-600 hover:to-green-700 dark:hover:from-green-800 dark:hover:to-green-700 transition-all duration-200"
       >
         View Matches
       </button>
