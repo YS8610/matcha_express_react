@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { api } from '@/lib/api';
+import { getPhotoUrl } from '@/lib/api';
 
 interface AuthImageProps {
   src: string;
@@ -25,46 +24,17 @@ export default function AuthImage({
   unoptimized,
   fallbackSrc,
 }: AuthImageProps) {
-  const [imageUrl, setImageUrl] = useState<string>(src);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const imageUrl = src && src.includes('/api/photo/')
+    ? getPhotoUrl(src.split('/api/photo/')[1])
+    : src;
+  const error = !imageUrl;
 
-  useEffect(() => {
-    if (src && src.includes('/api/photo/')) {
-      const photoName = src.split('/api/photo/')[1];
-      if (!photoName) {
-        setError(true);
-        setIsLoading(false);
-        if (fallbackSrc) {
-          setImageUrl(fallbackSrc);
-        }
-        return;
-      }
-      setIsLoading(true);
-      setError(false);
-      api
-        .getPhotoBlob(photoName)
-        .then((blobUrl) => {
-          setImageUrl(blobUrl);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error('Failed to load protected image:', err);
-          setError(true);
-          setIsLoading(false);
-          if (fallbackSrc) {
-            setImageUrl(fallbackSrc);
-          }
-        });
-    } else {
-      setIsLoading(false);
-    }
-  }, [src, fallbackSrc]);
+  const finalSrc = error && fallbackSrc ? fallbackSrc : imageUrl;
 
   if (fill) {
     return (
       <Image
-        src={error && fallbackSrc ? fallbackSrc : imageUrl}
+        src={finalSrc}
         alt={alt}
         fill
         className={className}
@@ -75,7 +45,7 @@ export default function AuthImage({
 
   return (
     <Image
-      src={error && fallbackSrc ? fallbackSrc : imageUrl}
+      src={finalSrc}
       alt={alt}
       width={width}
       height={height}

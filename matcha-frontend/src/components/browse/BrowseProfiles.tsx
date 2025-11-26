@@ -24,10 +24,9 @@ export default function BrowseProfiles() {
   const loadProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const skip = (currentPage - 1) * PROFILES_PER_PAGE;
       const requestFilters: any = {
-        skip,
-        limit: PROFILES_PER_PAGE,
+        skip: 0,
+        limit: 1000,
       };
 
       if (filters.ageMin !== undefined) requestFilters.minAge = filters.ageMin;
@@ -49,7 +48,7 @@ export default function BrowseProfiles() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, filters]);
+  }, [filters]);
 
   useEffect(() => {
     loadProfiles();
@@ -65,9 +64,11 @@ export default function BrowseProfiles() {
   }, []);
 
   useEffect(() => {
-    setDisplayedProfiles(allProfiles);
+    const startIdx = (currentPage - 1) * PROFILES_PER_PAGE;
+    const endIdx = startIdx + PROFILES_PER_PAGE;
+    setDisplayedProfiles(allProfiles.slice(startIdx, endIdx));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [allProfiles]);
+  }, [allProfiles, currentPage]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);

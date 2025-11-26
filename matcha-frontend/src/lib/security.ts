@@ -32,7 +32,4 @@ export function removeTags(html: string): string {
   return html.replace(/<[^>]*>/g, '');
 }
 
-export function stripAndEncode(text: string): string {
-  return escapeHtml(removeTags(text));
-}
 

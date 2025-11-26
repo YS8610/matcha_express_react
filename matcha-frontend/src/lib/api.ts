@@ -1,36 +1,16 @@
 import type { RegisterData, LoginRequest, LoginResponse, ApiResponse } from '@/types';
+import { storeToken, clearToken, getToken } from '@/lib/tokenStorage';
 
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 
 class ApiClient {
-  private token: string | null = null;
-
-  constructor() {
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('token');
-    }
-  }
-
-  setToken(token: string) {
-    this.token = token;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
-      document.cookie = `token=${token};path=/;max-age=${7 * 24 * 60 * 60};SameSite=Lax`;
-    }
-  }
-
-  clearToken() {
-    this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      document.cookie = `token=;path=/;max-age=0`;
-    }
-  }
+  constructor() {}
 
   async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
+    const token = typeof window !== 'undefined' ? getToken() : null;
     const headers: HeadersInit = {
-      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...(options.headers as Record<string, string>),
     };
 
@@ -70,7 +50,7 @@ class ApiClient {
       });
 
       if (response.status === 401) {
-        this.clearToken();
+        clearToken();
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('unauthorized'));
           window.location.href = '/login';
@@ -78,7 +58,7 @@ class ApiClient {
       }
 
       if (response.status === 400 && responseData.message?.includes('User profile not found')) {
-        this.clearToken();
+        clearToken();
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('unauthorized'));
           window.location.href = '/login';
@@ -119,7 +99,7 @@ class ApiClient {
       body: JSON.stringify(credentials),
     });
     if (response.msg) {
-      this.setToken(response.msg);
+      storeToken(response.msg);
     }
     return response as LoginResponse;
   }
@@ -127,7 +107,7 @@ class ApiClient {
   async activateAccount(token: string): Promise<LoginResponse> {
     const response = await this.request(`/pubapi/activate/${token}`);
     if (response.msg) {
-      this.setToken(response.msg);
+      storeToken(response.msg);
     }
     return response as LoginResponse;
   }
@@ -147,7 +127,7 @@ class ApiClient {
   }
 
   async getProfile(userId?: string) {
-    const endpoint = userId && userId !== 'undefined' ? `/profiles/${userId}` : '/api/user/profile';
+    const endpoint = userId && userId !== 'undefined' ? `/api/profile/${userId}` : '/api/user/profile';
     const response = await this.request(endpoint);
 
     if (response && typeof response === 'object' && !response.data && (response as any).username && (response as any).id) {
@@ -194,6 +174,13 @@ class ApiClient {
   async likeUser(userid: string) {
     return this.request('/api/user/liked', {
       method: 'POST',
+      body: JSON.stringify({ userid }),
+    });
+  }
+
+  async unlikeUser(userid: string) {
+    return this.request('/api/user/liked', {
+      method: 'DELETE',
       body: JSON.stringify({ userid }),
     });
   }
@@ -290,9 +277,6 @@ class ApiClient {
     });
   }
 
-  async getUserFullProfile(userId: string) {
-    return this.request(`/api/profile/${userId}`);
-  }
 
   async reportUser(userId: string, reason: string) {
     return this.request(`/api/user/report/${userId}`, {
@@ -336,24 +320,6 @@ class ApiClient {
     return this.request(`/api/profile?${queryParams.toString()}`);
   }
 
-  async getPhotoBlob(photoName: string): Promise<string> {
-    const url = `${API_URL}/api/photo/${photoName}`;
-    const headers: HeadersInit = {
-      ...(this.token && { Authorization: `Bearer ${this.token}` }),
-    };
-
-    try {
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch photo: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    } catch (error) {
-      console.error('Error fetching photo:', error);
-      throw error;
-    }
-  }
 }
 
 export const api = new ApiClient();

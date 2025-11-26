@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      api.clearToken();
+      tokenStorage.clearToken();
       localStorage.clear();
       sessionStorage.clear();
 

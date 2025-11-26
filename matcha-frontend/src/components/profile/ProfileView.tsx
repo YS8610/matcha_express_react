@@ -6,7 +6,7 @@ import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthImage from '@/components/AuthImage';
 import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
-import { stripAndEncode, sanitizeInput } from '@/lib/security';
+import { escapeHtml, removeTags, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -31,7 +31,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const displayName = useMemo(
     () => {
-      const name = stripAndEncode(profile?.firstName || profile?.username || 'User');
+      const name = escapeHtml(removeTags(profile?.firstName || profile?.username || 'User'));
       return name.length > 50 ? name.substring(0, 47) + '...' : name;
     },
     [profile?.firstName, profile?.username]
@@ -39,7 +39,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const displayUsername = useMemo(
     () => {
-      const username = stripAndEncode(profile?.username || 'user');
+      const username = escapeHtml(removeTags(profile?.username || 'user'));
       return username.length > 30 ? username.substring(0, 27) + '...' : username;
     },
     [profile?.username]
@@ -58,19 +58,14 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     try {
-      const response = user && user.id === userId
-        ? await api.getProfile()
-        : await api.getUserFullProfile(userId);
+      const response = await api.getProfile(userId);
       setProfile(response.data || null);
 
       if (user && user.id !== userId) {
         try {
           await api.recordUserView(userId);
         } catch (viewError) {
-          const errorMsg = viewError instanceof Error ? viewError.message : String(viewError);
-          if (!errorMsg.includes('already been viewed')) {
-            console.error('Failed to record profile view:', viewError);
-          }
+          console.debug('View recording skipped:', viewError);
         }
 
         if (response.data?.connectionStatus) {
@@ -122,8 +117,33 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setHasUserLiked(true);
       alert('Profile liked!');
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('Failed to like:', error);
-      setLikeError('Failed to like this profile. Please try again.');
+      if (errorMsg.includes('already liked')) {
+        setLikeError('You have already liked this profile');
+      } else if (errorMsg.includes('cannot like yourself')) {
+        setLikeError('You cannot like your own profile');
+      } else {
+        setHasUserLiked(true);
+      }
+    }
+  };
+
+  const handleUnlike = async () => {
+    if (!profile || !userId) {
+      console.error('Cannot unlike: profile or userId is missing');
+      return;
+    }
+
+    try {
+      setLikeError('');
+      await api.unlikeUser(userId);
+      setHasUserLiked(false);
+      alert('Profile unliked!');
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error('Failed to unlike:', error);
+      setLikeError('Failed to unlike profile');
     }
   };
 
@@ -271,14 +291,31 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 </div>
               )}
               <div className="flex gap-2">
-                <button
-                  onClick={handleLike}
-                  disabled={hasUserLiked || isConnected}
-                  title={hasUserLiked ? 'You already liked this profile' : isConnected ? 'You are already connected' : 'Like this profile'}
-                  className="flex-1 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {hasUserLiked ? '❤️ Liked' : isConnected ? '💬 Connected' : 'Like'}
-                </button>
+                {isConnected ? (
+                  <button
+                    disabled={true}
+                    title="You are already connected"
+                    className="flex-1 py-2 rounded-md bg-gray-400 text-white disabled:cursor-not-allowed"
+                  >
+                    💬 Connected
+                  </button>
+                ) : hasUserLiked ? (
+                  <button
+                    onClick={handleUnlike}
+                    title="Unlike this profile"
+                    className="flex-1 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+                  >
+                    ❤️ Unlike
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleLike}
+                    title="Like this profile"
+                    className="flex-1 py-2 rounded-md bg-green-500 text-white hover:bg-green-600"
+                  >
+                    Like
+                  </button>
+                )}
                 <button
                   onClick={handleBlock}
                   disabled={isBlocked}

@@ -43,7 +43,7 @@ const nextConfig: NextConfig = {
               frame-ancestors 'none';
               base-uri 'self';
               form-action 'self';
-              upgrade-insecure-requests;
+              ${process.env.NODE_ENV === 'production' ? 'upgrade-insecure-requests;' : ''}
             `.replace(/\s+/g, ' ').trim(),
           },
 

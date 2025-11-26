@@ -42,13 +42,14 @@ export const updateFameRating = async (
   increment: number,
   getFame: (userid: string) => Promise<number | null>,
   setFame: (userid: string, fame: number) => Promise<void>): Promise<number> => {
-  const currentFame = await getFame(userId);
-  if (currentFame === null)
+  const exist = await isUserExistsById(userId);
+  if (!exist)
     throw new BadRequestError({
       message: `User with id ${userId} does not exist`,
-      code: 400,
+      code: 404,
       context: { error: "UserNotFound" },
     });
+  const currentFame = await getFame(userId);
   const newFame = (currentFame ?? 0) + increment;
   await setFame(userId, newFame);
   return newFame;
