@@ -23,7 +23,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex space-x-6 flex-grow justify-center mx-8">
+          <nav className="hidden md:flex space-x-4 lg:space-x-6 flex-grow justify-center mx-4 lg:mx-8">
             {user && (
               <>
                 <Link href="/browse" className="font-bold transition-colors text-base" style={{ color: 'var(--button-bg)' }}>

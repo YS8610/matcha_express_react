@@ -17,7 +17,7 @@ function decodeJWT(token: string): any | null {
   }
 }
 
-export function isTokenExpired(token: string): boolean {
+function isTokenExpired(token: string): boolean {
   if (!token) return true;
 
   const decoded = decodeJWT(token);
@@ -28,16 +28,8 @@ export function isTokenExpired(token: string): boolean {
   return Date.now() + buffer > expiry;
 }
 
-export function isTokenValid(token: string): boolean {
-  if (!token || typeof token !== 'string') return false;
-
-  if (token.split('.').length !== 3) return false;
-
-  return !isTokenExpired(token);
-}
-
 export function storeToken(token: string): boolean {
-  if (!isTokenValid(token)) {
+  if (!token || typeof token !== 'string' || token.split('.').length !== 3 || isTokenExpired(token)) {
     console.warn('Attempted to store invalid token');
     return false;
   }
@@ -52,7 +44,7 @@ export function storeToken(token: string): boolean {
     }
 
     const cookieExpiry = new Date(expiry || Date.now() + 7 * 24 * 60 * 60 * 1000);
-    document.cookie = `${TOKEN_KEY}=${token}; path=/; expires=${cookieExpiry.toUTCString()}; SameSite=Strict`;
+    document.cookie = `${TOKEN_KEY}=${token}; path=/; expires=${cookieExpiry.toUTCString()}; SameSite=Lax`;
 
     return true;
   } catch (error) {
@@ -89,7 +81,7 @@ export function clearToken(): void {
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
 
-    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict`;
+    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax`;
   } catch (error) {
     console.error('Failed to clear token:', error);
   }

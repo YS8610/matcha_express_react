@@ -16,11 +16,6 @@ export function toNumber(value: unknown): number | null {
   return null;
 }
 
-export function formatFameRating(value: unknown, fallback = '0'): string {
-  const num = toNumber(value);
-  return `${num !== null ? String(num) : fallback}/100`;
-}
-
 export function toGenderString(value: unknown): string {
   const num = toNumber(value);
   const genderMap: { [key: number]: string } = {

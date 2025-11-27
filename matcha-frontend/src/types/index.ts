@@ -58,13 +58,6 @@ export interface ProfileShort {
   connectionStatus?: ConnectionStatus;
 }
 
-export interface Photo {
-  id: string;
-  url: string;
-  isProfile: boolean;
-  uploadedAt: Date;
-}
-
 export interface Location {
   latitude: number;
   longitude: number;
@@ -114,9 +107,6 @@ export interface SearchFilters {
   distanceMax?: number;
   fameMin?: number;
   fameMax?: number;
-  interests?: string[];
-  sortBy?: 'age' | 'distance' | 'fame' | 'commonTags';
-  order?: 'asc' | 'desc';
 }
 
 export interface RegisterData {
@@ -170,12 +160,10 @@ export interface WebSocketContextType {
   onlineUsers: Record<string, boolean>;
   chatMessages: Record<string, ChatMessage[]>;
   checkOnlineStatus: (userIds: string[]) => void;
-  addNotification: (notification: Notification) => void;
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
   sendChatMessage: (toUserId: string, content: string) => void;
   getChatHistory: (userId: string) => ChatMessage[];
-  clearChatHistory: (userId: string) => void;
 }
 
 export interface UseWebSocketOptions {

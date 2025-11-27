@@ -5,7 +5,7 @@ import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthImage from '@/components/AuthImage';
-import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
+import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { escapeHtml, removeTags, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -226,7 +226,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="relative h-96">
+        <div className="relative h-48 sm:h-64 md:h-96">
           <AuthImage
             src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
             alt={profile.username || 'Profile'}
@@ -250,7 +250,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         <div className="p-6">
           <div className="flex items-center gap-6 mb-6 flex-wrap">
             <span className="text-sm text-gray-600">
-              Fame Rating: {formatFameRating(profile.fameRating)}
+              Fame Rating: {`${toNumber(profile.fameRating) ?? '0'}/100`}
             </span>
             {profile.location && (
               <span className="text-sm text-blue-600 flex items-center gap-1">

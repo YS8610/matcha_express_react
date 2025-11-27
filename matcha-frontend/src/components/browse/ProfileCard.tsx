@@ -6,7 +6,7 @@ import { Star } from 'lucide-react';
 import { generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
-import { formatFameRating, getLastSeenString } from '@/lib/neo4j-utils';
+import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { escapeHtml, removeTags } from '@/lib/security';
 
 interface ProfileCardProps {
@@ -73,7 +73,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-green-700 dark:text-green-300 flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            {formatFameRating(profile.fameRating)}
+            {`${toNumber(profile.fameRating) ?? '0'}/100`}
           </span>
           {profile.distance !== undefined && (
             <span className="text-sm text-blue-600 dark:text-blue-300 flex items-center gap-1">
@@ -89,17 +89,17 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         {profile.connectionStatus && (
           <div className="flex flex-wrap gap-2">
             {profile.connectionStatus.matched && (
-              <span className="inline-block bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              <span className="inline-block bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
                 ❤️ Matched
               </span>
             )}
             {profile.connectionStatus.likedBack && !profile.connectionStatus.matched && (
-              <span className="inline-block bg-pink-100 dark:bg-pink-900/40 text-pink-800 dark:text-pink-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              <span className="inline-block bg-pink-100 dark:bg-pink-900/40 text-pink-800 dark:text-pink-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
                 💗 Liked you
               </span>
             )}
             {profile.connectionStatus.liked && !profile.connectionStatus.matched && !profile.connectionStatus.likedBack && (
-              <span className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              <span className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
                 👍 Liked
               </span>
             )}

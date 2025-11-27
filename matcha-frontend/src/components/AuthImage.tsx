@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { getPhotoUrl } from '@/lib/api';
+import { useAuthImage } from '@/hooks/useAuthImage';
 
 interface AuthImageProps {
   src: string;
@@ -24,12 +24,17 @@ export default function AuthImage({
   unoptimized,
   fallbackSrc,
 }: AuthImageProps) {
-  const imageUrl = src && src.includes('/api/photo/')
-    ? getPhotoUrl(src.split('/api/photo/')[1])
-    : src;
-  const error = !imageUrl;
+  const photoName = src && src.includes('/api/photo/')
+    ? src.split('/api/photo/')[1]
+    : null;
 
-  const finalSrc = error && fallbackSrc ? fallbackSrc : imageUrl;
+  const authImageUrl = useAuthImage(photoName);
+
+  const finalSrc = authImageUrl || (photoName ? fallbackSrc : src) || fallbackSrc || '';
+
+  if (!finalSrc) {
+    return null;
+  }
 
   if (fill) {
     return (

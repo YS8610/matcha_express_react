@@ -119,7 +119,7 @@ export default function NotificationCenter() {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-900 rounded-lg shadow-2xl z-50 border border-gray-200 dark:border-slate-700 max-h-[600px] overflow-hidden flex flex-col">
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-lg shadow-2xl z-50 border border-gray-200 dark:border-slate-700 max-h-[600px] overflow-hidden flex flex-col">
             <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-800">
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>

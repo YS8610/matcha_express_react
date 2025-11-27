@@ -10,8 +10,6 @@ const BIOGRAPHY_REGEX = /^[\s\S]{0,500}$/;
 
 const TAG_REGEX = /^[a-zA-Z0-9\s-]{1,30}$/;
 
-const URL_REGEX = /^https?:\/\/.{1,2000}$/;
-
 const GENDER_REGEX = /^(male|female|other)$/i;
 const SEXUALITY_REGEX = /^(male|female|both)$/i;
 

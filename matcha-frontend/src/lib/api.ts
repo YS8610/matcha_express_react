@@ -368,5 +368,5 @@ export function generateAvatarUrl(name?: string, id?: string): string {
 }
 
 export function getPhotoUrl(photoName: string): string {
-  return `${API_URL}/api/photo/${photoName}`;
+  return `/api/photo/${photoName}`;
 }

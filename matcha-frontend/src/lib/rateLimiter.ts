@@ -55,11 +55,3 @@ export function checkRateLimit(
   };
 }
 
-export function resetAllRateLimits(): void {
-  rateLimitStore.clear();
-}
-
-export function setRateLimit(endpoint: string, rule: RateLimitRule): void {
-  defaultRateLimits.set(endpoint, rule);
-}
-

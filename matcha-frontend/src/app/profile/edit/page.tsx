@@ -25,6 +25,8 @@ export default function EditProfilePage() {
     sexualPreference: '',
     biography: '',
     birthDate: '',
+    latitude: '',
+    longitude: '',
   });
 
   useEffect(() => {
@@ -58,6 +60,8 @@ export default function EditProfilePage() {
           sexualPreference: sexualPreferenceReverseMap[sexPrefNum] || '',
           biography: data.biography || '',
           birthDate: birthDateStr,
+          latitude: data.latitude ? String(data.latitude) : '',
+          longitude: data.longitude ? String(data.longitude) : '',
         });
       } catch (error) {
         console.error('Failed to load profile:', error);
@@ -96,6 +100,14 @@ export default function EditProfilePage() {
       };
 
       await api.updateProfile(dataToSend);
+
+      if (formData.latitude && formData.longitude) {
+        await api.updateUserLocation(
+          parseFloat(formData.latitude),
+          parseFloat(formData.longitude)
+        );
+      }
+
       setSuccess('Profile updated successfully!');
       setTimeout(() => {
         router.push('/profile');
@@ -108,7 +120,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 min-h-screen bg-white dark:bg-slate-900">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -119,25 +131,25 @@ export default function EditProfilePage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-2">
             Edit Profile
           </h1>
-          <p className="text-green-600">Update your profile information</p>
+          <p className="text-green-600 dark:text-green-400">Update your profile information</p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
             {success}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-green-700">
+              <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
                 First Name
               </label>
               <input
@@ -147,12 +159,12 @@ export default function EditProfilePage() {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium mb-1 text-green-700">
+              <label htmlFor="lastName" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
                 Last Name
               </label>
               <input
@@ -162,13 +174,13 @@ export default function EditProfilePage() {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700">
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
               Email
             </label>
             <input
@@ -178,12 +190,12 @@ export default function EditProfilePage() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
 
           <div>
-            <label htmlFor="birthDate" className="block text-sm font-medium mb-1 text-green-700">
+            <label htmlFor="birthDate" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
               Birth Date
             </label>
             <input
@@ -194,13 +206,13 @@ export default function EditProfilePage() {
               onChange={handleChange}
               required
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             />
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="gender" className="block text-sm font-medium mb-1 text-green-700">
+              <label htmlFor="gender" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
                 Gender
               </label>
               <select
@@ -209,7 +221,7 @@ export default function EditProfilePage() {
                 value={formData.gender}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               >
                 <option value="">Select...</option>
                 <option value="male">Male</option>
@@ -219,7 +231,7 @@ export default function EditProfilePage() {
             </div>
 
             <div>
-              <label htmlFor="sexualPreference" className="block text-sm font-medium mb-1 text-green-700">
+              <label htmlFor="sexualPreference" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
                 Sexual Preference
               </label>
               <select
@@ -228,7 +240,7 @@ export default function EditProfilePage() {
                 value={formData.sexualPreference}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               >
                 <option value="">Select...</option>
                 <option value="male">Male</option>
@@ -239,7 +251,7 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label htmlFor="biography" className="block text-sm font-medium mb-1 text-green-700">
+            <label htmlFor="biography" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
               Biography
             </label>
             <textarea
@@ -247,17 +259,51 @@ export default function EditProfilePage() {
               name="biography"
               value={formData.biography}
               onChange={handleChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              rows={3}
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-vertical"
               placeholder="Tell us about yourself..."
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="latitude" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
+                Latitude
+              </label>
+              <input
+                type="number"
+                id="latitude"
+                name="latitude"
+                value={formData.latitude}
+                onChange={handleChange}
+                step="0.000001"
+                placeholder="-90 to 90"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="longitude" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
+                Longitude
+              </label>
+              <input
+                type="number"
+                id="longitude"
+                name="longitude"
+                value={formData.longitude}
+                onChange={handleChange}
+                step="0.000001"
+                placeholder="-180 to 180"
+                className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+              className="flex-1 bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
               {loading ? 'Saving...' : 'Save Changes'}
@@ -265,22 +311,22 @@ export default function EditProfilePage() {
             <button
               type="button"
               onClick={() => router.push('/profile')}
-              className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-full hover:bg-gray-300 font-medium transition-all"
+              className="flex-1 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 py-2 rounded-full hover:bg-gray-300 dark:hover:bg-slate-600 font-medium transition-all"
             >
               Cancel
             </button>
           </div>
         </form>
 
-        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <PhotoManager />
         </div>
 
-        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <TagManager />
         </div>
 
-        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-6 border border-green-100 mt-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <PasswordChanger />
         </div>
       </div>

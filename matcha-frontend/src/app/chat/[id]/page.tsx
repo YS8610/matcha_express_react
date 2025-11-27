@@ -150,8 +150,8 @@ export default function ChatPage() {
   const isOnline = onlineUsers[chatUserId] || false;
 
   return (
-    <div className="container mx-auto px-4 py-4 h-[calc(100vh-80px)]">
-      <div className="max-w-4xl mx-auto h-full flex flex-col">
+    <div className="container mx-auto px-4 py-4 min-h-[calc(100vh-160px)]">
+      <div className="max-w-4xl mx-auto flex flex-col">
         <div className="mb-4">
           <Link
             href="/messages"

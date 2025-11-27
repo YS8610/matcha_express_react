@@ -131,7 +131,7 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
         <div className="text-green-500 text-sm bg-green-50 p-3 rounded-md">{success}</div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
         {[...Array(5)].map((_, index) => {
           const photoName = photos[index];
           const hasPhoto = photoName && photoName.trim() !== '';

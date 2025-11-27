@@ -7,7 +7,104 @@ import FilterPanel from './FilterPanel';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users } from 'lucide-react';
 import { api } from '@/lib/api';
 
-const PROFILES_PER_PAGE = 12;
+interface PaginationControlsProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  getPageNumbers: () => (number | string)[];
+  profilesPerPage: number;
+  onItemsPerPageChange: (count: number) => void;
+}
+
+function PaginationControls({ currentPage, totalPages, onPageChange, getPageNumbers, profilesPerPage, onItemsPerPageChange }: PaginationControlsProps) {
+  return (
+    <div className="flex justify-between items-center gap-4 mb-6 flex-wrap">
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-green-700 dark:text-green-300">Items per page:</label>
+        <select
+          value={profilesPerPage}
+          onChange={(e) => onItemsPerPageChange(parseInt(e.target.value))}
+          className="px-3 py-1 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+        >
+          <option value={6}>6</option>
+          <option value={12}>12</option>
+          <option value={20}>20</option>
+          <option value={30}>30</option>
+          <option value={50}>50</option>
+        </select>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--border)',
+              color: 'var(--button-bg)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <div className="flex gap-1">
+            {getPageNumbers().map((page, index) => (
+              page === '...' ? (
+                <span key={`ellipsis-${index}`} className="px-3 py-2 text-green-700 dark:text-green-300">...</span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => onPageChange(page as number)}
+                  className={`px-4 py-2 rounded-full font-medium transition-all border ${
+                    currentPage === page
+                      ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md border-green-600'
+                      : ''
+                  }`}
+                  style={currentPage !== page ? {
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--border)',
+                    color: 'var(--button-bg)'
+                  } : undefined}
+                  onMouseEnter={(e) => {
+                    if (currentPage !== (page as number)) {
+                      e.currentTarget.style.backgroundColor = 'var(--input-bg)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (currentPage !== (page as number)) {
+                      e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                    }
+                  }}
+                >
+                  {page}
+                </button>
+              )
+            ))}
+          </div>
+
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--border)',
+              color: 'var(--button-bg)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function BrowseProfiles() {
   const [allProfiles, setAllProfiles] = useState<ProfileShort[]>([]);
@@ -18,8 +115,9 @@ export default function BrowseProfiles() {
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [filters, setFilters] = useState<SearchFilters>({});
   const [showFilters, setShowFilters] = useState(false);
+  const [profilesPerPage, setProfilesPerPage] = useState(12);
 
-  const totalPages = Math.ceil(totalProfiles / PROFILES_PER_PAGE);
+  const totalPages = Math.ceil(totalProfiles / profilesPerPage);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
@@ -64,11 +162,11 @@ export default function BrowseProfiles() {
   }, []);
 
   useEffect(() => {
-    const startIdx = (currentPage - 1) * PROFILES_PER_PAGE;
-    const endIdx = startIdx + PROFILES_PER_PAGE;
+    const startIdx = (currentPage - 1) * profilesPerPage;
+    const endIdx = startIdx + profilesPerPage;
     setDisplayedProfiles(allProfiles.slice(startIdx, endIdx));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [allProfiles, currentPage]);
+  }, [allProfiles, currentPage, profilesPerPage]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -167,83 +265,42 @@ export default function BrowseProfiles() {
         </div>
       ) : (
         <>
+          {totalPages > 1 && (
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              getPageNumbers={getPageNumbers}
+              profilesPerPage={profilesPerPage}
+              onItemsPerPageChange={(count) => {
+                setProfilesPerPage(count);
+                setCurrentPage(1);
+              }}
+            />
+          )}
+
           <div className="mb-4 text-sm text-green-700 dark:text-green-300">
-            Showing {((currentPage - 1) * PROFILES_PER_PAGE) + 1}-{Math.min(currentPage * PROFILES_PER_PAGE, allProfiles.length)} of {allProfiles.length} profiles
+            Showing {((currentPage - 1) * profilesPerPage) + 1}-{Math.min(currentPage * profilesPerPage, allProfiles.length)} of {allProfiles.length} profiles
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">
             {displayedProfiles.map((profile, index) => (
               <ProfileCard key={`${profile.id}-${index}`} profile={profile} />
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mb-8">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--button-bg)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              <div className="flex gap-1">
-                {getPageNumbers().map((page, index) => (
-                  page === '...' ? (
-                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-green-700 dark:text-green-300">...</span>
-                  ) : (
-                    <button
-                      key={page}
-                      onClick={() => goToPage(page as number)}
-                      className={`px-4 py-2 rounded-full font-medium transition-all border ${
-                        currentPage === page
-                          ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-md border-green-600'
-                          : ''
-                      }`}
-                      style={currentPage !== page ? {
-                        backgroundColor: 'var(--card-bg)',
-                        borderColor: 'var(--border)',
-                        color: 'var(--button-bg)'
-                      } : undefined}
-                      onMouseEnter={(e) => {
-                        if (currentPage !== (page as number)) {
-                          e.currentTarget.style.backgroundColor = 'var(--input-bg)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (currentPage !== (page as number)) {
-                          e.currentTarget.style.backgroundColor = 'var(--card-bg)';
-                        }
-                      }}
-                    >
-                      {page}
-                    </button>
-                  )
-                ))}
-              </div>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--button-bg)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--input-bg)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              getPageNumbers={getPageNumbers}
+              profilesPerPage={profilesPerPage}
+              onItemsPerPageChange={(count) => {
+                setProfilesPerPage(count);
+                setCurrentPage(1);
+              }}
+            />
           )}
         </>
       )}

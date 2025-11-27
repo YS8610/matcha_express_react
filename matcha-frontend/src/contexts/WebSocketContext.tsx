@@ -126,10 +126,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     }
   }, [socket, isConnected]);
 
-  const addNotification = useCallback((notification: Notification) => {
-    setNotifications(prev => [notification, ...prev]);
-  }, []);
-
   const markNotificationRead = useCallback((id: string) => {
     setNotifications(prev =>
       prev.map(notif =>
@@ -160,14 +156,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     return chatMessages[userId] || [];
   }, [chatMessages]);
 
-  const clearChatHistory = useCallback((userId: string) => {
-    setChatMessages(prev => {
-      const updated = { ...prev };
-      delete updated[userId];
-      return updated;
-    });
-  }, []);
-
   return (
     <WebSocketContext.Provider
       value={{
@@ -177,12 +165,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         onlineUsers,
         chatMessages,
         checkOnlineStatus,
-        addNotification,
         markNotificationRead,
         clearNotifications,
         sendChatMessage,
-        getChatHistory,
-        clearChatHistory
+        getChatHistory
       }}
     >
       {children}

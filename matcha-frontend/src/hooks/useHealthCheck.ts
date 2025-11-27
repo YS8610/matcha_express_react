@@ -115,7 +115,7 @@ class HealthCheckService {
   }
 }
 
-export const healthCheckService = new HealthCheckService();
+const healthCheckService = new HealthCheckService();
 
 export function useHealthCheck(intervalMs: number = 30000) {
   const [healthStatus, setHealthStatus] = useState<HealthCheckResult | null>(null);
