@@ -108,6 +108,15 @@ describe("testing fameSvc", () => {
   });
 
   it("updateFameRating : should update fame rating correctly", async () => {
+    const mockSessionRun = vi.fn().mockImplementationOnce(() => ({
+      records: [{ get: (key: string) => 80 }],
+    }));
+    const mockSessionClose = vi.fn();
+    const mockSession = {
+      run: mockSessionRun,
+      close: mockSessionClose,
+    };
+    vi.spyOn(driver, "session").mockReturnValue(mockSession as any);
     const fameSvc = await import("../../service/fameSvc.js");
     const { updateFameRating } = fameSvc;
     const userId = "user123";
@@ -127,7 +136,7 @@ describe("testing fameSvc", () => {
     await expect(updateFameRating(userId, increment, getFame, setFame)).rejects.toThrowError(
       new BadRequestError({
         message: `User with id ${userId} does not exist`,
-        code: 400,
+        code: 404,
         context: { error: "UserNotFound" },
       })
     );
