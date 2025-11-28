@@ -5,6 +5,7 @@ import ConstMatcha from "../ConstMatcha.js";
 import driver from "../repo/neo4jRepo.js";
 import { v4 as uuidv4 } from "uuid";
 import { hashPW } from "./authSvc.js";
+import { updateUserLocation } from "./locationSvc.js";
 
 dotenv.config();
 
@@ -80,10 +81,12 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
         })`;
       fs.appendFileSync("./logs/seed_responses.log", `${JSON.stringify(profile)}\n`);
       const hashpw = await hashPW(profile.pw);
+      let tid =uuidv4();
       await session.run(
         NEO4J_SEED,
-        { id: uuidv4(), firstName: profile.firstName, lastName: profile.lastName, email: profile.email, username: profile.username, password: hashpw, birthDate: profile.birthDate, gender: randomInt(1, 3), sexualPreference: randomInt(1, 3), photo0: "default.png", lastOnline: Date.now() }
+        { id: tid, firstName: profile.firstName, lastName: profile.lastName, email: profile.email, username: profile.username, password: hashpw, birthDate: profile.birthDate, gender: randomInt(1, 3), sexualPreference: randomInt(1, 3), photo0: "default.png", lastOnline: Date.now() }
       );
+      await updateUserLocation(tid, profile.username, 37.7749 + (Math.random() - 0.5) * 0.1, -122.4194 + (Math.random() - 0.5) * 0.1);
       console.log(`Seeded profile: ${profile.username}`);
     }
   } finally {
