@@ -90,7 +90,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
     onToggle: () => void;
   }) => (
     <div>
-      <label htmlFor={name} className="block text-sm font-medium mb-1 text-green-700">
+      <label htmlFor={name} className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
         {label}
       </label>
       <div className="relative">
@@ -102,12 +102,13 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           onChange={handleChange}
           required
           placeholder={placeholder}
-          className="w-full px-3 py-2 pr-10 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          className="w-full px-3 py-2 pr-10 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:focus:ring-green-600 dark:focus:border-green-600 transition-colors"
         />
         <button
           type="button"
           onClick={onToggle}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
@@ -116,7 +117,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
   );
 
   const ValidationItem = ({ check, label }: { check: boolean; label: string }) => (
-    <div className={`flex items-center gap-2 text-sm ${check ? 'text-green-600' : 'text-gray-500'}`}>
+    <div className={`flex items-center gap-2 text-sm ${check ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
       {check ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
       <span>{label}</span>
     </div>
@@ -124,14 +125,14 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-green-700">Change Password</h3>
+      <h3 className="text-lg font-semibold text-green-700 dark:text-green-400">Change Password</h3>
 
       {error && (
-        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>
+        <div className="text-red-700 dark:text-red-300 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md">{error}</div>
       )}
 
       {success && (
-        <div className="text-green-500 text-sm bg-green-50 p-3 rounded-md">{success}</div>
+        <div className="text-green-700 dark:text-green-300 text-sm bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 rounded-md">{success}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -155,7 +156,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
 
         {formData.newPassword && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">Password Requirements:</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Password Requirements:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
               <ValidationItem check={passwordValidation.length} label="At least 8 characters" />
               <ValidationItem check={passwordValidation.lowercase} label="Lowercase letter" />
@@ -178,7 +179,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
 
         {formData.confirmPassword && (
           <div className={`text-sm flex items-center gap-2 ${
-            formData.newPassword === formData.confirmPassword ? 'text-green-600' : 'text-red-500'
+            formData.newPassword === formData.confirmPassword ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'
           }`}>
             {formData.newPassword === formData.confirmPassword ?
               <Check className="w-3 h-3" /> : <X className="w-3 h-3" />
@@ -200,8 +201,8 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
         </button>
       </form>
 
-      <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
-        <p className="font-medium mb-1">Security Tips:</p>
+      <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-900/30 border border-gray-200 dark:border-slate-700 p-3 rounded-md">
+        <p className="font-medium mb-1 text-gray-700 dark:text-gray-300">Security Tips:</p>
         <ul className="list-disc list-inside space-y-1">
           <li>Use a unique password that you don&apos;t use elsewhere</li>
           <li>Consider using a password manager</li>

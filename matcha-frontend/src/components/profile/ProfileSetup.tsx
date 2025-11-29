@@ -7,8 +7,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import imageCompression from 'browser-image-compression';
 import {
-  validateGender,
-  validateSexuality,
+  validateEnum,
   validateBiography,
   validateTag,
   validateCoordinates,
@@ -41,9 +40,9 @@ export default function ProfileSetup() {
   const validateFormField = (fieldName: string, value: any): string | null => {
     switch (fieldName) {
       case 'gender':
-        return validateGender(value);
+        return validateEnum(value, ['male', 'female', 'other'], 'Gender');
       case 'sexualPreference':
-        return validateSexuality(value);
+        return validateEnum(value, ['male', 'female', 'both'], 'Sexual preference');
       case 'biography':
         return validateBiography(value);
       case 'interests':
@@ -184,8 +183,8 @@ export default function ProfileSetup() {
     setFieldErrors({});
     setLoading(true);
 
-    const genderError = validateGender(formData.gender);
-    const sexualityError = validateSexuality(formData.sexualPreference);
+    const genderError = validateEnum(formData.gender, ['male', 'female', 'other'], 'Gender');
+    const sexualityError = validateEnum(formData.sexualPreference, ['male', 'female', 'both'], 'Sexual preference');
     const birthDateError = validateBirthDate(formData.birthDate);
     const biographyError = validateBiography(formData.biography);
     const coordinatesError =
@@ -418,13 +417,13 @@ export default function ProfileSetup() {
             {formData.interests.map(interest => (
               <span
                 key={interest}
-                className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center gap-1"
+                className="px-3 py-1 bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-full text-sm flex items-center gap-1"
               >
                 #{interest}
                 <button
                   type="button"
                   onClick={() => handleRemoveInterest(interest)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
                   ×
                 </button>

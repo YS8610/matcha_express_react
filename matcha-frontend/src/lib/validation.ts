@@ -279,29 +279,19 @@ export const validateTag = (tag: string): string | null => {
   return null;
 };
 
-export const validateGender = (gender: string): string | null => {
-  if (!gender) {
-    return 'Gender is required';
+export const validateEnum = (
+  value: string,
+  validOptions: string[],
+  fieldName: string
+): string | null => {
+  if (!value) {
+    return `${fieldName} is required`;
   }
 
-  const sanitized = sanitizeInput(gender.trim(), 50);
+  const sanitized = sanitizeInput(value.trim(), 50);
 
-  if (!GENDER_REGEX.test(sanitized)) {
-    return 'Please select a valid gender option';
-  }
-
-  return null;
-};
-
-export const validateSexuality = (sexuality: string): string | null => {
-  if (!sexuality) {
-    return 'Sexual preference is required';
-  }
-
-  const sanitized = sanitizeInput(sexuality.trim(), 50);
-
-  if (!SEXUALITY_REGEX.test(sanitized)) {
-    return 'Please select a valid sexual preference option';
+  if (!validOptions.includes(sanitized.toLowerCase())) {
+    return `Please select a valid ${fieldName.toLowerCase()} option`;
   }
 
   return null;

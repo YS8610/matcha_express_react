@@ -5,6 +5,7 @@ import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthImage from '@/components/AuthImage';
+import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { escapeHtml, removeTags, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X } from 'lucide-react';
@@ -26,6 +27,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [hasProfileLikedUser, setHasProfileLikedUser] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [likeError, setLikeError] = useState('');
+  const [modalState, setModalState] = useState<{ type: 'success' | 'error' | 'confirm' | null; title: string; message: string; action?: () => void }>({ type: null, title: '', message: '' });
   const { user } = useAuth();
   const router = useRouter();
 
@@ -115,7 +117,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setLikeError('');
       await api.likeUser(userId);
       setHasUserLiked(true);
-      alert('Profile liked!');
+      setModalState({
+        type: 'success',
+        title: 'Profile Liked!',
+        message: 'You have successfully liked this profile.',
+      });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('Failed to like:', error);
@@ -124,7 +130,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       } else if (errorMsg.includes('cannot like yourself')) {
         setLikeError('You cannot like your own profile');
       } else {
-        setHasUserLiked(true);
+        setModalState({
+          type: 'error',
+          title: 'Failed to Like',
+          message: 'An error occurred while trying to like this profile. Please try again.',
+        });
       }
     }
   };
@@ -139,11 +149,19 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setLikeError('');
       await api.unlikeUser(userId);
       setHasUserLiked(false);
-      alert('Profile unliked!');
+      setModalState({
+        type: 'success',
+        title: 'Profile Unliked',
+        message: 'You have successfully unliked this profile.',
+      });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('Failed to unlike:', error);
-      setLikeError('Failed to unlike profile');
+      setModalState({
+        type: 'error',
+        title: 'Failed to Unlike',
+        message: 'An error occurred while trying to unlike this profile. Please try again.',
+      });
     }
   };
 
@@ -153,19 +171,30 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       return;
     }
 
-    if (!confirm(`Are you sure you want to block @${profile.username}?`)) {
-      return;
-    }
-
-    try {
-      await api.blockUser(userId);
-      setIsBlocked(true);
-      alert('User blocked successfully!');
-      router.push('/browse');
-    } catch (error) {
-      console.error('Failed to block user:', error);
-      alert('Failed to block user. Please try again.');
-    }
+    setModalState({
+      type: 'confirm',
+      title: 'Block User',
+      message: `Are you sure you want to block @${profile.username}? You won't be able to interact with this user anymore.`,
+      action: async () => {
+        try {
+          await api.blockUser(userId);
+          setIsBlocked(true);
+          setModalState({
+            type: 'success',
+            title: 'User Blocked',
+            message: 'This user has been blocked successfully.',
+            action: () => router.push('/browse'),
+          });
+        } catch (error) {
+          console.error('Failed to block user:', error);
+          setModalState({
+            type: 'error',
+            title: 'Failed to Block',
+            message: 'An error occurred while blocking this user. Please try again.',
+          });
+        }
+      },
+    });
   };
 
   const handleReport = async (e: React.FormEvent) => {
@@ -186,10 +215,14 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
     try {
       await api.reportUser(userId, reportReason.trim());
-      alert('Thank you for reporting this user. Our team will review it.');
       setShowReportModal(false);
       setReportReason('');
-      router.push('/browse');
+      setModalState({
+        type: 'success',
+        title: 'Report Submitted',
+        message: 'Thank you for reporting this user. Our moderation team will review it shortly.',
+        action: () => router.push('/browse'),
+      });
     } catch (error) {
       const errorMessage = (error as Error).message || 'Failed to report user. Please try again.';
       setReportError(errorMessage);
@@ -225,7 +258,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg dark:shadow-2xl overflow-hidden">
         <div className="relative h-48 sm:h-64 md:h-96">
           <AuthImage
             src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
@@ -249,11 +282,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
         <div className="p-6">
           <div className="flex items-center gap-6 mb-6 flex-wrap">
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-300">
               Fame Rating: {`${toNumber(profile.fameRating) ?? '0'}/100`}
             </span>
             {profile.location && (
-              <span className="text-sm text-blue-600 flex items-center gap-1">
+              <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -262,31 +295,31 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               </span>
             )}
             {profile.lastOnline && (
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-300">
                 Last seen: {getLastSeenString(profile.lastOnline)}
               </span>
             )}
             {user && user.id !== userId && hasProfileLikedUser && (
-              <span className="text-sm px-3 py-1 bg-pink-100 text-pink-700 rounded-full font-medium">
+              <span className="text-sm px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full font-medium">
                 ♥ They liked you!
               </span>
             )}
             {user && user.id !== userId && isConnected && (
-              <span className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+              <span className="text-sm px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium">
                 💬 Connected
               </span>
             )}
           </div>
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">About</h2>
-            <p className="text-gray-700">{displayBiography}</p>
+            <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">About</h2>
+            <p className="text-gray-700 dark:text-gray-300">{displayBiography}</p>
           </div>
 
           {user && user.id !== userId && (
             <div>
               {likeError && (
-                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div className="mb-4 bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded">
                   {likeError}
                 </div>
               )}
@@ -408,6 +441,38 @@ export default function ProfileView({ userId }: ProfileViewProps) {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={modalState.type === 'success'}
+        type="alert"
+        title={modalState.title}
+        message={modalState.message}
+        onClose={() => {
+          setModalState({ type: null, title: '', message: '' });
+          modalState.action?.();
+        }}
+        confirmText="OK"
+      />
+
+      <Modal
+        isOpen={modalState.type === 'error'}
+        type="alert"
+        title={modalState.title}
+        message={modalState.message}
+        onClose={() => setModalState({ type: null, title: '', message: '' })}
+        confirmText="OK"
+      />
+
+      <Modal
+        isOpen={modalState.type === 'confirm'}
+        type="confirm"
+        title={modalState.title}
+        message={modalState.message}
+        onConfirm={modalState.action}
+        onClose={() => setModalState({ type: null, title: '', message: '' })}
+        confirmText="Confirm"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

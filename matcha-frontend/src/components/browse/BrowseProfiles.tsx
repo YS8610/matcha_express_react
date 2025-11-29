@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users } from 'lucide-react';
 import { api } from '@/lib/api';
+
+const MemoizedProfileCard = memo(ProfileCard);
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -184,10 +186,10 @@ export default function BrowseProfiles() {
     }
   };
 
-  const getPageNumbers = () => {
+  const getPageNumbers = useCallback(() => {
     const pages = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -215,9 +217,9 @@ export default function BrowseProfiles() {
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
-  };
+  }, [currentPage, totalPages]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 relative">
@@ -285,7 +287,7 @@ export default function BrowseProfiles() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">
             {displayedProfiles.map((profile, index) => (
-              <ProfileCard key={`${profile.id}-${index}`} profile={profile} />
+              <MemoizedProfileCard key={`${profile.id}-${index}`} profile={profile} />
             ))}
           </div>
 
