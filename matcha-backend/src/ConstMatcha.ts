@@ -336,7 +336,8 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_DELETE_USER_LIKED_REL = `
     MATCH (u:PROFILE { id: $userId }) with u
     MATCH (v:PROFILE { id: $likedUserId })
-    DELETE (u)-[:LIKED]->(v)
+    MATCH (u)-[r:LIKED]->(v)
+    DELETE r
   `;
 
   static readonly NEO4j_STMT_CHECK_USER_LIKED = `
