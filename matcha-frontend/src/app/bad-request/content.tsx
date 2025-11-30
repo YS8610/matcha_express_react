@@ -10,7 +10,7 @@ export default function BadRequestContent() {
   const message = searchParams.get('message') || 'The request could not be processed. Please check your input and try again.';
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-background-secondary dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-background-secondary dark:bg-slate-900">
       <div className="max-w-md w-full text-center">
         <div className="mb-6 flex justify-center">
           <div className="relative">

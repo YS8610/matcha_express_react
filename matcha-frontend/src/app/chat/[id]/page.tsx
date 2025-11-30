@@ -3,10 +3,10 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { ArrowLeft, Send, Circle } from 'lucide-react';
+import { ArrowLeft, Send, Circle, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
-import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
 import AuthImage from '@/components/AuthImage';
 
@@ -144,7 +144,7 @@ export default function ChatPage() {
   if (!user || !profile) return null;
 
   const photoUrl = profile.photo0
-    ? getPhotoUrl(profile.photo0)
+    ? `/api/photo/${profile.photo0}`
     : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
   const isOnline = onlineUsers[chatUserId] || false;
@@ -164,12 +164,11 @@ export default function ChatPage() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 border border-green-100 dark:border-green-900">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-12 h-12 rounded-full overflow-hidden">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden">
                   <AuthImage
                     src={photoUrl}
                     alt={profile.username}
-                    width={48}
-                    height={48}
+                    fill
                     className="object-cover"
                     unoptimized
                     fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
@@ -189,8 +188,9 @@ export default function ChatPage() {
                 </div>
               </div>
               {profile?.connectionStatus?.matched ? (
-                <div className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full">
-                  ❤️ Matched
+                <div className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full flex items-center gap-1">
+                  <Heart className="w-4 h-4 fill-current" />
+                  Matched
                 </div>
               ) : !isConnected ? (
                 <div className="text-sm text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-950 px-3 py-1 rounded-full">

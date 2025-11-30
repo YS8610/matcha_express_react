@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
-import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users } from 'lucide-react';
+import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const MemoizedProfileCard = memo(ProfileCard);
@@ -242,6 +242,11 @@ export default function BrowseProfiles() {
         >
           <Filter className="w-4 h-4" />
           Filters
+          {showFilters ? (
+            <ChevronUp className="w-4 h-4 transition-transform" />
+          ) : (
+            <ChevronDown className="w-4 h-4 transition-transform" />
+          )}
         </button>
       </div>
 

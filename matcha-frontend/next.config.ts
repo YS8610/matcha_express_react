@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
               img-src 'self' data: https: blob:;
               font-src 'self' data:;
               worker-src 'self' blob:;
-              connect-src 'self' http://localhost:3001 http://localhost:8080 http://localhost:80 ws://localhost:3001 ws://localhost:8080 ws://localhost:80 http://matcha-backend:3001 ws://matcha-backend:3001;
+              connect-src 'self' http://localhost:3001 http://localhost:3002 http://localhost:8080 http://localhost:80 ws://localhost:3001 ws://localhost:3002 ws://localhost:8080 ws://localhost:80 http://matcha-backend:3001 ws://matcha-backend:3001;
               frame-ancestors 'none';
               base-uri 'self';
               form-action 'self';

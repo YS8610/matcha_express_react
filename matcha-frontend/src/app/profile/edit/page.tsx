@@ -146,7 +146,7 @@ export default function EditProfilePage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-300">
@@ -318,15 +318,15 @@ export default function EditProfilePage() {
           </div>
         </form>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <PhotoManager />
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <TagManager />
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 border border-green-100 dark:border-green-900 mt-6">
           <PasswordChanger />
         </div>
       </div>

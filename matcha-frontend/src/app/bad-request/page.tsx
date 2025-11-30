@@ -13,7 +13,7 @@ export default function BadRequest() {
 
 function BadRequestFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-background-secondary dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-background-secondary dark:bg-slate-900">
       <div className="max-w-md w-full text-center">
         <div className="animate-pulse">
           <div className="w-24 h-24 bg-gradient-to-r from-yellow-200 to-orange-200 dark:from-yellow-900/40 dark:to-orange-900/40 rounded-full mx-auto mb-6"></div>

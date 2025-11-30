@@ -367,6 +367,3 @@ export function generateAvatarUrl(name?: string, id?: string): string {
   return `https://ui-avatars.com/api/?${params.toString()}`;
 }
 
-export function getPhotoUrl(photoName: string): string {
-  return `/api/photo/${photoName}`;
-}

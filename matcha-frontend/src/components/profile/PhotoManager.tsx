@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
-import { api, getPhotoUrl } from '@/lib/api';
+import { api } from '@/lib/api';
 import imageCompression from 'browser-image-compression';
 
 interface PhotoManagerProps {
@@ -142,7 +142,7 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
                 {hasPhoto ? (
                   <>
                     <AuthImage
-                      src={getPhotoUrl(photoName)}
+                      src={`/api/photo/${photoName}`}
                       alt={`Photo ${index + 1}`}
                       fill
                       className="object-cover"

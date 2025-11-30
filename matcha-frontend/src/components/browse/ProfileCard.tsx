@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { ProfileShort } from '@/types';
-import { Star } from 'lucide-react';
-import { generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { Star, Heart, ThumbsUp } from 'lucide-react';
+import { generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
@@ -13,8 +13,25 @@ interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
 }
 
+const colorSchemes = [
+  { border: 'border-green-300 dark:border-green-700', shadow: 'hover:shadow-green-500/20', accent: 'text-green-700 dark:text-green-300' },
+  { border: 'border-blue-300 dark:border-blue-700', shadow: 'hover:shadow-blue-500/20', accent: 'text-blue-700 dark:text-blue-300' },
+  { border: 'border-purple-300 dark:border-purple-700', shadow: 'hover:shadow-purple-500/20', accent: 'text-purple-700 dark:text-purple-300' },
+  { border: 'border-pink-300 dark:border-pink-700', shadow: 'hover:shadow-pink-500/20', accent: 'text-pink-700 dark:text-pink-300' },
+  { border: 'border-orange-300 dark:border-orange-700', shadow: 'hover:shadow-orange-500/20', accent: 'text-orange-700 dark:text-orange-300' },
+  { border: 'border-red-300 dark:border-red-700', shadow: 'hover:shadow-red-500/20', accent: 'text-red-700 dark:text-red-300' },
+  { border: 'border-indigo-300 dark:border-indigo-700', shadow: 'hover:shadow-indigo-500/20', accent: 'text-indigo-700 dark:text-indigo-300' },
+  { border: 'border-cyan-300 dark:border-cyan-700', shadow: 'hover:shadow-cyan-500/20', accent: 'text-cyan-700 dark:text-cyan-300' },
+];
+
+function getColorScheme(id: string): typeof colorSchemes[0] {
+  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colorSchemes[hash % colorSchemes.length];
+}
+
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const profileId = profile.id;
+  const colorScheme = getColorScheme(profileId);
 
   const displayName = useMemo(
     () => {
@@ -37,16 +54,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   return (
     <Link
       href={`/profile/${profileId}`}
-      className="relative z-10 block bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border border-green-100 dark:border-green-800"
+      className={`relative z-10 block bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border-2 ${colorScheme.border} ${colorScheme.shadow}`}
     >
-      <div className="relative h-64">
+      <div className="relative h-64 w-full aspect-video">
         <AuthImage
-          src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(displayName, profileId)}
+          src={profile.photo0 ? `/api/photo/${profile.photo0}` : generateAvatarUrl(displayName, profileId)}
           alt={`Profile ${profileId}`}
-          width={300}
-          height={256}
+          fill
           unoptimized
-          className="w-full h-full object-cover"
+          className="object-cover"
           fallbackSrc={generateAvatarUrl(displayName, profileId)}
         />
 
@@ -71,7 +87,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-green-700 dark:text-green-300 flex items-center gap-1">
+          <span className={`text-sm ${colorScheme.accent} flex items-center gap-1`}>
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             {`${toNumber(profile.fameRating) ?? '0'}/100`}
           </span>
@@ -89,18 +105,21 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         {profile.connectionStatus && (
           <div className="flex flex-wrap gap-2">
             {profile.connectionStatus.matched && (
-              <span className="inline-block bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
-                ❤️ Matched
+              <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
+                <Heart className="w-4 h-4 fill-current" />
+                Matched
               </span>
             )}
             {profile.connectionStatus.likedBack && !profile.connectionStatus.matched && (
-              <span className="inline-block bg-pink-100 dark:bg-pink-900/40 text-pink-800 dark:text-pink-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
-                💗 Liked you
+              <span className="inline-flex items-center gap-1 bg-pink-100 dark:bg-pink-900/40 text-pink-800 dark:text-pink-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
+                <Heart className="w-4 h-4 fill-current" />
+                Liked you
               </span>
             )}
             {profile.connectionStatus.liked && !profile.connectionStatus.matched && !profile.connectionStatus.likedBack && (
-              <span className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
-                👍 Liked
+              <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
+                <ThumbsUp className="w-4 h-4 fill-current" />
+                Liked
               </span>
             )}
           </div>

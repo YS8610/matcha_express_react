@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { escapeHtml, removeTags, sanitizeInput } from '@/lib/security';
-import { ShieldBan, Flag, X } from 'lucide-react';
+import { ShieldBan, Flag, X, Heart, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
@@ -258,23 +258,22 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg dark:shadow-2xl overflow-hidden">
-        <div className="relative h-48 sm:h-64 md:h-96">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video">
           <AuthImage
-            src={profile.photo0 ? getPhotoUrl(profile.photo0) : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+            src={profile.photo0 ? `/api/photo/${profile.photo0}` : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
             alt={profile.username || 'Profile'}
-            width={1024}
-            height={384}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             unoptimized
             fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
           />
 
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-            <h1 className="text-3xl font-bold text-white">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6">
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg">
               {displayName}
             </h1>
-            <p className="text-white/90">
+            <p className="text-white/90 drop-shadow-md text-lg">
               @{displayUsername}
             </p>
           </div>
@@ -300,13 +299,15 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               </span>
             )}
             {user && user.id !== userId && hasProfileLikedUser && (
-              <span className="text-sm px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full font-medium">
-                ♥ They liked you!
+              <span className="text-sm px-3 py-1 bg-pink-100 text-pink-700 rounded-full font-medium inline-flex items-center gap-1">
+                <Heart className="w-4 h-4 fill-current" />
+                They liked you!
               </span>
             )}
             {user && user.id !== userId && isConnected && (
-              <span className="text-sm px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium">
-                💬 Connected
+              <span className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium inline-flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" />
+                Connected
               </span>
             )}
           </div>
@@ -328,17 +329,19 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                   <button
                     disabled={true}
                     title="You are already connected"
-                    className="flex-1 py-2 rounded-md bg-gray-400 text-white disabled:cursor-not-allowed"
+                    className="flex-1 py-2 rounded-md bg-gray-400 text-white disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    💬 Connected
+                    <MessageCircle className="w-4 h-4" />
+                    Connected
                   </button>
                 ) : hasUserLiked ? (
                   <button
                     onClick={handleUnlike}
                     title="Unlike this profile"
-                    className="flex-1 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+                    className="flex-1 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 flex items-center justify-center gap-2"
                   >
-                    ❤️ Unlike
+                    <Heart className="w-4 h-4 fill-current" />
+                    Unlike
                   </button>
                 ) : (
                   <button

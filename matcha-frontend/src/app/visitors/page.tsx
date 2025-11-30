@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, Users } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
 import type { ProfileViewed } from '@/types';
-import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function VisitorsPage() {
@@ -50,7 +50,7 @@ export default function VisitorsPage() {
 
   const ProfileCard = ({ profile }: { profile: ProfileViewed }) => {
     const photoUrl = profile.photo0
-      ? getPhotoUrl(profile.photo0)
+      ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId);
 
     return (

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
-import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileShort } from '@/types';
 
@@ -47,7 +47,7 @@ export default function MatchesPage() {
 
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
     const photoUrl = profile.photo0
-      ? getPhotoUrl(profile.photo0)
+      ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api, getPhotoUrl, generateAvatarUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -80,7 +80,7 @@ export default function MyProfilePage() {
           <div className="relative h-64">
             {profile.photo0 ? (
               <AuthImage
-                src={getPhotoUrl(profile.photo0)}
+                src={`/api/photo/${profile.photo0}`}
                 alt="Profile"
                 width={1024}
                 height={256}

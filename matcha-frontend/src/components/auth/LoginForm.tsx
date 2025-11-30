@@ -92,7 +92,7 @@ export default function LoginForm() {
 
     if (loginRateLimit.remainingRequests <= 2) {
       setRateLimitWarning(
-        `⚠️ ${loginRateLimit.remainingRequests} login attempt${loginRateLimit.remainingRequests === 1 ? '' : 's'} remaining`
+        `${loginRateLimit.remainingRequests} login attempt${loginRateLimit.remainingRequests === 1 ? '' : 's'} remaining`
       );
     }
 

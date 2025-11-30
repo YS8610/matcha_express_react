@@ -107,6 +107,7 @@ export interface SearchFilters {
   distanceMax?: number;
   fameMin?: number;
   fameMax?: number;
+  interests?: string;
 }
 
 export interface RegisterData {

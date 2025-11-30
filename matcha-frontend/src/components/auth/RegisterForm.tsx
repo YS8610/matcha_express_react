@@ -123,7 +123,7 @@ export default function RegisterForm() {
 
     if (registerRateLimit.remainingRequests <= 1) {
       setRateLimitWarning(
-        `⚠️ Only ${registerRateLimit.remainingRequests} registration attempt remaining. Please verify your information carefully.`
+        `Only ${registerRateLimit.remainingRequests} registration attempt remaining. Please verify your information carefully.`
       );
     }
 

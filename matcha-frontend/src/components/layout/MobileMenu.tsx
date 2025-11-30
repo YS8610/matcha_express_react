@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -48,13 +48,6 @@ export default function MobileMenu() {
                   Browse
                 </Link>
                 <Link
-                  href="/search"
-                  onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
-                >
-                  Search
-                </Link>
-                <Link
                   href="/visitors"
                   onClick={closeMenu}
                   className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
@@ -81,6 +74,14 @@ export default function MobileMenu() {
                   className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
                 >
                   Messages
+                </Link>
+                <Link
+                  href="/map"
+                  onClick={closeMenu}
+                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors flex items-center gap-2"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Map
                 </Link>
                 <Link
                   href="/profile"

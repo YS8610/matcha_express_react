@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
-import { api, generateAvatarUrl, getPhotoUrl } from '@/lib/api';
+import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage } from '@/types';
 import AuthImage from '@/components/AuthImage';
 import { useWebSocket } from '@/contexts/WebSocketContext';
@@ -56,7 +56,7 @@ export default function MessagesPage() {
 
   const ConversationItem = ({ profile }: { profile: ProfileShort }) => {
     const photoUrl = profile.photo0
-      ? getPhotoUrl(profile.photo0)
+      ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
     const lastMessage = getLastMessage(profile.id);
