@@ -130,19 +130,3 @@ export function validateTokenStructure(token: string): TokenValidationResult {
   return { valid: true };
 }
 
-export function hasTokenBeenTampered(token: string): boolean {
-  if (!token) return false;
-
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return true;
-
-    atob(parts[0]);
-    atob(parts[1]);
-
-    return false;
-  } catch {
-    return true;
-  }
-}
-

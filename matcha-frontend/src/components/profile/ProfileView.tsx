@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
-import { escapeHtml, removeTags, sanitizeInput } from '@/lib/security';
+import { removeTags, sanitizeInput } from '@/lib/security';
 import { ShieldBan, Flag, X, Heart, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -33,7 +33,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const displayName = useMemo(
     () => {
-      const name = escapeHtml(removeTags(profile?.firstName || profile?.username || 'User'));
+      const name = removeTags(profile?.firstName || profile?.username || 'User');
       return name.length > 50 ? name.substring(0, 47) + '...' : name;
     },
     [profile?.firstName, profile?.username]
@@ -41,7 +41,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const displayUsername = useMemo(
     () => {
-      const username = escapeHtml(removeTags(profile?.username || 'user'));
+      const username = removeTags(profile?.username || 'user');
       return username.length > 30 ? username.substring(0, 27) + '...' : username;
     },
     [profile?.username]

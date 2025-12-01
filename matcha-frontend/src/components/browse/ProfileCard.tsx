@@ -7,7 +7,7 @@ import { generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
-import { escapeHtml, removeTags } from '@/lib/security';
+import { removeTags } from '@/lib/security';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
@@ -35,7 +35,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const displayName = useMemo(
     () => {
-      const name = escapeHtml(removeTags(profile.firstName || profile.username || `User ${profileId}`));
+      const name = removeTags(profile.firstName || profile.username || `User ${profileId}`);
       return name.length > 30 ? name.substring(0, 27) + '...' : name;
     },
     [profile.firstName, profile.username, profileId]
@@ -43,7 +43,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const displayUsername = useMemo(
     () => {
-      const username = escapeHtml(removeTags(profile.username || 'user'));
+      const username = removeTags(profile.username || 'user');
       return username.length > 25 ? username.substring(0, 22) + '...' : username;
     },
     [profile.username]

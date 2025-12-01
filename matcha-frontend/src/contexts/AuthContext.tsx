@@ -28,14 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        if (tokenStorage.hasTokenBeenTampered(token)) {
-          console.log('Token tampering detected');
-          tokenStorage.clearToken();
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
         const payload = tokenStorage.getTokenPayload(token);
 
         if (!payload || !payload.activated || !payload.email || !payload.username) {

@@ -1,16 +1,3 @@
-export function escapeHtml(text: string): string {
-  if (!text) return '';
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-    '/': '&#x2F;',
-  };
-  return text.replace(/[&<>"'\/]/g, (char) => map[char]);
-}
-
 export function sanitizeInput(input: string, maxLength: number = 1000): string {
   if (!input) return '';
 
