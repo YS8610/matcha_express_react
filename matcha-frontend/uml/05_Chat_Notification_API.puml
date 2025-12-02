@@ -1,0 +1,172 @@
+@startuml
+skinparam DPI 300
+title Chat, Notification & Password API - Extended
+
+participant Client
+participant "Backend API" as API
+
+note over Client, API
+Get Chat History
+end note
+
+Client -> API: GET /api/user/chat\nAuth: Bearer <invalid_token>\nBody: {otherid: "user_id"}
+activate API
+API --> Client: HTTP 401\n{msg: "Unauthorized"}
+deactivate API
+
+Client -> API: GET /api/user/chat\nAuth: Bearer <token>\nBody: {otherid: "nonexistent"}
+activate API
+API --> Client: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client -> API: GET /api/user/chat\nAuth: Bearer <token>\nBody: {otherid: "user_id"}\nUsers not matched
+activate API
+API --> Client: HTTP 403\n{msg: "Forbidden - Users are not matched"}
+deactivate API
+
+Client -> API: GET /api/user/chat\nAuth: Bearer <token>\nBody: {otherid: "user_id"}\nQuery: limit=50, skipno=0
+activate API
+API --> Client: HTTP 200\n{ChatMessage[]}\nArray of messages between users
+deactivate API
+
+Client -> API: GET /api/user/chat\nAuth: Bearer <token>\nBody: {otherid: "user_id"}\nQuery: limit=50, skipno=50\nLoad more
+activate API
+API --> Client: HTTP 200\n{ChatMessage[]}\nNext batch of messages
+deactivate API
+
+note over Client, API
+Get Notifications
+end note
+
+Client -> API: GET /api/user/notification\nAuth: Bearer <token>\nQuery: limit=invalid
+activate API
+API --> Client: HTTP 400\n{msg: "limit must be a number"}
+deactivate API
+
+Client -> API: GET /api/user/notification\nAuth: Bearer <token>\nQuery: limit=20, offset=0
+activate API
+API --> Client: HTTP 200\n{Notification[]}\n{id, userId, type, message, createdAt, read}
+deactivate API
+
+Client -> API: GET /api/user/notification\nAuth: Bearer <token>\nQuery: limit=20, offset=20\nLoad more
+activate API
+API --> Client: HTTP 200\n{Notification[]}\nNext 20 notifications
+deactivate API
+
+Client -> API: GET /api/user/notification\nAuth: Bearer <token>\nQuery: limit=20, offset=0\nNo notifications
+activate API
+API --> Client: HTTP 200\n{Notification[]}\nEmpty array
+deactivate API
+
+note over Client, API
+Mark Notification as Read
+end note
+
+Client -> API: PUT /api/user/notification\nAuth: Bearer <token>\n{notificationId: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "notificationId required"}
+deactivate API
+
+Client -> API: PUT /api/user/notification\nAuth: Bearer <token>\n{notificationId: "invalid_id"}
+activate API
+API --> Client: HTTP 404\n{msg: "Notification not found"}
+deactivate API
+
+Client -> API: PUT /api/user/notification\nAuth: Bearer <token>\n{notificationId: "valid_id"}\nAlready read
+activate API
+API --> Client: HTTP 200\n{msg: "notification marked as read"}
+deactivate API
+
+Client -> API: PUT /api/user/notification\nAuth: Bearer <token>\n{notificationId: "valid_id"}\nUnread notification
+activate API
+API --> Client: HTTP 200\n{msg: "notification marked as read"}
+deactivate API
+
+note over Client, API
+Delete Notification
+end note
+
+Client -> API: DELETE /api/user/notification\nAuth: Bearer <token>\n{notificationId: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "notificationId required"}
+deactivate API
+
+Client -> API: DELETE /api/user/notification\nAuth: Bearer <token>\n{notificationId: "invalid_id"}
+activate API
+API --> Client: HTTP 404\n{msg: "Notification not found"}
+deactivate API
+
+Client -> API: DELETE /api/user/notification\nAuth: Bearer <token>\n{notificationId: "valid_id"}
+activate API
+API --> Client: HTTP 200\n{msg: "notification deleted"}
+deactivate API
+
+note over Client, API
+Change Password
+end note
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "", pw: "", pw2: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "All fields required"}
+deactivate API
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "wrong", pw: "NewPass123!", pw2: "NewPass123!"}
+activate API
+API --> Client: HTTP 401\n{msg: "Old password is incorrect"}
+deactivate API
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "OldPass123!", pw: "weak", pw2: "weak"}
+activate API
+API --> Client: HTTP 400\n{msg: "Password must contain uppercase, lowercase, number, special character"}
+deactivate API
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "OldPass123!", pw: "NewPass123!", pw2: "Different"}
+activate API
+API --> Client: HTTP 400\n{msg: "Passwords do not match"}
+deactivate API
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "OldPass123!", pw: "OldPass123!", pw2: "OldPass123!"}\nSame as old
+activate API
+API --> Client: HTTP 400\n{msg: "New password must be different from old password"}
+deactivate API
+
+Client -> API: PUT /api/user/pw\nAuth: Bearer <token>\n{oldPassword: "OldPass123!", pw: "NewPass123!", pw2: "NewPass123!"}
+activate API
+API --> Client: HTTP 200\n{msg: "Password updated successfully"}
+deactivate API
+
+note over Client, API
+Report User
+end note
+
+Client -> API: POST /api/user/report/:userId\nAuth: Bearer <token>\n{reason: "short"}
+activate API
+API --> Client: HTTP 400\n{msg: "Reason must be at least 10 characters"}
+deactivate API
+
+Client -> API: POST /api/user/report/:userId\nAuth: Bearer <token>\n{reason: "This is a very long report that exceeds max length..."}
+activate API
+API --> Client: HTTP 400\n{msg: "Reason cannot exceed 500 characters"}
+deactivate API
+
+Client -> API: POST /api/user/report/:self_id\nAuth: Bearer <token>\n{reason: "Valid reason text"}
+activate API
+API --> Client: HTTP 400\n{msg: "Cannot report yourself"}
+deactivate API
+
+Client -> API: POST /api/user/report/:nonexistent\nAuth: Bearer <token>\n{reason: "Valid reason text"}
+activate API
+API --> Client: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client -> API: POST /api/user/report/:userId\nAuth: Bearer <token>\n{reason: "Valid reason text"}\nAlready reported same user
+activate API
+API --> Client: HTTP 409\n{msg: "You have already reported this user"}
+deactivate API
+
+Client -> API: POST /api/user/report/:userId\nAuth: Bearer <token>\n{reason: "Valid reason text"}\nFirst report
+activate API
+API --> Client: HTTP 200\n{msg: "Report submitted successfully"}
+deactivate API
+
+@enduml

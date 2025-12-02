@@ -1,0 +1,169 @@
+@startuml
+skinparam DPI 300
+title Block & View Flow - POST/GET /api/user/block & /api/user/viewed
+
+participant Client_A
+participant "Backend API" as API
+participant WebSocket_B
+participant Client_B
+
+note over Client_A, Client_B
+User A blocks User B
+end note
+
+Client_A -> API: POST /api/user/block\nAuth: Bearer <tokenA>\n{userId: "B"}
+activate API
+
+API --> Client_A: HTTP 400\n{msg: "Cannot block yourself"}
+deactivate API
+
+Client_A -> API: POST /api/user/block\nAuth: Bearer <tokenA>\n{userId: "nonexistent"}
+activate API
+API --> Client_A: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client_A -> API: POST /api/user/block\nAuth: Bearer <tokenA>\n{userId: "B"}\nAlready blocked
+activate API
+API --> Client_A: HTTP 409\n{msg: "User already blocked"}
+deactivate API
+
+Client_A -> API: POST /api/user/block\nAuth: Bearer <tokenA>\n{userId: "B"}\nNew block
+activate API
+
+API --> Client_A: HTTP 200\n{msg: "User blocked successfully"}
+deactivate API
+
+API -> WebSocket_B: socket.emit('notification')\n{type: 'BLOCKED', message: "You have been blocked"}\nIf User B online
+WebSocket_B -> Client_B: Receive block notification (optional)
+
+note over Client_A, Client_B
+Effects of blocking
+end note
+
+API -> API: Block effects:\n- User B can't message User A\n- User B can't see User A in browse\n- User A can't see User B in browse\n- Existing messages stay but can't send new\n- Likes/matches removed\n- User B's fame rating decreased
+
+note over Client_A, Client_B
+Get blocked users list
+end note
+
+Client_A -> API: GET /api/user/block\nAuth: Bearer <tokenA>
+activate API
+API --> Client_A: HTTP 200\n{data: [ProfileShort[]]}\nList of blocked users\n[User B, ...]
+deactivate API
+
+note over Client_A, Client_B
+Unblock User B
+end note
+
+Client_A -> API: DELETE /api/user/block\nAuth: Bearer <tokenA>\n{userId: "B"}
+activate API
+
+API --> Client_A: HTTP 404\n{msg: "User not found in block list"}
+deactivate API
+
+Client_A -> API: DELETE /api/user/block\nAuth: Bearer <tokenA>\n{userId: "B"}\nPreviously blocked
+activate API
+
+API --> Client_A: HTTP 200\n{msg: "User unblocked successfully"}
+deactivate API
+
+API -> WebSocket_B: socket.emit('notification')\n{type: 'UNBLOCKED', message: "You have been unblocked"}\nIf User B online
+WebSocket_B -> Client_B: Receive unblock notification (optional)
+
+API -> API: Unblock effects:\n- User B's fame rating restored\n- Can now message again\n- Both can see each other in browse\n- Can like/match again
+
+note over Client_A, Client_B
+Record profile view
+end note
+
+Client_A -> API: POST /api/user/viewed\nAuth: Bearer <tokenA>\n{viewedUserID: "B"}\nViewing self
+activate API
+API --> Client_A: HTTP 400\n{msg: "Cannot view your own profile"}
+deactivate API
+
+Client_A -> API: POST /api/user/viewed\nAuth: Bearer <tokenA>\n{viewedUserID: "nonexistent"}
+activate API
+API --> Client_A: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client_A -> API: POST /api/user/viewed\nAuth: Bearer <tokenA>\n{viewedUserID: "B"}\nUser B blocked you
+activate API
+API --> Client_A: HTTP 403\n{msg: "Cannot view blocked user"}
+deactivate API
+
+Client_A -> API: POST /api/user/viewed\nAuth: Bearer <tokenA>\n{viewedUserID: "B"}\nFirst time viewing
+activate API
+
+API --> Client_A: HTTP 200\n{msg: "view recorded"}
+deactivate API
+
+API -> WebSocket_B: socket.emit('notification')\n{type: 'VIEW', message: "User A viewed your profile!"}
+WebSocket_B -> Client_B: Receive view notification
+
+API -> API: View effects:\n- User B's fame rating increased by 1\n- Only incremented on first view per user\n- User B gets notification
+
+note over Client_A, Client_B
+View same user again
+end note
+
+Client_A -> API: POST /api/user/viewed\nAuth: Bearer <tokenA>\n{viewedUserID: "B"}\nSecond view
+activate API
+API --> Client_A: HTTP 409\n{msg: "User already viewed"}\nOr HTTP 200 with no fame increment
+deactivate API
+
+note over Client_A, Client_B
+Get users you viewed
+end note
+
+Client_A -> API: GET /api/user/viewed\nAuth: Bearer <tokenA>
+activate API
+API --> Client_A: HTTP 200\n{data: [ProfileShort[]]}\nAll users A viewed\nIncluding User B
+deactivate API
+
+note over Client_A, Client_B
+Get users who viewed you
+end note
+
+Client_B -> API: GET /api/user/viewed/by\nAuth: Bearer <tokenB>
+activate API
+API --> Client_B: HTTP 200\n{data: [ProfileShort[]]}\nUsers who viewed B\nMay include User A\n(unless A is blocked or doesn't have access)
+deactivate API
+
+note over Client_A, Client_B
+View count affects profile discovery
+end note
+
+Client_A -> API: GET /api/profile/short/:B_id\nAuth: Bearer <tokenA>\nAfter viewing
+activate API
+API --> Client_A: HTTP 200\n{ProfileShort:\n  {...,\n    connectionStatus: {...}\n  }\n}
+deactivate API
+
+note over Client_A, Client_B
+After blocking - browse behavior
+end note
+
+Client_A -> API: GET /api/profile\nAuth: Bearer <tokenA>\nAfter blocking B
+activate API
+API --> Client_A: HTTP 200\n{ProfileShort[]}\nUser B is NOT in results\n(automatically filtered)
+deactivate API
+
+Client_B -> API: GET /api/profile\nAuth: Bearer <tokenB>\nAfter being blocked by A
+activate API
+API --> Client_B: HTTP 200\n{ProfileShort[]}\nUser A is NOT in results\n(automatically filtered)
+deactivate API
+
+note over Client_A, Client_B
+Try to access blocked user's profile
+end note
+
+Client_A -> API: GET /api/profile/:B_id\nAuth: Bearer <tokenA>\nAfter blocking B
+activate API
+API --> Client_A: HTTP 403\n{msg: "Forbidden - You have blocked this user"}
+deactivate API
+
+Client_B -> API: GET /api/profile/:A_id\nAuth: Bearer <tokenB>\nAfter A blocked B
+activate API
+API --> Client_B: HTTP 403\n{msg: "Forbidden - User has blocked you"}
+deactivate API
+
+@enduml

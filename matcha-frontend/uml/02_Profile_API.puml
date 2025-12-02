@@ -1,0 +1,127 @@
+@startuml
+skinparam DPI 300
+title Profile Management API - Extended
+
+participant Client
+participant "Backend API" as API
+
+note over Client, API
+Get Own Profile
+end note
+
+Client -> API: GET /api/user/profile\nAuth: Bearer <invalid_token>
+activate API
+API --> Client: HTTP 401\n{msg: "Unauthorized - Invalid token"}
+deactivate API
+
+Client -> API: GET /api/user/profile\nAuth: Bearer <expired_token>
+activate API
+API --> Client: HTTP 401\n{msg: "Unauthorized - Token expired"}
+deactivate API
+
+Client -> API: GET /api/user/profile\nAuth: Bearer <valid_token>\nUser not activated
+activate API
+API --> Client: HTTP 403\n{msg: "Forbidden - Account not activated"}
+deactivate API
+
+Client -> API: GET /api/user/profile\nAuth: Bearer <valid_token>\nUser activated
+activate API
+API --> Client: HTTP 200\n{id, username, email, firstName, lastName,\nbirthDate, gender, sexualPreference, biography,\nfameRating, photo0-4, lastOnline, tags}
+deactivate API
+
+note over Client, API
+Update Own Profile
+end note
+
+Client -> API: PUT /api/user/profile\nAuth: Bearer <token>\n{firstName: "", ...}
+activate API
+API --> Client: HTTP 400\n{msg: "First name cannot be empty"}
+deactivate API
+
+Client -> API: PUT /api/user/profile\nAuth: Bearer <token>\n{email: "taken@example.com", ...}
+activate API
+API --> Client: HTTP 409\n{msg: "Email already in use"}
+deactivate API
+
+Client -> API: PUT /api/user/profile\nAuth: Bearer <token>\n{gender: "INVALID", ...}
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid gender value"}
+deactivate API
+
+Client -> API: PUT /api/user/profile\nAuth: Bearer <token>\n{firstName: "Jonathan", lastName: "Smith",\nemail: "john@example.com", gender: "MALE",\nsexualPreference: "FEMALE", biography: "I love...",\nbirthDate: "1990-05-15"}
+activate API
+API --> Client: HTTP 200\n{msg: "profile updated"}
+deactivate API
+
+note over Client, API
+Get Full Profile of Another User
+end note
+
+Client -> API: GET /api/profile/:userId\nAuth: Bearer <token>\nUser blocked viewer
+activate API
+API --> Client: HTTP 403\n{msg: "Forbidden - User has blocked you"}
+deactivate API
+
+Client -> API: GET /api/profile/:userId\nAuth: Bearer <token>\nViewer blocked user
+activate API
+API --> Client: HTTP 403\n{msg: "Forbidden - You have blocked this user"}
+deactivate API
+
+Client -> API: GET /api/profile/:invalid_userId\nAuth: Bearer <token>
+activate API
+API --> Client: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client -> API: GET /api/profile/:userId\nAuth: Bearer <token>\nValid request
+activate API
+API --> Client: HTTP 200\n{id, username, firstName, lastName, photo0,\nfameRating, birthDate, gender, sexualPreference,\nbiography, tags, lastOnline, connectionStatus:\n{userid, liked, likedBack, matched}}
+deactivate API
+
+note over Client, API
+Get Short Profile
+end note
+
+Client -> API: GET /api/profile/short/:userId\nAuth: Bearer <token>
+activate API
+API --> Client: HTTP 200\n{id, username, firstName, photo0, fameRating,\nlastOnline, birthDate, userTags, distance,\nconnectionStatus: {userid, liked, likedBack, matched}}
+deactivate API
+
+note over Client, API
+Browse Filtered Profiles
+end note
+
+Client -> API: GET /api/profile\nAuth: Bearer <token>\nQuery: minAge=invalid
+activate API
+API --> Client: HTTP 400\n{msg: "minAge must be a number"}
+deactivate API
+
+Client -> API: GET /api/profile\nAuth: Bearer <token>\nQuery: minAge=20, maxAge=10 (invalid range)
+activate API
+API --> Client: HTTP 400\n{msg: "minAge cannot be greater than maxAge"}
+deactivate API
+
+Client -> API: GET /api/profile\nAuth: Bearer <token>\nQuery: minAge=20, maxAge=30, distancekm=50,\nminFameRating=50, skip=0, limit=20
+activate API
+API --> Client: HTTP 200\n{ProfileShort[]}\nArray of 20 profiles matching filters\nwith connectionStatus for each
+deactivate API
+
+Client -> API: GET /api/profile\nAuth: Bearer <token>\nQuery: skip=20, limit=20 (load more)
+activate API
+API --> Client: HTTP 200\n{ProfileShort[]}\nNext batch of profiles
+deactivate API
+
+note over Client, API
+Update Location
+end note
+
+Client -> API: PUT /api/user/location\nAuth: Bearer <token>\n{latitude: 999, longitude: 999}
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid coordinates"}
+deactivate API
+
+Client -> API: PUT /api/user/location\nAuth: Bearer <token>\n{latitude: 40.7128, longitude: -74.0060}
+activate API
+API --> Client: HTTP 200\n{msg: "User location updated successfully"}
+deactivate API
+
+@enduml

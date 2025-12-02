@@ -1,0 +1,155 @@
+@startuml
+skinparam DPI 300
+title Photo & Tag Management API - Extended
+
+participant Client
+participant "Backend API" as API
+
+note over Client, API
+Get All User Photos
+end note
+
+Client -> API: GET /api/user/photo\nAuth: Bearer <invalid_token>
+activate API
+API --> Client: HTTP 401\n{msg: "Unauthorized"}
+deactivate API
+
+Client -> API: GET /api/user/photo\nAuth: Bearer <valid_token>
+activate API
+API --> Client: HTTP 200\n{photoNames: ["photo0.jpg", "photo1.jpg"]}\nReturns current photos
+deactivate API
+
+note over Client, API
+Upload Photo
+end note
+
+Client -> API: PUT /api/user/photo/0\nAuth: Bearer <token>\nForm: (missing photo file)
+activate API
+API --> Client: HTTP 400\n{msg: "No file uploaded"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/0\nAuth: Bearer <token>\nForm: {photo: <invalid_file.txt>}
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid file type. Only images allowed"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/0\nAuth: Bearer <token>\nForm: {photo: <huge_file.jpg (10MB)>}
+activate API
+API --> Client: HTTP 413\n{msg: "File too large. Max 5MB"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/0\nAuth: Bearer <token>\nForm: {photo: <valid_photo.jpg (2MB)>}
+activate API
+API --> Client: HTTP 200\n{msg: "Photo added successfully"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/5\nAuth: Bearer <token>\nForm: {photo: <photo.jpg>}\nPhoto slot 5 (max is 5, indices 0-4)
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid photo number. Must be 0-4"}
+deactivate API
+
+note over Client, API
+Delete Photo
+end note
+
+Client -> API: DELETE /api/user/photo/6\nAuth: Bearer <token>
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid photo number"}
+deactivate API
+
+Client -> API: DELETE /api/user/photo/1\nAuth: Bearer <token>\nPhoto doesn't exist
+activate API
+API --> Client: HTTP 404\n{msg: "Photo not found"}
+deactivate API
+
+Client -> API: DELETE /api/user/photo/1\nAuth: Bearer <token>\nPhoto exists
+activate API
+API --> Client: HTTP 200\n{msg: "Photo deleted successfully"}
+deactivate API
+
+note over Client, API
+Reorder Photos
+end note
+
+Client -> API: PUT /api/user/photo/order\nAuth: Bearer <token>\n{newOrder: [0, 1, 2]}
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid order array. Must contain 5 elements"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/order\nAuth: Bearer <token>\n{newOrder: [0, 1, 2, 3, 4]}
+activate API
+API --> Client: HTTP 200\n{msg: "Photo order updated successfully"}
+deactivate API
+
+Client -> API: PUT /api/user/photo/order\nAuth: Bearer <token>\n{newOrder: [5, 1, 2, 3, 4]}\nInvalid index
+activate API
+API --> Client: HTTP 400\n{msg: "Invalid photo index"}
+deactivate API
+
+note over Client, API
+Get Photo Image
+end note
+
+Client -> API: GET /api/photo/photo0.jpg\nAuth: Bearer <token>\nFile doesn't exist
+activate API
+API --> Client: HTTP 404\n{msg: "Photo not found"}
+deactivate API
+
+Client -> API: GET /api/photo/photo0.jpg\nAuth: Bearer <token>
+activate API
+API --> Client: HTTP 200\n<binary image data>\nContent-Type: image/jpeg\nCache-Control: public, max-age=86400
+deactivate API
+
+Client -> API: GET /api/photo/../../../etc/passwd\nAuth: Bearer <token>\nPath traversal attempt
+activate API
+API --> Client: HTTP 403\n{msg: "Forbidden - Invalid file path"}
+deactivate API
+
+note over Client, API
+Get User Tags
+end note
+
+Client -> API: GET /api/user/tag\nAuth: Bearer <token>
+activate API
+API --> Client: HTTP 200\n{tags: ["travel", "music", "sports", "hiking"]}
+deactivate API
+
+note over Client, API
+Add Tag
+end note
+
+Client -> API: POST /api/user/tag\nAuth: Bearer <token>\n{tagName: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "Tag name cannot be empty"}
+deactivate API
+
+Client -> API: POST /api/user/tag\nAuth: Bearer <token>\n{tagName: "photography"}
+activate API
+API --> Client: HTTP 200\n{msg: "Tag linked successfully"}
+deactivate API
+
+Client -> API: POST /api/user/tag\nAuth: Bearer <token>\n{tagName: "photography"}\nAlready exists
+activate API
+API --> Client: HTTP 409\n{msg: "Tag already linked"}
+deactivate API
+
+Client -> API: POST /api/user/tag\nAuth: Bearer <token>\n{tagName: "tag1"}\n... (user has 50 tags already, max limit)
+activate API
+API --> Client: HTTP 400\n{msg: "Maximum tags limit reached"}
+deactivate API
+
+note over Client, API
+Delete Tag
+end note
+
+Client -> API: DELETE /api/user/tag\nAuth: Bearer <token>\n{tagName: "nonexistent"}
+activate API
+API --> Client: HTTP 404\n{msg: "Tag not found"}
+deactivate API
+
+Client -> API: DELETE /api/user/tag\nAuth: Bearer <token>\n{tagName: "travel"}
+activate API
+API --> Client: HTTP 200\n{msg: "Tag unlinked successfully"}
+deactivate API
+
+@enduml

@@ -1,0 +1,172 @@
+@startuml
+skinparam DPI 300
+title WebSocket Events - Extended
+
+participant Client
+participant "Backend WebSocket" as WS
+
+note over Client, WS
+WebSocket Connection & Auth
+end note
+
+Client -> WS: socket.io connect\nauth: {token: "invalid_token"}
+activate WS
+WS --> Client: 'connect_error' event\n{msg: "Authentication failed"}
+deactivate WS
+
+Client -> WS: socket.io connect\nauth: {token: "expired_token"}
+activate WS
+WS --> Client: 'connect_error' event\n{msg: "Token expired"}
+deactivate WS
+
+Client -> WS: socket.io connect\nauth: {token: "valid_jwt_token"}
+activate WS
+WS --> Client: 'connect' event\n{socket_id: "abc123xyz"}
+deactivate WS
+
+Client -> WS: socket.disconnect()\nNormal disconnect
+activate WS
+WS --> Client: 'disconnect' event\n{reason: "client namespace disconnect"}
+deactivate WS
+
+Client -> WS: Network fails (no explicit disconnect)
+activate WS
+WS --> Client: 'disconnect' event\n{reason: "transport close"}
+deactivate WS
+
+note over Client, WS
+Real-time Chat Messages
+end note
+
+Client -> WS: socket.emit('chatMessage')\n{fromUserId, toUserId, content, timestamp}
+activate WS
+WS --> Client: socket.emit('serverChatmsg')\n{_id, fromUserId, toUserId, content, timestamp, read: false}
+deactivate WS
+
+Client -> WS: socket.emit('chatMessage')\nUsers not matched
+activate WS
+WS --> Client: socket.emit('error')\n{msg: "Users are not matched"}
+deactivate WS
+
+Client -> WS: socket.emit('chatMessage')\nUser blocked target
+activate WS
+WS --> Client: socket.emit('error')\n{msg: "You have blocked this user"}
+deactivate WS
+
+Client -> WS: socket.emit('messageRead')\n{messageId: "msg123"}
+activate WS
+WS --> Client: socket.emit('messageRead')\n{messageId: "msg123", read: true}
+deactivate WS
+
+Client -> WS: socket.emit('messageRead')\nInvalid message ID
+activate WS
+WS --> Client: socket.emit('error')\n{msg: "Message not found"}
+deactivate WS
+
+Client -> WS: socket.emit('getChatHistory')\n{otherId: "user_id", limit: 50, skipno: 0}
+activate WS
+WS --> Client: Chat history data\n{ChatMessage[]}\nArray of messages
+deactivate WS
+
+Client -> WS: socket.emit('getChatHistory')\nUsers not matched
+activate WS
+WS --> Client: socket.emit('error')\n{msg: "Users are not matched"}
+deactivate WS
+
+note over Client, WS
+Real-time Notifications
+end note
+
+WS --> Client: socket.emit('notification')\nOn like event\n{id, userId, type: 'LIKE', message: "User X liked your profile!",\ncreatedAt, read: false}
+activate WS
+deactivate WS
+
+WS --> Client: socket.emit('notification')\nOn view event\n{id, userId, type: 'VIEW', message: "User Y viewed your profile!",\ncreatedAt, read: false}
+activate WS
+deactivate WS
+
+WS --> Client: socket.emit('notification')\nOn match event\n{id, userId, type: 'MATCH', message: "You matched with User Z!",\ncreatedAt, read: false}
+activate WS
+deactivate WS
+
+WS --> Client: socket.emit('notification')\nOn message event\n{id, userId, type: 'MESSAGE', message: "User A: Hello there!",\ncreatedAt, read: false}
+activate WS
+deactivate WS
+
+WS --> Client: socket.emit('notification')\nOn unlike event\n{id, userId, type: 'UNLIKE', message: "User B unliked your profile",\ncreatedAt, read: false}
+activate WS
+deactivate WS
+
+note over Client, WS
+Online Status Queries
+end note
+
+Client -> WS: socket.emit('isOnline')\n{user_ids: ["user1", "user2", "user3"]}
+activate WS
+WS --> Client: socket.emit('onlineStatus')\n{user1: true, user2: false, user3: true}
+deactivate WS
+
+Client -> WS: socket.emit('isOnline')\n{user_ids: []}\nEmpty list
+activate WS
+WS --> Client: socket.emit('onlineStatus')\n{}
+deactivate WS
+
+Client -> WS: socket.emit('isOnline')\n{user_ids: ["invalid_user"]}\nNon-existent user
+activate WS
+WS --> Client: socket.emit('onlineStatus')\n{invalid_user: false}
+deactivate WS
+
+Client -> WS: socket.emit('isOnline')\n{user_ids: null}\nMissing parameter
+activate WS
+WS --> Client: socket.emit('error')\n{msg: "user_ids parameter required"}
+deactivate WS
+
+note over Client, WS
+Error Handling & Recovery
+end note
+
+WS --> Client: socket.emit('error')\n{msg: "Invalid event"}
+activate WS
+deactivate WS
+
+WS --> Client: socket.emit('connect_error')\n{msg: "Server error"}
+activate WS
+deactivate WS
+
+Client -> WS: socket.io reconnect\nAfter disconnect
+activate WS
+WS --> Client: 'connect' event\n{socket_id: "def456uvw"}
+deactivate WS
+
+Client -> WS: Multiple socket.emit() calls\n(rapid fire requests)
+activate WS
+WS --> Client: Rate limit response\nsocket.emit('error')\n{msg: "Too many requests"}
+deactivate WS
+
+note over Client, WS
+Reconnection with Exponential Backoff
+end note
+
+Client -> WS: Network fails (auto-reconnect enabled)
+activate WS
+WS --> Client: 'disconnect' event\nAttempt 1: wait 1s
+WS --> Client: 'connect_error' event
+deactivate WS
+
+Client -> WS: Reconnect attempt 2 (after 2s delay)
+activate WS
+WS --> Client: 'connect_error' event
+deactivate WS
+
+Client -> WS: Reconnect attempt 3 (after 4s delay)
+activate WS
+WS --> Client: 'connect_error' event
+deactivate WS
+
+Client -> WS: Reconnect attempt 4 (after 5s delay)
+activate WS
+WS --> Client: 'connect' event\n{socket_id: "ghi789abc"}
+WS --> Client: Resumed connection
+deactivate WS
+
+@enduml

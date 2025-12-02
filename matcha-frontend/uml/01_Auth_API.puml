@@ -1,0 +1,113 @@
+@startuml
+skinparam DPI 300
+title Authentication API - Extended Endpoints & Error Handling
+
+participant Client
+participant "Backend API" as API
+
+note over Client, API
+Registration Flow
+end note
+
+Client -> API: POST /pubapi/register\n{email, pw, pw2, firstName, lastName, username, birthDate}
+activate API
+API --> Client: HTTP 400 (Bad Request)\n{msg: "Email already registered"} | \nHTTP 400 {msg: "Invalid email format"} | \nHTTP 400 {msg: "Passwords do not match"}
+deactivate API
+
+Client -> API: POST /pubapi/register\n{email, pw, pw2, firstName, lastName, username, birthDate}\nValid inputs
+activate API
+API --> Client: HTTP 200\n{msg: "registered and activation email sent to your email"}
+deactivate API
+
+note over Client, API
+Account Activation Flow
+end note
+
+Client -> API: GET /pubapi/activate/:token\nInvalid/Expired token
+activate API
+API --> Client: HTTP 401 (Unauthorized)\n{msg: "Invalid or expired activation token"}
+deactivate API
+
+Client -> API: GET /pubapi/activate/:token\nValid token
+activate API
+API --> Client: HTTP 200\n{msg: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}\nReturns JWT token
+deactivate API
+
+Client -> API: GET /pubapi/activate/:token\nAlready activated
+activate API
+API --> Client: HTTP 400\n{msg: "User already activated"}
+deactivate API
+
+note over Client, API
+Login Flow
+end note
+
+Client -> API: POST /pubapi/login\n{username: "john_doe", password: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "Username and password required"}
+deactivate API
+
+Client -> API: POST /pubapi/login\n{username: "nonexistent", password: "anypass"}
+activate API
+API --> Client: HTTP 401\n{msg: "Invalid username or password"}
+deactivate API
+
+Client -> API: POST /pubapi/login\n{username: "john_doe", password: "wrongpassword"}
+activate API
+API --> Client: HTTP 401\n{msg: "Invalid username or password"}
+deactivate API
+
+Client -> API: POST /pubapi/login\n{username: "john_doe", password: "correct_password"}
+activate API
+API --> Client: HTTP 200\n{msg: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}\nJWT Token expires in 30 days
+deactivate API
+
+note over Client, API
+Password Reset - Step 1 (Request)
+end note
+
+Client -> API: POST /pubapi/reset-password\n{email: "", username: ""}
+activate API
+API --> Client: HTTP 400\n{msg: "Email or username required"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password\n{email: "unknown@example.com", username: ""}
+activate API
+API --> Client: HTTP 404\n{msg: "User not found"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password\n{email: "john@example.com", username: ""}
+activate API
+API --> Client: HTTP 200\n{msg: "Password reset email sent to your email"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password\n{email: "john@example.com", username: ""}\nSecond request (rate limit)
+activate API
+API --> Client: HTTP 429\n{msg: "Too many reset requests, try again later"}
+deactivate API
+
+note over Client, API
+Password Reset - Step 2 (Confirm)
+end note
+
+Client -> API: POST /pubapi/reset-password/:userId/:token\n{newPassword: "weak", newPassword2: "weak"}
+activate API
+API --> Client: HTTP 400\n{msg: "Password must contain uppercase, lowercase, number, special character"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password/:userId/:invalidToken\n{newPassword: "NewPass123!", newPassword2: "NewPass123!"}
+activate API
+API --> Client: HTTP 401\n{msg: "Invalid or expired reset token"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password/:userId/:expiredToken\n{newPassword: "NewPass123!", newPassword2: "NewPass123!"}\nToken expired (>24h)
+activate API
+API --> Client: HTTP 401\n{msg: "Reset token has expired. Please request a new one"}
+deactivate API
+
+Client -> API: POST /pubapi/reset-password/:userId/:validToken\n{newPassword: "NewPass123!", newPassword2: "NewPass123!"}\nValid token & passwords
+activate API
+API --> Client: HTTP 200\n{msg: "Password has been reset successfully. You can now login"}
+deactivate API
+
+@enduml
