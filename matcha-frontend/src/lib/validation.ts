@@ -207,20 +207,6 @@ export const validateRegisterForm = (formData: {
   return errors;
 };
 
-export const validateLoginForm = (username: string, password: string): Record<string, string> => {
-  const errors: Record<string, string> = {};
-
-  if (!username.trim()) {
-    errors.username = 'Username is required';
-  }
-
-  if (!password) {
-    errors.password = 'Password is required';
-  }
-
-  return errors;
-};
-
 export const getPasswordValidationChecks = (password: string) => {
   const checks = {
     length: password.length >= 8,

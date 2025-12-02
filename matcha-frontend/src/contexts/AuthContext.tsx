@@ -17,6 +17,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
+      tokenStorage.checkAndClearOldCookies();
+
       const token = tokenStorage.getToken();
       if (token) {
         const validation = tokenStorage.validateTokenStructure(token);

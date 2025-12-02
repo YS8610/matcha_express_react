@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bell, Heart, Eye, MessageCircle, UserX } from 'lucide-react';
+import { Bell, Heart, Eye, MessageCircle, UserX, AlertCircle } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Notification } from '@/types';
 import { api } from '@/lib/api';
@@ -29,6 +29,7 @@ export default function NotificationCenter() {
   const { notifications: wsNotifications, isConnected, markNotificationRead, clearNotifications } = useWebSocket();
   const [apiNotifications, setApiNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -39,10 +40,13 @@ export default function NotificationCenter() {
   const loadNotifications = async () => {
     try {
       setLoading(true);
+      setError('');
       const response = await api.getNotifications(20, 0);
       setApiNotifications(response.data || []);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load notifications';
       console.error('Failed to load notifications:', error);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -76,22 +80,28 @@ export default function NotificationCenter() {
   const handleDeleteNotification = async (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
+      setError('');
       await api.deleteNotification(notificationId);
       setApiNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete notification';
       console.error('Failed to delete notification:', error);
+      setError(errorMsg);
     }
   };
 
   const handleClearAll = async () => {
     try {
+      setError('');
       for (const notification of apiNotifications) {
         await api.deleteNotification(notification.id);
       }
       setApiNotifications([]);
       clearNotifications();
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to clear notifications';
       console.error('Failed to clear all notifications:', error);
+      setError(errorMsg);
     }
   };
 
@@ -136,6 +146,22 @@ export default function NotificationCenter() {
                 </button>
               )}
             </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                </div>
+                <button
+                  onClick={() => setError('')}
+                  className="text-red-600 dark:text-red-400 hover:opacity-70 transition-opacity flex-shrink-0"
+                  aria-label="Close error"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             <div className="overflow-y-auto flex-1">
               {loading ? (

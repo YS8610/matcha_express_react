@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
@@ -8,12 +7,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { HealthStatusBanner } from "@/components/HealthStatusBanner";
 import RouteChangeProgress from "@/components/RouteChangeProgress";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: "Matcha - Find Your Perfect Match",
@@ -45,7 +38,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} antialiased`}
+        className="antialiased"
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
       >
         <ThemeProvider>
           <AuthProvider>

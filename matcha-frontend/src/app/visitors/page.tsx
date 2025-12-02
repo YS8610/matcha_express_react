@@ -35,8 +35,17 @@ export default function VisitorsPage() {
         api.getUsersWhoViewedMe(),
       ]);
 
-      setViewedByMe(viewedByMeData.data || []);
-      setViewedMe(viewedMeData.data || []);
+      const transformedViewedByMe = (viewedByMeData.data || []).map((item: any) => ({
+        ...item,
+        userId: item.id,
+      }));
+      const transformedViewedMe = (viewedMeData.data || []).map((item: any) => ({
+        ...item,
+        userId: item.id,
+      }));
+
+      setViewedByMe(transformedViewedByMe);
+      setViewedMe(transformedViewedMe);
     } catch (err) {
       setError((err as Error).message || 'Failed to load visitors data');
     } finally {

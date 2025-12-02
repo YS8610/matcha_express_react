@@ -10,18 +10,22 @@ export default function BrowsePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push('/login');
-      } else if (!user.profileComplete) {
-        router.push('/profile/setup');
-      }
+    if (loading) return;
+
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
+    if (!user.profileComplete) {
+      router.replace('/profile/setup');
+      return;
     }
   }, [user, loading, router]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) return null;
-  if (!user.profileComplete) return null;
+  if (loading || !user || !user.profileComplete) {
+    return <></>;
+  }
 
   return <BrowseProfiles />;
 }

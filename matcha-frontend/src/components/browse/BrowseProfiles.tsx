@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
+import AlertBox from '@/components/AlertBox';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -118,11 +119,13 @@ export default function BrowseProfiles() {
   const [filters, setFilters] = useState<SearchFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [profilesPerPage, setProfilesPerPage] = useState(12);
+  const [error, setError] = useState('');
 
   const totalPages = Math.ceil(totalProfiles / profilesPerPage);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const requestFilters: any = {
         skip: 0,
@@ -142,7 +145,9 @@ export default function BrowseProfiles() {
       setTotalProfiles(profiles.length);
       setCurrentPage(1);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load profiles';
       console.error('Failed to load profiles:', error);
+      setError(errorMsg);
       setAllProfiles([]);
       setTotalProfiles(0);
     } finally {
@@ -249,6 +254,16 @@ export default function BrowseProfiles() {
           )}
         </button>
       </div>
+
+      {error && (
+        <div className="mb-6">
+          <AlertBox
+            type="error"
+            message={error}
+            onClose={() => setError('')}
+          />
+        </div>
+      )}
 
       {showFilters && (
         <div className="mb-6">

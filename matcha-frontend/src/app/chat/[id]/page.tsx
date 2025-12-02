@@ -25,11 +25,16 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [skipno, setSkipno] = useState(0);
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
+    if (authLoading) return;
+
+    if (!user) {
+      router.replace('/login');
+    } else if (!user.profileComplete) {
+      router.replace('/profile/setup');
     }
   }, [user, authLoading, router]);
 
@@ -132,16 +137,11 @@ export default function ChatPage() {
     setMessageText('');
   };
 
-  if (authLoading || loading) return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 dark:border-green-400 border-t-transparent"></div>
-        <p className="mt-4 text-green-700 dark:text-green-300">Loading...</p>
-      </div>
-    </div>
-  );
+  if (authLoading || loading || !user || !user.profileComplete) {
+    return null;
+  }
 
-  if (!user || !profile) return null;
+  if (!profile) return null;
 
   const photoUrl = profile.photo0
     ? `/api/photo/${profile.photo0}`

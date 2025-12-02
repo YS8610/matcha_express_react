@@ -10,18 +10,11 @@ import { ProfileShort } from '@/types';
 
 export default function MatchesPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [matches, setMatches] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    loadData();
-  }, [user, router]);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -36,6 +29,22 @@ export default function MatchesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
+    if (!user.profileComplete) {
+      router.replace('/profile/setup');
+      return;
+    }
+
+    loadData();
+  }, [user, authLoading, router]);
 
   const handleProfileClick = (userId: string) => {
     router.push(`/profile/${userId}`);
@@ -105,6 +114,10 @@ export default function MatchesPage() {
       <p className="text-gray-400 dark:text-gray-500 text-sm">Start liking profiles to find your matches</p>
     </div>
   );
+
+  if (authLoading || !user || !user.profileComplete) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

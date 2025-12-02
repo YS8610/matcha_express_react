@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { validateLoginForm } from '@/lib/validation';
+import { validateUsername, validatePassword } from '@/lib/validation';
 import { checkRateLimit } from '@/lib/rateLimiter';
 
 export default function LoginForm() {
@@ -22,10 +22,13 @@ export default function LoginForm() {
   const router = useRouter();
 
   const validateField = useCallback((name: string, value: string) => {
-    const tempData = { ...formData, [name]: value };
-    const errors = validateLoginForm(tempData.username, tempData.password);
-    return errors[name] || null;
-  }, [formData]);
+    if (name === 'username') {
+      return validateUsername(value);
+    } else if (name === 'password') {
+      return validatePassword(value);
+    }
+    return null;
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,7 +77,11 @@ export default function LoginForm() {
 
     setTouched({ username: true, password: true });
 
-    const errors = validateLoginForm(formData.username, formData.password);
+    const errors: Record<string, string> = {};
+    const usernameError = validateUsername(formData.username);
+    if (usernameError) errors.username = usernameError;
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) errors.password = passwordError;
     setFieldErrors(errors);
 
     if (Object.keys(errors).length > 0) {

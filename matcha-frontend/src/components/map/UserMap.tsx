@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -8,6 +8,19 @@ import { ProfileShort } from '@/types';
 import { api, generateAvatarUrl } from '@/lib/api';
 import Link from 'next/link';
 import { MapPin, Navigation } from 'lucide-react';
+
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = function(...args: any[]) {
+    if (
+      args[0]?.includes?.('mozPressure') ||
+      args[0]?.includes?.('mozInputSource')
+    ) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+}
 
 const createUserIcon = (isOnline: boolean) => {
   return L.divIcon({
@@ -81,25 +94,11 @@ export default function UserMap({ users = [], center = [48.8566, 2.3522], zoom =
     if (users.length > 0) {
       setMapUsers(users);
       setLoading(false);
-      return;
+      setError('');
+    } else {
+      setLoading(false);
+      setMapUsers([]);
     }
-
-    const loadUsers = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const response = await api.getFilteredProfiles({ skip: 0, limit: 500 });
-        const profiles = Array.isArray(response) ? response : response.data || [];
-        setMapUsers(profiles);
-      } catch (err) {
-        console.error('Failed to load users for map:', err);
-        setError('Failed to load user locations');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUsers();
   }, [users]);
 
   const usersWithLocation = mapUsers.filter(

@@ -12,10 +12,11 @@ import { toNumber, toDateString } from '@/lib/neo4j-utils';
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -30,8 +31,15 @@ export default function EditProfilePage() {
   });
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
+      return;
+    }
+
+    if (!user.profileComplete) {
+      router.replace('/profile/setup');
       return;
     }
 
@@ -118,6 +126,10 @@ export default function EditProfilePage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || !user || !user.profileComplete) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen bg-white dark:bg-slate-900">

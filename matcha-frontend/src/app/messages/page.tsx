@@ -10,20 +10,29 @@ import AuthImage from '@/components/AuthImage';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 
 export default function MessagesPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { chatMessages, onlineUsers, checkOnlineStatus } = useWebSocket();
   const [matches, setMatches] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
+
+    if (!user.profileComplete) {
+      router.replace('/profile/setup');
+      return;
+    }
+
     loadMatches();
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     if (matches.length > 0) {
@@ -123,6 +132,10 @@ export default function MessagesPage() {
       </button>
     </div>
   );
+
+  if (authLoading || !user || !user.profileComplete) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

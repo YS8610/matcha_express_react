@@ -67,7 +67,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         try {
           await api.recordUserView(userId);
         } catch (viewError) {
-          console.debug('View recording skipped:', viewError);
         }
 
         if (response.data?.connectionStatus) {

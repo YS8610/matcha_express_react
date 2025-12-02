@@ -2,7 +2,6 @@
 
 import ProfileSetup from '@/components/profile/ProfileSetup';
 import { useAuth } from '@/contexts/AuthContext';
-import * as tokenStorage from '@/lib/tokenStorage';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -11,27 +10,18 @@ export default function ProfileSetupPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      const token = tokenStorage.getToken();
-      if (!token) {
-        router.push('/login');
-      }
+    if (loading) return;
+
+    if (!user) {
+      router.replace('/login');
+    } else if (user.profileComplete) {
+      router.replace('/profile');
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    if (!loading && user?.profileComplete) {
-      router.push('/profile');
-    }
-  }, [user, loading, router]);
-
-  if (loading || (!user && tokenStorage.getToken())) {
-    return <div>Loading...</div>;
+  if (loading || !user || user.profileComplete) {
+    return null;
   }
-
-  if (!user) return null;
-
-  if (user.profileComplete) return null;
 
   return <ProfileSetup />;
 }
