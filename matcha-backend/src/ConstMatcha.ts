@@ -375,7 +375,8 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_DELETE_USER_BLOCKED_REL = `
     MATCH (u:PROFILE { id: $userId }) with u
     MATCH (v:PROFILE { id: $blockedUserId })
-    DELETE (u)-[:BLOCKED]->(v)
+    MATCH (u)-[r:BLOCKED]->(v)
+    DELETE r
   `;
 
   static readonly NEO4j_STMT_CHECK_USER_BLOCKED = `
