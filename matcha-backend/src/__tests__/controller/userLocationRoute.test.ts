@@ -61,6 +61,42 @@ describe("Route /api/user/location", () => {
       expect(updateUserLocationSpy).toHaveBeenCalledWith("1", "testuser", 40.7128, -74.0060);
     });
 
+    it("should return 400 if latitude or longitude is out of range", async () => {
+      const response = await request(app)
+        .put("/api/user/location")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ latitude: 100, longitude: 200 });
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        context: { latitude: "out of range", longitude: "out of range" },
+        message: "latitude or/and longitude out of range",
+      });
+    });
+
+    it("should return 400 if latitude or longitude is out of range", async () => {
+      const response = await request(app)
+        .put("/api/user/location")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ latitude: 90, longitude: -200 });
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        context: { latitude: "in range", longitude: "out of range" },
+        message: "latitude or/and longitude out of range",
+      });
+    });
+
+    it("should return 400 if latitude or longitude is out of range", async () => {
+      const response = await request(app)
+        .put("/api/user/location")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ latitude: -91, longitude: 50 });
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        context: { latitude: "out of range", longitude: "in range" },
+        message: "latitude or/and longitude out of range",
+      });
+    });
+
     it("should return 500 if there is an internal server error", async () => {
       const updateUserLocationSpy = vi.spyOn(locationSvc, "updateUserLocation").mockRejectedValue(new Error("Database error"));
       const response = await request(app)

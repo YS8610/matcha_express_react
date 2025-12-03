@@ -4,6 +4,7 @@ import driver from "../../repo/neo4jRepo.js";
 import { int } from "neo4j-driver";
 import { U } from "vitest/dist/chunks/environment.d.cL3nLXbE.js";
 import { ProfilePutJson } from "../../model/profile.js";
+import { isReadable } from "stream";
 
 describe("userSvc tests", () => {
   beforeEach(() => {
@@ -582,6 +583,18 @@ describe("userSvc tests", () => {
   it("isValidDateString test: invalid date with correct format", async () => {
     const { isValidDateStr } = await import("../../service/userSvc.js");
     const result = isValidDateStr("2023-aa-30");
+    expect(result).toEqual(false);
+  });
+
+  it("isValidEmail test: valid email address", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("testuser@email.com");
+    expect(result).toEqual(true);
+  });
+
+  it("isValidEmail test: invalid email address", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("invalid-email");
     expect(result).toEqual(false);
   });
 

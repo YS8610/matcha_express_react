@@ -24,6 +24,16 @@ router.put("/", async (req: Request<{},{},{latitude: number, longitude: number}>
       code: 400,
       context: { latitude : !latitude? 'missing' : 'provided', longitude: !longitude ? 'missing' : 'provided' },
     }));
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180)
+    return next(new BadRequestError({
+      message: "latitude or/and longitude out of range",
+      logging: false,
+      code: 400,
+      context: {
+        latitude : latitude < -90 || latitude > 90? 'out of range' : 'in range',
+        longitude : longitude < -180 || longitude > 180 ? 'out of range' : 'in range'
+      }
+    }));
   await serverErrorWrapper(() => updateUserLocation(id, username, latitude, longitude), "error updating user location");
   res.status(200).json({ msg: "User location updated successfully" });
 });

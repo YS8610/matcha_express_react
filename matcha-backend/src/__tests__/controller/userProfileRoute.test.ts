@@ -160,6 +160,34 @@ describe("Route /api/user/profile", () => {
       });
     });
 
+    it("should return 400 if required fields are missing or invalid", async () => {
+      const res = await request(app)
+        .put("/api/user/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          firstName: "",
+          lastName: "",
+          email: "invalid-email",
+          gender: "abc",
+          sexualPreference: "abc",
+          biography: "short",
+          birthDate: "1990-12-10"
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0]).toEqual({
+        context: {
+          firstName: "missing or invalid",
+          lastName: "missing or invalid",
+          email: "missing or invalid",
+          gender: "missing or invalid",
+          sexualPreference: "missing or invalid",
+          biography: "missing or must be longer than 5 characters",
+          birthDate: "provided"
+        },
+        message: "All profile fields are required and must be valid"
+      });
+    });
+
     it("should return 200 if profile updated successfully and not activated", async () => {
       const mockedsetUserProfileById = vi.spyOn(userSvc, "setUserProfileById").mockResolvedValueOnce();
       const nonActivatedToken = await createToken("1", "testuser", "testuser@email.com", false);
@@ -170,7 +198,10 @@ describe("Route /api/user/profile", () => {
           firstName: "Updated",
           lastName: "User",
           email: "updateduser@Email.com",
-          birthDate: "1990-01-01"
+          birthDate: "1990-01-01",
+          gender: 1,
+          sexualPreference: 1,
+          biography: "This is a valid biography."
         });
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ msg: "profile updated" });
@@ -179,7 +210,10 @@ describe("Route /api/user/profile", () => {
         firstName: "Updated",
         lastName: "User",
         email: "updateduser@Email.com",
-        birthDate: "1990-01-01"
+        birthDate: "1990-01-01",
+        gender: 1,
+        sexualPreference: 1,
+        biography: "This is a valid biography."
       });
     });
 
@@ -192,7 +226,10 @@ describe("Route /api/user/profile", () => {
           firstName: "Updated",
           lastName: "User",
           email: "updateduser@Email.com",
-          birthDate: "1990-01-01"
+          birthDate: "1990-01-01",
+          gender: 1,
+          sexualPreference: 1,
+          biography: "This is a valid biography."
         });
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ msg: "profile updated" });
@@ -201,7 +238,10 @@ describe("Route /api/user/profile", () => {
         firstName: "Updated",
         lastName: "User",
         email: "updateduser@Email.com",
-        birthDate: "1990-01-01"
+        birthDate: "1990-01-01",
+        gender: 1,
+        sexualPreference: 1,
+        biography: "This is a valid biography."
       });
     });
 
@@ -214,6 +254,9 @@ describe("Route /api/user/profile", () => {
           firstName: "Updated",
           lastName: "User",
           email: "updateduser@Email.com",
+          gender: 1,
+          sexualPreference: 1,
+          biography: "This is a valid biography.",
           birthDate: "1990-01-01"
         });
       expect(res.status).toBe(500);
@@ -226,7 +269,10 @@ describe("Route /api/user/profile", () => {
         firstName: "Updated",
         lastName: "User",
         email: "updateduser@Email.com",
-        birthDate: "1990-01-01"
+        birthDate: "1990-01-01",
+        gender: 1,
+        sexualPreference: 1,
+        biography: "This is a valid biography."
       });
     });
   });

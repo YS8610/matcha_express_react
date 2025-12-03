@@ -232,3 +232,8 @@ export const isValidDateStr = (dateStr: string): boolean => {
     return false; // Invalid date
   return dateRegex.test(dateStr);
 }
+
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}

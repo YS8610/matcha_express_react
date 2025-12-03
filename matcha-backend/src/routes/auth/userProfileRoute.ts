@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { ProfileGetJson, ProfilePutJson, Reslocal } from "../../model/profile.js";
-import { getUserProfileById, isValidDateStr, setUserProfileById } from "../../service/userSvc.js";
+import { getUserProfileById, isValidDateStr, isValidEmail, setUserProfileById } from "../../service/userSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { ResMsg } from "../../model/Response.js";
@@ -51,6 +51,30 @@ router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<ResMs
       context: { birthDate: "invalid" }
     }));
   }
+  if (!firstName || firstName.trim() === "" ||
+  !lastName || lastName.trim() === "" ||
+  !email || !isValidEmail(email.trim()) ||
+  !gender || typeof gender !== "number" ||
+  !sexualPreference || typeof sexualPreference !== "number" ||
+  !biography || biography.trim().length <= 5 ||
+  !birthDate)
+    return next(new BadRequestError({
+      code: 400,
+      message: "All profile fields are required and must be valid",
+      logging: false,
+      context: {
+        firstName: !firstName || firstName.trim() === "" ? "missing or invalid" : "provided",
+        lastName: !lastName || lastName.trim() === "" ? "missing or invalid" : "provided",
+        email: !email || !isValidEmail(email) ? "missing or invalid" : "provided",
+        gender: (!gender || typeof gender !== "number") ? "missing or invalid" : "provided",
+        sexualPreference: !sexualPreference || typeof sexualPreference !== "number" ? "missing or invalid" : "provided",
+        biography: !biography || biography.trim().length <= 5 ? "missing or must be longer than 5 characters" : "provided",
+        birthDate: !birthDate ? "missing or invalid" : "provided"
+      }
+    }));
+
+
+
   await serverErrorWrapper(() => setUserProfileById(id, { firstName, lastName, email, gender, sexualPreference, biography, birthDate }), "Error updating profile");
   res.status(200).json({ msg: "profile updated" });
 });
