@@ -101,11 +101,11 @@ export default function ProfileSetup() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setFormData({
-            ...formData,
+          setFormData(prev => ({
+            ...prev,
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-          });
+          }));
           setIsAutoDetectedLocation(false);
           setLocationLoading(false);
         },

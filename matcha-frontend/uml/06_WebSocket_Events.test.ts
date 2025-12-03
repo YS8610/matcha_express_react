@@ -2,43 +2,17 @@ const BASE_URL = 'http://localhost:3001';
 const WS_URL = 'ws://localhost:3001';
 
 async function getValidToken(): Promise<string | null> {
-  const activationToken = process.env.ACTIVATION_TOKEN;
-  const testUsername = process.env.TEST_USERNAME || `testuser_${Date.now()}`;
-  const testPassword = process.env.TEST_PASSWORD || 'TestPass123!';
-  const testEmail = `test_${Date.now()}@example.com`;
-
   try {
-    if (activationToken) {
-      const registerRes = await fetch(`${BASE_URL}/pubapi/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: testEmail,
-          pw: testPassword,
-          pw2: testPassword,
-          firstName: 'Test',
-          lastName: 'User',
-          username: testUsername,
-          birthDate: '1990-01-01'
-        })
-      });
-
-      if (!registerRes.ok && registerRes.status !== 409) {
-        return null;
-      }
-
-      await fetch(`${BASE_URL}/pubapi/activate/${activationToken}`, { method: 'GET' }).catch(() => null);
-    }
-
+    console.log('  → Logging in...');
     const loginRes = await fetch(`${BASE_URL}/pubapi/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: testUsername, password: testPassword })
+      body: JSON.stringify({ username: 'jegoh', password: 'Pass1234!' })
     });
 
     if (loginRes.ok) {
       const data = await loginRes.json();
-      console.log(`  ✓ Authenticated as ${testUsername}`);
+      console.log(`✓ Logged in as jegoh`);
       return data.msg;
     }
     return null;

@@ -10,7 +10,7 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-white dark:bg-slate-900 backdrop-blur-sm border border-green-200 dark:border-green-900/50 rounded-2xl shadow-xl dark:shadow-2xl p-6 sm:p-8">
+        <div className="backdrop-blur-sm border border-green-200 dark:border-green-900/50 rounded-2xl shadow-xl dark:shadow-2xl p-6 sm:p-8" style={{ backgroundColor: 'var(--background)' }}>
           <div className="text-center mb-10">
             <div className="flex justify-center mb-6">
               <div className="relative">
