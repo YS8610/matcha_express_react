@@ -138,7 +138,18 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<an
   const liked = await serverErrorWrapper(() => isLiked(id, userId), "Error checking liked status");
   const likedBack = await serverErrorWrapper(() => isLikedBack(userId, id), "Error checking liked back status");
 
-  const profileResponse: any = {
+  interface ProfileResponseType extends ProfileGetJson {
+    connectionStatus: {
+      userid: string;
+      matched: boolean;
+      liked: boolean;
+      likedBack: boolean;
+    };
+    latitude?: number;
+    longitude?: number;
+  }
+
+  const profileResponse: ProfileResponseType = {
     ...profile,
     connectionStatus: {
       userid: userId,
@@ -146,7 +157,7 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<an
       liked,
       likedBack
     }
-  };
+  } as ProfileResponseType;
 
   if (location) {
     profileResponse.latitude = location.latitude;
