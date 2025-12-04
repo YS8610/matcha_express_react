@@ -16,7 +16,7 @@ export default function ChatPage() {
   const params = useParams();
   const chatUserId = params?.id as string;
 
-  const { sendChatMessage, getChatHistory, onlineUsers, checkOnlineStatus, isConnected } = useWebSocket();
+  const { sendChatMessage, getChatHistory, onlineUsers, checkOnlineStatus, isConnected, chatMessages } = useWebSocket();
   const [profile, setProfile] = useState<ProfileShort | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -94,23 +94,6 @@ export default function ChatPage() {
       loadChatHistoryFromAPI();
     }
   }, [chatUserId, loadProfile, checkOnlineStatus, loadChatHistoryFromAPI]);
-
-  useEffect(() => {
-    if (chatUserId) {
-      const webSocketMessages = getChatHistory(chatUserId);
-      setMessages(prev => {
-        const existingIds = new Set(prev.map(m => `${m.fromUserId}-${m.toUserId}-${m.timestamp}-${m.content}`));
-        const newMessages = webSocketMessages.filter(
-          m => !existingIds.has(`${m.fromUserId}-${m.toUserId}-${m.timestamp}-${m.content}`)
-        );
-
-        if (newMessages.length > 0) {
-          return [...prev, ...newMessages].sort((a, b) => a.timestamp - b.timestamp);
-        }
-        return prev;
-      });
-    }
-  }, [chatUserId, getChatHistory]);
 
   useEffect(() => {
     scrollToBottom();
@@ -209,7 +192,7 @@ export default function ChatPage() {
           </div>
         )}
 
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-green-100 dark:border-green-900 overflow-hidden flex flex-col">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-green-100 dark:border-green-900 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 380px)' }}>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
             {messages.length === 0 ? (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
@@ -231,31 +214,53 @@ export default function ChatPage() {
                     </button>
                   </div>
                 )}
-                {messages.map((msg, idx) => {
-                  const isFromMe = msg.fromUserId === user.id;
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
-                    >
+                {(() => {
+                  const allMessages: ChatMessageType[] = [];
+                  const seen = new Set<string>();
+
+                  messages.forEach(m => {
+                    const key = `${m.timestamp}-${m.content}-${m.fromUserId}`;
+                    if (!seen.has(key)) {
+                      seen.add(key);
+                      allMessages.push(m);
+                    }
+                  });
+
+                  const wsMessages = chatMessages[chatUserId] || [];
+                  wsMessages.forEach(m => {
+                    const key = `${m.timestamp}-${m.content}-${m.fromUserId}`;
+                    if (!seen.has(key)) {
+                      seen.add(key);
+                      allMessages.push(m);
+                    }
+                  });
+
+                  return allMessages.sort((a, b) => a.timestamp - b.timestamp).map((msg, idx) => {
+                    const isFromMe = msg.fromUserId === user?.id;
+                    return (
                       <div
-                        className={`max-w-[70%] px-4 py-2 rounded-2xl ${
-                          isFromMe
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
-                        }`}
+                        key={`${msg.timestamp}-${msg.fromUserId}-${idx}`}
+                        className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
                       >
-                        <p className="break-words">{msg.content}</p>
-                        <p className={`text-xs mt-1 ${isFromMe ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'}`}>
-                          {new Date(msg.timestamp).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
+                        <div
+                          className={`max-w-[70%] px-4 py-2 rounded-2xl ${
+                            isFromMe
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
+                          }`}
+                        >
+                          <p className="break-words">{msg.content}</p>
+                          <p className={`text-xs mt-1 ${isFromMe ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {new Date(msg.timestamp).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </>
             )}
             <div ref={messagesEndRef} />

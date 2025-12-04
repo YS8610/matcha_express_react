@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { io, Socket as SocketIOSocket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import type { Notification, ChatMessage, WebSocketContextType, Socket } from '@/types';
@@ -15,7 +15,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
-  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
+
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const stored = localStorage.getItem('chatMessages');
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      console.error('Failed to load chat messages from localStorage:', e);
+      return {};
+    }
+  });
+
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
@@ -95,14 +106,15 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setOnlineUsers(prev => ({ ...prev, ...statuses }));
     });
 
-    newSocket.on('serverChatmsg', (data: ChatMessage) => {
-      console.log('[WebSocket] Chat message received:', data);
+    const handleChatMessage = (data: ChatMessage) => {
       const otherUserId = data.fromUserId === user?.id ? data.toUserId : data.fromUserId;
       setChatMessages(prev => ({
         ...prev,
         [otherUserId]: [...(prev[otherUserId] || []), data]
       }));
-    });
+    };
+
+    newSocket.on('serverChatmsg', handleChatMessage);
 
     newSocket.on('error', (error: unknown) => {
       console.error('[WebSocket] Error:', error);
@@ -116,6 +128,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     setSocket(newSocket);
 
     return () => {
+      newSocket.off('serverChatmsg', handleChatMessage);
       newSocket.disconnect();
     };
   }, [user]);
@@ -156,21 +169,34 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     return chatMessages[userId] || [];
   }, [chatMessages]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Object.keys(chatMessages).length > 0) {
+      try {
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+      } catch (e) {
+        console.error('Failed to save chat messages to localStorage:', e);
+      }
+    }
+  }, [chatMessages]);
+
+  const contextValue = useMemo(
+    () => ({
+      socket: socket as unknown as Socket | null,
+      isConnected,
+      notifications,
+      onlineUsers,
+      chatMessages,
+      checkOnlineStatus,
+      markNotificationRead,
+      clearNotifications,
+      sendChatMessage,
+      getChatHistory
+    } as WebSocketContextType),
+    [socket, isConnected, notifications, onlineUsers, chatMessages, checkOnlineStatus, markNotificationRead, clearNotifications, sendChatMessage, getChatHistory]
+  );
+
   return (
-    <WebSocketContext.Provider
-      value={{
-        socket: socket as unknown as Socket | null,
-        isConnected,
-        notifications,
-        onlineUsers,
-        chatMessages,
-        checkOnlineStatus,
-        markNotificationRead,
-        clearNotifications,
-        sendChatMessage,
-        getChatHistory
-      } as WebSocketContextType}
-    >
+    <WebSocketContext.Provider value={contextValue}>
       {children}
     </WebSocketContext.Provider>
   );
