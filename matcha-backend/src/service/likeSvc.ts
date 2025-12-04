@@ -70,8 +70,9 @@ export const isLikedBack = async (userId: string, otherUserId: string): Promise<
 export const isMatch = async (userId: string, otherUserId: string): Promise<boolean> => {
   const session = driver.session();
   try{
-    const result = await session.run<{ matchCount: number }>(ConstMatcha.NEO4j_STMT_IS_MATCHED, { userId, otherUserId });
-    return result.records[0].get("matchCount") >= 2;
+    const result = await session.run<{ isMatched: boolean }>(ConstMatcha.NEO4j_STMT_IS_MATCHED, { userId, otherUserId });
+    if (result.records.length === 0) return false;
+    return result.records[0].get("isMatched") as boolean;
   } finally {
     await session.close();
   }

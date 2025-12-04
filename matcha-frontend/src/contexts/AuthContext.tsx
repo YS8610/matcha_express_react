@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser({
-          id: (payload.username as string) || 'user',
+          id: (payload.id as string) || (payload.username as string) || 'user',
           username: (payload.username as string) || 'user',
           email: (payload.email as string) || '',
           firstName: '',
