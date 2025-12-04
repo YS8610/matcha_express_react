@@ -8,7 +8,7 @@ import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
-import { ShieldBan, Flag, X, Heart, MessageCircle } from 'lucide-react';
+import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
@@ -28,6 +28,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [likeError, setLikeError] = useState('');
   const [modalState, setModalState] = useState<{ type: 'success' | 'error' | 'confirm' | null; title: string; message: string; action?: () => void }>({ type: null, title: '', message: '' });
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -51,6 +52,25 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     () => sanitizeInput(profile?.biography || 'No biography available.'),
     [profile?.biography]
   );
+
+  const availablePhotos = useMemo(() => {
+    if (!profile) return [];
+    const photos = [];
+    if (profile.photo0) photos.push(profile.photo0);
+    if (profile.photo1) photos.push(profile.photo1);
+    if (profile.photo2) photos.push(profile.photo2);
+    if (profile.photo3) photos.push(profile.photo3);
+    if (profile.photo4) photos.push(profile.photo4);
+    return photos;
+  }, [profile]);
+
+  const handleNextPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev + 1) % availablePhotos.length);
+  };
+
+  const handlePrevPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev - 1 + availablePhotos.length) % availablePhotos.length);
+  };
 
   const loadProfile = useCallback(async () => {
     if (!userId) {
@@ -258,15 +278,59 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video">
-          <AuthImage
-            src={profile.photo0 ? `/api/photo/${profile.photo0}` : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
-            alt={profile.username || 'Profile'}
-            fill
-            className="object-cover"
-            unoptimized
-            fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
-          />
+        <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video group">
+          {availablePhotos.length > 0 ? (
+            <>
+              <AuthImage
+                src={availablePhotos[currentPhotoIndex] ? `/api/photo/${availablePhotos[currentPhotoIndex]}` : generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+                alt={profile.username || 'Profile'}
+                fill
+                className="object-cover"
+                unoptimized
+                fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+              />
+
+              {availablePhotos.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevPhoto}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                    title="Previous photo"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={handleNextPhoto}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                    title="Next photo"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                    {availablePhotos.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPhotoIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
+                        }`}
+                        title={`Photo ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <AuthImage
+              src={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+              alt={profile.username || 'Profile'}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          )}
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6">
             <h1 className="text-4xl font-bold text-white drop-shadow-lg">

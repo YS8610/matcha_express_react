@@ -60,6 +60,19 @@ export default function EditProfilePage() {
         const sexPrefNum = toNumber(data.sexualPreference) ?? -1;
         const birthDateStr = toDateString(data.birthDate);
 
+        let latitude = '';
+        let longitude = '';
+        try {
+          const locationResponse = await api.getUserLocation();
+          const locationData = locationResponse.data;
+          if (locationData) {
+            latitude = locationData.latitude ? String(locationData.latitude) : '';
+            longitude = locationData.longitude ? String(locationData.longitude) : '';
+          }
+        } catch (locationError) {
+          console.warn('Failed to load location:', locationError);
+        }
+
         setFormData({
           firstName: data.firstName || '',
           lastName: data.lastName || '',
@@ -68,8 +81,8 @@ export default function EditProfilePage() {
           sexualPreference: sexualPreferenceReverseMap[sexPrefNum] || '',
           biography: data.biography || '',
           birthDate: birthDateStr,
-          latitude: data.latitude ? String(data.latitude) : '',
-          longitude: data.longitude ? String(data.longitude) : '',
+          latitude,
+          longitude,
         });
       } catch (error) {
         console.error('Failed to load profile:', error);
@@ -94,6 +107,18 @@ export default function EditProfilePage() {
     setLoading(true);
 
     try {
+      if (!formData.firstName.trim() || !formData.lastName.trim()) {
+        setError('First name and last name are required');
+        setLoading(false);
+        return;
+      }
+
+      if (formData.biography.trim().length <= 5) {
+        setError('Biography must be longer than 5 characters');
+        setLoading(false);
+        return;
+      }
+
       const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
       const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
 

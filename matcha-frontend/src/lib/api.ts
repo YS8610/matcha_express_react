@@ -193,10 +193,6 @@ class ApiClient {
     return this.request('/api/user/liked/matched');
   }
 
-  async ping() {
-    return this.request('/pubapi/ping');
-  }
-
   async getUserTags() {
     return this.request('/api/user/tag');
   }
@@ -289,6 +285,12 @@ class ApiClient {
     return this.request(`/api/user/chat?limit=${limit}&skipno=${skipno}`, {
       method: 'GET',
       body: JSON.stringify({ otherid: otherId }),
+    });
+  }
+
+  async getUserLocation() {
+    return this.request('/api/user/location', {
+      method: 'GET',
     });
   }
 

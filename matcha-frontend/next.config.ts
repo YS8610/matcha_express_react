@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const backendUrl = process.env.NODE_ENV === 'production'
-      ? 'http://matcha-backend:3001'
-      : (process.env.BACKEND_URL || 'http://localhost:3001');
+      ? 'http://matcha-backend:8080'
+      : (process.env.BACKEND_URL || 'http://localhost:8080');
 
     return {
       beforeFiles: [],
@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
               img-src 'self' data: https: blob:;
               font-src 'self' data: https:;
               worker-src 'self' blob:;
-              connect-src 'self' http://localhost:3001 http://localhost:3002 http://localhost:8080 http://localhost:80 ws://localhost:3001 ws://localhost:3002 ws://localhost:8080 ws://localhost:80 http://matcha-backend:3001 ws://matcha-backend:3001;
+              connect-src 'self' http://localhost:8080 http://localhost:3002 http://localhost:80 ws://localhost:8080 ws://localhost:3002 ws://localhost:80 http://matcha-backend:8080 ws://matcha-backend:8080 http://backend:8080 ws://backend:8080;
               frame-ancestors 'none';
               base-uri 'self';
               form-action 'self';

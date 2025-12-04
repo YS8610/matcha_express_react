@@ -18,6 +18,8 @@ import { toDateString } from '@/lib/neo4j-utils';
 
 export default function ProfileSetup() {
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     gender: '',
     sexualPreference: '',
     biography: '',
@@ -67,11 +69,12 @@ export default function ProfileSetup() {
     const fetchProfile = async () => {
       try {
         const response = await api.getProfile();
-        if (response?.data?.birthDate && !formData.birthDate) {
-          const birthDate = toDateString(response.data.birthDate);
+        if (response?.data) {
           setFormData(prev => ({
             ...prev,
-            birthDate,
+            firstName: response.data.firstName || '',
+            lastName: response.data.lastName || '',
+            birthDate: response.data.birthDate ? toDateString(response.data.birthDate) : prev.birthDate,
           }));
         }
       } catch (err) {
@@ -193,6 +196,8 @@ export default function ProfileSetup() {
         : null;
 
     const newErrors: Record<string, string> = {};
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (genderError) newErrors.gender = genderError;
     if (sexualityError) newErrors.sexualPreference = sexualityError;
     if (birthDateError) newErrors.birthDate = birthDateError;
@@ -213,8 +218,8 @@ export default function ProfileSetup() {
       const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
 
       await api.updateProfile({
-        firstName: user?.firstName || '',
-        lastName: user?.lastName || '',
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: user?.email || '',
         gender: genderMap[formData.gender] ?? 0,
         sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
@@ -276,6 +281,35 @@ export default function ProfileSetup() {
       )}
 
       <form className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">First Name</label>
+            <input
+              type="text"
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="Your first name..."
+            />
+            {fieldErrors.firstName && (
+              <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Last Name</label>
+            <input
+              type="text"
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="Your last name..."
+            />
+            {fieldErrors.lastName && (
+              <p className="text-xs text-red-500 mt-1">{fieldErrors.lastName}</p>
+            )}
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium mb-2">Gender</label>
           <select
@@ -522,7 +556,7 @@ export default function ProfileSetup() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={loading || !formData.gender || !formData.sexualPreference || !formData.birthDate || !formData.biography || formData.interests.length === 0 || formData.photos.length === 0}
+          disabled={loading || !formData.firstName.trim() || !formData.lastName.trim() || !formData.gender || !formData.sexualPreference || !formData.birthDate || !formData.biography || formData.interests.length === 0 || formData.photos.length === 0}
           className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 disabled:opacity-50"
         >
           {loading ? 'Setting up...' : 'Complete Setup'}

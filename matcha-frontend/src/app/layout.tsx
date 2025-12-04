@@ -5,7 +5,6 @@ import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { HealthStatusBanner } from "@/components/HealthStatusBanner";
 import RouteChangeProgress from "@/components/RouteChangeProgress";
 
 export const metadata: Metadata = {
@@ -45,7 +44,6 @@ export default function RootLayout({
           <AuthProvider>
             <WebSocketProvider>
               <RouteChangeProgress />
-              <HealthStatusBanner />
               <div className="min-h-screen flex flex-col">
                 <Header />
                 <main className="flex-1">{children}</main>

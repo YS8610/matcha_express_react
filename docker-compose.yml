@@ -1,6 +1,6 @@
 services:
   neo4j:
-    image: neo4j:5.13
+    image: neo4j:latest
     container_name: matcha-neo4j
     ports:
       - "7474:7474"
@@ -38,46 +38,46 @@ services:
       start_period: 30s
 
   backend:
-    build:
-      context: ./matcha-backend
-      dockerfile: Dockerfile
-      cache_from:
-        - matcha-backend:latest
-    container_name: matcha-backend
-    ports:
-      - "3001:3001"
-    env_file:
-      - .env
-    environment:
-      - PORT=3001
-      - NEO4J_URI=${NEO4J_URI}
-      - MONGODB=${MONGODB}
-    volumes:
-      - ./matcha-backend/photoDump:/app/photoDump
-    depends_on:
-      neo4j:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-    command: sh -c "sleep 10 && npm run serve"
+     build:
+       context: ./matcha-backend
+       dockerfile: Dockerfile
+       cache_from:
+         - matcha-backend:latest
+     container_name: matcha-backend
+     ports:
+       - "8080:8080"
+     env_file:
+       - .env
+     environment:
+       - PORT=8080
+       - NEO4J_URI=${NEO4J_URI}
+       - MONGODB=${MONGODB}
+     volumes:
+       - ./matcha-backend/photoDump:/app/photoDump
+     depends_on:
+       neo4j:
+         condition: service_healthy
+       mongodb:
+         condition: service_healthy
+     command: sh -c "sleep 10 && npm run serve"
 
   frontend:
-    build:
-      context: ./matcha-frontend
-      dockerfile: Dockerfile
-      cache_from:
-        - matcha-frontend:latest
-      args:
-        - NEXT_PUBLIC_API_URL=http://localhost:3001
-        - NEXT_PUBLIC_WS_URL=http://localhost:3001
-    container_name: matcha-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
-      - NEXT_PUBLIC_WS_URL=http://localhost:3001
-    depends_on:
-      - backend
+     build:
+       context: ./matcha-frontend
+       dockerfile: Dockerfile
+       cache_from:
+         - matcha-frontend:latest
+       args:
+         - NEXT_PUBLIC_API_URL=http://localhost:8080
+         - NEXT_PUBLIC_WS_URL=http://localhost:8080
+     container_name: matcha-frontend
+     ports:
+       - "3000:3000"
+     environment:
+       - NEXT_PUBLIC_API_URL=http://localhost:8080
+       - NEXT_PUBLIC_WS_URL=http://localhost:8080
+     depends_on:
+       - backend
 
 volumes:
   neo4j_data:

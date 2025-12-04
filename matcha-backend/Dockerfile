@@ -23,6 +23,6 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/logs ./logs
 COPY --from=builder /app/node_modules ./node_modules
 
-EXPOSE 3001
+EXPOSE 8080
 
 CMD ["npm", "run", "serve"]
