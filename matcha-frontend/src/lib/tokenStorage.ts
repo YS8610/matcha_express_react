@@ -4,7 +4,7 @@ const TOKEN_KEY = 'token';
 const TOKEN_EXPIRY_KEY = 'tokenExpiry';
 const TOKEN_CREATED_AT_KEY = 'tokenCreatedAt';
 const REFRESH_TOKEN_KEY = 'refreshToken';
-const COOKIE_MAX_AGE = 60 * 60 * 1000;
+const COOKIE_MAX_AGE = 2 * 60 * 60 * 1000;
 
 interface DecodedToken extends Record<string, unknown> {
   exp?: number;
@@ -109,7 +109,7 @@ export function checkAndClearOldCookies(): void {
     const age = Date.now() - createdAt;
 
     if (age > COOKIE_MAX_AGE) {
-      console.log('Cookie is older than 1 hour, clearing...');
+      console.log('Cookie is older than 2 hours, clearing...');
       clearToken();
     }
   } catch (error) {

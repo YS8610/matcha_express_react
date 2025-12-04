@@ -109,10 +109,10 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
   if (loading) {
     return (
       <div className={`space-y-4 ${className}`}>
-        <h3 className="text-lg font-semibold text-green-700">Your Photos</h3>
-        <div className="animate-pulse grid grid-cols-2 md:grid-cols-5 gap-4">
+        <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">Your Photos</h3>
+        <div className="animate-pulse grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="aspect-square bg-gray-200 rounded-lg"></div>
+            <div key={i} className="aspect-square bg-gray-300 dark:bg-gray-600 rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -121,82 +121,89 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <h3 className="text-lg font-semibold text-green-700">Your Photos</h3>
+      <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">Your Photos</h3>
 
       {error && (
-        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>
+        <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-md border border-red-200 dark:border-red-700">{error}</div>
       )}
 
       {success && (
-        <div className="text-green-500 text-sm bg-green-50 p-3 rounded-md">{success}</div>
+        <div className="text-green-600 dark:text-green-300 text-sm bg-green-50 dark:bg-green-900/30 p-3 rounded-md border border-green-200 dark:border-green-700">{success}</div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-        {[...Array(5)].map((_, index) => {
-          const photoName = photos[index];
-          const hasPhoto = photoName && photoName.trim() !== '';
+      <div className="mb-6">
+        <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-3">Your Photos ({photos.filter(p => p && p.trim()).length}/5)</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          {[...Array(5)].map((_, index) => {
+            const photoName = photos[index];
+            const hasPhoto = photoName && photoName.trim() !== '';
 
-          return (
-            <div key={index} className="relative group">
-              <div className="aspect-square rounded-lg border-2 border-green-300 overflow-hidden bg-gray-50">
-                {hasPhoto ? (
-                  <>
-                    <AuthImage
-                      src={`/api/photo/${photoName}`}
-                      alt={`Photo ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handlePhotoDelete(index)}
-                        className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-all"
-                        title="Delete photo"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      {index > 0 && (
+            return (
+              <div key={`photo-${index}`} className="relative group">
+                <div className="relative aspect-square rounded-lg border-2 overflow-hidden"
+                  style={{
+                    borderColor: hasPhoto ? '#86efac' : '#fca5a5',
+                  }}
+                >
+                  {hasPhoto ? (
+                    <>
+                      <AuthImage
+                        src={`/api/photo/${photoName}`}
+                        alt={`Photo ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center gap-2 pointer-events-none group-hover:pointer-events-auto hidden group-hover:flex">
                         <button
-                          onClick={() => handlePhotoReorder(index, 'up')}
-                          className="opacity-0 group-hover:opacity-100 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-all"
-                          title="Move up"
+                          onClick={() => handlePhotoDelete(index)}
+                          className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-all"
+                          title="Delete photo"
                         >
-                          <ArrowUp className="w-4 h-4" />
+                          <X className="w-4 h-4" />
                         </button>
-                      )}
-                      {index < 4 && (
-                        <button
-                          onClick={() => handlePhotoReorder(index, 'down')}
-                          className="opacity-0 group-hover:opacity-100 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-all"
-                          title="Move down"
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => handleFileInput(index)}
-                    disabled={uploading}
-                    className="w-full h-full flex flex-col items-center justify-center text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
-                  >
-                    <Upload className="w-8 h-8 mb-2" />
-                    <span className="text-xs">Upload</span>
-                  </button>
-                )}
+                        {index > 0 && (
+                          <button
+                            onClick={() => handlePhotoReorder(index, 'up')}
+                            className="opacity-0 group-hover:opacity-100 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-all"
+                            title="Move up"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </button>
+                        )}
+                        {index < 4 && (
+                          <button
+                            onClick={() => handlePhotoReorder(index, 'down')}
+                            className="opacity-0 group-hover:opacity-100 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-all"
+                            title="Move down"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => handleFileInput(index)}
+                      disabled={uploading}
+                      className="w-full h-full flex flex-col items-center justify-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-50 bg-gray-50 dark:bg-gray-700/50"
+                    >
+                      <Upload className="w-8 h-8 mb-2" />
+                      <span className="text-xs font-medium">Upload</span>
+                    </button>
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-green-600 dark:bg-green-700 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                  {index + 1}
+                </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">
-                {index + 1}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      <div className="text-xs text-gray-500">
-        <p className="font-medium mb-1">Photo Tips:</p>
+      <div className="text-xs text-gray-600 dark:text-gray-400">
+        <p className="font-medium mb-1 text-gray-700 dark:text-gray-300">Photo Tips:</p>
         <ul className="list-disc list-inside space-y-1">
           <li>Upload up to 5 photos to showcase yourself</li>
           <li>Your first photo will be your main profile picture</li>

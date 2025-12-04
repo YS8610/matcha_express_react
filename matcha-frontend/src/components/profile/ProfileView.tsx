@@ -18,6 +18,7 @@ interface ProfileViewProps {
 export default function ProfileView({ userId }: ProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{ message: string; statusCode?: number } | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
@@ -82,6 +83,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     try {
       const response = await api.getProfile(userId);
       setProfile((response.data as unknown as Profile) || null);
+      setError(null);
 
       if (user && user.id !== userId) {
         try {
@@ -98,8 +100,16 @@ export default function ProfileView({ userId }: ProfileViewProps) {
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to load profile:', error);
+    } catch (err) {
+      console.error('Failed to load profile:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
+      let statusCode = 404;
+
+      if (errorMessage.includes('blocked') || errorMessage.includes('blocking')) {
+        statusCode = 403;
+      }
+
+      setError({ message: errorMessage, statusCode });
     } finally {
       setLoading(false);
     }
@@ -264,24 +274,42 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     </div>
   );
 
+  if (error) {
+    let title = 'Profile Not Found';
+    let message = "This user's profile doesn't exist or has been deleted.";
+
+    if (error.statusCode === 403) {
+      title = 'Access Denied';
+      message = 'You are blocked by this user or this user is blocked by you. You cannot view their profile.';
+    }
+
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">{title}</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+          <button
+            onClick={() => router.push('/browse')}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Back to Browse
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!profile) return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Profile Not Found</h2>
-        <p className="text-gray-600 mb-6">This user's profile doesn't exist or has been deleted.</p>
-        <button
-          onClick={() => router.push('/browse')}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          Back to Browse
-        </button>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Loading...</h2>
       </div>
     </div>
   );
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video group">
           {availablePhotos.length > 0 ? (
             <>
@@ -351,31 +379,58 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             <span className="text-sm text-gray-600 dark:text-gray-300">
               Fame Rating: {`${toNumber(profile.fameRating) ?? '0'}/100`}
             </span>
-            {profile.location && (
-              <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {profile.location.latitude.toFixed(2)}, {profile.location.longitude.toFixed(2)}
-              </span>
-            )}
             {profile.lastOnline && (
               <span className="text-sm text-gray-600 dark:text-gray-300">
                 Last seen: {getLastSeenString(profile.lastOnline)}
               </span>
             )}
             {user && user.id !== userId && hasProfileLikedUser && (
-              <span className="text-sm px-3 py-1 bg-pink-100 text-pink-700 rounded-full font-medium inline-flex items-center gap-1">
+              <span className="text-sm px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full font-medium inline-flex items-center gap-1">
                 <Heart className="w-4 h-4 fill-current" />
                 They liked you!
               </span>
             )}
             {user && user.id !== userId && isConnected && (
-              <span className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium inline-flex items-center gap-1">
+              <span className="text-sm px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium inline-flex items-center gap-1">
                 <MessageCircle className="w-4 h-4" />
                 Connected
               </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Gender</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
+                {profile.gender === 1 ? 'Male' : profile.gender === 2 ? 'Female' : 'Other'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Looking for</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
+                {profile.sexualPreference === 1 ? 'Male' : profile.sexualPreference === 2 ? 'Female' : 'Both'}
+              </p>
+            </div>
+            {profile.birthDate && (
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Age</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
+                  {(() => {
+                    const bd = profile.birthDate as unknown as { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number };
+                    const year = typeof bd.year === 'object' && bd.year ? (bd.year as Record<string, number>).low : bd.year;
+                    if (year) return new Date().getFullYear() - Number(year);
+                    return 'N/A';
+                  })()}
+                </p>
+              </div>
+            )}
+            {profile.location && (
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Location</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
+                  {profile.location.latitude.toFixed(2)}°, {profile.location.longitude.toFixed(2)}°
+                </p>
+              </div>
             )}
           </div>
 

@@ -45,7 +45,7 @@ export default function ChatPage() {
       const response = await api.request<ProfileShort>(`/api/profile/short/${chatUserId}`);
       setProfile(response.data || null);
     } catch (err) {
-      setError((err as Error).message || 'Failed to load profile');
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,6 @@ export default function ChatPage() {
 
       setHasMoreHistory(historyMessages.length === 50);
     } catch (err) {
-      console.error('Failed to load chat history:', err);
       const webSocketMessages = getChatHistory(chatUserId);
       setMessages(webSocketMessages);
     } finally {
@@ -137,15 +136,13 @@ export default function ChatPage() {
     setMessageText('');
   };
 
-  if (authLoading || loading || !user || !user.profileComplete) {
+  if (authLoading || !user || !user.profileComplete) {
     return null;
   }
 
-  if (!profile) return null;
-
-  const photoUrl = profile.photo0
+  const photoUrl = profile?.photo0
     ? `/api/photo/${profile.photo0}`
-    : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
+    : profile ? generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id) : generateAvatarUrl('User', chatUserId);
 
   const isOnline = onlineUsers[chatUserId] || false;
 
@@ -167,11 +164,11 @@ export default function ChatPage() {
                 <div className="relative w-12 h-12 rounded-full overflow-hidden">
                   <AuthImage
                     src={photoUrl}
-                    alt={profile.username}
+                    alt={profile?.username || 'User'}
                     fill
                     className="object-cover"
                     unoptimized
-                    fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
+                    fallbackSrc={photoUrl}
                   />
                 </div>
                 {isOnline && (
@@ -180,11 +177,16 @@ export default function ChatPage() {
               </div>
               <div className="flex-1">
                 <h2 className="font-semibold text-gray-800 dark:text-gray-100">
-                  {profile.firstName} {profile.lastName}
+                  {profile ? `${profile.firstName} ${profile.lastName}` : 'User'}
                 </h2>
-                <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                  <Circle className={`w-2 h-2 ${isOnline ? 'fill-green-500 text-green-500' : 'fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500'}`} />
-                  {isOnline ? 'Online' : 'Offline'}
+                <div className="space-y-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    @{profile?.username || chatUserId}
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <Circle className={`w-2 h-2 ${isOnline ? 'fill-green-500 text-green-500' : 'fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500'}`} />
+                    {isOnline ? 'Online' : 'Offline'}
+                  </div>
                 </div>
               </div>
               {profile?.connectionStatus?.matched ? (

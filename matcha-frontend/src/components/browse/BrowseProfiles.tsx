@@ -5,7 +5,7 @@ import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import AlertBox from '@/components/AlertBox';
-import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const MemoizedProfileCard = memo(ProfileCard);
@@ -120,8 +120,21 @@ export default function BrowseProfiles() {
   const [showFilters, setShowFilters] = useState(false);
   const [profilesPerPage, setProfilesPerPage] = useState(12);
   const [error, setError] = useState('');
+  const [searchName, setSearchName] = useState('');
 
-  const totalPages = Math.ceil(totalProfiles / profilesPerPage);
+  const filteredProfiles = useMemo(() => {
+    if (!searchName.trim()) {
+      return allProfiles;
+    }
+    const searchLower = searchName.toLowerCase();
+    return allProfiles.filter(profile => {
+      const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
+      const username = (profile.username || '').toLowerCase();
+      return fullName.includes(searchLower) || username.includes(searchLower);
+    });
+  }, [allProfiles, searchName]);
+
+  const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
@@ -140,7 +153,7 @@ export default function BrowseProfiles() {
 
       const response = await api.getFilteredProfiles(requestFilters);
 
-      const profiles = Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+      const profiles = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
       setAllProfiles(profiles as ProfileShort[]);
       setTotalProfiles(profiles.length);
       setCurrentPage(1);
@@ -171,9 +184,9 @@ export default function BrowseProfiles() {
   useEffect(() => {
     const startIdx = (currentPage - 1) * profilesPerPage;
     const endIdx = startIdx + profilesPerPage;
-    setDisplayedProfiles(allProfiles.slice(startIdx, endIdx));
+    setDisplayedProfiles(filteredProfiles.slice(startIdx, endIdx));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [allProfiles, currentPage, profilesPerPage]);
+  }, [filteredProfiles, currentPage, profilesPerPage]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -228,8 +241,8 @@ export default function BrowseProfiles() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 relative">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4">
+        <div className="flex items-center gap-4 flex-col sm:flex-row w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-green-600" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">Discover Your Match</h1>
@@ -237,22 +250,48 @@ export default function BrowseProfiles() {
           {!loading && allProfiles.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full">
               <Users className="w-4 h-4" />
-              <span>{allProfiles.length} profiles</span>
+              <span>{filteredProfiles.length}/{allProfiles.length} profiles</span>
             </div>
           )}
         </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          Filters
-          {showFilters ? (
-            <ChevronUp className="w-4 h-4 transition-transform" />
-          ) : (
-            <ChevronDown className="w-4 h-4 transition-transform" />
-          )}
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-none relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 dark:text-green-400" />
+            <input
+              type="text"
+              placeholder="Search by name or username..."
+              value={searchName}
+              onChange={(e) => {
+                setSearchName(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 pr-10 py-2 border border-green-300 dark:border-green-700 rounded-full bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors w-full"
+            />
+            {searchName && (
+              <button
+                onClick={() => {
+                  setSearchName('');
+                  setCurrentPage(1);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2 whitespace-nowrap"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+            {showFilters ? (
+              <ChevronUp className="w-4 h-4 transition-transform" />
+            ) : (
+              <ChevronDown className="w-4 h-4 transition-transform" />
+            )}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -285,6 +324,17 @@ export default function BrowseProfiles() {
           <p className="text-green-700 dark:text-green-300 text-lg">No profiles found</p>
           <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try adjusting your filters to find your perfect blend</p>
         </div>
+      ) : filteredProfiles.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-green-700 dark:text-green-300 text-lg">No profiles match your search</p>
+          <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try searching with different keywords</p>
+          <button
+            onClick={() => setSearchName('')}
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
+          >
+            Clear Search
+          </button>
+        </div>
       ) : (
         <>
           {totalPages > 1 && (
@@ -302,7 +352,7 @@ export default function BrowseProfiles() {
           )}
 
           <div className="mb-4 text-sm text-green-700 dark:text-green-300">
-            Showing {((currentPage - 1) * profilesPerPage) + 1}-{Math.min(currentPage * profilesPerPage, allProfiles.length)} of {allProfiles.length} profiles
+            Showing {((currentPage - 1) * profilesPerPage) + 1}-{Math.min(currentPage * profilesPerPage, filteredProfiles.length)} of {filteredProfiles.length} profiles
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">

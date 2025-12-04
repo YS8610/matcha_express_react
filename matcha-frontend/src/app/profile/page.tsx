@@ -7,13 +7,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
-import { User, Star, Heart, Eye, Edit, Leaf } from 'lucide-react';
+import { User, Star, Heart, Eye, Edit, Leaf, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toNumber, toGenderString, toSexualPreferenceString, toDateString } from '@/lib/neo4j-utils';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -48,6 +50,10 @@ export default function MyProfilePage() {
       }
 
       setProfile(typedProfileData as unknown as Profile);
+
+      const photoResponse = await api.getUserPhotos() as { photoNames?: string[] };
+      setPhotos(photoResponse.photoNames || []);
+
       setLoading(false);
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -74,21 +80,62 @@ export default function MyProfilePage() {
     </div>
   );
 
+  const availablePhotos = photos.filter(p => p && p.trim() !== '');
+
+  const handlePrevPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === 0 ? availablePhotos.length - 1 : prev - 1));
+  };
+
+  const handleNextPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === availablePhotos.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur rounded-2xl shadow-xl overflow-hidden border border-green-100 dark:border-green-900">
-          <div className="relative h-64">
-            {profile.photo0 ? (
-              <AuthImage
-                src={`/api/photo/${profile.photo0}`}
-                alt="Profile"
-                width={1024}
-                height={256}
-                className="w-full h-full object-cover"
-                unoptimized
-                fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
-              />
+          <div className="relative h-96 sm:h-[500px] w-full group">
+            {availablePhotos.length > 0 ? (
+              <>
+                <AuthImage
+                  src={`/api/photo/${availablePhotos[currentPhotoIndex]}`}
+                  alt="Profile"
+                  fill
+                  className="w-full h-full object-cover"
+                  unoptimized
+                  fallbackSrc={generateAvatarUrl(profile.firstName || profile.username || 'User', profile.id)}
+                />
+                {availablePhotos.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevPhoto}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                      title="Previous photo"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={handleNextPhoto}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                      title="Next photo"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                      {availablePhotos.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentPhotoIndex(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
+                          }`}
+                          title={`Photo ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 flex items-center justify-center">
                 <User className="w-20 h-20 text-green-400" />
@@ -153,6 +200,53 @@ export default function MyProfilePage() {
               <h2 className="font-semibold mb-2 text-green-800 dark:text-green-400">Biography</h2>
               <p className="text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
             </div>
+
+            {photos.length > 0 && (
+              <div className="mt-8">
+                <h2 className="font-semibold mb-4 text-green-800 dark:text-green-400 flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  Your Photos ({availablePhotos.length}/5)
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                  {photos.map((photoName, index) => {
+                    const hasPhoto = photoName && photoName.trim() !== '';
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => hasPhoto && setCurrentPhotoIndex(availablePhotos.indexOf(photoName))}
+                        className={`relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition-all ${
+                          hasPhoto
+                            ? 'border-green-400 hover:border-green-600 hover:shadow-lg'
+                            : 'border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50'
+                        }`}
+                      >
+                        {hasPhoto ? (
+                          <>
+                            <AuthImage
+                              src={`/api/photo/${photoName}`}
+                              alt={`Photo ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center">
+                              <span className="text-white font-semibold opacity-0 hover:opacity-100">View</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">Empty</span>
+                          </div>
+                        )}
+                        <div className="absolute top-1 right-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                          {index + 1}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
