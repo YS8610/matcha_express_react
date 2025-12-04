@@ -5,6 +5,7 @@ import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
 import { api } from '@/lib/api';
 import imageCompression from 'browser-image-compression';
+import { UserPhotosResponse } from '@/types';
 
 interface PhotoManagerProps {
   className?: string;
@@ -24,9 +25,8 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
   const loadPhotos = async () => {
     try {
       setLoading(true);
-      const response = await api.getUserPhotos();
-      const photoData = response.data as { photoNames?: string[] } | null;
-      setPhotos(photoData?.photoNames || []);
+      const response = await api.getUserPhotos() as UserPhotosResponse;
+      setPhotos(response.photoNames || []);
     } catch (err) {
       setError((err as Error).message || 'Failed to load photos');
     } finally {

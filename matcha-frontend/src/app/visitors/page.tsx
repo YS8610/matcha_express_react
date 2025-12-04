@@ -8,6 +8,15 @@ import type { ProfileViewed } from '@/types';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface ProfileViewedData extends Record<string, unknown> {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  photo0: string;
+  viewedAt: number;
+}
+
 export default function VisitorsPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -35,14 +44,33 @@ export default function VisitorsPage() {
         api.getUsersWhoViewedMe(),
       ]);
 
-      const transformedViewedByMe = (viewedByMeData.data || []).map((item: any) => ({
-        ...item,
-        userId: item.id,
-      }));
-      const transformedViewedMe = (viewedMeData.data || []).map((item: any) => ({
-        ...item,
-        userId: item.id,
-      }));
+      const viewedByMeArray = Array.isArray(viewedByMeData) ? viewedByMeData : viewedByMeData.data || [];
+      const viewedMeArray = Array.isArray(viewedMeData) ? viewedMeData : viewedMeData.data || [];
+
+      const transformedViewedByMe = viewedByMeArray.map((item: unknown) => {
+        const typedItem = item as Record<string, unknown>;
+        return {
+          id: typedItem.id as string,
+          username: typedItem.username as string,
+          firstName: typedItem.firstName as string,
+          lastName: typedItem.lastName as string,
+          photo0: typedItem.photo0 as string,
+          userId: typedItem.id as string,
+          viewedAt: typedItem.viewedAt as number || 0,
+        };
+      });
+      const transformedViewedMe = viewedMeArray.map((item: unknown) => {
+        const typedItem = item as Record<string, unknown>;
+        return {
+          id: typedItem.id as string,
+          username: typedItem.username as string,
+          firstName: typedItem.firstName as string,
+          lastName: typedItem.lastName as string,
+          photo0: typedItem.photo0 as string,
+          userId: typedItem.id as string,
+          viewedAt: typedItem.viewedAt as number || 0,
+        };
+      });
 
       setViewedByMe(transformedViewedByMe);
       setViewedMe(transformedViewedMe);

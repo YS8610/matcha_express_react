@@ -42,11 +42,12 @@ export default function MyProfilePage() {
         return;
       }
 
-      if (profileData.birthDate) {
-        profileData.birthDate = toDateString(profileData.birthDate) as unknown as string;
+      const typedProfileData = profileData as Record<string, unknown>;
+      if (typedProfileData.birthDate) {
+        typedProfileData.birthDate = toDateString(typedProfileData.birthDate as string);
       }
 
-      setProfile(profileData);
+      setProfile(typedProfileData as unknown as Profile);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load profile:', error);

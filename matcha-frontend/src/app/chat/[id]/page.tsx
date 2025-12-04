@@ -57,11 +57,11 @@ export default function ChatPage() {
     setLoadingHistory(true);
     try {
       const response = await api.getChatHistory(chatUserId, 50, skipno);
-      const historyMessages = response.data || [];
+      const historyMessages = response.data?.data || [];
 
       if (skipno === 0) {
         const webSocketMessages = getChatHistory(chatUserId);
-        const combinedMessages = [...historyMessages, ...webSocketMessages];
+        const combinedMessages: ChatMessageType[] = [...historyMessages, ...webSocketMessages];
 
         const uniqueMessages = Array.from(
           new Map(

@@ -81,7 +81,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
     try {
       const response = await api.getProfile(userId);
-      setProfile(response.data || null);
+      setProfile((response.data as unknown as Profile) || null);
 
       if (user && user.id !== userId) {
         try {
@@ -89,9 +89,13 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         } catch (viewError) {
         }
 
-        if (response.data?.connectionStatus) {
-          setHasProfileLikedUser(response.data.connectionStatus.likedBack);
-          setIsConnected(response.data.connectionStatus.matched);
+        if (response.data) {
+          const typedData = response.data as Record<string, unknown>;
+          const connectionStatus = typedData.connectionStatus as Record<string, unknown>;
+          if (connectionStatus) {
+            setHasProfileLikedUser((connectionStatus.likedBack as boolean) || false);
+            setIsConnected((connectionStatus.matched as boolean) || false);
+          }
         }
       }
     } catch (error) {

@@ -42,7 +42,8 @@ export default function NotificationCenter() {
       setLoading(true);
       setError('');
       const response = await api.getNotifications(20, 0);
-      setApiNotifications(response.data || []);
+      const notifications = Array.isArray(response.data) ? response.data : response.data && typeof response.data === 'object' ? Object.values(response.data) : [];
+      setApiNotifications(notifications as Notification[]);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load notifications';
       console.error('Failed to load notifications:', error);

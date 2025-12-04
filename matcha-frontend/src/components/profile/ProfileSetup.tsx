@@ -39,23 +39,23 @@ export default function ProfileSetup() {
   const router = useRouter();
   const { user, updateUser } = useAuth();
 
-  const validateFormField = (fieldName: string, value: any): string | null => {
+  const validateFormField = (fieldName: string, value: unknown): string | null => {
     switch (fieldName) {
       case 'gender':
-        return validateEnum(value, ['male', 'female', 'other'], 'Gender');
+        return validateEnum(String(value), ['male', 'female', 'other'], 'Gender');
       case 'sexualPreference':
-        return validateEnum(value, ['male', 'female', 'both'], 'Sexual preference');
+        return validateEnum(String(value), ['male', 'female', 'both'], 'Sexual preference');
       case 'biography':
-        return validateBiography(value);
+        return validateBiography(String(value));
       case 'interests':
-        return validateTag(value);
+        return validateTag(String(value));
       case 'coordinates':
         if (formData.latitude !== null && formData.longitude !== null) {
           return validateCoordinates(formData.latitude, formData.longitude);
         }
         return null;
       case 'photos':
-        if (value && value.length > 0) {
+        if (value && typeof value === 'object' && Array.isArray(value) && value.length > 0) {
           const firstPhoto = value[0];
           return validateFile(firstPhoto);
         }
@@ -70,11 +70,12 @@ export default function ProfileSetup() {
       try {
         const response = await api.getProfile();
         if (response?.data) {
+          const typedData = response.data as Record<string, unknown>;
           setFormData(prev => ({
             ...prev,
-            firstName: response.data.firstName || '',
-            lastName: response.data.lastName || '',
-            birthDate: response.data.birthDate ? toDateString(response.data.birthDate) : prev.birthDate,
+            firstName: (typedData.firstName as string) || '',
+            lastName: (typedData.lastName as string) || '',
+            birthDate: typedData.birthDate ? toDateString(typedData.birthDate as string) : prev.birthDate,
           }));
         }
       } catch (err) {

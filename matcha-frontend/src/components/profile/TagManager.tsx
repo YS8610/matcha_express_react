@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
+import { UserTagsResponse } from '@/types';
 
 interface TagManagerProps {
   className?: string;
@@ -22,9 +23,8 @@ export default function TagManager({ className = '' }: TagManagerProps) {
   const loadTags = async () => {
     try {
       setLoading(true);
-      const response = await api.getUserTags();
-      const tagData = response.data as { tags?: string[] } | null;
-      setTags(tagData?.tags || []);
+      const response = await api.getUserTags() as UserTagsResponse;
+      setTags(response.tags || []);
       setError('');
     } catch (err) {
       console.warn('Failed to load tags:', err);

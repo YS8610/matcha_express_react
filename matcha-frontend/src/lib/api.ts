@@ -1,4 +1,4 @@
-import type { RegisterData, LoginRequest, LoginResponse, ApiResponse } from '@/types';
+import type { RegisterData, LoginRequest, LoginResponse, ApiResponse, ProfileShort, ChatHistoryResponse } from '@/types';
 import { storeToken, clearToken, getToken } from '@/lib/tokenStorage';
 
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
@@ -6,7 +6,7 @@ const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_AP
 class ApiClient {
   constructor() {}
 
-  async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
     const token = typeof window !== 'undefined' ? getToken() : null;
     const headers: HeadersInit = {
@@ -25,7 +25,7 @@ class ApiClient {
 
     const response = await fetch(url, config);
     const contentType = response.headers.get('content-type') || '';
-    let responseData: any;
+    let responseData: Record<string, unknown> | string;
 
     try {
       if (contentType.includes('application/json')) {
@@ -57,24 +57,29 @@ class ApiClient {
         }
       }
 
-      if (response.status === 400 && responseData.message?.includes('User profile not found')) {
-        clearToken();
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('unauthorized'));
-          window.location.href = '/login';
+      if (typeof responseData === 'object') {
+        const data = responseData as Record<string, unknown>;
+        if (response.status === 400 && data.message && (data.message as string).includes('User profile not found')) {
+          clearToken();
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('unauthorized'));
+            window.location.href = '/login';
+          }
         }
-      }
 
-      if (responseData.errors && responseData.errors[0]) {
-        throw new Error(responseData.errors[0].message || `HTTP error! status: ${response.status}`);
+        if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+          const firstError = data.errors[0] as Record<string, unknown>;
+          throw new Error((firstError.message as string) || `HTTP error! status: ${response.status}`);
+        }
+        if (data.msg) {
+          throw new Error(data.msg as string);
+        }
+        throw new Error((data.message as string) || `HTTP error! status: ${response.status}`);
       }
-      if (responseData.msg) {
-        throw new Error(responseData.msg);
-      }
-      throw new Error(responseData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return responseData as Promise<ApiResponse<T>>;
+    return responseData as unknown as ApiResponse<T>;
   }
 
   async register(data: RegisterData) {
@@ -126,15 +131,15 @@ class ApiClient {
     });
   }
 
-  async getProfile(userId?: string) {
+  async getProfile(userId?: string): Promise<{ data: Record<string, unknown> }> {
     const endpoint = userId && userId !== 'undefined' ? `/api/profile/${userId}` : '/api/user/profile';
-    const response = await this.request(endpoint);
+    const response = await this.request<Record<string, unknown>>(endpoint);
 
-    if (response && typeof response === 'object' && !response.data && (response as any).username && (response as any).id) {
+    if (response && typeof response === 'object' && !('data' in response) && 'username' in response && 'id' in response) {
       console.log('Wrapping profile response');
-      return { data: response };
+      return { data: response as unknown as Record<string, unknown> };
     }
-    return response;
+    return response as unknown as { data: Record<string, unknown> };
   }
 
   async updateProfile(data: Record<string, unknown>) {
@@ -186,11 +191,11 @@ class ApiClient {
   }
 
   async getUsersWhoLikedMe() {
-    return this.request('/api/user/liked/by');
+    return this.request<ProfileShort[]>('/api/user/liked/by');
   }
 
   async getMatchedUsers() {
-    return this.request('/api/user/liked/matched');
+    return this.request<ProfileShort[]>('/api/user/liked/matched');
   }
 
   async getUserTags() {
@@ -223,11 +228,11 @@ class ApiClient {
   }
 
   async getUsersViewed() {
-    return this.request('/api/user/viewed');
+    return this.request<ProfileShort[]>('/api/user/viewed');
   }
 
   async getUsersWhoViewedMe() {
-    return this.request('/api/user/viewed/by');
+    return this.request<ProfileShort[]>('/api/user/viewed/by');
   }
 
   async recordUserView(viewedUserID: string) {
@@ -238,7 +243,7 @@ class ApiClient {
   }
 
   async getBlockedUsers() {
-    return this.request('/api/user/block');
+    return this.request<ProfileShort[]>('/api/user/block');
   }
 
   async blockUser(userId: string) {
@@ -256,7 +261,7 @@ class ApiClient {
   }
 
   async getNotifications(limit: number = 20, offset: number = 0) {
-    return this.request(`/api/user/notification?limit=${limit}&offset=${offset}`);
+    return this.request<Record<string, unknown>[]>(`/api/user/notification?limit=${limit}&offset=${offset}`);
   }
 
   async deleteNotification(notificationId: string) {
@@ -282,15 +287,9 @@ class ApiClient {
   }
 
   async getChatHistory(otherId: string, limit: number = 50, skipno: number = 0) {
-    return this.request(`/api/user/chat?limit=${limit}&skipno=${skipno}`, {
+    return this.request<ChatHistoryResponse>(`/api/user/chat?limit=${limit}&skipno=${skipno}`, {
       method: 'GET',
       body: JSON.stringify({ otherid: otherId }),
-    });
-  }
-
-  async getUserLocation() {
-    return this.request('/api/user/location', {
-      method: 'GET',
     });
   }
 
@@ -319,7 +318,7 @@ class ApiClient {
     if (filters.skip !== undefined) queryParams.append('skip', filters.skip.toString());
     if (filters.limit !== undefined) queryParams.append('limit', filters.limit.toString());
 
-    return this.request(`/api/profile?${queryParams.toString()}`);
+    return this.request<ProfileShort[]>(`/api/profile?${queryParams.toString()}`);
   }
 
 }

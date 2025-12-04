@@ -56,33 +56,21 @@ export default function EditProfilePage() {
         const genderReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 0: 'other', '-1': '' };
         const sexualPreferenceReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 3: 'both', '-1': '' };
 
-        const genderNum = toNumber(data.gender) ?? -1;
-        const sexPrefNum = toNumber(data.sexualPreference) ?? -1;
-        const birthDateStr = toDateString(data.birthDate);
-
-        let latitude = '';
-        let longitude = '';
-        try {
-          const locationResponse = await api.getUserLocation();
-          const locationData = locationResponse.data;
-          if (locationData) {
-            latitude = locationData.latitude ? String(locationData.latitude) : '';
-            longitude = locationData.longitude ? String(locationData.longitude) : '';
-          }
-        } catch (locationError) {
-          console.warn('Failed to load location:', locationError);
-        }
+        const typedData = data as Record<string, string | number | undefined>;
+        const genderNum = toNumber(typedData.gender) ?? -1;
+        const sexPrefNum = toNumber(typedData.sexualPreference) ?? -1;
+        const birthDateStr = toDateString(typedData.birthDate as string);
 
         setFormData({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || '',
+          firstName: (typedData.firstName as string) || '',
+          lastName: (typedData.lastName as string) || '',
+          email: (typedData.email as string) || '',
           gender: genderReverseMap[genderNum] || '',
           sexualPreference: sexualPreferenceReverseMap[sexPrefNum] || '',
-          biography: data.biography || '',
+          biography: (typedData.biography as string) || '',
           birthDate: birthDateStr,
-          latitude,
-          longitude,
+          latitude: typedData.latitude ? String(typedData.latitude) : '',
+          longitude: typedData.longitude ? String(typedData.longitude) : '',
         });
       } catch (error) {
         console.error('Failed to load profile:', error);

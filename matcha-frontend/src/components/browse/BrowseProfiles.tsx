@@ -127,7 +127,7 @@ export default function BrowseProfiles() {
     setLoading(true);
     setError('');
     try {
-      const requestFilters: any = {
+      const requestFilters: Record<string, number> = {
         skip: 0,
         limit: 1000,
       };
@@ -140,8 +140,8 @@ export default function BrowseProfiles() {
 
       const response = await api.getFilteredProfiles(requestFilters);
 
-      const profiles = Array.isArray(response) ? response : response.data || [];
-      setAllProfiles(profiles);
+      const profiles = Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+      setAllProfiles(profiles as ProfileShort[]);
       setTotalProfiles(profiles.length);
       setCurrentPage(1);
     } catch (error) {

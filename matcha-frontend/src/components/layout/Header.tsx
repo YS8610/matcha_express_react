@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { Leaf, MapPin } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 import Link from 'next/link';
 import NotificationCenter from '@/components/NotificationCenter';
 import { ThemeToggle } from './ThemeToggle';
@@ -40,10 +40,6 @@ export default function Header() {
                 </Link>
                 <Link href="/messages" className="font-bold transition-colors text-base" style={{ color: 'var(--button-bg)' }}>
                   Messages
-                </Link>
-                <Link href="/map" className="font-bold transition-colors text-base flex items-center gap-1" style={{ color: 'var(--button-bg)' }}>
-                  <MapPin className="w-4 h-4" />
-                  Map
                 </Link>
                 <Link href="/profile" className="font-bold transition-colors text-base" style={{ color: 'var(--button-bg)' }}>
                   Profile

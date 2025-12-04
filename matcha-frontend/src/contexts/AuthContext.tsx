@@ -54,18 +54,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser({
-          id: payload.username || 'user',
-          username: payload.username || 'user',
-          email: payload.email || '',
+          id: (payload.username as string) || 'user',
+          username: (payload.username as string) || 'user',
+          email: (payload.email as string) || '',
           firstName: '',
           lastName: '',
-          emailVerified: payload.activated || false,
+          emailVerified: (payload.activated as boolean) || false,
           profileComplete: profileComplete,
           lastSeen: new Date(),
           isOnline: false,
-          latitude: payload.latitude,
-          longitude: payload.longitude,
-          birthDate: payload.birthDate
+          latitude: payload.latitude as number | undefined,
+          longitude: payload.longitude as number | undefined,
+          birthDate: payload.birthDate as string | undefined
         });
       }
     } catch (error) {
@@ -103,18 +103,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser({
-          id: payload.username || 'user',
-          username: payload.username || username,
-          email: payload.email || '',
+          id: (payload.username as string) || 'user',
+          username: (payload.username as string) || username,
+          email: (payload.email as string) || '',
           firstName: '',
           lastName: '',
-          emailVerified: payload.activated || false,
+          emailVerified: (payload.activated as boolean) || false,
           profileComplete: profileComplete,
           lastSeen: new Date(),
           isOnline: false,
-          latitude: payload.latitude,
-          longitude: payload.longitude,
-          birthDate: payload.birthDate
+          latitude: payload.latitude as number | undefined,
+          longitude: payload.longitude as number | undefined,
+          birthDate: payload.birthDate as string | undefined
         });
       }
     }

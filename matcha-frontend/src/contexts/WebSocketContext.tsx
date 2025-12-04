@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { io, Socket as SocketIOSocket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import type { Notification, ChatMessage, WebSocketContextType } from '@/types';
+import type { Notification, ChatMessage, WebSocketContextType, Socket } from '@/types';
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
@@ -11,7 +11,7 @@ const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080';
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<SocketIOSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
@@ -159,7 +159,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   return (
     <WebSocketContext.Provider
       value={{
-        socket,
+        socket: socket as unknown as Socket | null,
         isConnected,
         notifications,
         onlineUsers,
@@ -169,7 +169,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         clearNotifications,
         sendChatMessage,
         getChatHistory
-      }}
+      } as WebSocketContextType}
     >
       {children}
     </WebSocketContext.Provider>

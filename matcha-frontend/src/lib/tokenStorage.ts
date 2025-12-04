@@ -6,12 +6,18 @@ const TOKEN_CREATED_AT_KEY = 'tokenCreatedAt';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 const COOKIE_MAX_AGE = 60 * 60 * 1000;
 
-function decodeJWT(token: string): any | null {
+interface DecodedToken extends Record<string, unknown> {
+  exp?: number;
+  iat?: number;
+  nbf?: number;
+}
+
+function decodeJWT(token: string): DecodedToken | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
 
-    const decoded = JSON.parse(atob(parts[1]));
+    const decoded = JSON.parse(atob(parts[1])) as DecodedToken;
     return decoded;
   } catch (error) {
     console.warn('Failed to decode JWT:', error);
@@ -111,7 +117,7 @@ export function checkAndClearOldCookies(): void {
   }
 }
 
-export function getTokenPayload(token?: string): Record<string, any> | null {
+export function getTokenPayload(token?: string): Record<string, unknown> | null {
   const tokenToUse = token || getToken();
   if (!tokenToUse) return null;
 

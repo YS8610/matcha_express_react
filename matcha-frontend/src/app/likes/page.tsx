@@ -29,7 +29,7 @@ export default function LikesPage() {
       setError('');
 
       const response = await api.getUsersWhoLikedMe();
-      setLikedMe(response.data || []);
+      setLikedMe(Array.isArray(response) ? response : response.data || []);
     } catch (err) {
       setError((err as Error).message || 'Failed to load likes data');
     } finally {

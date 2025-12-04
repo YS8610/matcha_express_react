@@ -29,7 +29,7 @@ export default function BlockedPage() {
       setError('');
 
       const response = await api.getBlockedUsers();
-      setBlockedUsers(response.data || []);
+      setBlockedUsers(Array.isArray(response) ? response : response.data || []);
     } catch (err) {
       setError((err as Error).message || 'Failed to load blocked users');
     } finally {
@@ -59,9 +59,9 @@ export default function BlockedPage() {
       ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
-    const displayFameRating = typeof profile.fameRating === 'object'
-      ? (profile.fameRating as any)?.low || 0
-      : profile.fameRating || 0;
+    const displayFameRating = typeof profile.fameRating === 'object' && profile.fameRating !== null && 'low' in profile.fameRating
+      ? (profile.fameRating as { low: number }).low || 0
+      : typeof profile.fameRating === 'number' ? profile.fameRating : 0;
 
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">

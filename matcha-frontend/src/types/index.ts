@@ -129,7 +129,7 @@ export interface LoginResponse {
   msg: string;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = Record<string, unknown>> {
   msg?: string;
   message?: string;
   data?: T;
@@ -154,8 +154,19 @@ export interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
+export interface Socket {
+  id: string;
+  emit: (event: string, data?: unknown, callback?: (data?: unknown) => void) => Socket;
+  on: (event: string, listener: (data?: unknown) => void) => Socket;
+  off: (event: string, listener?: (data?: unknown) => void) => Socket;
+  connect: () => Socket;
+  disconnect: () => Socket;
+  connected: boolean;
+  disconnected: boolean;
+}
+
 export interface WebSocketContextType {
-  socket: any | null;
+  socket: Socket | null;
   isConnected: boolean;
   notifications: Notification[];
   onlineUsers: Record<string, boolean>;
@@ -229,4 +240,16 @@ export interface ProfileViewed {
   lastName: string;
   photo0: string;
   viewedAt: number;
+}
+
+export interface UserPhotosResponse {
+  photoNames: string[];
+}
+
+export interface UserTagsResponse {
+  tags: string[];
+}
+
+export interface ChatHistoryResponse {
+  data: ChatMessage[];
 }
