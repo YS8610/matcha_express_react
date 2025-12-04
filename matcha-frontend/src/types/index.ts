@@ -185,25 +185,6 @@ export interface UseWebSocketOptions {
   checkOnlineUsers?: string[];
 }
 
-export interface RateLimitRule {
-  maxRequests: number;
-  windowMs: number;
-  message?: string;
-}
-
-export interface RateLimitEntry {
-  timestamps: number[];
-  count: number;
-  firstRequestTime?: number;
-}
-
-export interface RateLimitStatus {
-  allowed: boolean;
-  remainingRequests: number;
-  retryAfterMs: number;
-  message?: string;
-}
-
 export interface Neo4jInteger {
   low: number;
   high: number;

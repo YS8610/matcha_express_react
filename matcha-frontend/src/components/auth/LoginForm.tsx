@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateUsername, validatePassword } from '@/lib/validation';
-import { checkRateLimit } from '@/lib/rateLimiter';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -17,7 +16,6 @@ export default function LoginForm() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [rateLimitWarning, setRateLimitWarning] = useState('');
   const { login } = useAuth();
   const router = useRouter();
 
@@ -73,7 +71,6 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setRateLimitWarning('');
 
     setTouched({ username: true, password: true });
 
@@ -86,21 +83,6 @@ export default function LoginForm() {
 
     if (Object.keys(errors).length > 0) {
       return;
-    }
-
-    const loginRateLimit = checkRateLimit('api:login');
-    if (!loginRateLimit.allowed) {
-      const waitTime = Math.ceil(loginRateLimit.retryAfterMs / 1000);
-      setRateLimitWarning(
-        `Too many login attempts. Please try again in ${waitTime} seconds.`
-      );
-      return;
-    }
-
-    if (loginRateLimit.remainingRequests <= 2) {
-      setRateLimitWarning(
-        `${loginRateLimit.remainingRequests} login attempt${loginRateLimit.remainingRequests === 1 ? '' : 's'} remaining`
-      );
     }
 
     setLoading(true);
@@ -122,17 +104,6 @@ export default function LoginForm() {
           <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 text-sm animate-in fade-in slide-in-from-top">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <span className="flex-1">{error}</span>
-          </div>
-        )}
-
-        {rateLimitWarning && (
-          <div className={`flex items-start gap-3 p-4 border rounded-lg text-sm animate-in fade-in slide-in-from-top ${
-            rateLimitWarning.includes('Too many')
-              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
-              : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200'
-          }`}>
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-            <span className="flex-1">{rateLimitWarning}</span>
           </div>
         )}
 
