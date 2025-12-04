@@ -105,7 +105,7 @@ router.get("/short/:userId", async (req: Request<{ userId: string }>, res: Respo
 });
 
 // get other user's full profile by id
-router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<ProfileGetJson>, next: NextFunction) => {
+router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<any>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const userId = req.params.userId;
   if (!userId)
@@ -131,16 +131,29 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<Pr
       logging: false,
       context: { id: "not_found" }
     }));
+
+  const location = await serverErrorWrapper(() => getUserLocation(userId), "Error getting user location");
+
   const matched = await serverErrorWrapper(() => isMatch(id, userId), "Error checking match status");
   const liked = await serverErrorWrapper(() => isLiked(id, userId), "Error checking liked status");
   const likedBack = await serverErrorWrapper(() => isLikedBack(userId, id), "Error checking liked back status");
-  profile.connectionStatus = {
-    userid: userId,
-    matched,
-    liked,
-    likedBack
+
+  const profileResponse: any = {
+    ...profile,
+    connectionStatus: {
+      userid: userId,
+      matched,
+      liked,
+      likedBack
+    }
   };
-  res.status(200).json(profile);
+
+  if (location) {
+    profileResponse.latitude = location.latitude;
+    profileResponse.longitude = location.longitude;
+  }
+
+  res.status(200).json(profileResponse);
 });
 
 export default router;

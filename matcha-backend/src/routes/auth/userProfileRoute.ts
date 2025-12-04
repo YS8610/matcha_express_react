@@ -1,6 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { ProfileGetJson, ProfilePutJson, Reslocal } from "../../model/profile.js";
 import { getUserProfileById, isValidDateStr, isValidEmail, setUserProfileById } from "../../service/userSvc.js";
+import { getUserLocation } from "../../service/locationSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { ResMsg } from "../../model/Response.js";
@@ -8,7 +9,7 @@ import { ResMsg } from "../../model/Response.js";
 let router = express.Router();
 
 // Get user profile
-router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response<any>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const profile = await serverErrorWrapper(() => getUserProfileById(id), "Error getting user profile");
   if (!profile)
@@ -18,7 +19,10 @@ router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFu
       logging: false,
       context: { id: "not_found" }
     }));
-  const profileResponse: ProfileGetJson = {
+
+  const location = await serverErrorWrapper(() => getUserLocation(id), "Error getting user location");
+
+  const profileResponse: any = {
     id: profile.id,
     username: profile.username,
     firstName: profile.firstName,
@@ -36,6 +40,12 @@ router.get("/", async (req: Request, res: Response<ProfileGetJson>, next: NextFu
     photo4: profile.photo4 ?? "",
     lastOnline: profile.lastOnline ?? Date.now(),
   };
+
+  if (location) {
+    profileResponse.latitude = location.latitude;
+    profileResponse.longitude = location.longitude;
+  }
+
   res.status(200).json(profileResponse);
 });
 
