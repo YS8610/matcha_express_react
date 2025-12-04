@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { ProfileGetJson, ProfilePutJson, Reslocal } from "../../model/profile.js";
+import { ProfileGetJson, ProfilePutJson, Reslocal, IntTypeNeo4j, DateTypeNeo4j } from "../../model/profile.js";
 import { getUserProfileById, isValidDateStr, isValidEmail, setUserProfileById } from "../../service/userSvc.js";
 import { getUserLocation } from "../../service/locationSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
@@ -22,7 +22,28 @@ router.get("/", async (req: Request, res: Response<any>, next: NextFunction) => 
 
   const location = await serverErrorWrapper(() => getUserLocation(id), "Error getting user location");
 
-  const profileResponse: any = {
+  interface UserProfileResponse {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    gender: number;
+    sexualPreference: IntTypeNeo4j;
+    biography: string;
+    birthDate: DateTypeNeo4j;
+    fameRating: number;
+    photo0: string;
+    photo1: string;
+    photo2: string;
+    photo3: string;
+    photo4: string;
+    lastOnline: number;
+    latitude?: number;
+    longitude?: number;
+  }
+
+  const profileResponse: UserProfileResponse = {
     id: profile.id,
     username: profile.username,
     firstName: profile.firstName,
