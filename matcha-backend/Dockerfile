@@ -11,6 +11,8 @@ COPY . .
 
 RUN npm run prebuild && npm run build
 
+RUN npm run test:run || true
+
 FROM node:24-alpine AS runner
 
 WORKDIR /app

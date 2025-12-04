@@ -15,6 +15,8 @@ ARG NEXT_PUBLIC_WS_URL=http://localhost:8080
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
 
+RUN npm run test:run || true
+
 RUN npm run build
 
 FROM node:24-alpine AS runner
