@@ -49,7 +49,7 @@ describe("Route /api/user/profile", () => {
         firstName: "Test",
         lastName: "User",
         email: "testuser@email.com",
-        birthDate: {year:{low:1990, high:0}, month:{low:5, high:0}, day:{low:15, high:0}},
+        birthDate: { year: { low: 1990, high: 0 }, month: { low: 5, high: 0 }, day: { low: 15, high: 0 } },
         biography: "",
         sexualPreference: -1,
         fameRating: 0,
@@ -72,7 +72,7 @@ describe("Route /api/user/profile", () => {
         firstName: "Test",
         lastName: "User",
         email: "testuser@email.com",
-        birthDate: {year:{low:1990, high:0}, month:{low:5, high:0}, day:{low:15, high:0}},
+        birthDate: { year: { low: 1990, high: 0 }, month: { low: 5, high: 0 }, day: { low: 15, high: 0 } },
         biography: "",
         sexualPreference: -1,
         fameRating: 0,
@@ -82,6 +82,8 @@ describe("Route /api/user/profile", () => {
         photo3: "",
         photo4: "",
         lastOnline: expect.any(Number),
+        latitude: expect.any(Number),
+        longitude: expect.any(Number),
         gender: -1,
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
@@ -94,7 +96,8 @@ describe("Route /api/user/profile", () => {
         username: "testuser",
         firstName: "Test",
         lastName: "User",
-        email: "testuser@email.com"
+        email: "testuser@email.com",
+        birthDate: "1999-12-31",
       };
       const mockedgetUserProfileById = vi.spyOn(userSvc, "getUserProfileById").mockResolvedValueOnce(mockProfile as any);
       const res = await request(app)
@@ -110,13 +113,15 @@ describe("Route /api/user/profile", () => {
         gender: -1,
         sexualPreference: -1,
         biography: "",
-        birthDate: undefined,
+        birthDate: "1999-12-31",
         fameRating: 0,
         photo0: "",
         photo1: "",
         photo2: "",
         photo3: "",
         photo4: "",
+        latitude: expect.any(Number),
+        longitude: expect.any(Number),
         lastOnline: expect.any(Number),
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
@@ -131,7 +136,7 @@ describe("Route /api/user/profile", () => {
       expect(res.status).toBe(500);
       expect(res.body.errors[0]).toEqual({
         message: "Error getting user profile",
-        context:{error :{}, errorMsg : "Database error", errorStack : expect.any(String)}
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
@@ -155,8 +160,16 @@ describe("Route /api/user/profile", () => {
         .send({ birthDate: "invalid-date" });
       expect(res.status).toBe(400);
       expect(res.body.errors[0]).toEqual({
-        context: { birthDate: "invalid" },
-        message: "Invalid birthDate format. Expected format: YYYY-MM-DD"
+        context: {
+          biography: "invalid. should be string of length between 5 and 500",
+          birthDate: "Invalid birthDate format. Expected format: YYYY-MM-DD",
+          email: "invalid",
+          firstName: "invalid. should be string of length between 2 and 50",
+          gender: "invalid. should be number between 0 and 2",
+          lastName: "invalid. should be string of length between 2 and 50",
+          sexualPreference: "invalid. should be number between 0 and 2",
+        },
+        message: "Profile validation failed"
       });
     });
 
@@ -176,15 +189,15 @@ describe("Route /api/user/profile", () => {
       expect(res.status).toBe(400);
       expect(res.body.errors[0]).toEqual({
         context: {
-          firstName: "missing or invalid",
-          lastName: "missing or invalid",
-          email: "missing or invalid",
-          gender: "missing or invalid",
-          sexualPreference: "missing or invalid",
-          biography: "missing or must be longer than 5 characters",
-          birthDate: "provided"
+          firstName: "invalid. should be string of length between 2 and 50",
+          lastName: "invalid. should be string of length between 2 and 50",
+          email: "invalid",
+          gender: "invalid. should be number between 0 and 2",
+          sexualPreference: "invalid. should be number between 0 and 2",
+          biography: "valid",
+          birthDate: "valid"
         },
-        message: "All profile fields are required and must be valid"
+        message: "Profile validation failed"
       });
     });
 
@@ -214,6 +227,90 @@ describe("Route /api/user/profile", () => {
         gender: 1,
         sexualPreference: 1,
         biography: "This is a valid biography."
+      });
+    });
+
+    it("should return 400 if profile validation fails", async () => {
+      const res = await request(app)
+        .put("/api/user/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          firstName: "A",
+          lastName: "B",
+          email: "invalid-email",
+          birthDate: "1990-12-12",
+          gender: 5,
+          sexualPreference: -1,
+          biography: "Biofgdfg"
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0]).toEqual({
+        context: {
+          firstName: "invalid. should be string of length between 2 and 50",
+          lastName: "invalid. should be string of length between 2 and 50",
+          email: "invalid",
+          biography: "valid",
+          birthDate: "valid",
+          gender: "invalid. should be number between 0 and 2",
+          sexualPreference: "invalid. should be number between 0 and 2"
+        },
+        message: "Profile validation failed"
+      });
+    });
+
+    it("should return 400 if first name and last name are too long", async () => {
+      const res = await request(app)
+        .put("/api/user/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          firstName: "A".repeat(51),
+          lastName: "B".repeat(51),
+          email: "validemail@example.com",
+          birthDate: "1990-12-12",
+          gender: 1,
+          sexualPreference: 1,
+          biography: "This is a valid biography."
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0]).toEqual({
+        context: {
+          firstName: "invalid. should be string of length between 2 and 50",
+          lastName: "invalid. should be string of length between 2 and 50",
+          email: "valid",
+          biography: "valid",
+          birthDate: "valid",
+          gender: "valid",
+          sexualPreference: "valid"
+        },
+        message: "Profile validation failed"
+      });
+    });
+
+    it("should return 400 if biography is too long", async () => {
+      const res = await request(app)
+        .put("/api/user/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          firstName: "Valid",
+          lastName: "User",
+          email: "validemail@example.com",
+          birthDate: "1990-12-12",
+          gender: 1,
+          sexualPreference: 1,
+          biography: "A".repeat(501)
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0]).toEqual({
+        context: {
+          firstName: "valid",
+          lastName: "valid",
+          email: "valid",
+          biography: "invalid. should be string of length between 5 and 500",
+          birthDate: "valid",
+          gender: "valid",
+          sexualPreference: "valid"
+        },
+        message: "Profile validation failed"
       });
     });
 
@@ -262,7 +359,7 @@ describe("Route /api/user/profile", () => {
       expect(res.status).toBe(500);
       expect(res.body.errors[0]).toEqual({
         message: "Error updating profile",
-        context:{error :{}, errorMsg : "Database error", errorStack : expect.any(String)}
+        context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) }
       });
       expect(mockedsetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedsetUserProfileById).toHaveBeenCalledWith("1", {

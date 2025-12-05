@@ -237,3 +237,23 @@ export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
+
+export const isValidProfile =(profile: ProfilePutJson): number => {
+  let errormask = 0;
+  if (!profile.firstName || profile.firstName.trim().length < 2 || profile.firstName.trim().length > 50)
+    errormask |= 1;
+  if (!profile.lastName || profile.lastName.trim().length < 2 || profile.lastName.trim().length > 50)
+    errormask |= 2;
+  if (!profile.email || !isValidEmail(profile.email.trim()))
+    errormask |= 1<<2;
+  if (!profile.biography || profile.biography.trim().length < 5 || profile.biography.trim().length > 500)
+    errormask |= 1<<3;
+  if (!profile.birthDate || !isValidDateStr(profile.birthDate))
+    errormask |= 1<<4;
+  if (!profile.gender || typeof profile.gender !== "number" || profile.gender < 0 || profile.gender > 2)
+    errormask |= 1<<5;
+  if (!profile.sexualPreference || typeof profile.sexualPreference !== "number" || profile.sexualPreference < 0 || profile.sexualPreference > 2)
+    errormask |= 1<<6;
+
+  return errormask;
+}

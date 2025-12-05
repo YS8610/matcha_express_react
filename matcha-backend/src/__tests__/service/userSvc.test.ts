@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import ConstMatcha from "../../ConstMatcha.js";
 import driver from "../../repo/neo4jRepo.js";
 import { int } from "neo4j-driver";
-import { U } from "vitest/dist/chunks/environment.d.cL3nLXbE.js";
 import { ProfilePutJson } from "../../model/profile.js";
-import { isReadable } from "stream";
 
 describe("userSvc tests", () => {
   beforeEach(() => {
@@ -596,6 +594,81 @@ describe("userSvc tests", () => {
     const { isValidEmail } = await import("../../service/userSvc.js");
     const result = isValidEmail("invalid-email");
     expect(result).toEqual(false);
+  });
+
+  it("isValidEmail test: empty email string", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("");
+    expect(result).toEqual(false);
+  });
+
+  it("isValidEmail test: email without domain", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("user@");
+    expect(result).toEqual(false);
+  });
+
+  it("isValidEmail test: email without username", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("@domain.com");
+    expect(result).toEqual(false);
+  });
+
+  it("isValidEmail test: email with special characters", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("user!#$%&'*+/=?^_`{|}~-@domain.com");
+    expect(result).toEqual(true);
+  });
+
+  it("isValidEmail test: email with subdomain", async () => {
+    const { isValidEmail } = await import("../../service/userSvc.js");
+    const result = isValidEmail("user@sub.domain.com");
+    expect(result).toEqual(true);
+  });
+
+  it("isValidProfile test : valid profile data", async () => {
+    const { isValidProfile } = await import("../../service/userSvc.js");
+    const profileData: ProfilePutJson = {
+      firstName: "John",
+      lastName: "Doe",
+      biography: "Hello, I'm John!",
+      birthDate: "1990-01-01",
+      email: "john.doe@email.com",
+      gender: 1,
+      sexualPreference: 1
+    };
+    const result = isValidProfile(profileData);
+    expect(result).toEqual(0);
+  });
+
+  it("isValidProfile test : invalid profile data with multiple errors", async () => {
+    const { isValidProfile } = await import("../../service/userSvc.js");
+    const profileData: ProfilePutJson = {
+      firstName: "",
+      lastName: "Doe",
+      email: "john.doeemail.com",
+      biography: "Hello, I'm John!",
+      birthDate: "01-01-1990",
+      gender: 3,
+      sexualPreference: 5
+    };
+    const result = isValidProfile(profileData);
+    expect(result).toEqual(1 | 1<<2 | 1<<4 | 1<<5 | 1<<6);
+  });
+
+  it("isValidProfile test : invalid profile data with all errors", async () => {
+    const { isValidProfile } = await import("../../service/userSvc.js");
+    const profileData: ProfilePutJson = {
+      firstName: "",
+      lastName: "",
+      email: "johndoeemailcom",
+      biography: "Hello, I'm John!",
+      birthDate: "19900101",
+      gender: -1,
+      sexualPreference: -1
+    };
+    const result = isValidProfile(profileData);
+    expect(result).toEqual(1 | 1<<1 | 1<<2 | 1<<4 | 1<<5 | 1<<6);
   });
 
 });

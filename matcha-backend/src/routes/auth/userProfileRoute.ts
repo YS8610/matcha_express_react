@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { ProfileGetJson, ProfilePutJson, Reslocal, IntTypeNeo4j, DateTypeNeo4j } from "../../model/profile.js";
-import { getUserProfileById, isValidDateStr, isValidEmail, setUserProfileById } from "../../service/userSvc.js";
+import { ProfilePutJson, Reslocal, UserProfileResponse } from "../../model/profile.js";
+import { getUserProfileById, isValidProfile, setUserProfileById } from "../../service/userSvc.js";
 import { getUserLocation } from "../../service/locationSvc.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
@@ -21,28 +21,6 @@ router.get("/", async (req: Request, res: Response<any>, next: NextFunction) => 
     }));
 
   const location = await serverErrorWrapper(() => getUserLocation(id), "Error getting user location");
-
-  interface UserProfileResponse {
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    gender: number;
-    sexualPreference: IntTypeNeo4j;
-    biography: string;
-    birthDate: DateTypeNeo4j;
-    fameRating: number;
-    photo0: string;
-    photo1: string;
-    photo2: string;
-    photo3: string;
-    photo4: string;
-    lastOnline: number;
-    latitude?: number;
-    longitude?: number;
-  }
-
   const profileResponse: UserProfileResponse = {
     id: profile.id,
     username: profile.username,
@@ -74,38 +52,22 @@ router.get("/", async (req: Request, res: Response<any>, next: NextFunction) => 
 router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<ResMsg>, next: NextFunction) => {
   const { firstName, lastName, email, gender, sexualPreference, biography, birthDate } = req.body;
   const { authenticated, username, id, activated } = res.locals as Reslocal;
-  if (!isValidDateStr(birthDate)) {
+  const errorMask = isValidProfile({ firstName, lastName, email, gender, sexualPreference, biography, birthDate });
+  if (errorMask !== 0)
     return next(new BadRequestError({
       code: 400,
-      message: "Invalid birthDate format. Expected format: YYYY-MM-DD",
-      logging: false,
-      context: { birthDate: "invalid" }
-    }));
-  }
-  if (!firstName || firstName.trim() === "" ||
-  !lastName || lastName.trim() === "" ||
-  !email || !isValidEmail(email.trim()) ||
-  !gender || typeof gender !== "number" ||
-  !sexualPreference || typeof sexualPreference !== "number" ||
-  !biography || biography.trim().length <= 5 ||
-  !birthDate)
-    return next(new BadRequestError({
-      code: 400,
-      message: "All profile fields are required and must be valid",
+      message: "Profile validation failed",
       logging: false,
       context: {
-        firstName: !firstName || firstName.trim() === "" ? "missing or invalid" : "provided",
-        lastName: !lastName || lastName.trim() === "" ? "missing or invalid" : "provided",
-        email: !email || !isValidEmail(email) ? "missing or invalid" : "provided",
-        gender: (!gender || typeof gender !== "number") ? "missing or invalid" : "provided",
-        sexualPreference: !sexualPreference || typeof sexualPreference !== "number" ? "missing or invalid" : "provided",
-        biography: !biography || biography.trim().length <= 5 ? "missing or must be longer than 5 characters" : "provided",
-        birthDate: !birthDate ? "missing or invalid" : "provided"
+        firstName : (errorMask & 1) ? "invalid. should be string of length between 2 and 50" : "valid",
+        lastName : (errorMask & 2) ? "invalid. should be string of length between 2 and 50" : "valid",
+        email : (errorMask & (1<<2)) ? "invalid" : "valid",
+        biography : (errorMask & (1<<3)) ? "invalid. should be string of length between 5 and 500" : "valid",
+        birthDate : (errorMask & (1<<4)) ? "Invalid birthDate format. Expected format: YYYY-MM-DD" : "valid",
+        gender : (errorMask & (1<<5)) ? "invalid. should be number between 0 and 2" : "valid",
+        sexualPreference : (errorMask & (1<<6)) ? "invalid. should be number between 0 and 2" : "valid"
       }
     }));
-
-
-
   await serverErrorWrapper(() => setUserProfileById(id, { firstName, lastName, email, gender, sexualPreference, biography, birthDate }), "Error updating profile");
   res.status(200).json({ msg: "profile updated" });
 });
