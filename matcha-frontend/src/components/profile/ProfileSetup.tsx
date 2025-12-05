@@ -125,7 +125,8 @@ export default function ProfileSetup() {
   };
 
   const handleAddInterest = () => {
-    if (interestInput && !formData.interests.includes(interestInput)) {
+    const lowerInterest = interestInput.toLowerCase();
+    if (interestInput && !formData.interests.includes(lowerInterest)) {
       const tagError = validateTag(interestInput);
       if (tagError) {
         setFieldErrors(prev => ({
@@ -136,7 +137,7 @@ export default function ProfileSetup() {
       }
       setFormData({
         ...formData,
-        interests: [...formData.interests, interestInput.toLowerCase()],
+        interests: [...formData.interests, lowerInterest],
       });
       setFieldErrors(prev => {
         const { interests, ...rest } = prev;
@@ -265,7 +266,25 @@ export default function ProfileSetup() {
 
       router.push('/browse');
     } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to setup profile');
+      console.error('Profile setup error:', err);
+
+      let errorMessage = 'Failed to setup profile';
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'object' && err !== null) {
+        const errorObj = err as Record<string, unknown>;
+        if (errorObj.message) {
+          errorMessage = String(errorObj.message);
+        } else if (errorObj.errors && Array.isArray(errorObj.errors)) {
+          const firstError = (errorObj.errors[0] as Record<string, unknown>)?.message;
+          if (firstError) {
+            errorMessage = String(firstError);
+          }
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -542,10 +561,10 @@ export default function ProfileSetup() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800 text-sm font-medium mb-2">{error}</p>
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md p-4">
+            <p className="text-red-800 dark:text-red-200 text-sm font-medium mb-2">{error}</p>
             {Object.keys(fieldErrors).length > 0 && (
-              <ul className="list-disc list-inside text-red-700 text-xs space-y-1">
+              <ul className="list-disc list-inside text-red-700 dark:text-red-300 text-xs space-y-1">
                 {Object.entries(fieldErrors).map(([field, message]) => (
                   <li key={field}>{message}</li>
                 ))}

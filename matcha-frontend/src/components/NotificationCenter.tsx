@@ -30,10 +30,13 @@ export default function NotificationCenter() {
   const [apiNotifications, setApiNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [seenNotificationIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (isOpen) {
       loadNotifications();
+      const interval = setInterval(loadNotifications, 10000);
+      return () => clearInterval(interval);
     }
   }, [isOpen]);
 
@@ -53,16 +56,34 @@ export default function NotificationCenter() {
     }
   };
 
-  const allNotifications = [
-    ...wsNotifications,
-    ...apiNotifications.filter(
-      apiNotif => !wsNotifications.some(wsNotif => wsNotif.id === apiNotif.id)
-    )
-  ].sort((a, b) => {
-    const timeA = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
-    const timeB = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
-    return timeB - timeA;
-  });
+  const allNotifications = (() => {
+    const seenIds = new Set<string>();
+    const deduplicated: Notification[] = [];
+
+    for (const notif of wsNotifications) {
+      if (!seenIds.has(notif.id)) {
+        seenIds.add(notif.id);
+        deduplicated.push(notif);
+      }
+    }
+
+    for (const notif of apiNotifications) {
+      if (!seenIds.has(notif.id)) {
+        seenIds.add(notif.id);
+        deduplicated.push(notif);
+      }
+    }
+
+    for (const id of seenIds) {
+      seenNotificationIds.add(id);
+    }
+
+    return deduplicated.sort((a, b) => {
+      const timeA = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
+      const timeB = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
+      return timeB - timeA;
+    });
+  })();
 
   const unreadCount = allNotifications.filter(n => !n.read).length;
 

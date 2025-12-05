@@ -201,16 +201,6 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
           })}
         </div>
       </div>
-
-      <div className="text-xs text-gray-600 dark:text-gray-400">
-        <p className="font-medium mb-1 text-gray-700 dark:text-gray-300">Photo Tips:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Upload up to 5 photos to showcase yourself</li>
-          <li>Your first photo will be your main profile picture</li>
-          <li>Use clear, recent photos for best results</li>
-          <li>Photos are automatically compressed for optimal performance</li>
-        </ul>
-      </div>
     </div>
   );
 }

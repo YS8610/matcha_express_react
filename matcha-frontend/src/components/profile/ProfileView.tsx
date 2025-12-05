@@ -8,6 +8,7 @@ import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
+import { getLocationName } from '@/lib/geolocation';
 import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -30,6 +31,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [likeError, setLikeError] = useState('');
   const [modalState, setModalState] = useState<{ type: 'success' | 'error' | 'confirm' | null; title: string; message: string; action?: () => void }>({ type: null, title: '', message: '' });
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [locationName, setLocationName] = useState<string>('');
   const { user } = useAuth();
   const router = useRouter();
 
@@ -122,6 +124,19 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setLoading(false);
     }
   }, [userId, loadProfile]);
+
+  useEffect(() => {
+    if (profile?.latitude !== undefined && profile?.longitude !== undefined) {
+      const latitude = profile.latitude;
+      const longitude = profile.longitude;
+      getLocationName(latitude, longitude)
+        .then(name => setLocationName(name))
+        .catch(err => {
+          console.error('Failed to fetch location name:', err);
+          setLocationName(`${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`);
+        });
+    }
+  }, [profile?.latitude, profile?.longitude]);
 
   const handleLike = async () => {
     if (!profile || !userId) {
@@ -424,11 +439,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 </p>
               </div>
             )}
-            {profile.location && (
+            {(profile.latitude !== undefined && profile.longitude !== undefined) && (
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Location</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
-                  {profile.location.latitude.toFixed(2)}°, {profile.location.longitude.toFixed(2)}°
+                  {locationName ? locationName : <span className="text-gray-500 dark:text-gray-400 animate-pulse">Loading...</span>}
                 </p>
               </div>
             )}

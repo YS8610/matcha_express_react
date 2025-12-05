@@ -54,6 +54,7 @@ services:
        - MONGODB=${MONGODB}
      volumes:
        - ./matcha-backend/photoDump:/app/photoDump
+       - ./matcha-backend/logs:/app/logs
      depends_on:
        neo4j:
          condition: service_healthy

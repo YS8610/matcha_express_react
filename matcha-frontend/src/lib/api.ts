@@ -6,7 +6,7 @@ const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_AP
 class ApiClient {
   constructor() {}
 
-  async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}, suppressErrorLog = false): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
     const token = typeof window !== 'undefined' ? getToken() : null;
     const headers: HeadersInit = {
@@ -38,16 +38,18 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      console.error('API Request Failed:', {
-        url,
-        method: config.method || 'GET',
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        errorData: responseData,
-        requestHeaders: config.headers,
-        requestBody: options.body
-      });
+      if (!suppressErrorLog) {
+        console.error('API Request Failed:', {
+          url,
+          method: config.method || 'GET',
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          errorData: responseData,
+          requestHeaders: config.headers,
+          requestBody: options.body
+        });
+      }
 
       if (response.status === 401) {
         clearToken();
@@ -239,7 +241,7 @@ class ApiClient {
     return this.request('/api/user/viewed', {
       method: 'POST',
       body: JSON.stringify({ viewedUserID }),
-    });
+    }, true);
   }
 
   async getBlockedUsers() {

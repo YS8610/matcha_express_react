@@ -24,18 +24,26 @@ vi.mock('socket.io-client', () => ({
 const storage: Record<string, string> = {};
 
 const localStorageMock = {
+  length: 0,
+  key: vi.fn((index: number) => {
+    const keys = Object.keys(storage);
+    return keys[index] || null;
+  }),
   getItem: vi.fn((key: string) => storage[key] || null),
   setItem: vi.fn((key: string, value: string) => {
     storage[key] = value.toString();
+    localStorageMock.length = Object.keys(storage).length;
   }),
   removeItem: vi.fn((key: string) => {
     delete storage[key];
+    localStorageMock.length = Object.keys(storage).length;
   }),
   clear: vi.fn(() => {
     Object.keys(storage).forEach(key => delete storage[key]);
+    localStorageMock.length = 0;
   }),
 };
-global.localStorage = localStorageMock as typeof localStorage;
+global.localStorage = localStorageMock as unknown as Storage;
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

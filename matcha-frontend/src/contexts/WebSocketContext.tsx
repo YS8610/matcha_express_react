@@ -98,7 +98,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         createdAt: notifData.createdAt || Date.now()
       };
 
-      setNotifications(prev => [notification, ...prev]);
+      setNotifications(prev => {
+        if (prev.some(n => n.id === notification.id)) {
+          console.log('[WebSocket] Duplicate notification ignored:', notification.id);
+          return prev;
+        }
+        const updated = [notification, ...prev];
+        return updated.slice(0, 50);
+      });
     });
 
     newSocket.on('onlineStatus', (statuses: Record<string, boolean>) => {

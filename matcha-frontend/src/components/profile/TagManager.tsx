@@ -38,6 +38,12 @@ export default function TagManager({ className = '' }: TagManagerProps) {
     e.preventDefault();
     if (!newTag.trim()) return;
 
+    const trimmedTag = newTag.trim().toLowerCase();
+    if (tags.map(t => t.toLowerCase()).includes(trimmedTag)) {
+      setError('This tag already exists');
+      return;
+    }
+
     try {
       setAdding(true);
       setError('');
@@ -136,15 +142,6 @@ export default function TagManager({ className = '' }: TagManagerProps) {
           You&apos;ve reached the maximum number of tags (10). Remove a tag to add a new one.
         </p>
       )}
-
-      <div className="text-xs text-gray-500">
-        <p>Tips:</p>
-        <ul className="list-disc list-inside space-y-1 mt-1">
-          <li>Tags help others find you based on common interests</li>
-          <li>Use descriptive keywords like hobbies, interests, or skills</li>
-          <li>Keep tags concise and relevant</li>
-        </ul>
-      </div>
     </div>
   );
 }

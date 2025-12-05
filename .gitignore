@@ -89,4 +89,3 @@ tsconfig.build.tsbuildinfo
 tsconfig.tsbuildinfo
 matcha-backend/photoDump/*
 !matcha-backend/photoDump/default.png
-matcha-frontend/uml/*.png

@@ -31,6 +31,8 @@ export interface Profile {
   photo3: string;
   photo4: string;
   location?: Location;
+  latitude?: number;
+  longitude?: number;
   lastOnline: number;
   connectionStatus?: ConnectionStatus;
 }
