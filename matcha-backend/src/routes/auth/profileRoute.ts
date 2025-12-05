@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { ProfileGetJson, ProfileShort, Reslocal } from "../../model/profile.js";
+import { ProfileResponseType, ProfileShort, Reslocal } from "../../model/profile.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { serverErrorWrapper } from "../../util/wrapper.js";
 import { getBlockedRel } from "../../service/blockSvc.js";
@@ -108,13 +108,6 @@ router.get("/short/:userId", async (req: Request<{ userId: string }>, res: Respo
 router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<any>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const userId = req.params.userId;
-  if (!userId)
-    return next(new BadRequestError({
-      code: 400,
-      message: "User ID is required",
-      logging: false,
-      context: { userId: "missing" }
-    }));
   const isBlocked = await serverErrorWrapper(() => getBlockedRel(id, userId), "Error checking if user blocked or is blocked");
   if (isBlocked)
     return next(new BadRequestError({
@@ -133,22 +126,9 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<an
     }));
 
   const location = await serverErrorWrapper(() => getUserLocation(userId), "Error getting user location");
-
   const matched = await serverErrorWrapper(() => isMatch(id, userId), "Error checking match status");
   const liked = await serverErrorWrapper(() => isLiked(id, userId), "Error checking liked status");
   const likedBack = await serverErrorWrapper(() => isLikedBack(userId, id), "Error checking liked back status");
-
-  interface ProfileResponseType extends ProfileGetJson {
-    connectionStatus: {
-      userid: string;
-      matched: boolean;
-      liked: boolean;
-      likedBack: boolean;
-    };
-    latitude?: number;
-    longitude?: number;
-  }
-
   const profileResponse: ProfileResponseType = {
     ...profile,
     connectionStatus: {
@@ -158,12 +138,10 @@ router.get("/:userId", async (req: Request<{ userId: string }>, res: Response<an
       likedBack
     }
   } as ProfileResponseType;
-
   if (location) {
     profileResponse.latitude = location.latitude;
     profileResponse.longitude = location.longitude;
   }
-
   res.status(200).json(profileResponse);
 });
 

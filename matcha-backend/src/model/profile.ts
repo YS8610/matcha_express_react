@@ -103,3 +103,35 @@ export interface ProfileShort {
     likedBack: boolean;
   }
 }
+
+export interface UserProfileResponse {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: number;
+  sexualPreference: IntTypeNeo4j;
+  biography: string;
+  birthDate: DateTypeNeo4j;
+  fameRating: number;
+  photo0: string;
+  photo1: string;
+  photo2: string;
+  photo3: string;
+  photo4: string;
+  lastOnline: number;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface ProfileResponseType extends ProfileGetJson {
+  connectionStatus: {
+    userid: string;
+    matched: boolean;
+    liked: boolean;
+    likedBack: boolean;
+  };
+  latitude?: number;
+  longitude?: number;
+}
