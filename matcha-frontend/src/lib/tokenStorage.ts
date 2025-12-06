@@ -12,7 +12,55 @@ interface DecodedToken extends Record<string, unknown> {
   nbf?: number;
 }
 
+function setCookie(name: string, value: string, options: { expiryDate?: Date; sameSite?: string; secure?: boolean } = {}): void {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    console.error('Cookie name cannot be empty');
+    return;
+  }
+
+  if (!value || typeof value !== 'string') {
+    console.error(`Cookie value cannot be empty for ${name}`);
+    return;
+  }
+
+  try {
+    const { expiryDate, sameSite = 'Strict', secure = location.protocol === 'https:' } = options;
+
+    let cookieString = `${name}=${value}`;
+
+    if (expiryDate && expiryDate instanceof Date && !isNaN(expiryDate.getTime())) {
+      cookieString += `; expires=${expiryDate.toUTCString()}`;
+    }
+
+    cookieString += `; path=/; SameSite=${sameSite}`;
+
+    if (secure) {
+      cookieString += '; Secure';
+    }
+
+    document.cookie = cookieString;
+  } catch (error) {
+    console.error(`Failed to set cookie ${name}:`, error);
+  }
+}
+
+function clearCookie(name: string): void {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return;
+  }
+
+  try {
+    const expiryDate = new Date(0);
+    let cookieString = `${name}=; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
+    document.cookie = cookieString;
+  } catch (error) {
+    console.error(`Failed to clear cookie ${name}:`, error);
+  }
+}
+
 function decodeJWT(token: string): DecodedToken | null {
+  if (!token || typeof token !== 'string') return null;
+
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -20,13 +68,12 @@ function decodeJWT(token: string): DecodedToken | null {
     const decoded = JSON.parse(atob(parts[1])) as DecodedToken;
     return decoded;
   } catch (error) {
-    console.warn('Failed to decode JWT:', error);
     return null;
   }
 }
 
 function isTokenExpired(token: string): boolean {
-  if (!token) return true;
+  if (!token || typeof token !== 'string') return true;
 
   const decoded = decodeJWT(token);
   if (!decoded || !decoded.exp) return true;
@@ -37,8 +84,15 @@ function isTokenExpired(token: string): boolean {
 }
 
 export function storeToken(token: string): boolean {
-  if (!token || typeof token !== 'string' || token.split('.').length !== 3 || isTokenExpired(token)) {
-    console.warn('Attempted to store invalid token');
+  if (!token || typeof token !== 'string' || token.trim() === '') {
+    return false;
+  }
+
+  if (token.split('.').length !== 3) {
+    return false;
+  }
+
+  if (isTokenExpired(token)) {
     return false;
   }
 
@@ -48,18 +102,19 @@ export function storeToken(token: string): boolean {
     }
 
     const decoded = decodeJWT(token);
-    if (!decoded || !decoded.exp) {
-      console.warn('Invalid token structure');
+    if (!decoded || !decoded.exp || typeof decoded.exp !== 'number') {
       return false;
     }
 
     const expiryDate = new Date(decoded.exp * 1000);
-    const sameSitePolicy = 'Strict';
-    const secureFlag = location.protocol === 'https:' ? '; Secure' : '';
 
-    document.cookie = `${TOKEN_KEY}=${token}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
-    document.cookie = `${TOKEN_EXPIRY_KEY}=${decoded.exp}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
-    document.cookie = `${TOKEN_CREATED_AT_KEY}=${Date.now()}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
+    if (isNaN(expiryDate.getTime())) {
+      return false;
+    }
+
+    setCookie(TOKEN_KEY, token, { expiryDate, sameSite: 'Strict', secure: location.protocol === 'https:' });
+    setCookie(TOKEN_EXPIRY_KEY, decoded.exp.toString(), { expiryDate, sameSite: 'Strict', secure: location.protocol === 'https:' });
+    setCookie(TOKEN_CREATED_AT_KEY, Date.now().toString(), { expiryDate, sameSite: 'Strict', secure: location.protocol === 'https:' });
 
     return true;
   } catch (error) {
@@ -75,7 +130,7 @@ export function getToken(): string | null {
     const cookies = document.cookie.split('; ');
     for (const cookie of cookies) {
       const [name, value] = cookie.split('=');
-      if (name === TOKEN_KEY) {
+      if (name === TOKEN_KEY && value) {
         if (isTokenExpired(value)) {
           clearToken();
           return null;
@@ -94,11 +149,10 @@ export function clearToken(): void {
   if (typeof window === 'undefined') return;
 
   try {
-    const expiryDate = new Date(0).toUTCString();
-    document.cookie = `${TOKEN_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
-    document.cookie = `${TOKEN_EXPIRY_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
-    document.cookie = `${TOKEN_CREATED_AT_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
-    document.cookie = `${REFRESH_TOKEN_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
+    clearCookie(TOKEN_KEY);
+    clearCookie(TOKEN_EXPIRY_KEY);
+    clearCookie(TOKEN_CREATED_AT_KEY);
+    clearCookie(REFRESH_TOKEN_KEY);
   } catch (error) {
     console.warn('Failed to clear token:', error);
   }
