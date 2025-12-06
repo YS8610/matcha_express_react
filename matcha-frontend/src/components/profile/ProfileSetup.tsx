@@ -244,15 +244,30 @@ export default function ProfileSetup() {
     }
 
     try {
-      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
-      const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
+      const genderMap: { [key: string]: number } = { 'other': 0, 'male': 1, 'female': 2 };
+      const sexualPreferenceMap: { [key: string]: number } = { 'both': 0, 'male': 1, 'female': 2 };
+
+      const genderValue = genderMap[formData.gender];
+      const sexualPreferenceValue = sexualPreferenceMap[formData.sexualPreference];
+
+      if (genderValue === undefined || genderValue < 0 || genderValue > 2) {
+        setError('Invalid gender selection. Please select male, female, or other.');
+        setLoading(false);
+        return;
+      }
+
+      if (sexualPreferenceValue === undefined || sexualPreferenceValue < 0 || sexualPreferenceValue > 2) {
+        setError('Invalid sexual preference selection. Please select male, female, or both.');
+        setLoading(false);
+        return;
+      }
 
       await api.updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: user?.email || '',
-        gender: genderMap[formData.gender] ?? 0,
-        sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
+        gender: genderValue,
+        sexualPreference: sexualPreferenceValue,
         biography: formData.biography,
         birthDate: formData.birthDate,
       });
