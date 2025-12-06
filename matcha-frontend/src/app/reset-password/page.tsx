@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
@@ -9,6 +9,22 @@ import { Leaf } from 'lucide-react';
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'request' | 'reset'>('request');
+
+  useEffect(() => {
+    const resetUserId = typeof window !== 'undefined' ? sessionStorage.getItem('resetUserId') : null;
+    const resetToken = typeof window !== 'undefined' ? sessionStorage.getItem('resetToken') : null;
+
+    if (resetUserId && resetToken) {
+      setActiveTab('reset');
+      setResetData(prev => ({
+        ...prev,
+        userId: resetUserId,
+        token: resetToken
+      }));
+      sessionStorage.removeItem('resetUserId');
+      sessionStorage.removeItem('resetToken');
+    }
+  }, []);
 
   const [requestData, setRequestData] = useState({
     email: '',

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateUsername, validatePassword } from '@/lib/validation';
+import { isRateLimited, resetRateLimit, getRemainingAttempts, getResetTime } from '@/lib/rateLimit';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -72,6 +73,14 @@ export default function LoginForm() {
     e.preventDefault();
     setError('');
 
+    const rateLimitKey = `login:${formData.username.toLowerCase()}`;
+    if (isRateLimited(rateLimitKey, 5, 15 * 60 * 1000)) {
+      const resetMs = getResetTime(rateLimitKey);
+      const resetMinutes = resetMs ? Math.ceil(resetMs / 60000) : 15;
+      setError(`Too many login attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`);
+      return;
+    }
+
     setTouched({ username: true, password: true });
 
     const errors: Record<string, string> = {};
@@ -89,6 +98,7 @@ export default function LoginForm() {
 
     try {
       await login(formData.username, formData.password);
+      resetRateLimit(rateLimitKey);
       router.push('/browse');
     } catch (err: unknown) {
       setError((err as Error).message || 'Login failed');

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
 import { api } from '@/lib/api';
+import { sanitizeFilePath, validateFileUpload } from '@/lib/security';
 import imageCompression from 'browser-image-compression';
 import { UserPhotosResponse } from '@/types';
 
@@ -26,7 +27,8 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
     try {
       setLoading(true);
       const response = await api.getUserPhotos() as UserPhotosResponse;
-      setPhotos(response.photoNames || []);
+      const sanitizedPhotos = (response.photoNames || []).map(name => sanitizeFilePath(name));
+      setPhotos(sanitizedPhotos);
     } catch (err) {
       setError((err as Error).message || 'Failed to load photos');
     } finally {
@@ -39,6 +41,13 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       setUploading(true);
       setError('');
       setSuccess('');
+
+      const validation = validateFileUpload(file, ['image/jpeg', 'image/png', 'image/webp'], 5 * 1024 * 1024);
+      if (!validation.valid) {
+        setError(validation.error || 'Invalid file');
+        setUploading(false);
+        return;
+      }
 
       const options = {
         maxSizeMB: 0.095,

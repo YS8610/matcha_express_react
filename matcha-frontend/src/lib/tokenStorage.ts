@@ -43,18 +43,23 @@ export function storeToken(token: string): boolean {
   }
 
   try {
-    const now = Date.now();
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(TOKEN_CREATED_AT_KEY, now.toString());
-
-    const decoded = decodeJWT(token);
-    const expiry = decoded && decoded.exp ? decoded.exp * 1000 : null;
-    if (expiry) {
-      localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toString());
+    if (typeof window === 'undefined') {
+      return false;
     }
 
-    const cookieExpiry = new Date(expiry || Date.now() + 7 * 24 * 60 * 60 * 1000);
-    document.cookie = `${TOKEN_KEY}=${token}; path=/; expires=${cookieExpiry.toUTCString()}; SameSite=Lax`;
+    const decoded = decodeJWT(token);
+    if (!decoded || !decoded.exp) {
+      console.warn('Invalid token structure');
+      return false;
+    }
+
+    const expiryDate = new Date(decoded.exp * 1000);
+    const sameSitePolicy = 'Strict';
+    const secureFlag = location.protocol === 'https:' ? '; Secure' : '';
+
+    document.cookie = `${TOKEN_KEY}=${token}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
+    document.cookie = `${TOKEN_EXPIRY_KEY}=${decoded.exp}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
+    document.cookie = `${TOKEN_CREATED_AT_KEY}=${Date.now()}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSitePolicy}${secureFlag}`;
 
     return true;
   } catch (error) {
@@ -67,18 +72,20 @@ export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
 
   try {
-    const token = localStorage.getItem(TOKEN_KEY);
-
-    if (!token) return null;
-
-    if (isTokenExpired(token)) {
-      clearToken();
-      return null;
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.split('=');
+      if (name === TOKEN_KEY) {
+        if (isTokenExpired(value)) {
+          clearToken();
+          return null;
+        }
+        return value;
+      }
     }
-
-    return token;
+    return null;
   } catch (error) {
-    console.error('Failed to retrieve token:', error);
+    console.warn('Failed to retrieve token:', error);
     return null;
   }
 }
@@ -87,34 +94,18 @@ export function clearToken(): void {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRY_KEY);
-    localStorage.removeItem(TOKEN_CREATED_AT_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-
-    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax`;
+    const expiryDate = new Date(0).toUTCString();
+    document.cookie = `${TOKEN_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
+    document.cookie = `${TOKEN_EXPIRY_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
+    document.cookie = `${TOKEN_CREATED_AT_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
+    document.cookie = `${REFRESH_TOKEN_KEY}=; expires=${expiryDate}; path=/; SameSite=Strict`;
   } catch (error) {
-    console.error('Failed to clear token:', error);
+    console.warn('Failed to clear token:', error);
   }
 }
 
 export function checkAndClearOldCookies(): void {
   if (typeof window === 'undefined') return;
-
-  try {
-    const createdAtStr = localStorage.getItem(TOKEN_CREATED_AT_KEY);
-    if (!createdAtStr) return;
-
-    const createdAt = parseInt(createdAtStr, 10);
-    const age = Date.now() - createdAt;
-
-    if (age > COOKIE_MAX_AGE) {
-      console.log('Cookie is older than 2 hours, clearing...');
-      clearToken();
-    }
-  } catch (error) {
-    console.error('Failed to check cookie age:', error);
-  }
 }
 
 export function getTokenPayload(token?: string): Record<string, unknown> | null {

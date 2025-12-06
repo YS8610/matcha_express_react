@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.socket.io https://cdn.jsdelivr.net;
+              script-src 'self' 'unsafe-inline' https://cdn.socket.io https://cdn.jsdelivr.net;
               style-src 'self' 'unsafe-inline';
               img-src 'self' data: https: blob:;
               font-src 'self' data: https:;
@@ -43,7 +43,7 @@ const nextConfig: NextConfig = {
               frame-ancestors 'none';
               base-uri 'self';
               form-action 'self';
-              ${process.env.NODE_ENV === 'production' ? 'upgrade-insecure-requests;' : ''}
+              object-src 'none';
             `.replace(/\s+/g, ' ').trim(),
           },
 

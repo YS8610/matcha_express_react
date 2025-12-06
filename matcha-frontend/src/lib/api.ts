@@ -1,5 +1,6 @@
 import type { RegisterData, LoginRequest, LoginResponse, ApiResponse, ProfileShort, ChatHistoryResponse } from '@/types';
-import { storeToken, clearToken, getToken } from '@/lib/tokenStorage';
+import { storeToken, getToken, clearToken } from '@/lib/tokenStorage';
+import { addCsrfToken, requiresCsrfToken } from '@/lib/csrf';
 
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 
@@ -8,7 +9,9 @@ class ApiClient {
 
   async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}, suppressErrorLog = false): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
+    const method = options.method || 'GET';
     const token = typeof window !== 'undefined' ? getToken() : null;
+
     const headers: HeadersInit = {
       ...(token && { Authorization: `Bearer ${token}` }),
       ...(options.headers as Record<string, string>),
@@ -18,9 +21,13 @@ class ApiClient {
       (headers as Record<string, string>)['Content-Type'] = 'application/json';
     }
 
+    const headersWithCsrf = requiresCsrfToken(method)
+      ? addCsrfToken(headers as Record<string, string>)
+      : headers;
+
     const config: RequestInit = {
       ...options,
-      headers,
+      headers: headersWithCsrf,
     };
 
     const response = await fetch(url, config);
@@ -105,17 +112,11 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    if (response.msg) {
-      storeToken(response.msg);
-    }
     return response as LoginResponse;
   }
 
   async activateAccount(token: string): Promise<LoginResponse> {
     const response = await this.request(`/pubapi/activate/${token}`);
-    if (response.msg) {
-      storeToken(response.msg);
-    }
     return response as LoginResponse;
   }
 

@@ -15,10 +15,17 @@ export default function ActivatePage() {
   const params = useParams();
 
   useEffect(() => {
-    const urlToken = params.token as string | undefined;
-    if (urlToken) {
-      setToken(urlToken);
-      performActivation(urlToken);
+    const storedToken = typeof window !== 'undefined' ? sessionStorage.getItem('activationToken') : null;
+    if (storedToken) {
+      setToken(storedToken);
+      sessionStorage.removeItem('activationToken');
+      performActivation(storedToken);
+    } else {
+      const urlToken = params.token as string | undefined;
+      if (urlToken) {
+        setToken(urlToken);
+        performActivation(urlToken);
+      }
     }
   }, [params]);
 

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
@@ -36,6 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          content={`(function(){const t=localStorage.getItem('theme');let h=t||window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';const e=document.documentElement;h==='dark'?e.classList.add('dark'):e.classList.remove('dark');e.setAttribute('data-theme',h);})()`}
+        />
+      </head>
       <body
         className="antialiased"
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}

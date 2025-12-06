@@ -15,6 +15,7 @@ import {
   validateConfirmPassword,
   validateRegisterForm,
 } from '@/lib/validation';
+import { isRateLimited, resetRateLimit, getResetTime } from '@/lib/rateLimit';
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -101,6 +102,14 @@ export default function RegisterForm() {
     e.preventDefault();
     setError('');
 
+    const rateLimitKey = `register:${formData.email.toLowerCase()}`;
+    if (isRateLimited(rateLimitKey, 5, 15 * 60 * 1000)) {
+      const resetMs = getResetTime(rateLimitKey);
+      const resetMinutes = resetMs ? Math.ceil(resetMs / 60000) : 15;
+      setError(`Too many registration attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`);
+      return;
+    }
+
     const errors = validateRegisterForm(formData);
 
     if (Object.keys(errors).length > 0) {
@@ -121,6 +130,7 @@ export default function RegisterForm() {
         password: formData.password,
         password2: formData.confirmPassword,
       });
+      resetRateLimit(rateLimitKey);
       router.push('/activate');
     } catch (err: unknown) {
       setError((err as Error).message || 'Registration failed. Please try again.');

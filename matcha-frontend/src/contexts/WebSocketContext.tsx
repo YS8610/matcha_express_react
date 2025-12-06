@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { io, Socket as SocketIOSocket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { getToken } from '@/lib/tokenStorage';
 import type { Notification, ChatMessage, WebSocketContextType, Socket } from '@/types';
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -16,16 +17,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
 
-  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>(() => {
-    if (typeof window === 'undefined') return {};
-    try {
-      const stored = localStorage.getItem('chatMessages');
-      return stored ? JSON.parse(stored) : {};
-    } catch (e) {
-      console.error('Failed to load chat messages from localStorage:', e);
-      return {};
-    }
-  });
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
 
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -42,12 +34,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!token) return;
-
+    const token = getToken();
     const newSocket = io(WS_URL, {
       auth: {
-        token: token
+        token: token || '',
       },
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -174,16 +164,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
   const getChatHistory = useCallback((userId: string): ChatMessage[] => {
     return chatMessages[userId] || [];
-  }, [chatMessages]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && Object.keys(chatMessages).length > 0) {
-      try {
-        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
-      } catch (e) {
-        console.error('Failed to save chat messages to localStorage:', e);
-      }
-    }
   }, [chatMessages]);
 
   const contextValue = useMemo(

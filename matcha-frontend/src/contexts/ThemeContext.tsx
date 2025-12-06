@@ -5,27 +5,23 @@ import type { Theme, ThemeContextType } from '@/types';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const ThemeScript = () => {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `
-          (function() {
-            const savedTheme = localStorage.getItem('theme');
-            let theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+export function initializeTheme(): void {
+  if (typeof document === 'undefined') return;
 
-            if (theme === 'dark') {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-            document.documentElement.setAttribute('data-theme', theme);
-          })();
-        `,
-      }}
-    />
-  );
-};
+  const savedTheme = localStorage.getItem('theme');
+  let theme: Theme = (savedTheme as Theme) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  const htmlElement = document.documentElement;
+
+  if (theme === 'dark') {
+    htmlElement.classList.add('dark');
+    htmlElement.classList.remove('light');
+  } else {
+    htmlElement.classList.add('light');
+    htmlElement.classList.remove('dark');
+  }
+  htmlElement.setAttribute('data-theme', theme);
+}
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
@@ -42,7 +38,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const htmlElement = document.documentElement;
     if (newTheme === 'dark') {
       htmlElement.classList.add('dark');
+      htmlElement.classList.remove('light');
     } else {
+      htmlElement.classList.add('light');
       htmlElement.classList.remove('dark');
     }
     htmlElement.setAttribute('data-theme', newTheme);
@@ -60,12 +58,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <>
-      <ThemeScript />
-      <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-        {children}
-      </ThemeContext.Provider>
-    </>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
