@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { Leaf, Save } from 'lucide-react';
 import TagManager from '@/components/profile/TagManager';
 import PasswordChanger from '@/components/profile/PasswordChanger';
@@ -13,6 +14,7 @@ import { toNumber, toDateString } from '@/lib/neo4j-utils';
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -96,13 +98,17 @@ export default function EditProfilePage() {
 
     try {
       if (!formData.firstName.trim() || !formData.lastName.trim()) {
-        setError('First name and last name are required');
+        const errorMsg = 'First name and last name are required';
+        setError(errorMsg);
+        addToast(errorMsg, 'warning', 3000);
         setLoading(false);
         return;
       }
 
       if (formData.biography.trim().length <= 5) {
-        setError('Biography must be longer than 5 characters');
+        const errorMsg = 'Biography must be longer than 5 characters';
+        setError(errorMsg);
+        addToast(errorMsg, 'warning', 3000);
         setLoading(false);
         return;
       }
@@ -130,11 +136,14 @@ export default function EditProfilePage() {
       }
 
       setSuccess('Profile updated successfully!');
+      addToast('Profile saved successfully!', 'success', 3000);
       setTimeout(() => {
         router.push('/profile');
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update profile';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setLoading(false);
     }

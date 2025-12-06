@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
 import { api } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 import { sanitizeFilePath, validateFileUpload } from '@/lib/security';
 import imageCompression from 'browser-image-compression';
 import { UserPhotosResponse } from '@/types';
@@ -18,6 +19,7 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { addToast } = useToast();
 
   useEffect(() => {
     loadPhotos();
@@ -44,7 +46,9 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
 
       const validation = validateFileUpload(file, ['image/jpeg', 'image/png', 'image/webp'], 5 * 1024 * 1024);
       if (!validation.valid) {
-        setError(validation.error || 'Invalid file');
+        const errorMsg = validation.error || 'Invalid file';
+        setError(errorMsg);
+        addToast(errorMsg, 'error', 4000);
         setUploading(false);
         return;
       }
@@ -60,10 +64,14 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
 
       await api.uploadPhoto(compressedFile, photoNumber);
       await loadPhotos();
-      setSuccess('Photo uploaded successfully!');
+      const successMsg = `Photo ${photoNumber + 1} uploaded successfully!`;
+      setSuccess(successMsg);
+      addToast(successMsg, 'success', 3000);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError((err as Error).message || 'Failed to upload photo');
+      const errorMsg = (err as Error).message || 'Failed to upload photo';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setUploading(false);
     }
@@ -77,10 +85,14 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       setSuccess('');
       await api.deletePhoto(photoNumber);
       await loadPhotos();
-      setSuccess('Photo deleted successfully!');
+      const successMsg = `Photo ${photoNumber + 1} deleted`;
+      setSuccess(successMsg);
+      addToast(successMsg, 'success', 3000);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError((err as Error).message || 'Failed to delete photo');
+      const errorMsg = (err as Error).message || 'Failed to delete photo';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     }
   };
 
@@ -95,10 +107,14 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
 
       await api.reorderPhotos(newOrder);
       await loadPhotos();
-      setSuccess('Photos reordered successfully!');
+      const successMsg = 'Photos reordered';
+      setSuccess(successMsg);
+      addToast(successMsg, 'success', 3000);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError((err as Error).message || 'Failed to reorder photos');
+      const errorMsg = (err as Error).message || 'Failed to reorder photos';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     }
   };
 

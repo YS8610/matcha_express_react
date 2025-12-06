@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
@@ -33,6 +34,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [locationName, setLocationName] = useState<string>('');
   const { user } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
 
   const displayName = useMemo(
@@ -165,6 +167,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setLikeError('');
       await api.likeUser(userId);
       setHasUserLiked(true);
+      addToast('Profile liked! 💚', 'success', 3000);
       setModalState({
         type: 'success',
         title: 'Profile Liked!',
@@ -172,12 +175,14 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error('Failed to like:', error);
       if (errorMsg.includes('already liked')) {
         setLikeError('You have already liked this profile');
+        addToast('You have already liked this profile', 'warning', 3000);
       } else if (errorMsg.includes('cannot like yourself')) {
         setLikeError('You cannot like your own profile');
+        addToast('You cannot like your own profile', 'warning', 3000);
       } else {
+        addToast('Failed to like profile', 'error', 4000);
         setModalState({
           type: 'error',
           title: 'Failed to Like',
@@ -197,6 +202,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       setLikeError('');
       await api.unlikeUser(userId);
       setHasUserLiked(false);
+      addToast('Profile unliked', 'success', 3000);
       setModalState({
         type: 'success',
         title: 'Profile Unliked',
@@ -204,7 +210,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error('Failed to unlike:', error);
+      addToast('Failed to unlike profile', 'error', 4000);
       setModalState({
         type: 'error',
         title: 'Failed to Unlike',
@@ -227,6 +233,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         try {
           await api.blockUser(userId);
           setIsBlocked(true);
+          addToast(`${profile.username} blocked`, 'success', 3000);
           setModalState({
             type: 'success',
             title: 'User Blocked',
@@ -234,7 +241,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             action: () => router.push('/browse'),
           });
         } catch (error) {
-          console.error('Failed to block user:', error);
+          addToast('Failed to block user', 'error', 4000);
           setModalState({
             type: 'error',
             title: 'Failed to Block',
@@ -265,6 +272,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       await api.reportUser(userId, reportReason.trim());
       setShowReportModal(false);
       setReportReason('');
+      addToast('Report submitted successfully', 'success', 3000);
       setModalState({
         type: 'success',
         title: 'Report Submitted',
@@ -274,7 +282,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     } catch (error) {
       const errorMessage = (error as Error).message || 'Failed to report user. Please try again.';
       setReportError(errorMessage);
-      console.error('Failed to report user:', error);
+      addToast(errorMessage, 'error', 4000);
     } finally {
       setReportLoading(false);
     }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 import { getPasswordValidationChecks } from '@/lib/validation';
 
 interface PasswordChangerProps {
@@ -10,6 +11,7 @@ interface PasswordChangerProps {
 }
 
 export default function PasswordChanger({ className = '' }: PasswordChangerProps) {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -32,17 +34,23 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
     setSuccess('');
 
     if (formData.newPassword !== formData.confirmPassword) {
-      setError('New passwords do not match');
+      const errorMsg = 'New passwords do not match';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
     if (!passwordValidation.isValid) {
-      setError('New password does not meet requirements');
+      const errorMsg = 'New password does not meet requirements';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
     if (formData.oldPassword === formData.newPassword) {
-      setError('New password must be different from current password');
+      const errorMsg = 'New password must be different from current password';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
@@ -50,9 +58,12 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
       setLoading(true);
       await api.updatePassword(formData.oldPassword, formData.newPassword, formData.confirmPassword);
       setSuccess('Password updated successfully!');
+      addToast('Password changed successfully!', 'success', 3000);
       setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      setError((err as Error).message || 'Failed to update password');
+      const errorMsg = (err as Error).message || 'Failed to update password';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setLoading(false);
     }

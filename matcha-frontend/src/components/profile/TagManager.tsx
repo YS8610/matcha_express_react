@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 import { UserTagsResponse } from '@/types';
 
 interface TagManagerProps {
@@ -15,6 +16,7 @@ export default function TagManager({ className = '' }: TagManagerProps) {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
+  const { addToast } = useToast();
 
   useEffect(() => {
     loadTags();
@@ -40,7 +42,7 @@ export default function TagManager({ className = '' }: TagManagerProps) {
 
     const trimmedTag = newTag.trim().toLowerCase();
     if (tags.map(t => t.toLowerCase()).includes(trimmedTag)) {
-      setError('This tag already exists');
+      addToast('This tag already exists', 'warning', 3000);
       return;
     }
 
@@ -50,8 +52,11 @@ export default function TagManager({ className = '' }: TagManagerProps) {
       await api.addTag(newTag.trim());
       setTags([...tags, newTag.trim()]);
       setNewTag('');
+      addToast(`Tag "${newTag.trim()}" added successfully`, 'success', 3000);
     } catch (err) {
-      setError((err as Error).message || 'Failed to add tag');
+      const errorMsg = (err as Error).message || 'Failed to add tag';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setAdding(false);
     }
@@ -61,8 +66,11 @@ export default function TagManager({ className = '' }: TagManagerProps) {
     try {
       await api.removeTag(tagToRemove);
       setTags(tags.filter(tag => tag !== tagToRemove));
+      addToast(`Tag "${tagToRemove}" removed`, 'success', 3000);
     } catch (err) {
-      setError((err as Error).message || 'Failed to remove tag');
+      const errorMsg = (err as Error).message || 'Failed to remove tag';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     }
   };
 
