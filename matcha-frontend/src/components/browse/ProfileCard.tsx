@@ -69,16 +69,16 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         {isOnline && (
           <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         )}
-        
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 dark:from-black/80 to-transparent p-4">
-          <h3 className="text-white dark:text-white font-semibold text-lg">
+
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
+          <h3 className="text-white font-semibold text-lg drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
             {displayName}
           </h3>
-          <p className="text-white/90 dark:text-white/85 text-sm">
+          <p className="text-white text-sm drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
             @{displayUsername}
           </p>
           {profile.lastOnline && (
-            <p className="text-white/80 dark:text-white/75 text-xs mt-1">
+            <p className="text-white text-xs mt-1 drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
               {isOnline ? 'Online now' : `Last seen ${getLastSeenString(profile.lastOnline)}`}
             </p>
           )}
