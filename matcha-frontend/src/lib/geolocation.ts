@@ -12,8 +12,14 @@ interface NominatimResponse {
 
 const locationCache = new Map<string, string>();
 
+export const clearLocationCache = () => {
+  locationCache.clear();
+};
+
 export const getLocationName = async (latitude: number, longitude: number): Promise<string> => {
-  const cacheKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  const lat4 = Math.floor(Math.round(latitude * 100000) / 10);
+  const lon4 = Math.floor(Math.round(longitude * 100000) / 10);
+  const cacheKey = `${lat4},${lon4}`;
 
   if (locationCache.has(cacheKey)) {
     return locationCache.get(cacheKey)!;

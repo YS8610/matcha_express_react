@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { getLocationName } from '@/lib/geolocation';
+import { getLocationName, clearLocationCache } from '@/lib/geolocation';
 
 global.fetch = vi.fn();
 
@@ -7,6 +7,7 @@ describe('Geolocation Utilities', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (global.fetch as any).mockClear();
+    clearLocationCache();
   });
 
   afterEach(() => {

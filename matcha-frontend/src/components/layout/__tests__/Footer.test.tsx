@@ -72,7 +72,7 @@ describe('Footer Component', () => {
     it('should apply border CSS variable', () => {
       const { container } = render(<Footer />);
       const footer = container.querySelector('footer');
-      expect(footer).toHaveStyle({ borderColor: 'var(--border)' });
+      expect(footer?.getAttribute('style')).toContain('border-color: var(--border)');
     });
 
     it('should apply foreground CSS variable for text color', () => {

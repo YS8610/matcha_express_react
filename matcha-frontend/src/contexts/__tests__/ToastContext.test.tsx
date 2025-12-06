@@ -207,14 +207,12 @@ describe('ToastContext', () => {
         wrapper: ToastProvider,
       });
 
-      let toastId: string;
-
       act(() => {
         result.current.addToast('Test toast', 'info', 0); // duration 0 to prevent auto-removal
-        toastId = result.current.toasts[0].id;
       });
 
       expect(result.current.toasts).toHaveLength(1);
+      const toastId = result.current.toasts[0].id;
 
       act(() => {
         result.current.removeToast(toastId);
@@ -228,20 +226,16 @@ describe('ToastContext', () => {
         wrapper: ToastProvider,
       });
 
-      let toast1Id: string;
-      let toast2Id: string;
-      let toast3Id: string;
-
       act(() => {
         result.current.addToast('Toast 1', 'info', 0);
-        toast1Id = result.current.toasts[0].id;
         result.current.addToast('Toast 2', 'info', 0);
-        toast2Id = result.current.toasts[1].id;
         result.current.addToast('Toast 3', 'info', 0);
-        toast3Id = result.current.toasts[2].id;
       });
 
       expect(result.current.toasts).toHaveLength(3);
+      const toast1Id = result.current.toasts[0].id;
+      const toast2Id = result.current.toasts[1].id;
+      const toast3Id = result.current.toasts[2].id;
 
       act(() => {
         result.current.removeToast(toast2Id);

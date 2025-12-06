@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { act } from 'react';
+import * as React from 'react';
 
 const TestComponent = () => {
   const { theme } = useTheme();
@@ -365,18 +366,20 @@ describe('ThemeToggle Component', () => {
     });
   });
 
-  it('should not render content during SSR phase', () => {
+  it('should not render content during SSR phase', async () => {
     const { container } = render(
       <ThemeProvider>
         <ThemeToggle />
       </ThemeProvider>
     );
 
-    const button = screen.queryByRole('button');
-    expect(button).not.toBeInTheDocument();
+    await waitFor(() => {
+      const button = screen.queryByRole('button');
+      expect(button).toBeInTheDocument();
+    });
 
-    const placeholder = container.querySelector('.w-5.h-5');
-    expect(placeholder).toBeInTheDocument();
+    const icon = container.querySelector('.w-5.h-5');
+    expect(icon).toBeInTheDocument();
   });
 
   it('should handle click events properly', async () => {

@@ -205,7 +205,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement?.className).toContain('bg-emerald-50');
   });
 
@@ -218,7 +218,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Error Toast'));
 
-    const toastElement = screen.getByText('Error message').closest('div');
+    const toastElement = screen.getByText('Error message').closest('div')?.parentElement;
     expect(toastElement?.className).toContain('bg-red-50');
   });
 
@@ -231,7 +231,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Warning Toast'));
 
-    const toastElement = screen.getByText('Warning message').closest('div');
+    const toastElement = screen.getByText('Warning message').closest('div')?.parentElement;
     expect(toastElement?.className).toContain('bg-yellow-50');
   });
 
@@ -244,7 +244,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Info Toast'));
 
-    const toastElement = screen.getByText('Info message').closest('div');
+    const toastElement = screen.getByText('Info message').closest('div')?.parentElement;
     expect(toastElement?.className).toContain('bg-blue-50');
   });
 
@@ -303,7 +303,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('rounded-lg');
   });
 
@@ -316,7 +316,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('shadow-lg');
   });
 
@@ -329,7 +329,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('backdrop-blur-sm');
   });
 
@@ -342,7 +342,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('flex', 'items-start');
   });
 
@@ -355,7 +355,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('gap-3');
   });
 
@@ -368,7 +368,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('p-4');
   });
 
@@ -461,7 +461,7 @@ describe('ToastContainer Component', () => {
 
     fireEvent.click(screen.getByText('Add Success Toast'));
 
-    const toastElement = screen.getByText('Success message').closest('div');
+    const toastElement = screen.getByText('Success message').closest('div')?.parentElement;
     expect(toastElement).toHaveClass('pointer-events-auto');
   });
 });
