@@ -250,9 +250,9 @@ export const isValidProfile =(profile: ProfilePutJson): number => {
     errormask |= 1<<3;
   if (!profile.birthDate || !isValidDateStr(profile.birthDate))
     errormask |= 1<<4;
-  if (!profile.gender || typeof profile.gender !== "number" || profile.gender < 0 || profile.gender > 2)
+  if (!profile.gender || typeof profile.gender !== "number" || profile.gender < 1 || profile.gender > 3)
     errormask |= 1<<5;
-  if (!profile.sexualPreference || typeof profile.sexualPreference !== "number" || profile.sexualPreference < 0 || profile.sexualPreference > 2)
+  if (!profile.sexualPreference || typeof profile.sexualPreference !== "number" || profile.sexualPreference < 1 || profile.sexualPreference > 3)
     errormask |= 1<<6;
 
   return errormask;

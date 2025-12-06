@@ -64,8 +64,8 @@ router.put("/", async (req: Request<{}, {}, ProfilePutJson>, res: Response<ResMs
         email : (errorMask & (1<<2)) ? "invalid" : "valid",
         biography : (errorMask & (1<<3)) ? "invalid. should be string of length between 5 and 500" : "valid",
         birthDate : (errorMask & (1<<4)) ? "Invalid birthDate format. Expected format: YYYY-MM-DD" : "valid",
-        gender : (errorMask & (1<<5)) ? "invalid. should be number between 0 and 2" : "valid",
-        sexualPreference : (errorMask & (1<<6)) ? "invalid. should be number between 0 and 2" : "valid"
+        gender : (errorMask & (1<<5)) ? "invalid. should be number between 1 and 3" : "valid",
+        sexualPreference : (errorMask & (1<<6)) ? "invalid. should be number between 1 and 3" : "valid"
       }
     }));
   await serverErrorWrapper(() => setUserProfileById(id, { firstName, lastName, email, gender, sexualPreference, biography, birthDate }), "Error updating profile");

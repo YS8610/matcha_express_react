@@ -653,7 +653,7 @@ describe("userSvc tests", () => {
       sexualPreference: 5
     };
     const result = isValidProfile(profileData);
-    expect(result).toEqual(1 | 1<<2 | 1<<4 | 1<<5 | 1<<6);
+    expect(result).toEqual(1 | 1<<2 | 1<<4 | 1<<6);
   });
 
   it("isValidProfile test : invalid profile data with all errors", async () => {

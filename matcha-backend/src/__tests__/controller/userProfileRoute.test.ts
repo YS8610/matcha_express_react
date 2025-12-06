@@ -165,9 +165,9 @@ describe("Route /api/user/profile", () => {
           birthDate: "Invalid birthDate format. Expected format: YYYY-MM-DD",
           email: "invalid",
           firstName: "invalid. should be string of length between 2 and 50",
-          gender: "invalid. should be number between 0 and 2",
+          gender: "invalid. should be number between 1 and 3",
           lastName: "invalid. should be string of length between 2 and 50",
-          sexualPreference: "invalid. should be number between 0 and 2",
+          sexualPreference: "invalid. should be number between 1 and 3",
         },
         message: "Profile validation failed"
       });
@@ -192,8 +192,8 @@ describe("Route /api/user/profile", () => {
           firstName: "invalid. should be string of length between 2 and 50",
           lastName: "invalid. should be string of length between 2 and 50",
           email: "invalid",
-          gender: "invalid. should be number between 0 and 2",
-          sexualPreference: "invalid. should be number between 0 and 2",
+          gender: "invalid. should be number between 1 and 3",
+          sexualPreference: "invalid. should be number between 1 and 3",
           biography: "valid",
           birthDate: "valid"
         },
@@ -251,8 +251,8 @@ describe("Route /api/user/profile", () => {
           email: "invalid",
           biography: "valid",
           birthDate: "valid",
-          gender: "invalid. should be number between 0 and 2",
-          sexualPreference: "invalid. should be number between 0 and 2"
+          gender: "invalid. should be number between 1 and 3",
+          sexualPreference: "invalid. should be number between 1 and 3"
         },
         message: "Profile validation failed"
       });
