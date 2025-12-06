@@ -244,19 +244,19 @@ export default function ProfileSetup() {
     }
 
     try {
-      const genderMap: { [key: string]: number } = { 'other': 0, 'male': 1, 'female': 2 };
-      const sexualPreferenceMap: { [key: string]: number } = { 'both': 0, 'male': 1, 'female': 2 };
+      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 3 };
+      const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
 
       const genderValue = genderMap[formData.gender];
       const sexualPreferenceValue = sexualPreferenceMap[formData.sexualPreference];
 
-      if (genderValue === undefined || genderValue < 0 || genderValue > 2) {
+      if (genderValue === undefined || genderValue < 1 || genderValue > 3) {
         setError('Invalid gender selection. Please select male, female, or other.');
         setLoading(false);
         return;
       }
 
-      if (sexualPreferenceValue === undefined || sexualPreferenceValue < 0 || sexualPreferenceValue > 2) {
+      if (sexualPreferenceValue === undefined || sexualPreferenceValue < 1 || sexualPreferenceValue > 3) {
         setError('Invalid sexual preference selection. Please select male, female, or both.');
         setLoading(false);
         return;

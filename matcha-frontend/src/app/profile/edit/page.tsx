@@ -53,7 +53,7 @@ export default function EditProfilePage() {
           return;
         }
 
-        const genderReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 0: 'other', '-1': '' };
+        const genderReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 3: 'other', '-1': '' };
         const sexualPreferenceReverseMap: { [key: number]: string } = { 1: 'male', 2: 'female', 3: 'both', '-1': '' };
 
         const typedData = data as Record<string, string | number | undefined>;
@@ -107,14 +107,14 @@ export default function EditProfilePage() {
         return;
       }
 
-      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 0 };
+      const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 3 };
       const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
 
       const dataToSend = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        gender: genderMap[formData.gender] ?? 0,
+        gender: genderMap[formData.gender] ?? 1,
         sexualPreference: sexualPreferenceMap[formData.sexualPreference] ?? 3,
         biography: formData.biography,
         birthDate: formData.birthDate,

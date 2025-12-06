@@ -19,9 +19,9 @@ export function toNumber(value: unknown): number | null {
 export function toGenderString(value: unknown): string {
   const num = toNumber(value);
   const genderMap: { [key: number]: string } = {
-    0: 'Other',
     1: 'Male',
     2: 'Female',
+    3: 'Other',
   };
   return num !== null ? (genderMap[num] || 'Not set') : 'Not set';
 }
