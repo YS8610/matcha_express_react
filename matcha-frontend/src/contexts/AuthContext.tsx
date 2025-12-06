@@ -23,7 +23,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         const validation = tokenStorage.validateTokenStructure(token);
         if (!validation.valid) {
-          console.log('Token validation failed:', validation.reason);
           tokenStorage.clearToken();
           setUser(null);
           setLoading(false);
@@ -33,7 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const payload = tokenStorage.getTokenPayload(token);
 
         if (!payload || !payload.activated || !payload.email || !payload.username) {
-          console.log('Token missing required fields');
           tokenStorage.clearToken();
           setUser(null);
           setLoading(false);
@@ -49,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem('profileComplete', 'true');
           }
         } catch (profileError) {
-          console.log('Could not fetch profile for completion check:', profileError);
           profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         }
 
@@ -98,7 +95,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem('profileComplete', 'true');
           }
         } catch (profileError) {
-          console.log('Could not fetch profile for completion check:', profileError);
           profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         }
 
@@ -166,7 +162,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem('profileComplete', 'true');
           }
         } catch (profileError) {
-          console.log('Could not fetch profile for completion check:', profileError);
           profileComplete = typeof window !== 'undefined' && localStorage.getItem('profileComplete') === 'true';
         }
 

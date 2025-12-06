@@ -40,7 +40,6 @@ export default function ActivatePage() {
     setErrorDetails('');
 
     try {
-      console.log('Attempting to activate with token:', activationToken);
       await activateAccount(activationToken);
       setStatus('success');
       setMessage('Your account has been successfully activated!');

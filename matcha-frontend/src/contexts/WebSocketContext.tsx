@@ -48,13 +48,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('connect', () => {
-      console.log('[WebSocket] Connected:', newSocket.id);
       setIsConnected(true);
       reconnectAttempts.current = 0;
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('[WebSocket] Disconnected:', reason);
       setIsConnected(false);
     });
 
@@ -68,7 +66,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('notification', (data: unknown) => {
-      console.log('[WebSocket] Notification received:', data);
 
       const notifData = data as {
         id?: string;
@@ -90,7 +87,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
       setNotifications(prev => {
         if (prev.some(n => n.id === notification.id)) {
-          console.log('[WebSocket] Duplicate notification ignored:', notification.id);
           return prev;
         }
         const updated = [notification, ...prev];
@@ -99,7 +95,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('onlineStatus', (statuses: Record<string, boolean>) => {
-      console.log('[WebSocket] Online status update:', statuses);
       setOnlineUsers(prev => ({ ...prev, ...statuses }));
     });
 

@@ -139,7 +139,6 @@ class ApiClient {
     const response = await this.request<Record<string, unknown>>(endpoint);
 
     if (response && typeof response === 'object' && !('data' in response) && 'username' in response && 'id' in response) {
-      console.log('Wrapping profile response');
       return { data: response as unknown as Record<string, unknown> };
     }
     return response as unknown as { data: Record<string, unknown> };

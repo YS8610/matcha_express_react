@@ -21,7 +21,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
       const token = getToken();
 
       if (!token) {
-        console.log(`[useAuthImage] Attempt ${attemptCount}: Token not available yet`);
 
         if (attemptCount < maxAttempts && isMounted) {
           const delay = Math.min(100 * attemptCount, 1000);
@@ -52,7 +51,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
             if (!isMounted) return;
             const blobUrl = URL.createObjectURL(blob);
             setImageUrl(blobUrl);
-            console.log(`[useAuthImage] Success: ${photoName}`);
           });
         })
         .catch(error => {
