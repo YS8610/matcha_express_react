@@ -60,8 +60,8 @@ describe('API Client', () => {
     });
 
     it('should handle 401 unauthorized responses', async () => {
-      localStorage.getItem = vi.fn().mockReturnValueOnce('test-token');
-      localStorage.removeItem = vi.fn();
+      const clearTokenSpy = vi.spyOn(tokenStorage, 'clearToken').mockReturnValue(undefined);
+      vi.spyOn(tokenStorage, 'getToken').mockReturnValue('test-token');
 
       (global.fetch as MockFetch).mockResolvedValueOnce({
         ok: false,
@@ -71,7 +71,7 @@ describe('API Client', () => {
       });
 
       await expect(api.request('/api/test')).rejects.toThrow();
-      expect(localStorage.removeItem).toHaveBeenCalled();
+      expect(clearTokenSpy).toHaveBeenCalled();
     });
   });
 
@@ -115,9 +115,8 @@ describe('API Client', () => {
   });
 
   describe('login', () => {
-    it('should send login credentials and store token', async () => {
+    it('should send login credentials and return response', async () => {
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3QiLCJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiYWN0aXZhdGVkIjp0cnVlLCJleHAiOjk5OTk5OTk5OTl9.mock';
-      const storeTokenSpy = vi.spyOn(tokenStorage, 'storeToken').mockReturnValue(true);
 
       (global.fetch as MockFetch).mockResolvedValueOnce({
         ok: true,
@@ -133,7 +132,7 @@ describe('API Client', () => {
       const call = (global.fetch as MockFetch).mock.calls[0];
       expect(call[0]).toContain('/pubapi/login');
       expect(call[1].method).toBe('POST');
-      expect(storeTokenSpy).toHaveBeenCalledWith(token);
+      expect(result).toBeDefined();
     });
   });
 

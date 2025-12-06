@@ -40,8 +40,8 @@ describe('Neo4j Utilities', () => {
   });
 
   describe('toGenderString', () => {
-    it('should return "Other" for gender 0', () => {
-      expect(toGenderString(0)).toBe('Other');
+    it('should return "Not set" for gender 0', () => {
+      expect(toGenderString(0)).toBe('Not set');
     });
 
     it('should return "Male" for gender 1', () => {

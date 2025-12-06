@@ -181,11 +181,11 @@ describe('MobileMenu Component', () => {
     expect(screen.getByTestId('theme-toggle')).toBeTruthy();
   });
 
-  it('should have md:hidden class for mobile-only display', () => {
+  it('should have lg:hidden class for mobile-only display', () => {
     (useAuth as any).mockReturnValue({ user: mockUser, logout: mockLogout });
 
     const { container } = render(<MobileMenu />);
-    const wrapper = container.querySelector('.md\\:hidden');
+    const wrapper = container.querySelector('.lg\\:hidden');
     expect(wrapper).toBeTruthy();
   });
 

@@ -103,7 +103,7 @@ describe('Header Component', () => {
     (useAuth as any).mockReturnValue({ user: mockUser, logout: mockLogout });
 
     render(<Header />);
-    expect(screen.getByTestId('theme-toggle')).toBeTruthy();
+    expect(screen.getAllByTestId('theme-toggle')[0]).toBeTruthy();
   });
 
   it('should render mobile menu', () => {

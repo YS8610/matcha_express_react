@@ -4,9 +4,12 @@ import AuthImage from '@/components/AuthImage';
 import * as useAuthImageModule from '@/hooks/useAuthImage';
 
 vi.mock('next/image', () => ({
-  default: ({ src, alt, ...props }: any) => (
-    <img src={src} alt={alt} data-testid="auth-image" {...props} />
-  ),
+  default: ({ src, alt, fill, unoptimized, ...props }: any) => {
+    const imgProps: any = { src, alt, 'data-testid': 'auth-image', ...props };
+    if (fill !== undefined && fill !== false) imgProps['data-fill'] = 'true';
+    if (unoptimized !== undefined && unoptimized !== false) imgProps['data-unoptimized'] = 'true';
+    return <img {...imgProps} />;
+  },
 }));
 
 vi.mock('@/hooks/useAuthImage', () => ({

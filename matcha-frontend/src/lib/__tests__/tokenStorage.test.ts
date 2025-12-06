@@ -12,30 +12,32 @@ const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4OTAi
 describe('Token Storage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear?.();
+    document.cookie.split(';').forEach((cookie) => {
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    });
   });
 
   describe('storeToken', () => {
-    it('should store token in localStorage', () => {
-      storeToken(mockToken);
+    it('should store token in cookies', () => {
+      const result = storeToken(mockToken);
 
-      expect(localStorage.setItem).toHaveBeenCalledWith('token', mockToken);
+      expect(result).toBe(true);
+      expect(document.cookie).toContain('token=');
     });
   });
 
   describe('getToken', () => {
-    it('should retrieve token from localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValueOnce(mockToken);
+    it('should retrieve token from cookies', () => {
+      storeToken(mockToken);
 
       const token = getToken();
 
-      expect(localStorage.getItem).toHaveBeenCalledWith('token');
       expect(token).toBe(mockToken);
     });
 
     it('should return null if no token is stored', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValueOnce(null);
-
       const token = getToken();
 
       expect(token).toBeNull();
@@ -43,10 +45,12 @@ describe('Token Storage', () => {
   });
 
   describe('clearToken', () => {
-    it('should remove token from localStorage', () => {
+    it('should remove token from cookies', () => {
+      storeToken(mockToken);
       clearToken();
 
-      expect(localStorage.removeItem).toHaveBeenCalledWith('token');
+      const token = getToken();
+      expect(token).toBeNull();
     });
   });
 

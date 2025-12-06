@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { act } from 'react';
 import RouteChangeProgress from '@/components/RouteChangeProgress';
 import { usePathname } from 'next/navigation';
 
@@ -41,9 +42,10 @@ describe('RouteChangeProgress Component', () => {
 
     const { getByTestId, rerender } = render(<RouteChangeProgress />);
 
-    (usePathname as any).mockReturnValue('/page2');
-
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/page2');
+      rerender(<RouteChangeProgress />);
+    });
 
     expect(true).toBe(true);
   });
@@ -53,11 +55,14 @@ describe('RouteChangeProgress Component', () => {
 
     const { rerender } = render(<RouteChangeProgress />);
 
-    (usePathname as any).mockReturnValue('/new-page');
+    act(() => {
+      (usePathname as any).mockReturnValue('/new-page');
+      rerender(<RouteChangeProgress />);
+    });
 
-    rerender(<RouteChangeProgress />);
-
-    vi.advanceTimersByTime(300);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
 
     expect(true).toBe(true);
   });
@@ -79,15 +84,23 @@ describe('RouteChangeProgress Component', () => {
 
     const { rerender } = render(<RouteChangeProgress />);
 
-    (usePathname as any).mockReturnValue('/page1');
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/page1');
+      rerender(<RouteChangeProgress />);
+    });
 
-    vi.advanceTimersByTime(100);
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
 
-    (usePathname as any).mockReturnValue('/page2');
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/page2');
+      rerender(<RouteChangeProgress />);
+    });
 
-    vi.advanceTimersByTime(300);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
 
     expect(true).toBe(true);
   });
@@ -120,13 +133,19 @@ describe('RouteChangeProgress Component', () => {
 
     const { rerender } = render(<RouteChangeProgress />);
 
-    (usePathname as any).mockReturnValue('/new-page');
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/new-page');
+      rerender(<RouteChangeProgress />);
+    });
 
-    vi.advanceTimersByTime(200);
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
     expect(true).toBe(true);
 
-    vi.advanceTimersByTime(100);
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
     expect(true).toBe(true);
   });
 
@@ -146,15 +165,23 @@ describe('RouteChangeProgress Component', () => {
 
     const { rerender } = render(<RouteChangeProgress />);
 
-    (usePathname as any).mockReturnValue('/page1');
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/page1');
+      rerender(<RouteChangeProgress />);
+    });
 
-    vi.advanceTimersByTime(150);
+    act(() => {
+      vi.advanceTimersByTime(150);
+    });
 
-    (usePathname as any).mockReturnValue('/page2');
-    rerender(<RouteChangeProgress />);
+    act(() => {
+      (usePathname as any).mockReturnValue('/page2');
+      rerender(<RouteChangeProgress />);
+    });
 
-    vi.advanceTimersByTime(300);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
 
     expect(true).toBe(true);
   });
