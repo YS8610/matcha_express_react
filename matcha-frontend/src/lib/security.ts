@@ -5,6 +5,10 @@ export function sanitizeInput(input: string, maxLength: number = 1000): string {
 
   let truncated = input.substring(0, maxLength);
 
+  if (typeof window === 'undefined') {
+    return truncated.trim();
+  }
+
   const sanitized = DOMPurify.sanitize(truncated, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
@@ -19,6 +23,10 @@ export function sanitizeHtml(html: string, maxLength: number = 5000): string {
 
   const truncated = html.substring(0, maxLength);
 
+  if (typeof window === 'undefined') {
+    return truncated;
+  }
+
   return DOMPurify.sanitize(truncated, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
     ALLOWED_ATTR: ['href', 'title'],
@@ -28,6 +36,11 @@ export function sanitizeHtml(html: string, maxLength: number = 5000): string {
 
 export function removeTags(html: string): string {
   if (!html) return '';
+
+  if (typeof window === 'undefined') {
+    return html;
+  }
+
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
@@ -51,7 +64,8 @@ export function sanitizeUrl(url: string): string {
   if (!url) return '';
 
   try {
-    const urlObj = new URL(url, window.location.origin);
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+    const urlObj = new URL(url, baseUrl);
     if (!['http:', 'https:'].includes(urlObj.protocol)) {
       return '';
     }
