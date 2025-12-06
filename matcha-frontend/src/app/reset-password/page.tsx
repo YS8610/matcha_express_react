@@ -1,26 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Leaf } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'request' | 'reset'>('request');
+  const params = useParams();
+
+  const [resetData, setResetData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const resetUserId = sessionStorage.getItem('resetUserId');
+      const resetToken = sessionStorage.getItem('resetToken');
+      if (resetUserId && resetToken) {
+        return {
+          userId: resetUserId,
+          token: resetToken,
+          newPassword: '',
+          newPassword2: ''
+        };
+      }
+    }
+    return {
+      userId: '',
+      token: '',
+      newPassword: '',
+      newPassword2: ''
+    };
+  });
+
+  const [activeTab, setActiveTab] = useState<'request' | 'reset'>(resetData.userId && resetData.token ? 'reset' : 'request');
 
   useEffect(() => {
-    const resetUserId = typeof window !== 'undefined' ? sessionStorage.getItem('resetUserId') : null;
-    const resetToken = typeof window !== 'undefined' ? sessionStorage.getItem('resetToken') : null;
-
-    if (resetUserId && resetToken) {
-      setActiveTab('reset');
-      setResetData(prev => ({
-        ...prev,
-        userId: resetUserId,
-        token: resetToken
-      }));
+    if (typeof window !== 'undefined') {
       sessionStorage.removeItem('resetUserId');
       sessionStorage.removeItem('resetToken');
     }
@@ -33,13 +47,6 @@ export default function ResetPasswordPage() {
   const [requestError, setRequestError] = useState('');
   const [requestSuccess, setRequestSuccess] = useState('');
   const [requestLoading, setRequestLoading] = useState(false);
-
-  const [resetData, setResetData] = useState({
-    userId: '',
-    token: '',
-    newPassword: '',
-    newPassword2: ''
-  });
   const [resetError, setResetError] = useState('');
   const [resetSuccess, setResetSuccess] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
