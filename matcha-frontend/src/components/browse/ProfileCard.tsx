@@ -69,23 +69,16 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         {isOnline && (
           <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         )}
-
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
-          <h3 className="text-white font-semibold text-lg drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
-            {displayName}
-          </h3>
-          <p className="text-white text-sm drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
-            @{displayUsername}
-          </p>
-          {profile.lastOnline && (
-            <p className="text-white text-xs mt-1 drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
-              {isOnline ? 'Online now' : `Last seen ${getLastSeenString(profile.lastOnline)}`}
-            </p>
-          )}
-        </div>
       </div>
 
       <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+          {displayName}
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+          @{displayUsername}
+        </p>
+
         <div className="flex items-center justify-between mb-2">
           <span className={`text-sm ${colorScheme.accent} flex items-center gap-1`}>
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />

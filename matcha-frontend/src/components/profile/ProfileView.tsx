@@ -33,6 +33,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [modalState, setModalState] = useState<{ type: 'success' | 'error' | 'confirm' | null; title: string; message: string; action?: () => void }>({ type: null, title: '', message: '' });
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [locationName, setLocationName] = useState<string>('');
+  const [viewedUserIds, setViewedUserIds] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
@@ -91,8 +92,24 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
       if (user && user.id !== userId) {
         try {
-          await api.recordUserView(userId);
+          const viewedResponse = await api.getUsersViewed() as { data?: Array<{ id: string }> } | Array<{ id: string }>;
+          const viewedUsers = Array.isArray(viewedResponse) ? viewedResponse : (viewedResponse?.data || []);
+          const viewedIds = new Set(viewedUsers.map(u => u.id));
+          setViewedUserIds(viewedIds);
+
+          if (!viewedIds.has(userId)) {
+            try {
+              await api.recordUserView(userId);
+              viewedIds.add(userId);
+              setViewedUserIds(new Set(viewedIds));
+            } catch (viewError) {
+            }
+          }
         } catch (viewError) {
+          try {
+            await api.recordUserView(userId);
+          } catch (err) {
+          }
         }
 
         if (response.data) {
