@@ -51,9 +51,9 @@ export default function BadRequestContent() {
           </Link>
         </div>
 
-        <p className="text-sm text-text-muted dark:text-gray-500 mt-8">
-          Need help? Visit our <Link href="/" className="text-green-600 dark:text-green-400 hover:underline">home page</Link>
-        </p>
+        <Link href="/" className="btn-secondary text-sm text-center w-full mt-8">
+          Go to Home
+        </Link>
       </div>
     </div>
   );

@@ -149,25 +149,20 @@ export default function ActivatePage() {
             </div>
           )}
 
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Didn&apos;t receive an activation email?
-            </p>
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 flex flex-col gap-3">
             <Link
               href="/register"
-              className="font-semibold text-brand-green dark:text-brand-lime hover:text-brand-green-hover dark:hover:text-brand-lime-hover transition-colors text-sm inline-block"
+              className="btn-secondary text-sm text-center w-full"
             >
-              Register again
+              Register Again
             </Link>
 
-            <div className="pt-2">
-              <Link
-                href="/login"
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-              >
-                Already activated? Go to login
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="btn-secondary text-sm text-center w-full"
+            >
+              Go to Login
+            </Link>
           </div>
         </div>
       </div>

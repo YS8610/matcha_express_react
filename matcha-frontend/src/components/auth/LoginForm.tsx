@@ -210,19 +210,14 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div className="space-y-3 pt-4">
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          {`Don't have an account? `}
-          <Link href="/register" className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
-            Create one
-          </Link>
-        </p>
+      <div className="space-y-3 pt-4 flex flex-col gap-3">
+        <Link href="/register" className="btn-secondary text-sm text-center">
+          Create Account
+        </Link>
 
-        <p className="text-center text-sm">
-          <Link href="/reset-password" className="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
-            Forgot Password?
-          </Link>
-        </p>
+        <Link href="/reset-password" className="btn-secondary text-sm text-center">
+          Forgot Password?
+        </Link>
       </div>
     </div>
   );

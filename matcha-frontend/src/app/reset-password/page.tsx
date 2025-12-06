@@ -304,12 +304,9 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        <div className="text-center text-sm mt-6 text-gray-600 dark:text-gray-400">
-          Remember your password?{' '}
-          <Link href="/login" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
-            Back to Login
-          </Link>
-        </div>
+        <Link href="/login" className="btn-secondary text-sm text-center w-full mt-6">
+          Back to Login
+        </Link>
       </div>
     </div>
   );

@@ -49,16 +49,17 @@ export default function Unauthorized() {
           </Link>
         </div>
 
-        <p className="text-sm text-text-muted dark:text-gray-500 mt-8">
+        <div className="mt-8 flex flex-col gap-3">
           <button
             onClick={() => router.back()}
-            className="text-green-600 dark:text-green-400 hover:underline"
+            className="btn-secondary text-sm text-center w-full"
           >
-            Go back
+            Go Back
           </button>
-          {' '}or visit our{' '}
-          <Link href="/" className="text-green-600 dark:text-green-400 hover:underline">home page</Link>
-        </p>
+          <Link href="/" className="btn-secondary text-sm text-center w-full">
+            Go to Home
+          </Link>
+        </div>
       </div>
     </div>
   );

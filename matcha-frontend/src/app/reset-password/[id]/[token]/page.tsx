@@ -194,14 +194,12 @@ export default function ResetPasswordTokenPage({ params }: { params: Promise<{ i
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-            >
-              Back to Login
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="btn-secondary text-sm text-center w-full mt-8"
+          >
+            Back to Login
+          </Link>
         </div>
       </div>
     </div>

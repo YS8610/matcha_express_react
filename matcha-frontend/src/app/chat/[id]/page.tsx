@@ -135,7 +135,7 @@ export default function ChatPage() {
         <div className="mb-4">
           <Link
             href="/messages"
-            className="inline-flex items-center gap-2 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 mb-4"
+            className="btn-secondary inline-flex items-center justify-center gap-2 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Messages

@@ -405,12 +405,9 @@ export default function RegisterForm() {
         {loading ? 'Creating Account...' : 'Register'}
       </button>
 
-      <div className="text-center text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-        {`Already have an account? `}
-        <Link href="/login" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors font-semibold">
-          Login
-        </Link>
-      </div>
+      <Link href="/login" className="btn-secondary text-sm text-center w-full mt-4">
+        Back to Login
+      </Link>
     </form>
   );
 }

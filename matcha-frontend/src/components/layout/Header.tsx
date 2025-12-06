@@ -10,7 +10,7 @@ import MobileMenu from './MobileMenu';
 export default function Header() {
   const { user, logout } = useAuth();
 
-  const navLinkClass = 'font-bold text-sm md:text-base lg:text-base transition-colors duration-200 text-brand-green dark:text-brand-lime hover:text-brand-green-hover dark:hover:text-brand-lime-hover whitespace-nowrap';
+  const navLinkClass = 'btn-secondary text-xs md:text-sm lg:text-sm whitespace-nowrap';
 
   return (
     <header className="relative z-40 shadow-md border-b bg-neutral-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
@@ -70,7 +70,7 @@ export default function Header() {
               <div className="gap-2 xl:gap-3 flex items-center">
                 <Link
                   href="/login"
-                  className="text-sm xl:text-base font-bold text-brand-green dark:text-brand-lime hover:text-brand-green-hover dark:hover:text-brand-lime-hover transition-colors duration-200"
+                  className="btn-secondary text-xs xl:text-sm"
                 >
                   Login
                 </Link>

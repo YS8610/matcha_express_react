@@ -11,6 +11,7 @@ export default function MobileMenu() {
   const { user, logout } = useAuth();
 
   const closeMenu = () => setIsOpen(false);
+  const mobileNavLinkClass = 'btn-secondary w-full text-sm text-center';
 
   const handleLogout = () => {
     logout();
@@ -43,42 +44,42 @@ export default function MobileMenu() {
                 <Link
                   href="/browse"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Browse
                 </Link>
                 <Link
                   href="/visitors"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Visitors
                 </Link>
                 <Link
                   href="/likes"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Likes
                 </Link>
                 <Link
                   href="/blocked"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Blocked
                 </Link>
                 <Link
                   href="/messages"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Messages
                 </Link>
                 <Link
                   href="/profile"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Profile
                 </Link>
@@ -97,7 +98,7 @@ export default function MobileMenu() {
                 <Link
                   href="/login"
                   onClick={closeMenu}
-                  className="block py-2 text-green-800 dark:text-green-100 hover:text-green-900 dark:hover:text-green-50 font-semibold text-base transition-colors"
+                  className={mobileNavLinkClass}
                 >
                   Login
                 </Link>

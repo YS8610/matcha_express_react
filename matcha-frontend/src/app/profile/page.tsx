@@ -183,14 +183,14 @@ export default function MyProfilePage() {
                   <Leaf className="w-4 h-4 text-green-600 dark:text-green-500" />
                   Stats
                 </h2>
-                <div className="space-y-2">
-                  <Link href="/profile/views" className="flex items-center gap-2 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
+                <div className="space-y-2 flex flex-col gap-2">
+                  <Link href="/profile/views" className="btn-secondary text-sm flex items-center justify-center gap-2">
                     <Eye className="w-4 h-4" />
-                    View profile visitors →
+                    View Profile Visitors
                   </Link>
-                  <Link href="/profile/likes" className="flex items-center gap-2 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors">
+                  <Link href="/profile/likes" className="btn-secondary text-sm flex items-center justify-center gap-2">
                     <Heart className="w-4 h-4" />
-                    See who liked you →
+                    See Who Liked You
                   </Link>
                 </div>
               </div>
