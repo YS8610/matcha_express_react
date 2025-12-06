@@ -22,6 +22,4 @@ describe('PasswordChanger Component', () => {
     );
     expect(container).toBeTruthy();
   });
-
-  // Add more tests here
 });

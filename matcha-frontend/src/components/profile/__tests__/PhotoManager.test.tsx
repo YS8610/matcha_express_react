@@ -28,6 +28,4 @@ describe('PhotoManager Component', () => {
     );
     expect(container).toBeTruthy();
   });
-
-  // Add more tests here
 });
