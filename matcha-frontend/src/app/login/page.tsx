@@ -30,15 +30,6 @@ export default function LoginPage() {
           </div>
 
           <LoginForm />
-
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-slate-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              By signing in, you agree to our{' '}
-              <a href="#" className="text-green-600 dark:text-green-400 hover:underline">
-                Terms of Service
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </div>
