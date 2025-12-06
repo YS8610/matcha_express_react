@@ -16,11 +16,11 @@ export default function Header() {
     <header className="relative z-40 shadow-md border-b bg-neutral-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
       <div className="px-2 sm:px-4 md:px-6 lg:px-8 max-w-full">
         <div className="flex justify-between items-center h-14 sm:h-16 min-w-0">
-          <Link href="/" className="flex items-center gap-1 text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold flex-shrink-0 group">
+          <Link href="/" className="flex items-center gap-1 sm:gap-2 text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold flex-shrink-0 group">
             <div className="bg-gradient-to-br from-brand-green to-emerald-700 dark:from-brand-lime dark:to-lime-600 p-1 sm:p-1.5 md:p-1.5 lg:p-2 rounded-full transition-transform group-hover:scale-110">
               <Leaf className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" />
             </div>
-            <span className="bg-gradient-to-r from-brand-green to-emerald-700 dark:from-brand-lime dark:to-lime-600 bg-clip-text text-transparent hidden sm:inline font-bold">
+            <span className="bg-gradient-to-r from-brand-green to-emerald-700 dark:from-brand-lime dark:to-lime-600 bg-clip-text text-transparent hidden sm:inline font-bold text-lg sm:text-2xl md:text-2xl lg:text-3xl">
               Matcha
             </span>
           </Link>

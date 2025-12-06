@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { io, Socket as SocketIOSocket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getToken } from '@/lib/tokenStorage';
+import { useToast } from './ToastContext';
 import type { Notification, ChatMessage, WebSocketContextType, Socket } from '@/types';
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -12,6 +13,7 @@ const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080';
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [socket, setSocket] = useState<SocketIOSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -21,6 +23,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const connectionAttemptShown = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -57,11 +60,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('[WebSocket] Connection error:', error.message);
       reconnectAttempts.current++;
 
       if (reconnectAttempts.current >= maxReconnectAttempts) {
-        console.error('[WebSocket] Max reconnection attempts reached');
+        addToast('Failed to connect to messaging service', 'error', 5000);
+        connectionAttemptShown.current = true;
+      } else if (!connectionAttemptShown.current && reconnectAttempts.current === 1) {
+        addToast('Connecting to messaging service...', 'info', 3000);
       }
     });
 
@@ -109,10 +114,9 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     newSocket.on('serverChatmsg', handleChatMessage);
 
     newSocket.on('error', (error: unknown) => {
-      console.error('[WebSocket] Error:', error);
-
       const errorData = error as { msg?: string };
       if (errorData.msg === 'Authentication error') {
+        addToast('Session expired, please login again', 'error', 4000);
         newSocket.disconnect();
       }
     });

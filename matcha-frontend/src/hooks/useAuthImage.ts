@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { getToken } from '@/lib/tokenStorage';
+import { useToast } from '@/contexts/ToastContext';
 
 export function useAuthImage(photoName: string | undefined | null): string | null {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!photoName) {
@@ -26,7 +28,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
           const delay = Math.min(100 * attemptCount, 1000);
           setTimeout(attemptFetch, delay);
         } else if (isMounted) {
-          console.error(`[useAuthImage] Failed to get token after ${maxAttempts} attempts`);
           setImageUrl(null);
         }
         return;
@@ -42,7 +43,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
           if (!isMounted) return;
 
           if (!response.ok) {
-            console.error(`[useAuthImage] Failed (${response.status})`);
             setImageUrl(null);
             return;
           }
@@ -55,7 +55,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
         })
         .catch(error => {
           if (!isMounted) return;
-          console.error(`[useAuthImage] Error:`, error);
           setImageUrl(null);
         });
     };
@@ -65,7 +64,7 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
     return () => {
       isMounted = false;
     };
-  }, [photoName]);
+  }, [photoName, addToast]);
 
   return imageUrl;
 }

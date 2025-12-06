@@ -4,9 +4,11 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RouteChangeProgress from "@/components/RouteChangeProgress";
+import ToastContainer from "@/components/Toast/ToastContainer";
 
 export const metadata: Metadata = {
   title: "Matcha - Find Your Perfect Match",
@@ -49,16 +51,19 @@ export default function RootLayout({
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
       >
         <ThemeProvider>
-          <AuthProvider>
-            <WebSocketProvider>
-              <RouteChangeProgress />
-              <div className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-            </WebSocketProvider>
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <WebSocketProvider>
+                <RouteChangeProgress />
+                <ToastContainer />
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+              </WebSocketProvider>
+            </AuthProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
