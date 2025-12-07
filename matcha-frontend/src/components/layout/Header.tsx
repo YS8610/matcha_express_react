@@ -61,7 +61,7 @@ export default function Header() {
                 </span>
                 <button
                   onClick={logout}
-                  className="text-sm xl:text-base font-bold text-brand-green dark:text-brand-lime hover:text-brand-green-hover dark:hover:text-brand-lime-hover transition-colors duration-200"
+                  className="px-3 xl:px-4 py-1.5 xl:py-2 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-lg font-medium text-xs xl:text-sm transition-all transform hover:scale-105 shadow-md"
                 >
                   Logout
                 </button>

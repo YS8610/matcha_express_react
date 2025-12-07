@@ -218,6 +218,14 @@ class ApiClient {
     });
   }
 
+  async getPopularTags(limit: number = 50) {
+    try {
+      return this.request<{ tags: string[] }>(`/api/tags/popular?limit=${limit}`);
+    } catch {
+      return { tags: [] };
+    }
+  }
+
   async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string) {
     return this.request('/api/user/pw', {
       method: 'PUT',

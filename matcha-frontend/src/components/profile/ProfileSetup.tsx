@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import imageCompression from 'browser-image-compression';
+import TagSelector from '@/components/TagSelector';
 import {
   validateEnum,
   validateBiography,
@@ -32,7 +33,6 @@ export default function ProfileSetup() {
     latitude: null as number | null,
     longitude: null as number | null,
   });
-  const [interestInput, setInterestInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -127,58 +127,17 @@ export default function ProfileSetup() {
     }
   };
 
-  const handleAddInterest = () => {
-    const lowerInterest = interestInput.toLowerCase();
-
-    if (!interestInput.trim()) {
-      setFieldErrors(prev => ({
-        ...prev,
-        interests: 'Please enter an interest',
-      }));
-      return;
-    }
-
-    if (formData.interests.includes(lowerInterest)) {
-      setFieldErrors(prev => ({
-        ...prev,
-        interests: 'This interest is already added',
-      }));
-      return;
-    }
-
-    if (formData.interests.length >= MAX_INTERESTS) {
-      setFieldErrors(prev => ({
-        ...prev,
-        interests: `Maximum ${MAX_INTERESTS} interests allowed`,
-      }));
-      return;
-    }
-
-    const tagError = validateTag(interestInput);
-    if (tagError) {
-      setFieldErrors(prev => ({
-        ...prev,
-        interests: tagError,
-      }));
-      return;
-    }
-
+  const handleInterestsChange = (newInterests: string[]) => {
     setFormData({
       ...formData,
-      interests: [...formData.interests, lowerInterest],
+      interests: newInterests,
     });
-    setFieldErrors(prev => {
-      const { interests, ...rest } = prev;
-      return rest;
-    });
-    setInterestInput('');
-  };
-
-  const handleRemoveInterest = (interest: string) => {
-    setFormData({
-      ...formData,
-      interests: formData.interests.filter(i => i !== interest),
-    });
+    if (fieldErrors.interests) {
+      setFieldErrors(prev => {
+        const { interests, ...rest } = prev;
+        return rest;
+      });
+    }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -500,75 +459,17 @@ export default function ProfileSetup() {
         </div>
 
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium">Interests</label>
-            <span className={`text-xs font-medium ${formData.interests.length >= MAX_INTERESTS ? 'text-red-600' : formData.interests.length > 0 ? 'text-green-600' : 'text-gray-500'}`}>
-              {formData.interests.length}/{MAX_INTERESTS}
-            </span>
-          </div>
-
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={interestInput}
-              onChange={(e) => setInterestInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), formData.interests.length < MAX_INTERESTS && handleAddInterest())}
-              disabled={formData.interests.length >= MAX_INTERESTS}
-              className={`flex-1 px-3 py-2 border rounded-md ${formData.interests.length >= MAX_INTERESTS ? 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-60' : ''}`}
-              placeholder={formData.interests.length >= MAX_INTERESTS ? `Maximum ${MAX_INTERESTS} interests reached` : 'Add interest...'}
-            />
-            <button
-              type="button"
-              onClick={handleAddInterest}
-              disabled={formData.interests.length >= MAX_INTERESTS}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                formData.interests.length >= MAX_INTERESTS
-                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  : 'bg-green-500 text-white hover:bg-green-600 active:scale-95'
-              }`}
-            >
-              Add
-            </button>
-          </div>
-
-          {fieldErrors.interests && (
-            <p className={`text-xs mb-3 font-medium ${fieldErrors.interests.includes('Maximum') ? 'text-red-600' : fieldErrors.interests.includes('already') ? 'text-amber-600' : 'text-red-500'}`}>
-              ⚠ {fieldErrors.interests}
-            </p>
-          )}
-
-          {formData.interests.length >= MAX_INTERESTS && !fieldErrors.interests && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mb-3 font-medium">
-              ℹ You&apos;ve reached the maximum number of interests ({MAX_INTERESTS}). Remove one to add a different interest.
-            </p>
-          )}
-
-          {formData.interests.length > 0 && (
-            <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
-              <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-                ✓ {formData.interests.length} interest{formData.interests.length !== 1 ? 's' : ''} added
-              </p>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            {formData.interests.map(interest => (
-              <span
-                key={interest}
-                className="px-3 py-1 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700 rounded-full text-sm flex items-center gap-2 transition-all hover:shadow-md"
-              >
-                #{interest}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveInterest(interest)}
-                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-bold hover:scale-125 transition-transform"
-                  title="Remove interest"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
+          <label className="block text-sm font-medium mb-2">Interests</label>
+          <TagSelector
+            selectedTags={formData.interests}
+            onTagsChange={handleInterestsChange}
+            maxTags={MAX_INTERESTS}
+            minTags={MIN_INTERESTS}
+            placeholder="Type to add interests (e.g., vegan, geek, piercing)..."
+            showPopular={true}
+            popularTagsCount={20}
+            error={fieldErrors.interests}
+          />
         </div>
 
         <div>

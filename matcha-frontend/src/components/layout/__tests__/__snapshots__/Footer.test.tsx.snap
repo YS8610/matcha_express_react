@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Footer Component > Snapshot Testing > should match snapshot 1`] = `
+<footer
+  class="border-t mt-auto"
+  style="background-color: var(--background-secondary); border-color: var(--border); color: var(--foreground);"
+>
+  <div
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6"
+  >
+    <div
+      class="text-center space-y-2 sm:space-y-3"
+    >
+      <p
+        class="text-sm sm:text-base font-bold"
+      >
+        © 2025 Matcha
+      </p>
+      <p
+        class="text-xs sm:text-sm italic px-2"
+        style="color: var(--text-muted);"
+      >
+        Where connections brew naturally, one cup at a time.
+      </p>
+    </div>
+  </div>
+</footer>
+`;

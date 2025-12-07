@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
 import { UserTagsResponse } from '@/types';
+import TagSelector from '@/components/TagSelector';
 
 interface TagManagerProps {
   className?: string;
@@ -12,11 +12,11 @@ interface TagManagerProps {
 
 export default function TagManager({ className = '' }: TagManagerProps) {
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
   const { addToast } = useToast();
+  const [addedTags, setAddedTags] = useState<string[]>([]);
+  const [removedTags, setRemovedTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadTags();
@@ -36,54 +36,48 @@ export default function TagManager({ className = '' }: TagManagerProps) {
     }
   };
 
-  const handleAddTag = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTag.trim()) return;
+  const handleTagsChange = async (newTags: string[]) => {
+    const currentTags = tags;
 
-    const trimmedTag = newTag.trim().toLowerCase();
-    if (tags.map(t => t.toLowerCase()).includes(trimmedTag)) {
-      addToast('This tag already exists', 'warning', 3000);
-      return;
+    const added = newTags.filter(tag => !currentTags.includes(tag));
+    const removed = currentTags.filter(tag => !newTags.includes(tag));
+
+    for (const tag of added) {
+      try {
+        await api.addTag(tag);
+        addToast(`Tag "${tag}" added`, 'success', 2000);
+      } catch (err) {
+        const errorMsg = (err as Error).message || 'Failed to add tag';
+        addToast(errorMsg, 'error', 3000);
+        return; 
+      }
     }
 
-    try {
-      setAdding(true);
-      setError('');
-      await api.addTag(newTag.trim());
-      setTags([...tags, newTag.trim()]);
-      setNewTag('');
-      addToast(`Tag "${newTag.trim()}" added successfully`, 'success', 3000);
-    } catch (err) {
-      const errorMsg = (err as Error).message || 'Failed to add tag';
-      setError(errorMsg);
-      addToast(errorMsg, 'error', 4000);
-    } finally {
-      setAdding(false);
+    for (const tag of removed) {
+      try {
+        await api.removeTag(tag);
+        addToast(`Tag "${tag}" removed`, 'success', 2000);
+      } catch (err) {
+        const errorMsg = (err as Error).message || 'Failed to remove tag';
+        addToast(errorMsg, 'error', 3000);
+        return; 
+      }
     }
-  };
 
-  const handleRemoveTag = async (tagToRemove: string) => {
-    try {
-      await api.removeTag(tagToRemove);
-      setTags(tags.filter(tag => tag !== tagToRemove));
-      addToast(`Tag "${tagToRemove}" removed`, 'success', 3000);
-    } catch (err) {
-      const errorMsg = (err as Error).message || 'Failed to remove tag';
-      setError(errorMsg);
-      addToast(errorMsg, 'error', 4000);
-    }
+    setTags(newTags);
   };
 
   if (loading) {
     return (
       <div className={`space-y-4 ${className}`}>
-        <h3 className="text-lg font-semibold text-green-700">Your Tags</h3>
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+        <h3 className="text-lg font-semibold text-green-700 dark:text-green-400">Manage Your Interests</h3>
+        <div className="animate-pulse space-y-3">
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
           <div className="flex gap-2">
-            <div className="h-8 bg-gray-200 rounded-full w-16"></div>
-            <div className="h-8 bg-gray-200 rounded-full w-20"></div>
-            <div className="h-8 bg-gray-200 rounded-full w-14"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-14"></div>
           </div>
         </div>
       </div>
@@ -92,63 +86,35 @@ export default function TagManager({ className = '' }: TagManagerProps) {
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <h3 className="text-lg font-semibold text-green-700">Your Tags</h3>
-
-      {error && (
-        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>
-      )}
-
-      <div className="space-y-2">
-        <p className="text-sm text-gray-600">Current tags ({tags.length}/10):</p>
-        {tags.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
-              >
-                {tag}
-                <button
-                  onClick={() => handleRemoveTag(tag)}
-                  className="ml-1 hover:bg-green-200 rounded-full p-0.5 transition-colors"
-                  title="Remove tag"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">No tags yet. Add some to describe your interests!</p>
-        )}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-1">Manage Your Interests</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Add tags that describe your interests and hobbies. These help others find you!
+        </p>
       </div>
 
-      {tags.length < 10 && (
-        <form onSubmit={handleAddTag} className="flex gap-2">
-          <input
-            type="text"
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            placeholder="Add a new tag..."
-            className="flex-1 px-3 py-2 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
-            maxLength={20}
-            disabled={adding}
-          />
-          <button
-            type="submit"
-            disabled={adding || !newTag.trim()}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-1"
-          >
-            <Plus className="w-4 h-4" />
-            {adding ? 'Adding...' : 'Add'}
-          </button>
-        </form>
+      {error && (
+        <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-lg">
+          {error}
+        </div>
       )}
 
-      {tags.length >= 10 && (
-        <p className="text-amber-600 text-sm">
-          You&apos;ve reached the maximum number of tags (10). Remove a tag to add a new one.
-        </p>
+      <TagSelector
+        selectedTags={tags}
+        onTagsChange={handleTagsChange}
+        maxTags={10}
+        minTags={0}
+        placeholder="Type to add interests (e.g., vegan, geek, piercing)..."
+        showPopular={true}
+        popularTagsCount={20}
+      />
+
+      {tags.length === 0 && (
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            💡 <strong>Tip:</strong> Add at least one interest to make your profile more discoverable. Click on popular tags above or type your own!
+          </p>
+        </div>
       )}
     </div>
   );
