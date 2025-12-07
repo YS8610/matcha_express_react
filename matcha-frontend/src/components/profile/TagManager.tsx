@@ -108,14 +108,6 @@ export default function TagManager({ className = '' }: TagManagerProps) {
         showPopular={true}
         popularTagsCount={20}
       />
-
-      {tags.length === 0 && (
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            💡 <strong>Tip:</strong> Add at least one interest to make your profile more discoverable. Click on popular tags above or type your own!
-          </p>
-        </div>
-      )}
     </div>
   );
 }

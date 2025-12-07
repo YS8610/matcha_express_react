@@ -211,16 +211,6 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           {loading ? 'Updating Password...' : 'Update Password'}
         </button>
       </form>
-
-      <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-900/30 border border-gray-200 dark:border-slate-700 p-3 rounded-md">
-        <p className="font-medium mb-1 text-gray-700 dark:text-gray-300">Security Tips:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Use a unique password that you don&apos;t use elsewhere</li>
-          <li>Consider using a password manager</li>
-          <li>Avoid using personal information in your password</li>
-          <li>Change your password regularly</li>
-        </ul>
-      </div>
     </div>
   );
 }

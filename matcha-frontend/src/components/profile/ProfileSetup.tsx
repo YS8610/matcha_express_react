@@ -103,11 +103,15 @@ export default function ProfileSetup() {
   }, [user?.latitude, user?.longitude, formData.latitude, formData.longitude]);
 
 
-  const handleGetLocation = () => {
+  const handleGetLocation = async () => {
     setLocationLoading(true);
+    setError('');
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const accuracy = position.coords.accuracy;
+
           setFormData(prev => ({
             ...prev,
             latitude: position.coords.latitude,
@@ -115,14 +119,36 @@ export default function ProfileSetup() {
           }));
           setIsAutoDetectedLocation(false);
           setLocationLoading(false);
+
+          if (accuracy < 100) {
+            console.log('Location detected via GPS (high accuracy)');
+          } else if (accuracy < 1000) {
+            console.log('Location detected via WiFi positioning');
+          } else if (accuracy < 10000) {
+            console.log('Location detected via IP geolocation (district-level accuracy)');
+          } else {
+            setError(`Location detected but accuracy is low (~${Math.round(accuracy / 1000)}km). Consider enabling WiFi or manually adjusting your location.`);
+          }
         },
-        (error) => {
-          setError('Failed to get your location: ' + error.message);
-          setLocationLoading(false);
+        async (error) => {
+          console.warn('Browser geolocation failed, trying server-side IP fallback:', error.message);
+
+          try {
+            setError('Unable to detect location automatically. Please adjust your location manually on the map.');
+            setLocationLoading(false);
+          } catch (fallbackError) {
+            setError('Failed to detect location. Please set your location manually.');
+            setLocationLoading(false);
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
-      setError('Geolocation is not supported by your browser');
+      setError('Geolocation is not supported by your browser. Please set your location manually.');
       setLocationLoading(false);
     }
   };

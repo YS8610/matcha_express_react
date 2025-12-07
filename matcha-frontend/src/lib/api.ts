@@ -46,6 +46,23 @@ class ApiClient {
 
     if (!response.ok) {
       if (!suppressErrorLog) {
+        let sanitizedBody = options.body;
+        if (typeof options.body === 'string') {
+          try {
+            const parsedBody = JSON.parse(options.body);
+            const sensitiveFields = ['password', 'pw', 'pw2', 'oldPassword', 'newPassword', 'confirmPassword', 'newPassword2'];
+            const sanitized = { ...parsedBody };
+            sensitiveFields.forEach(field => {
+              if (field in sanitized) {
+                sanitized[field] = '[REDACTED]';
+              }
+            });
+            sanitizedBody = JSON.stringify(sanitized);
+          } catch {
+            sanitizedBody = options.body;
+          }
+        }
+
         console.error('API Request Failed:', {
           url,
           method: config.method || 'GET',
@@ -54,7 +71,7 @@ class ApiClient {
           headers: Object.fromEntries(response.headers.entries()),
           errorData: responseData,
           requestHeaders: config.headers,
-          requestBody: options.body
+          requestBody: sanitizedBody
         });
       }
 

@@ -11,7 +11,7 @@ export default function MobileMenu() {
   const { user, logout } = useAuth();
 
   const closeMenu = () => setIsOpen(false);
-  const mobileNavLinkClass = 'btn-secondary w-full text-sm text-center';
+  const mobileNavLinkClass = 'block btn-secondary w-full text-sm text-center';
 
   const handleLogout = () => {
     logout();
