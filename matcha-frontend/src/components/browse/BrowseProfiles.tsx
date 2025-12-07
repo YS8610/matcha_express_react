@@ -147,7 +147,7 @@ export default function BrowseProfiles() {
 
       if (filters.ageMin !== undefined) requestFilters.minAge = filters.ageMin;
       if (filters.ageMax !== undefined) requestFilters.maxAge = filters.ageMax;
-      if (filters.distanceMax !== undefined) requestFilters.distancekm = filters.distanceMax;
+      if (filters.distanceMax !== undefined) requestFilters.distancekm = filters.distanceMax * 1000;
       if (filters.fameMin !== undefined) requestFilters.minFameRating = filters.fameMin;
       if (filters.fameMax !== undefined) requestFilters.maxFameRating = filters.fameMax;
 

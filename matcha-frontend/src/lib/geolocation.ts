@@ -27,12 +27,7 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
 
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-      {
-        headers: {
-          'User-Agent': 'Matcha-App'
-        }
-      }
+      `/api/geocode?lat=${latitude}&lon=${longitude}`
     );
 
     if (!response.ok) {

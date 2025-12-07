@@ -136,9 +136,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.clear();
 
       document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        const cookieName = c.replace(/^ +/, "").replace(/=.*/, "").trim();
+        if (cookieName) {
+          document.cookie = cookieName + "=;expires=" + new Date().toUTCString() + ";path=/";
+        }
       });
 
       setUser(null);
