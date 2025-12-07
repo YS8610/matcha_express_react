@@ -675,6 +675,154 @@ describe("Route /pubapi/register", () => {
   });
 });
 
+// route tests for /pubapi/activation
+describe("Route /pubapi/reactivation", () => {
+  beforeAll(() => {
+    app = appfunc();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  });
+
+  it("get, put, delete methods should return a 404 status code", async () => {
+    const methods = ["get", "put", "delete"];
+    for (const method of methods) {
+      // @ts-ignore
+      const response = await request(app)[method]("/pubapi/reactivation");
+      expect(response.status).toBe(404);
+      expect(response.type).toBe("application/json");
+      expect(response.body.errors[0]).toEqual({
+        context: { msg: "The requested endpoint does not exist." },
+        "message": "invalid endpoint"
+      });
+    }
+  });
+
+  it("should return 400 for post method with missing body", async () => {
+    const response = await request(app).post("/pubapi/reactivation");
+    expect(response.status).toBe(400);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { body: "missing" },
+      message: "Request body is required"
+    });
+  });
+
+  it("should return 400 for post method with empty body", async () => {
+    const response = await request(app).post("/pubapi/reactivation").send({});
+    expect(response.status).toBe(400);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { email: "missing", username: "missing" },
+      message: "Email and username are required"
+    });
+  });
+
+  it("should return 400 for post method with missing username and invalid email", async () => {
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "invalidemail" });
+    expect(response.status).toBe(400);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { email: "present", username: "missing" },
+      message: "Email and username are required"
+    });
+  });
+
+  it("should return 400 for post method with missing email and username", async () => {
+    const response = await request(app).post("/pubapi/reactivation").send({ username: "testuser" });
+    expect(response.status).toBe(400);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { email: "missing", username: "present" },
+      message: "Email and username are required"
+    });
+  });
+
+  it("should return 404 for post method when user is not found", async () => {
+    const mockedGetUserByUsernameAndEmail = vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(false);
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "user@example.com", username: "johndoe" });
+    expect(mockedGetUserByUsernameAndEmail).toHaveBeenCalledWith("user@example.com", "johndoe");
+    expect(response.status).toBe(404);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { email_or_Username: "not found" },
+      message: "No user found with the provided email/username"
+    });
+  });
+
+  it("should return 200 for post method when reactivation email is sent", async () => {
+    const mockedGetUserByUsernameAndEmail = vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(true);
+    const mockedCreateToken = vi.spyOn(jwtSvc, "createToken").mockResolvedValueOnce("mocked-activation-token");
+    const mockedsendMail = vi.spyOn(emailSvc, "sendMail").mockResolvedValueOnce();
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "user@example.com", username: "johndoe" });
+    expect(mockedGetUserByUsernameAndEmail).toHaveBeenCalledWith("user@example.com", "johndoe");
+    expect(mockedCreateToken).toHaveBeenCalledWith(expect.any(String), "user@example.com", "johndoe", false);
+    expect(mockedsendMail).toHaveBeenCalledWith(
+      ConstMatcha.MAIL_FROM,
+      "user@example.com",
+      ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
+      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/activate/mocked-activation-token`
+    );
+    expect(response.status).toBe(200);
+    expect(response.type).toBe("application/json");
+    expect(response.body).toEqual({ msg: "Activation email resent to user@example.com" });
+  });
+
+  it("should return 500 for post method when sendMail throws an error", async () => {
+    const mockedGetUserByUsernameAndEmail = vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(true);
+    const mockedCreateToken = vi.spyOn(jwtSvc, "createToken").mockResolvedValueOnce("mocked-activation-token");
+    const mockedsendMail = vi.spyOn(emailSvc, "sendMail").mockRejectedValueOnce(new Error("Failed to send email"));
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "user@example.com", username: "johndoe" });
+    expect(mockedGetUserByUsernameAndEmail).toHaveBeenCalledWith("user@example.com", "johndoe");
+    expect(mockedCreateToken).toHaveBeenCalledWith(expect.any(String), "user@example.com", "johndoe", false);
+    expect(mockedsendMail).toHaveBeenCalledWith(
+      ConstMatcha.MAIL_FROM,
+      "user@example.com",
+      ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
+      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/activate/mocked-activation-token`
+    );
+    expect(response.status).toBe(500);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { error:{}, errorMsg: "Failed to send email", errorStack: expect.any(String) },
+      message: "Failed to send activation email"
+    });
+  });
+
+  it("should return 500 for post method when createToken throws an error", async () => {
+    const mockedGetUserByUsernameAndEmail = vi.spyOn(userSvc, "isUserByEmailUsername").mockResolvedValueOnce(true);
+    const mockedCreateToken = vi.spyOn(jwtSvc, "createToken").mockRejectedValueOnce(new Error("Failed to create token"));
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "user@example.com", username: "johndoe" });
+    expect(mockedGetUserByUsernameAndEmail).toHaveBeenCalledWith("user@example.com", "johndoe");
+    expect(mockedCreateToken).toHaveBeenCalledWith(expect.any(String), "user@example.com", "johndoe", false);
+    expect(response.status).toBe(500);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      err: {},
+      message: "Something went wrong"
+    });
+  });
+
+  it("should return 500 for post method when isUserByEmailUsername throws a ServerRequestError", async () => {
+    const mockedGetUserByUsernameAndEmail = vi.spyOn(userSvc, "isUserByEmailUsername").mockRejectedValueOnce(new ServerRequestError({
+      message: "Database connection error",
+      code: 500,
+      logging: true,
+      context: { error: {} }
+    }));
+    const response = await request(app).post("/pubapi/reactivation").send({ email: "user@example.com", username: "johndoe" });
+    expect(mockedGetUserByUsernameAndEmail).toHaveBeenCalledWith("user@example.com", "johndoe");
+    expect(response.status).toBe(500);
+    expect(response.type).toBe("application/json");
+    expect(response.body.errors[0]).toEqual({
+      context: { error: {} },
+      message: "Database connection error"
+    });
+  });
+});
+
+
 // route tests for /pubapi/activate/:token
 describe("Route /pubapi/activate/:token", () => {
   beforeAll(() => {

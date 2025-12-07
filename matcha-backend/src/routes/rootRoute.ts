@@ -170,6 +170,44 @@ router.post("/register", async (req: Request<{}, {}, ProfileRegJson>, res: Respo
   res.status(201).json({ msg: "registered and activation email sent to " + email });
 });
 
+// resend activation email
+router.post("/reactivation", async (req: Request<{}, {}, { email: string, username: string }>, res: Response<ResMsg>, next: NextFunction) => {
+  if (!req.body)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Request body is required",
+      logging: false,
+      context: { body: "missing" }
+    }));
+  const { email, username } = req.body;
+  if (!email || !username)
+    return next(new BadRequestError({
+      code: 400,
+      message: "Email and username are required",
+      logging: false,
+      context: { username: !username ? "missing" : "present", email: !email ? "missing" : "present" }
+    }));
+  const userExists = await serverErrorWrapper(() => isUserByEmailUsername(email, username), "Failed to check if user exists");
+  if (!userExists)
+    return next(new BadRequestError({
+      code: 404,
+      message: "No user found with the provided email/username",
+      logging: false,
+      context: { email_or_Username: "not found" }
+    }));
+  const userId = await serverErrorWrapper(() => getUserIdByUsername(username), "Failed to get user ID");
+  const token = await createToken(userId, email, username, false);
+  await serverErrorWrapper(() =>
+    sendMail(
+      ConstMatcha.MAIL_FROM,
+      email,
+      ConstMatcha.EMAIL_VERIFICATION_SUBJECT,
+      `Please click the following link to activate your account: ${ConstMatcha.DOMAIN_NAME}:${ConstMatcha.DOMAIN_FE_PORT}/activate/${token}`
+    ), "Failed to send activation email"
+  );
+  res.status(200).json({ msg: "Activation email resent to " + email });
+});
+
 // activating user account from email link
 router.get("/activate/:token", async (req: Request<{ token: string }, {}, {}, {}>, res: Response<ResMsg>, next: NextFunction) => {
   const { token } = req.params;
