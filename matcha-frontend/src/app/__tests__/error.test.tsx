@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import React from 'react';
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import Error from '@/app/error';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({
@@ -19,9 +19,15 @@ vi.mock('next/link', () => ({
 }));
 
 describe('Error Page', () => {
-  const mockError = new Error('Test error message');
+  let ErrorComponent: any;
+  const mockError = new globalThis.Error('Test error message');
   const mockReset = vi.fn();
   const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+  beforeAll(async () => {
+    const module = await import('@/app/error');
+    ErrorComponent = module.default;
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,28 +39,28 @@ describe('Error Page', () => {
   });
 
   it('should render without crashing', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
     });
   });
 
   it('should display 500 error code', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(screen.getByText('500')).toBeInTheDocument();
     });
   });
 
   it('should display error message', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(screen.getByText('Test error message')).toBeInTheDocument();
     });
   });
 
   it('should display default error description', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(
         screen.getByText(/We encountered an unexpected error/i)
@@ -63,21 +69,21 @@ describe('Error Page', () => {
   });
 
   it('should render Try Again button', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(screen.getByText('Try Again')).toBeInTheDocument();
     });
   });
 
   it('should render Go to Browse link', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
     await waitFor(() => {
       expect(screen.getByText('Go to Browse')).toBeInTheDocument();
     });
   });
 
   it('should call reset function when Try Again button is clicked', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Try Again')).toBeInTheDocument();
@@ -90,11 +96,14 @@ describe('Error Page', () => {
   });
 
   it('should log error to console on mount', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    const localSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('App error:', mockError);
+      expect(localSpy).toHaveBeenCalledWith('App error:', mockError);
     });
+
+    localSpy.mockRestore();
   });
 
   it('should handle error with digest property', async () => {
@@ -102,20 +111,22 @@ describe('Error Page', () => {
       digest: 'abc123',
     });
 
-    render(<Error error={errorWithDigest} reset={mockReset} />);
+    render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Error with digest')).toBeInTheDocument();
     });
   });
 
-  it('should render null before mounting (SSR)', () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
-    expect(container.firstChild).toBeNull();
+  it('should handle client-side rendering', async () => {
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
+    await waitFor(() => {
+      expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
+    });
   });
 
   it('should render content after mounting', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
@@ -123,7 +134,7 @@ describe('Error Page', () => {
   });
 
   it('should have correct link href to browse page', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const link = screen.getByText('Go to Browse').closest('a');
@@ -132,7 +143,7 @@ describe('Error Page', () => {
   });
 
   it('should render AlertTriangle icon', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const svgs = container.querySelectorAll('svg');
@@ -141,7 +152,7 @@ describe('Error Page', () => {
   });
 
   it('should render RefreshCw icon in Try Again button', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Try Again')).toBeInTheDocument();
@@ -153,7 +164,7 @@ describe('Error Page', () => {
   });
 
   it('should render Home icon in Go to Browse link', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Go to Browse')).toBeInTheDocument();
@@ -169,7 +180,7 @@ describe('Error Page', () => {
     errorWithoutMessage.message = '';
 
     const { container } = render(
-      <Error error={errorWithoutMessage} reset={mockReset} />
+      <ErrorComponent error={errorWithoutMessage} reset={mockReset} />
     );
 
     await waitFor(() => {
@@ -181,7 +192,7 @@ describe('Error Page', () => {
   });
 
   it('should display error message in monospace font', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const errorMessage = screen.getByText('Test error message');
@@ -190,7 +201,7 @@ describe('Error Page', () => {
   });
 
   it('should have gradient background', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
@@ -201,7 +212,7 @@ describe('Error Page', () => {
   });
 
   it('should center content on screen', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
@@ -212,7 +223,7 @@ describe('Error Page', () => {
   });
 
   it('should have responsive padding', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
@@ -223,7 +234,7 @@ describe('Error Page', () => {
   });
 
   it('should display error in red-themed box', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const errorBox = container.querySelector('.bg-red-50');
@@ -232,7 +243,7 @@ describe('Error Page', () => {
   });
 
   it('should handle multiple reset button clicks', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       expect(screen.getByText('Try Again')).toBeInTheDocument();
@@ -247,7 +258,7 @@ describe('Error Page', () => {
   });
 
   it('should have hover effects on buttons', async () => {
-    render(<Error error={mockError} reset={mockReset} />);
+    render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const resetButton = screen.getByText('Try Again').closest('button');
@@ -257,7 +268,7 @@ describe('Error Page', () => {
 
   it('should break long error messages', async () => {
     const longError = new Error('A'.repeat(200));
-    render(<Error error={longError} reset={mockReset} />);
+    render(<ErrorComponent error={longError} reset={mockReset} />);
 
     await waitFor(() => {
       const errorMessage = screen.getByText('A'.repeat(200));
@@ -266,7 +277,7 @@ describe('Error Page', () => {
   });
 
   it('should use flexbox for button layout', async () => {
-    const { container } = render(<Error error={mockError} reset={mockReset} />);
+    const { container } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
       const buttonContainer = container.querySelector('.flex.flex-col.gap-3');

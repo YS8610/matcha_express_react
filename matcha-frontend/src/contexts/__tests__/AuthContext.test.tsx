@@ -81,5 +81,30 @@ describe('AuthContext Token Logic', () => {
       const validation = tokenStorage.validateTokenStructure('invalid');
       expect(validation.valid).toBe(false);
     });
+
+    it('should handle token with missing fields', () => {
+      const tokenWithMissingFields = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.mock';
+      const payload = tokenStorage.getTokenPayload(tokenWithMissingFields);
+      expect(payload).toBeDefined();
+      expect(payload?.username).toBe('test');
+    });
+
+    it('should handle expired tokens', () => {
+      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXItMTIzIiwiZXhwIjoxfQ.mock';
+      const payload = tokenStorage.getTokenPayload(expiredToken);
+      expect(payload).toBeDefined();
+    });
+  });
+
+  describe('Token utilities', () => {
+    it('should export getTokenPayload function', () => {
+      expect(tokenStorage.getTokenPayload).toBeDefined();
+      expect(typeof tokenStorage.getTokenPayload).toBe('function');
+    });
+
+    it('should export validateTokenStructure function', () => {
+      expect(tokenStorage.validateTokenStructure).toBeDefined();
+      expect(typeof tokenStorage.validateTokenStructure).toBe('function');
+    });
   });
 });

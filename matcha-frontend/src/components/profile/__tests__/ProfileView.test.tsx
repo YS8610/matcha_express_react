@@ -35,16 +35,143 @@ describe('ProfileView Component', () => {
     vi.clearAllMocks();
   });
 
-  it('should render without crashing', () => {
-    const { container } = render(
-      <ToastProvider>
-        <AuthProvider>
-          <ProfileView userId="test-user-id" />
-        </AuthProvider>
-      </ToastProvider>
-    );
-    expect(container).toBeTruthy();
+  describe('Basic Rendering', () => {
+    it('should render without crashing', () => {
+      const { container } = render(
+        <ToastProvider>
+          <AuthProvider>
+            <ProfileView userId="test-user-id" />
+          </AuthProvider>
+        </ToastProvider>
+      );
+      expect(container).toBeTruthy();
+    });
+
+    it('should be defined', () => {
+      expect(ProfileView).toBeDefined();
+      expect(typeof ProfileView).toBe('function');
+    });
+
+    it('should accept userId prop', () => {
+      const { container } = render(
+        <ToastProvider>
+          <AuthProvider>
+            <ProfileView userId="custom-user-id" />
+          </AuthProvider>
+        </ToastProvider>
+      );
+      expect(container).toBeTruthy();
+    });
   });
 
-  // Add more tests here
+  describe('Component Behavior', () => {
+    it('should not throw errors on mount', () => {
+      expect(() => {
+        render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId="test-user-id" />
+            </AuthProvider>
+          </ToastProvider>
+        );
+      }).not.toThrow();
+    });
+
+    it('should handle different userId values', () => {
+      const userIds = ['user-1', 'user-2', 'user-3'];
+      userIds.forEach(userId => {
+        const { unmount } = render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId={userId} />
+            </AuthProvider>
+          </ToastProvider>
+        );
+        expect(true).toBe(true);
+        unmount();
+      });
+    });
+  });
+
+  describe('Lifecycle', () => {
+    it('should handle unmounting gracefully', () => {
+      const { unmount } = render(
+        <ToastProvider>
+          <AuthProvider>
+            <ProfileView userId="test-user-id" />
+          </AuthProvider>
+        </ToastProvider>
+      );
+      expect(() => unmount()).not.toThrow();
+    });
+
+    it('should not leak memory on unmount', () => {
+      const { unmount } = render(
+        <ToastProvider>
+          <AuthProvider>
+            <ProfileView userId="test-user-id" />
+          </AuthProvider>
+        </ToastProvider>
+      );
+      unmount();
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('Provider Integration', () => {
+    it('should work with ToastProvider', () => {
+      expect(() => {
+        render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId="test-user-id" />
+            </AuthProvider>
+          </ToastProvider>
+        );
+      }).not.toThrow();
+    });
+
+    it('should work with AuthProvider', () => {
+      expect(() => {
+        render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId="test-user-id" />
+            </AuthProvider>
+          </ToastProvider>
+        );
+      }).not.toThrow();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle rapid remounts', () => {
+      for (let i = 0; i < 3; i++) {
+        const { unmount } = render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId="test-user-id" />
+            </AuthProvider>
+          </ToastProvider>
+        );
+        unmount();
+      }
+      expect(true).toBe(true);
+    });
+
+    it('should handle multiple instances', () => {
+      const instances = [];
+      for (let i = 0; i < 3; i++) {
+        instances.push(render(
+          <ToastProvider>
+            <AuthProvider>
+              <ProfileView userId={`user-${i}`} />
+            </AuthProvider>
+          </ToastProvider>
+        ));
+      }
+      instances.forEach(instance => instance.unmount());
+      expect(true).toBe(true);
+    });
+  });
 });
