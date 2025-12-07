@@ -121,20 +121,75 @@ export default function BrowseProfiles() {
   const [profilesPerPage, setProfilesPerPage] = useState(12);
   const [error, setError] = useState('');
   const [searchName, setSearchName] = useState('');
+  const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc'>('fame-desc');
 
   const filteredProfiles = useMemo(() => {
-    if (!searchName.trim()) {
-      return allProfiles;
-    }
-    const searchLower = searchName.toLowerCase();
-    return allProfiles.filter(profile => {
-      const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
-      const username = (profile.username || '').toLowerCase();
-      return fullName.includes(searchLower) || username.includes(searchLower);
-    });
-  }, [allProfiles, searchName]);
+    let profiles = allProfiles;
 
-  const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
+    if (searchName.trim()) {
+      const searchLower = searchName.toLowerCase();
+      profiles = profiles.filter(profile => {
+        const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
+        const username = (profile.username || '').toLowerCase();
+        return fullName.includes(searchLower) || username.includes(searchLower);
+      });
+    }
+
+    if (filters.interests && filters.interests.trim()) {
+      const searchTags = filters.interests
+        .split(',')
+        .map(tag => tag.trim().toLowerCase())
+        .filter(tag => tag.length > 0);
+
+      if (searchTags.length > 0) {
+        profiles = profiles.filter(profile => {
+          const profileTags = (profile.userTags || []).map(tag => tag.toLowerCase());
+          return searchTags.some(searchTag =>
+            profileTags.some(profileTag => profileTag.includes(searchTag))
+          );
+        });
+      }
+    }
+
+    return profiles;
+  }, [allProfiles, searchName, filters.interests]);
+
+  const calculateAge = (birthDate?: string): number => {
+    if (!birthDate) return 0;
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const sortedProfiles = useMemo(() => {
+    const profiles = [...filteredProfiles];
+
+    switch (sortBy) {
+      case 'age-asc':
+        return profiles.sort((a, b) => calculateAge(a.birthDate) - calculateAge(b.birthDate));
+      case 'age-desc':
+        return profiles.sort((a, b) => calculateAge(b.birthDate) - calculateAge(a.birthDate));
+      case 'distance-asc':
+        return profiles.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+      case 'distance-desc':
+        return profiles.sort((a, b) => (b.distance || 0) - (a.distance || 0));
+      case 'fame-asc':
+        return profiles.sort((a, b) => (a.fameRating || 0) - (b.fameRating || 0));
+      case 'fame-desc':
+        return profiles.sort((a, b) => (b.fameRating || 0) - (a.fameRating || 0));
+      case 'tags-desc':
+        return profiles.sort((a, b) => (b.userTags?.length || 0) - (a.userTags?.length || 0));
+      default:
+        return profiles;
+    }
+  }, [filteredProfiles, sortBy]);
+
+  const totalPages = Math.ceil(sortedProfiles.length / profilesPerPage);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);

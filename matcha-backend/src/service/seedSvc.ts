@@ -55,6 +55,25 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
   // Default photos to rotate through
   const defaultPhotos = ["default.png", "default2.png", "default3.png", "default4.png", "default5.png"];
 
+  // Popular tags for seeding
+  const popularTags = [
+    "travel", "fitness", "music", "cooking", "photography", "hiking", "yoga", "reading",
+    "gaming", "art", "movies", "coffee", "wine", "dancing", "sports", "fashion",
+    "technology", "foodie", "adventure", "beach", "mountains", "cycling", "running",
+    "swimming", "meditation", "vegan", "vegetarian", "pets", "dogs", "cats",
+    "nature", "camping", "surfing", "skiing", "climbing", "netflix", "anime",
+    "books", "writing", "poetry", "guitar", "piano", "singing", "concerts",
+    "festivals", "theater", "comedy", "diy", "crafts", "baking", "grilling",
+    "gardening", "sustainability", "volunteering", "languages", "history", "science"
+  ];
+
+  // Helper function to get random tags for a profile
+  const getRandomTags = (min: number, max: number): string[] => {
+    const count = randomInt(min, max + 1);
+    const shuffled = [...popularTags].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  };
+
   // Singapore coordinate bounds
   // Latitude: 1.15 to 1.47, Longitude: 103.6 to 104.0
   const randomSingaporeLocation = () => {
@@ -129,7 +148,22 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
         }
       );
       await updateUserLocation(tid, profile.username, location.latitude, location.longitude);
-      console.log(`Seeded profile: ${profile.username} (Location: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)})`);
+
+      // Add random tags to the profile
+      const userTags = getRandomTags(2, 5);
+      for (const tag of userTags) {
+        const tagName = tag.toLowerCase().trim();
+        // Create TAG node if it doesn't exist, then create HAS_TAG relationship
+        await session.run(
+          `MERGE (t:TAG {name: $tagName})
+           WITH t
+           MATCH (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {id: $userId})
+           MERGE (u)-[:HAS_TAG]->(t)`,
+          { tagName, userId: tid }
+        );
+      }
+
+      console.log(`Seeded profile: ${profile.username} (Location: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}, Tags: ${userTags.join(', ')})`);
     }
   } finally {
     await session.close();

@@ -132,9 +132,12 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
               ...localFilters,
               interests: e.target.value || undefined
             })}
-            placeholder="e.g., music, sports, travel (comma separated)"
+            placeholder="e.g., travel, fitness, music"
             className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
           />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Separate multiple interests with commas. Shows profiles with at least one matching tag.
+          </p>
         </div>
 
       </div>
