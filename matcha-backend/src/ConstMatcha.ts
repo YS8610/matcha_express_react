@@ -171,8 +171,8 @@ export default class ConstMatcha {
     AND date().year - u.birthDate.year <= $maxAge
     AND u.gender IN CASE
       WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_BISEXUAL} THEN [1,2,3]
-      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_MALE} THEN [2]
-      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_FEMALE} THEN [1]
+      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_MALE} THEN [1]
+      WHEN $sexualPreference = ${ConstMatcha.SEXUAL_PREFERENCE_FEMALE} THEN [2]
       ELSE [1,2,3]
     END
     OPTIONAL MATCH (u)-[:HAS_TAG]->(t:TAG)
