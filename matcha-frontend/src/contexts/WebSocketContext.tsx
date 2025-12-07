@@ -71,6 +71,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('notification', (data: unknown) => {
+      console.log('[WebSocket] Received notification:', data);
 
       const notifData = data as {
         id?: string;
@@ -95,6 +96,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
           return prev;
         }
         const updated = [notification, ...prev];
+
+        const toastMessages: Record<Notification['type'], { message: string; type: 'success' | 'info' | 'warning' | 'error' }> = {
+          like: { message: `💚 ${notification.message}`, type: 'success' },
+          view: { message: `👁️ ${notification.message}`, type: 'info' },
+          message: { message: `💬 ${notification.message}`, type: 'info' },
+          match: { message: `💖 ${notification.message}`, type: 'success' },
+          unlike: { message: `💔 ${notification.message}`, type: 'warning' }
+        };
+
+        const toastConfig = toastMessages[notification.type] || { message: notification.message, type: 'info' };
+        addToast(toastConfig.message, toastConfig.type, 4000);
+
         return updated.slice(0, 50);
       });
     });
@@ -104,6 +117,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     const handleChatMessage = (data: ChatMessage) => {
+      console.log('[WebSocket] Received chat message:', data);
+
       const otherUserId = data.fromUserId === user?.id ? data.toUserId : data.fromUserId;
       setChatMessages(prev => ({
         ...prev,

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { ThemeToggle } from './ThemeToggle';
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,8 +18,7 @@ export default function MobileMenu() {
   };
 
   return (
-    <div className="lg:hidden flex items-center gap-2">
-      <ThemeToggle />
+    <div className="lg:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-lg text-green-700 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"

@@ -67,11 +67,45 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
     "gardening", "sustainability", "volunteering", "languages", "history", "science"
   ];
 
+  // Sample biographies for seeding
+  const sampleBiographies = [
+    "Coffee enthusiast and weekend hiker. Love exploring new trails and hidden cafes around the city. Always up for spontaneous adventures!",
+    "Passionate about fitness and healthy living. Yoga instructor by day, foodie by night. Looking for someone to share wholesome experiences with.",
+    "Book lover and aspiring writer. Spend my weekends in cozy cafes working on my novel. Love deep conversations about life, art, and everything in between.",
+    "Tech geek with a love for gaming and anime. Always looking for new challenges and experiences. Let's team up for some co-op adventures!",
+    "Nature photographer capturing the beauty of Singapore. Love sunrise hikes and exploring hidden spots. Seeking a companion for outdoor adventures.",
+    "Music lover and concert goer. Play guitar in my free time and enjoy jamming with friends. Looking for someone who shares my passion for live music.",
+    "Amateur chef experimenting with fusion cuisine. Love hosting dinner parties and trying new restaurants. Let's explore the culinary world together!",
+    "Fitness junkie who loves CrossFit and running marathons. Believe in pushing limits and living life to the fullest. Seeking an active partner in crime.",
+    "Art enthusiast and museum regular. Love discussing contemporary art and visiting galleries. Looking for someone who appreciates creativity and culture.",
+    "Travel addict with a bucket list that keeps growing. Been to 30 countries and counting. Let's plan our next adventure together!",
+    "Dog lover and volunteer at the local shelter. Spend my weekends hiking with my golden retriever. Seeking someone who loves animals as much as I do.",
+    "Sustainability advocate working towards a greener future. Love gardening, composting, and zero-waste living. Let's make the world better together!",
+    "Netflix binge-watcher with impeccable taste in series. Love cozy nights in with good shows and great company. Looking for my binge-watching partner.",
+    "Beach bum who lives for the ocean. Surfing, swimming, and beach volleyball are my things. Let's catch some waves together!",
+    "Foodie on a mission to try every cuisine. Love street food adventures and hidden gems. Seeking a fellow food explorer to share meals with.",
+    "Meditation practitioner finding peace in mindfulness. Yoga, meditation, and spiritual growth are important to me. Looking for a zen partner.",
+    "DIY enthusiast who loves creating things from scratch. Woodworking, crafts, and home improvement projects keep me busy. Let's build something together!",
+    "Comedy fan who never misses a stand-up show. Love laughing and making others laugh. Seeking someone with a great sense of humor.",
+    "Wine connoisseur exploring the world of viticulture. Love wine tastings and pairing dinners. Let's uncork some new experiences together!",
+    "Cycling enthusiast exploring every bike trail in Singapore. Love long rides and discovering new routes. Looking for a cycling buddy.",
+    "Aspiring polyglot learning multiple languages. Currently working on my Mandarin and Spanish. Let's practice together over coffee!",
+    "Theater lover and occasional actor in community plays. Love the arts, drama, and creative expression. Seeking a cultured companion.",
+    "Vegan advocate passionate about plant-based living. Love cooking creative vegan dishes and sharing recipes. Let's explore vegan cuisine together!",
+    "Photography hobbyist always carrying my camera. Love capturing candid moments and beautiful landscapes. Looking for my muse and adventure partner.",
+    "Festival goer who lives for music and good vibes. Love everything from EDM to indie rock. Let's dance the night away at the next festival!"
+  ];
+
   // Helper function to get random tags for a profile
   const getRandomTags = (min: number, max: number): string[] => {
     const count = randomInt(min, max + 1);
     const shuffled = [...popularTags].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
+  };
+
+  // Helper function to get random biography
+  const getRandomBiography = (): string => {
+    return sampleBiographies[Math.floor(Math.random() * sampleBiographies.length)];
   };
 
   // Singapore coordinate bounds
@@ -108,7 +142,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           username: $username,
           pw: $password,
           birthDate: date($birthDate),
-          biography: ${ConstMatcha.DEFAULT_BIOGRAPHY},
+          biography: $biography,
           gender: $gender,
           sexualPreference: $sexualPreference,
           fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
@@ -126,6 +160,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
       const hashpw = await hashPW(profile.pw);
       let tid = uuidv4();
       const location = randomSingaporeLocation();
+      const biography = getRandomBiography();
 
       await session.run(
         NEO4J_SEED,
@@ -137,6 +172,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           username: profile.username,
           password: hashpw,
           birthDate: profile.birthDate,
+          biography: biography,
           gender: randomInt(1, 3),
           sexualPreference: randomInt(1, 3),
           photo0: userPhotos[0],
@@ -163,7 +199,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
         );
       }
 
-      console.log(`Seeded profile: ${profile.username} (Location: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}, Tags: ${userTags.join(', ')})`);
+      console.log(`Seeded profile: ${profile.username} (Location: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}, Tags: ${userTags.join(', ')}, Bio: "${biography.substring(0, 50)}...")`);
     }
   } finally {
     await session.close();

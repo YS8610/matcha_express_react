@@ -96,7 +96,8 @@ describe('Header Component', () => {
     (useAuth as any).mockReturnValue({ user: mockUser, logout: mockLogout });
 
     render(<Header />);
-    expect(screen.getByTestId('notification-center')).toBeTruthy();
+    const notificationCenters = screen.getAllByTestId('notification-center');
+    expect(notificationCenters.length).toBeGreaterThan(0);
   });
 
   it('should render theme toggle', () => {

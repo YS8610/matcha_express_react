@@ -10,7 +10,7 @@ import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
 import { getLocationName } from '@/lib/geolocation';
-import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
@@ -58,6 +58,11 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     () => sanitizeInput(profile?.biography || 'No biography available.'),
     [profile?.biography]
   );
+
+  const isOnline = useMemo(() => {
+    if (!profile?.lastOnline) return false;
+    return (Date.now() - profile.lastOnline) < 5 * 60 * 1000;
+  }, [profile?.lastOnline]);
 
   const availablePhotos = useMemo(() => {
     if (!profile) return [];
@@ -215,25 +220,33 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       return;
     }
 
-    try {
-      setLikeError('');
-      await api.unlikeUser(userId);
-      setHasUserLiked(false);
-      addToast('Profile unliked', 'success', 3000);
-      setModalState({
-        type: 'success',
-        title: 'Profile Unliked',
-        message: 'You have successfully unliked this profile.',
-      });
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      addToast('Failed to unlike profile', 'error', 4000);
-      setModalState({
-        type: 'error',
-        title: 'Failed to Unlike',
-        message: 'An error occurred while trying to unlike this profile. Please try again.',
-      });
-    }
+    setModalState({
+      type: 'confirm',
+      title: 'Unlike Profile',
+      message: `Are you sure you want to unlike @${profile.username}? This will disable chat and stop notifications from this user.`,
+      action: async () => {
+        try {
+          setLikeError('');
+          await api.unlikeUser(userId);
+          setHasUserLiked(false);
+          setIsConnected(false);
+          addToast('Profile unliked - Chat disabled', 'success', 3000);
+          setModalState({
+            type: 'success',
+            title: 'Profile Unliked',
+            message: 'You have successfully unliked this profile. Chat and notifications have been disabled.',
+          });
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          addToast('Failed to unlike profile', 'error', 4000);
+          setModalState({
+            type: 'error',
+            title: 'Failed to Unlike',
+            message: 'An error occurred while trying to unlike this profile. Please try again.',
+          });
+        }
+      },
+    });
   };
 
   const handleBlock = async () => {
@@ -403,24 +416,32 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               unoptimized
             />
           )}
-
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6">
-            <h1 className="text-4xl font-bold text-white drop-shadow-lg">
-              {displayName}
-            </h1>
-            <p className="text-white/90 drop-shadow-md text-lg">
-              @{displayUsername}
-            </p>
-          </div>
         </div>
 
         <div className="p-6">
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                {displayName}
+              </h1>
+              {isOnline && (
+                <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
+                  <Circle className="w-2.5 h-2.5 fill-green-500 text-green-500 animate-pulse" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">Online</span>
+                </div>
+              )}
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              @{displayUsername}
+            </p>
+          </div>
           <div className="flex items-center gap-6 mb-6 flex-wrap">
             <span className="text-sm text-gray-600 dark:text-gray-300">
               Fame Rating: {`${toNumber(profile.fameRating) ?? '0'}/100`}
             </span>
-            {profile.lastOnline && (
-              <span className="text-sm text-gray-600 dark:text-gray-300">
+            {!isOnline && profile.lastOnline && (
+              <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                <Circle className="w-2 h-2 fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500" />
                 Last seen: {getLastSeenString(profile.lastOnline)}
               </span>
             )}
@@ -478,6 +499,22 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">About</h2>
             <p className="text-gray-700 dark:text-gray-300">{displayBiography}</p>
           </div>
+
+          {profile.userTags && profile.userTags.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Interests</h2>
+              <div className="flex flex-wrap gap-2">
+                {profile.userTags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700 rounded-full text-sm font-medium"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {user && user.id !== userId && (
             <div>

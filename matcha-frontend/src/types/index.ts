@@ -34,6 +34,7 @@ export interface Profile {
   latitude?: number;
   longitude?: number;
   lastOnline: number;
+  userTags?: string[];
   connectionStatus?: ConnectionStatus;
 }
 

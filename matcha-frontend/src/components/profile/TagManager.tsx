@@ -102,7 +102,7 @@ export default function TagManager({ className = '' }: TagManagerProps) {
       <TagSelector
         selectedTags={tags}
         onTagsChange={handleTagsChange}
-        maxTags={10}
+        maxTags={5}
         minTags={0}
         placeholder="Type to add interests (e.g., vegan, geek, piercing)..."
         showPopular={true}

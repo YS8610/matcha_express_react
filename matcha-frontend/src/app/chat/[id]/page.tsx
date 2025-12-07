@@ -56,12 +56,18 @@ export default function ChatPage() {
     if (!chatUserId) return;
 
     setLoadingHistory(true);
+    setError('');
+
     try {
+      console.log(`[Chat] Loading history from API for user: ${chatUserId}, skip: ${skipno}`);
       const response = await api.getChatHistory(chatUserId, 50, skipno);
       const historyMessages = response.data?.data || [];
+      console.log(`[Chat] Loaded ${historyMessages.length} messages from API`);
 
       if (skipno === 0) {
         const webSocketMessages = getChatHistory(chatUserId);
+        console.log(`[Chat] Found ${webSocketMessages.length} WebSocket messages`);
+
         const combinedMessages: ChatMessageType[] = [...historyMessages, ...webSocketMessages];
 
         const uniqueMessages = Array.from(
@@ -74,6 +80,7 @@ export default function ChatPage() {
         );
 
         uniqueMessages.sort((a, b) => a.timestamp - b.timestamp);
+        console.log(`[Chat] Setting ${uniqueMessages.length} unique messages`);
         setMessages(uniqueMessages);
       } else {
         setMessages(prev => [...historyMessages, ...prev]);
@@ -81,8 +88,15 @@ export default function ChatPage() {
 
       setHasMoreHistory(historyMessages.length === 50);
     } catch (err) {
-      const webSocketMessages = getChatHistory(chatUserId);
-      setMessages(webSocketMessages);
+      console.error('[Chat] Failed to load chat history from API:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load chat history';
+      setError(errorMsg);
+
+      if (skipno === 0) {
+        const webSocketMessages = getChatHistory(chatUserId);
+        console.log(`[Chat] Using ${webSocketMessages.length} WebSocket messages as fallback`);
+        setMessages(webSocketMessages);
+      }
     } finally {
       setLoadingHistory(false);
     }
@@ -90,6 +104,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (chatUserId) {
+      console.log(`[Chat] Component mounted/updated for user: ${chatUserId}`);
+      setMessages([]);
+      setSkipno(0);
+
       loadProfile();
       checkOnlineStatus([chatUserId]);
       loadChatHistoryFromAPI();
@@ -124,9 +142,12 @@ export default function ChatPage() {
     return null;
   }
 
+  const displayName = profile ? `${profile.firstName} ${profile.lastName}` : 'Loading...';
+  const displayUsername = profile?.username || chatUserId;
+
   const photoUrl = profile?.photo0
     ? `/api/photo/${profile.photo0}`
-    : profile ? generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id) : generateAvatarUrl('User', chatUserId);
+    : profile ? generateAvatarUrl(displayName, profile.id) : generateAvatarUrl(displayUsername, chatUserId);
 
   const isOnline = onlineUsers[chatUserId] || false;
 
@@ -146,32 +167,45 @@ export default function ChatPage() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                  <AuthImage
-                    src={photoUrl}
-                    alt={profile?.username || 'User'}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    fallbackSrc={photoUrl}
-                  />
+                  {loading ? (
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full"></div>
+                  ) : (
+                    <AuthImage
+                      src={photoUrl}
+                      alt={displayUsername}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                      fallbackSrc={photoUrl}
+                    />
+                  )}
                 </div>
-                {isOnline && (
+                {isOnline && !loading && (
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="font-semibold text-gray-800 dark:text-gray-100">
-                  {profile ? `${profile.firstName} ${profile.lastName}` : 'User'}
-                </h2>
-                <div className="space-y-1">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    @{profile?.username || chatUserId}
+                {loading ? (
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
                   </div>
-                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Circle className={`w-2 h-2 ${isOnline ? 'fill-green-500 text-green-500' : 'fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500'}`} />
-                    {isOnline ? 'Online' : 'Offline'}
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <h2 className="font-semibold text-gray-800 dark:text-gray-100">
+                      {displayName}
+                    </h2>
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        @{displayUsername}
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                        <Circle className={`w-2 h-2 ${isOnline ? 'fill-green-500 text-green-500' : 'fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500'}`} />
+                        {isOnline ? 'Online' : 'Offline'}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               {profile?.connectionStatus?.matched ? (
                 <div className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full flex items-center gap-1">
@@ -195,7 +229,12 @@ export default function ChatPage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-green-100 dark:border-green-900 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 380px)' }}>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
-            {messages.length === 0 ? (
+            {loadingHistory && messages.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent mb-3"></div>
+                <p className="text-gray-500 dark:text-gray-400">Loading chat history...</p>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <p>No messages yet. Start the conversation!</p>
               </div>

@@ -85,6 +85,7 @@ export default function Header() {
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
+            {user && <NotificationCenter />}
             <ThemeToggle />
             <MobileMenu />
           </div>

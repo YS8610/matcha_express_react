@@ -173,12 +173,12 @@ describe('MobileMenu Component', () => {
     expect(screen.getByTestId('link-/profile')).toBeTruthy();
   });
 
-  it('should render theme toggle', () => {
+  it('should not render theme toggle in mobile menu', () => {
     (useAuth as any).mockReturnValue({ user: mockUser, logout: mockLogout });
 
     render(<MobileMenu />);
 
-    expect(screen.getByTestId('theme-toggle')).toBeTruthy();
+    expect(screen.queryByTestId('theme-toggle')).toBeNull();
   });
 
   it('should have lg:hidden class for mobile-only display', () => {

@@ -17,7 +17,7 @@ import {
 } from '@/lib/validation';
 import { toDateString } from '@/lib/neo4j-utils';
 
-const MAX_INTERESTS = 10;
+const MAX_INTERESTS = 5;
 const MIN_INTERESTS = 1;
 
 export default function ProfileSetup() {
@@ -39,8 +39,6 @@ export default function ProfileSetup() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [isAutoDetectedLocation, setIsAutoDetectedLocation] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [postalCode, setPostalCode] = useState('');
-  const [postalCodeLoading, setPostalCodeLoading] = useState(false);
   const router = useRouter();
   const { user, updateUser } = useAuth();
 
@@ -152,55 +150,6 @@ export default function ProfileSetup() {
     } else {
       setError('Geolocation is not supported by your browser. Please set your location manually.');
       setLocationLoading(false);
-    }
-  };
-
-  const handlePostalCodeLookup = async () => {
-    if (!postalCode.trim()) {
-      setError('Please enter a postal code');
-      return;
-    }
-
-    setPostalCodeLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}&format=json&limit=1`,
-        {
-          headers: {
-            'User-Agent': 'Matcha-Dating-App/1.0 (Educational Project)'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to lookup postal code');
-      }
-
-      const data = await response.json();
-
-      if (!data || data.length === 0) {
-        setError('Postal code not found. Please try a different code or use manual input.');
-        setPostalCodeLoading(false);
-        return;
-      }
-
-      const location = data[0];
-      const lat = parseFloat(location.lat);
-      const lon = parseFloat(location.lon);
-
-      setFormData(prev => ({
-        ...prev,
-        latitude: lat,
-        longitude: lon,
-      }));
-      setIsAutoDetectedLocation(false);
-      setError('');
-    } catch (err) {
-      setError('Failed to lookup postal code: ' + (err as Error).message);
-    } finally {
-      setPostalCodeLoading(false);
     }
   };
 
@@ -483,7 +432,7 @@ export default function ProfileSetup() {
           )}
           <div className="space-y-4 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-slate-800">
             <div>
-              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 1: Auto-detect GPS</p>
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Auto-detect GPS</p>
               <button
                 type="button"
                 onClick={handleGetLocation}
@@ -514,28 +463,7 @@ export default function ProfileSetup() {
             </div>
 
             <div>
-              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 2: Lookup by Postal Code</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder="Enter postal code"
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={handlePostalCodeLookup}
-                  disabled={postalCodeLoading}
-                  className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 font-medium transition-all text-sm whitespace-nowrap"
-                >
-                  {postalCodeLoading ? 'Looking up...' : 'Lookup'}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 3: Manual Coordinates</p>
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Manual Coordinates</p>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label htmlFor="latitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
@@ -545,7 +473,15 @@ export default function ProfileSetup() {
                     type="number"
                     id="latitude"
                     value={formData.latitude !== null ? formData.latitude : ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, latitude: e.target.value ? parseFloat(e.target.value) : null }))}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const value = parseFloat(e.target.value);
+                        const rounded = parseFloat(value.toFixed(4));
+                        setFormData(prev => ({ ...prev, latitude: rounded }));
+                      } else {
+                        setFormData(prev => ({ ...prev, latitude: null }));
+                      }
+                    }}
                     step="0.0001"
                     min="-90"
                     max="90"
@@ -561,7 +497,15 @@ export default function ProfileSetup() {
                     type="number"
                     id="longitude"
                     value={formData.longitude !== null ? formData.longitude : ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, longitude: e.target.value ? parseFloat(e.target.value) : null }))}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const value = parseFloat(e.target.value);
+                        const rounded = parseFloat(value.toFixed(4));
+                        setFormData(prev => ({ ...prev, longitude: rounded }));
+                      } else {
+                        setFormData(prev => ({ ...prev, longitude: null }));
+                      }
+                    }}
                     step="0.0001"
                     min="-180"
                     max="180"

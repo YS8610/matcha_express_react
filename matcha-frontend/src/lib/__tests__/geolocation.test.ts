@@ -53,30 +53,18 @@ describe('Geolocation Utilities', () => {
 
       await getLocationName(48.8566, 2.3522);
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('48.8566'),
-        expect.any(Object)
-      );
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('2.3522'),
-        expect.any(Object)
+        '/api/geocode?lat=48.8566&lon=2.3522'
       );
     });
 
-    it('should include User-Agent header in API request', async () => {
+    it('should call Next.js API route without custom headers', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValueOnce({ address: {} }),
       });
 
       await getLocationName(0, 0);
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'User-Agent': 'Matcha-App',
-          }),
-        })
-      );
+      expect(global.fetch).toHaveBeenCalledWith('/api/geocode?lat=0&lon=0');
     });
 
     it('should return city name when available', async () => {

@@ -5,7 +5,7 @@ import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import AlertBox from '@/components/AlertBox';
-import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const MemoizedProfileCard = memo(ProfileCard);
@@ -154,13 +154,29 @@ export default function BrowseProfiles() {
     return profiles;
   }, [allProfiles, searchName, filters.interests]);
 
-  const calculateAge = (birthDate?: string): number => {
+  const calculateAge = (birthDate?: string | { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number }): number => {
     if (!birthDate) return 0;
-    const birth = new Date(birthDate);
+
+    let year: number;
+    let month: number;
+    let day: number;
+
+    if (typeof birthDate === 'object') {
+      const bd = birthDate as { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number };
+      year = typeof bd.year === 'object' && bd.year ? (bd.year as Record<string, number>).low : Number(bd.year || 0);
+      month = typeof bd.month === 'object' && bd.month ? (bd.month as Record<string, number>).low : Number(bd.month || 1);
+      day = typeof bd.day === 'object' && bd.day ? (bd.day as Record<string, number>).low : Number(bd.day || 1);
+    } else {
+      const birth = new Date(birthDate);
+      year = birth.getFullYear();
+      month = birth.getMonth() + 1;
+      day = birth.getDate();
+    }
+
     const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    let age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() + 1 - month;
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
       age--;
     }
     return age;
@@ -239,9 +255,9 @@ export default function BrowseProfiles() {
   useEffect(() => {
     const startIdx = (currentPage - 1) * profilesPerPage;
     const endIdx = startIdx + profilesPerPage;
-    setDisplayedProfiles(filteredProfiles.slice(startIdx, endIdx));
+    setDisplayedProfiles(sortedProfiles.slice(startIdx, endIdx));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [filteredProfiles, currentPage, profilesPerPage]);
+  }, [sortedProfiles, currentPage, profilesPerPage]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -305,7 +321,7 @@ export default function BrowseProfiles() {
           {!loading && allProfiles.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full">
               <Users className="w-4 h-4" />
-              <span>{filteredProfiles.length}/{allProfiles.length} profiles</span>
+              <span>{sortedProfiles.length}/{allProfiles.length} profiles</span>
             </div>
           )}
         </div>
@@ -333,6 +349,25 @@ export default function BrowseProfiles() {
                 <X className="w-4 h-4" />
               </button>
             )}
+          </div>
+          <div className="relative">
+            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 dark:text-green-400 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value as typeof sortBy);
+                setCurrentPage(1);
+              }}
+              className="pl-10 pr-4 py-2 border border-green-300 dark:border-green-700 rounded-full bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors appearance-none cursor-pointer"
+            >
+              <option value="fame-desc">Fame (High to Low)</option>
+              <option value="fame-asc">Fame (Low to High)</option>
+              <option value="age-asc">Age (Young to Old)</option>
+              <option value="age-desc">Age (Old to Young)</option>
+              <option value="distance-asc">Distance (Near to Far)</option>
+              <option value="distance-desc">Distance (Far to Near)</option>
+              <option value="tags-desc">Common Interests</option>
+            </select>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -379,7 +414,7 @@ export default function BrowseProfiles() {
           <p className="text-green-700 dark:text-green-300 text-lg">No profiles found</p>
           <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try adjusting your filters to find your perfect blend</p>
         </div>
-      ) : filteredProfiles.length === 0 ? (
+      ) : sortedProfiles.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-green-700 dark:text-green-300 text-lg">No profiles match your search</p>
           <p className="text-sm text-green-600 dark:text-green-400 mt-2">Try searching with different keywords</p>
@@ -407,7 +442,7 @@ export default function BrowseProfiles() {
           )}
 
           <div className="mb-4 text-sm text-green-700 dark:text-green-300">
-            Showing {((currentPage - 1) * profilesPerPage) + 1}-{Math.min(currentPage * profilesPerPage, filteredProfiles.length)} of {filteredProfiles.length} profiles
+            Showing {((currentPage - 1) * profilesPerPage) + 1}-{Math.min(currentPage * profilesPerPage, sortedProfiles.length)} of {sortedProfiles.length} profiles
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">
