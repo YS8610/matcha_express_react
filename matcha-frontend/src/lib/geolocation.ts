@@ -8,6 +8,7 @@ interface NominatimResponse {
     country?: string;
   };
   error?: string;
+  fallback?: boolean;
 }
 
 const locationCache = new Map<string, string>();
@@ -37,8 +38,10 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
 
     const data: NominatimResponse = await response.json();
 
-    if (data.error) {
-      console.warn('Geolocation API error:', data.error);
+    if (data.error || data.fallback) {
+      if (data.error && !data.fallback) {
+        console.warn('Geolocation API error:', data.error);
+      }
       return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
     }
 

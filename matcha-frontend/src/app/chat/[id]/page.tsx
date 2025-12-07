@@ -9,6 +9,7 @@ import { useWebSocket } from '@/contexts/WebSocketContext';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
 import AuthImage from '@/components/AuthImage';
+import { sanitizeInput } from '@/lib/security';
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
@@ -249,7 +250,7 @@ export default function ChatPage() {
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
                           }`}
                         >
-                          <p className="break-words">{msg.content}</p>
+                          <p className="break-words">{sanitizeInput(msg.content, 5000)}</p>
                           <p className={`text-xs mt-1 ${isFromMe ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'}`}>
                             {new Date(msg.timestamp).toLocaleTimeString([], {
                               hour: '2-digit',

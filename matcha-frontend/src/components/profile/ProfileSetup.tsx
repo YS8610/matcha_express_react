@@ -39,6 +39,8 @@ export default function ProfileSetup() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [isAutoDetectedLocation, setIsAutoDetectedLocation] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [postalCode, setPostalCode] = useState('');
+  const [postalCodeLoading, setPostalCodeLoading] = useState(false);
   const router = useRouter();
   const { user, updateUser } = useAuth();
 
@@ -150,6 +152,55 @@ export default function ProfileSetup() {
     } else {
       setError('Geolocation is not supported by your browser. Please set your location manually.');
       setLocationLoading(false);
+    }
+  };
+
+  const handlePostalCodeLookup = async () => {
+    if (!postalCode.trim()) {
+      setError('Please enter a postal code');
+      return;
+    }
+
+    setPostalCodeLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}&format=json&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'Matcha-Dating-App/1.0 (Educational Project)'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to lookup postal code');
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        setError('Postal code not found. Please try a different code or use manual input.');
+        setPostalCodeLoading(false);
+        return;
+      }
+
+      const location = data[0];
+      const lat = parseFloat(location.lat);
+      const lon = parseFloat(location.lon);
+
+      setFormData(prev => ({
+        ...prev,
+        latitude: lat,
+        longitude: lon,
+      }));
+      setIsAutoDetectedLocation(false);
+      setError('');
+    } catch (err) {
+      setError('Failed to lookup postal code: ' + (err as Error).message);
+    } finally {
+      setPostalCodeLoading(false);
     }
   };
 
@@ -419,49 +470,114 @@ export default function ProfileSetup() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Location</label>
+          <label className="block text-sm font-medium mb-3">Location</label>
           {formData.latitude && formData.longitude && isAutoDetectedLocation && (
-            <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-xs text-green-600">
+            <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+              <p className="text-xs text-green-600 dark:text-green-400">
                 ✓ Location auto-detected during account activation ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
               </p>
-              <p className="text-xs text-green-500 mt-1">
-                Click the button below to update if you&apos;d like a more precise location
+              <p className="text-xs text-green-500 dark:text-green-400 mt-1">
+                Use any of the options below to update your location
               </p>
             </div>
           )}
-          <button
-            type="button"
-            onClick={handleGetLocation}
-            disabled={locationLoading}
-            className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            {locationLoading ? 'Getting location...' : 'Use My Current Location'}
-          </button>
-          {formData.latitude && formData.longitude && !isAutoDetectedLocation && (
-            <p className="text-xs text-green-600 mt-1">
-              ✓ Location set ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
-            </p>
-          )}
+          <div className="space-y-4 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-slate-800">
+            <div>
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 1: Auto-detect GPS</p>
+              <button
+                type="button"
+                onClick={handleGetLocation}
+                disabled={locationLoading}
+                className="w-full bg-green-500 dark:bg-green-600 text-white py-2 rounded-md hover:bg-green-600 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                {locationLoading ? 'Getting location...' : 'Detect My Location'}
+              </button>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 2: Lookup by Postal Code</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  placeholder="Enter postal code"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={handlePostalCodeLookup}
+                  disabled={postalCodeLoading}
+                  className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 font-medium transition-all text-sm whitespace-nowrap"
+                >
+                  {postalCodeLoading ? 'Looking up...' : 'Lookup'}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 3: Manual Coordinates</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label htmlFor="latitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Latitude (-90 to 90)
+                  </label>
+                  <input
+                    type="number"
+                    id="latitude"
+                    value={formData.latitude !== null ? formData.latitude : ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, latitude: e.target.value ? parseFloat(e.target.value) : null }))}
+                    step="0.0001"
+                    min="-90"
+                    max="90"
+                    placeholder="e.g., 37.7749"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="longitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Longitude (-180 to 180)
+                  </label>
+                  <input
+                    type="number"
+                    id="longitude"
+                    value={formData.longitude !== null ? formData.longitude : ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, longitude: e.target.value ? parseFloat(e.target.value) : null }))}
+                    step="0.0001"
+                    min="-180"
+                    max="180"
+                    placeholder="e.g., -122.4194"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {formData.latitude !== null && formData.longitude !== null && (
+              <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded">
+                <strong>Current Location:</strong> {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>

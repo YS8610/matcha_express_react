@@ -21,6 +21,8 @@ export default function EditProfilePage() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+  const [postalCode, setPostalCode] = useState('');
+  const [postalCodeLoading, setPostalCodeLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -140,6 +142,61 @@ export default function EditProfilePage() {
       setError(errorMsg);
       addToast(errorMsg, 'error', 3000);
       setLocationLoading(false);
+    }
+  };
+
+  const handlePostalCodeLookup = async () => {
+    if (!postalCode.trim()) {
+      const errorMsg = 'Please enter a postal code';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
+      return;
+    }
+
+    setPostalCodeLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(postalCode)}&format=json&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'Matcha-Dating-App/1.0 (Educational Project)'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to lookup postal code');
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        const errorMsg = 'Postal code not found. Please try a different code or use manual input.';
+        setError(errorMsg);
+        addToast(errorMsg, 'error', 4000);
+        setPostalCodeLoading(false);
+        return;
+      }
+
+      const location = data[0];
+      const lat = parseFloat(location.lat);
+      const lon = parseFloat(location.lon);
+
+      setFormData(prev => ({
+        ...prev,
+        latitude: lat.toString(),
+        longitude: lon.toString(),
+      }));
+      setLocationDetected(true);
+      addToast(`Location found: ${location.display_name}`, 'success', 4000);
+    } catch (err) {
+      const errorMsg = 'Failed to lookup postal code: ' + (err as Error).message;
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
+    } finally {
+      setPostalCodeLoading(false);
     }
   };
 
@@ -353,31 +410,96 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+            <label className="block text-sm font-medium mb-3 text-green-700 dark:text-green-300">
               Location
             </label>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleDetectLocation}
-                disabled={locationLoading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-2 px-4 rounded-md hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 font-medium transition-all flex items-center justify-center gap-2"
-              >
-                {locationLoading ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Detecting Location...
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="w-4 h-4" />
-                    {locationDetected ? 'Update Location' : 'Detect My Location'}
-                  </>
-                )}
-              </button>
-              {locationDetected && formData.latitude && formData.longitude && (
-                <div className="text-xs text-gray-600 dark:text-gray-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-2 rounded">
-                  Current: {parseFloat(formData.latitude).toFixed(4)}, {parseFloat(formData.longitude).toFixed(4)}
+            <div className="space-y-4 border border-green-200 dark:border-green-800 rounded-lg p-4 bg-gray-50 dark:bg-slate-800">
+              <div>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 1: Auto-detect GPS</p>
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={locationLoading}
+                  className="w-full bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-2 px-4 rounded-md hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  {locationLoading ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Detecting Location...
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="w-4 h-4" />
+                      Detect My Location
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 2: Lookup by Postal Code</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    placeholder="Enter postal code"
+                    className="flex-1 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handlePostalCodeLookup}
+                    disabled={postalCodeLoading}
+                    className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 font-medium transition-all text-sm whitespace-nowrap"
+                  >
+                    {postalCodeLoading ? 'Looking up...' : 'Lookup'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Option 3: Manual Coordinates</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label htmlFor="latitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Latitude (-90 to 90)
+                    </label>
+                    <input
+                      type="number"
+                      id="latitude"
+                      name="latitude"
+                      value={formData.latitude}
+                      onChange={handleChange}
+                      step="0.0001"
+                      min="-90"
+                      max="90"
+                      placeholder="e.g., 37.7749"
+                      className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="longitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Longitude (-180 to 180)
+                    </label>
+                    <input
+                      type="number"
+                      id="longitude"
+                      name="longitude"
+                      value={formData.longitude}
+                      onChange={handleChange}
+                      step="0.0001"
+                      min="-180"
+                      max="180"
+                      placeholder="e.g., -122.4194"
+                      className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {formData.latitude && formData.longitude && (
+                <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded">
+                  <strong>Current Location:</strong> {parseFloat(formData.latitude).toFixed(4)}, {parseFloat(formData.longitude).toFixed(4)}
                 </div>
               )}
             </div>
