@@ -136,7 +136,9 @@ export default class ConstMatcha {
 
   static readonly NEO4j_STMT_GET_SHORT_PROFILE_BY_ID = `
     MATCH (u:PROFILE { id: $id })
-    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}
+    OPTIONAL MATCH (u)-[:HAS_TAG]->(t:TAG)
+    WITH u, collect(t.name) as userTags
+    RETURN u{.id, .firstName, .lastName, .username, .fameRating, .photo0, .birthDate}, userTags
   `;
 
   static readonly NEO4j_STMT_GET_USER_BY_EMAIL_USERNAME = `
@@ -217,7 +219,9 @@ export default class ConstMatcha {
 
   static readonly NEO4j_STMT_GET_USER_PROFILE_BY_ID = `
     MATCH (u:PROFILE { id: $id })
-    RETURN u{.*}
+    OPTIONAL MATCH (u)-[:HAS_TAG]->(t:TAG)
+    WITH u, collect(t.name) as userTags
+    RETURN u{.*}, userTags
   `;
 
   // statements for tags

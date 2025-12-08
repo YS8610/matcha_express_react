@@ -99,22 +99,40 @@ describe("userSvc tests", () => {
   });
 
   it("getShortProfileById test: retrieves short profile by ID", async () => {
-    const mockRecord = { get: () => ({ id: "user-456", username: "shortuser" }) };
+    const mockRecord = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-456", username: "shortuser" };
+        if (key === "userTags") return ["gaming", "music"];
+        return null;
+      }
+    };
     const runMock = vi.fn().mockResolvedValue({ records: [mockRecord] });
     const closeMock = vi.fn();
     vi.spyOn(driver, "session").mockImplementation(() => ({ run: runMock, close: closeMock } as any));
     const { getShortProfileById } = await import("../../service/userSvc.js");
     const id = "user-456";
     const result = await getShortProfileById(id);
-    expect(result).toEqual(mockRecord.get());
+    expect(result).toEqual({ id: "user-456", username: "shortuser", userTags: ["gaming", "music"] });
     expect(driver.session).toHaveBeenCalledTimes(1);
     expect(runMock).toHaveBeenCalledWith(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
     expect(closeMock).toHaveBeenCalledTimes(1);
   });
 
   it("getShortProfileById test: retrieves 2 short profile by ID, should return null", async () => {
-    const mockRecord1 = { get: () => ({ id: "user-456", username: "shortuser" }) };
-    const mockRecord2 = { get: () => ({ id: "user-789", username: "shortuser2" }) };
+    const mockRecord1 = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-456", username: "shortuser" };
+        if (key === "userTags") return ["tag1"];
+        return null;
+      }
+    };
+    const mockRecord2 = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-789", username: "shortuser2" };
+        if (key === "userTags") return ["tag2"];
+        return null;
+      }
+    };
     const runMock = vi.fn().mockResolvedValue({ records: [mockRecord1, mockRecord2] });
     const closeMock = vi.fn();
     vi.spyOn(driver, "session").mockImplementation(() => ({ run: runMock, close: closeMock } as any));
@@ -129,8 +147,20 @@ describe("userSvc tests", () => {
 
   it("getShortProfilebyIdFiltered test: retrieves filtered short profiles", async () => {
     const mockRecords = [
-      { get: () => ({ id: "user-1", username: "filtereduser1" }) },
-      { get: () => ({ id: "user-2", username: "filtereduser2" }) }
+      {
+        get: (key: string) => {
+          if (key === "u") return { id: "user-1", username: "filtereduser1" };
+          if (key === "userTags") return ["sports", "travel"];
+          return null;
+        }
+      },
+      {
+        get: (key: string) => {
+          if (key === "u") return { id: "user-2", username: "filtereduser2" };
+          if (key === "userTags") return ["books", "art"];
+          return null;
+        }
+      }
     ];
     const runMock = vi.fn().mockResolvedValue({ records: mockRecords });
     const closeMock = vi.fn();
@@ -418,14 +448,20 @@ describe("userSvc tests", () => {
   });
 
   it("getUserProfileById test: retrieves user profile by ID", async () => {
-    const mockRecord = { get: () => ({ id: "user-123", firstName: "Test", lastName: "User" }) };
+    const mockRecord = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-123", firstName: "Test", lastName: "User" };
+        if (key === "userTags") return ["hiking", "coffee"];
+        return null;
+      }
+    };
     const runMock = vi.fn().mockResolvedValue({ records: [mockRecord] });
     const closeMock = vi.fn();
     vi.spyOn(driver, "session").mockImplementation(() => ({ run: runMock, close: closeMock } as any));
     const { getUserProfileById } = await import("../../service/userSvc.js");
     const id = "user-123";
     const result = await getUserProfileById(id);
-    expect(result).toEqual({ id: "user-123", firstName: "Test", lastName: "User" });
+    expect(result).toEqual({ id: "user-123", firstName: "Test", lastName: "User", userTags: ["hiking", "coffee"] });
     expect(driver.session).toHaveBeenCalledTimes(1);
     expect(runMock).toHaveBeenCalledWith(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
     expect(closeMock).toHaveBeenCalledTimes(1);
@@ -445,8 +481,20 @@ describe("userSvc tests", () => {
   });
 
   it("getUserProfileById test: retrieves 2 users by ID, should return null", async () => {
-    const mockRecord1 = { get: () => ({ id: "user-1", firstName: "User1" }) };
-    const mockRecord2 = { get: () => ({ id: "user-2", firstName: "User2" }) };
+    const mockRecord1 = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-1", firstName: "User1" };
+        if (key === "userTags") return ["tag1"];
+        return null;
+      }
+    };
+    const mockRecord2 = {
+      get: (key: string) => {
+        if (key === "u") return { id: "user-2", firstName: "User2" };
+        if (key === "userTags") return ["tag2"];
+        return null;
+      }
+    };
     const runMock = vi.fn().mockResolvedValue({ records: [mockRecord1, mockRecord2] });
     const closeMock = vi.fn();
     vi.spyOn(driver, "session").mockImplementation(() => ({ run: runMock, close: closeMock } as any));

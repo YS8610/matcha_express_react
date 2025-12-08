@@ -69,6 +69,7 @@ export interface ProfileGetJson {
   photo3: string;
   photo4: string;
   lastOnline: number;
+  userTags?: string[];
   connectionStatus?: {
     userid: string;
     matched: boolean;
@@ -134,4 +135,5 @@ export interface ProfileResponseType extends ProfileGetJson {
   };
   latitude?: number;
   longitude?: number;
+  userTags?: string[];
 }
