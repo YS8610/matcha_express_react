@@ -61,6 +61,13 @@ export default function MobileMenu() {
                   Likes
                 </Link>
                 <Link
+                  href="/matches"
+                  onClick={closeMenu}
+                  className={mobileNavLinkClass}
+                >
+                  Matches
+                </Link>
+                <Link
                   href="/blocked"
                   onClick={closeMenu}
                   className={mobileNavLinkClass}

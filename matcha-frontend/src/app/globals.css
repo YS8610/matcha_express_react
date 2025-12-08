@@ -155,7 +155,7 @@ button:disabled {
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-white dark:bg-slate-700 text-green-600 dark:text-green-400 rounded-lg font-medium;
+    @apply px-3 py-1.5 bg-white dark:bg-slate-700 text-green-600 dark:text-green-400 rounded-lg font-medium;
     @apply border-2 border-green-600 dark:border-green-500;
     @apply hover:bg-green-50 dark:hover:bg-slate-600 transition-all shadow-sm;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;

@@ -123,11 +123,57 @@ export default function EditProfilePage() {
             addToast(`Location detected but accuracy is low (~${Math.round(accuracy / 1000)}km). Consider enabling WiFi.`, 'warning', 4000);
           }
         },
-        (error) => {
-          const errorMsg = 'Failed to detect location: ' + error.message;
-          setError(errorMsg);
-          addToast(errorMsg, 'error', 4000);
-          setLocationLoading(false);
+        async (error) => {
+          console.warn('Browser geolocation failed, trying IP-based fallback:', error.message);
+
+          const services = [
+            { url: 'http://ip-api.com/json/', lat: 'lat', lon: 'lon', city: 'city', country: 'country' },
+            { url: 'https://ipapi.co/json/', lat: 'latitude', lon: 'longitude', city: 'city', country: 'country_name' },
+          ];
+
+          let success = false;
+
+          for (const service of services) {
+            try {
+              console.log(`Trying IP service: ${service.url}`);
+              const response = await fetch(service.url);
+
+              if (!response.ok) continue;
+
+              const data = await response.json();
+              console.log('IP service response:', data);
+
+              if (data[service.lat] && data[service.lon]) {
+                const lat = parseFloat(data[service.lat]);
+                const lon = parseFloat(data[service.lon]);
+
+                setFormData(prev => ({
+                  ...prev,
+                  latitude: lat.toFixed(4),
+                  longitude: lon.toFixed(4),
+                }));
+                setLocationDetected(true);
+                setLocationLoading(false);
+                success = true;
+
+                const city = data[service.city] || 'Unknown';
+                const country = data[service.country] || 'Unknown';
+                addToast(`Location detected via IP: ${city}, ${country} (approximate)`, 'success', 4000);
+                break;
+              }
+            } catch (err) {
+              console.warn(`Service ${service.url} failed:`, err);
+              continue;
+            }
+          }
+
+          if (!success) {
+            console.error('All IP geolocation services failed');
+            const errorMsg = 'Unable to detect location. Please enter coordinates manually below.';
+            setError(errorMsg);
+            addToast(errorMsg, 'warning', 4000);
+            setLocationLoading(false);
+          }
         },
         {
           enableHighAccuracy: true,
@@ -136,10 +182,58 @@ export default function EditProfilePage() {
         }
       );
     } else {
-      const errorMsg = 'Geolocation is not supported by your browser';
-      setError(errorMsg);
-      addToast(errorMsg, 'error', 3000);
-      setLocationLoading(false);
+      console.warn('Browser geolocation not supported, trying IP-based fallback');
+
+      (async () => {
+        const services = [
+          { url: 'http://ip-api.com/json/', lat: 'lat', lon: 'lon', city: 'city', country: 'country' },
+          { url: 'https://ipapi.co/json/', lat: 'latitude', lon: 'longitude', city: 'city', country: 'country_name' },
+        ];
+
+        let success = false;
+
+        for (const service of services) {
+          try {
+            console.log(`Trying IP service: ${service.url}`);
+            const response = await fetch(service.url);
+
+            if (!response.ok) continue;
+
+            const data = await response.json();
+            console.log('IP service response:', data);
+
+            if (data[service.lat] && data[service.lon]) {
+              const lat = parseFloat(data[service.lat]);
+              const lon = parseFloat(data[service.lon]);
+
+              setFormData(prev => ({
+                ...prev,
+                latitude: lat.toFixed(4),
+                longitude: lon.toFixed(4),
+              }));
+              setLocationDetected(true);
+              setLocationLoading(false);
+              success = true;
+
+              const city = data[service.city] || 'Unknown';
+              const country = data[service.country] || 'Unknown';
+              addToast(`Location detected via IP: ${city}, ${country} (approximate)`, 'success', 4000);
+              break;
+            }
+          } catch (err) {
+            console.warn(`Service ${service.url} failed:`, err);
+            continue;
+          }
+        }
+
+        if (!success) {
+          console.error('All IP geolocation services failed');
+          const errorMsg = 'Geolocation not supported. Please enter coordinates manually below.';
+          setError(errorMsg);
+          addToast(errorMsg, 'warning', 3000);
+          setLocationLoading(false);
+        }
+      })();
     }
   };
 

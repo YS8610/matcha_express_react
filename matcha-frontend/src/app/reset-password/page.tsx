@@ -318,7 +318,7 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        <Link href="/login" className="btn-secondary text-sm text-center w-full mt-6">
+        <Link href="/login" className="btn-secondary text-sm text-center w-full mt-10 block">
           Back to Login
         </Link>
       </div>

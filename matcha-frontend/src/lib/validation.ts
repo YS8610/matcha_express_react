@@ -15,9 +15,11 @@ const SEXUALITY_REGEX = /^(male|female|both)$/i;
 
 const COMMON_PASSWORDS = [
   'password', 'qwerty', 'admin', 'letmein', 'welcome',
-  'monkey', '123456', 'abc123', 'dragon', 'master',
-  'passw0rd', 'password123', '12345678', 'qwerty123', 'admin123',
-  'princess', 'football', 'solo', 'iloveyou', 'starwars'
+  '123456', 'abc123', 'passw0rd', 'password123', 'iloveyou',
+  'hello', 'world', 'love', 'home', 'people', 'think',
+  'great', 'never', 'always', 'friend', 'house', 'water',
+  'first', 'about', 'after', 'before', 'again', 'where',
+  'could', 'would', 'should', 'there', 'these', 'those'
 ];
 
 export const validateEmail = (email: string): string | null => {

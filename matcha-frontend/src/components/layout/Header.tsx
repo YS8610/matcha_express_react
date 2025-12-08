@@ -20,7 +20,7 @@ export default function Header() {
             <div className="bg-gradient-to-br from-brand-green to-emerald-700 dark:from-brand-lime dark:to-lime-600 p-1 sm:p-1.5 md:p-1.5 lg:p-2 rounded-full transition-transform group-hover:scale-110">
               <Leaf className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" />
             </div>
-            <span className="bg-gradient-to-r from-brand-green to-emerald-700 dark:from-brand-lime dark:to-lime-600 bg-clip-text text-transparent hidden sm:inline font-bold text-lg sm:text-2xl md:text-2xl lg:text-3xl">
+            <span className="text-brand-green dark:text-brand-lime hidden sm:inline font-bold text-lg sm:text-2xl md:text-2xl lg:text-3xl">
               Matcha
             </span>
           </Link>
@@ -36,6 +36,9 @@ export default function Header() {
                 </Link>
                 <Link href="/likes" className={navLinkClass}>
                   Likes
+                </Link>
+                <Link href="/matches" className={navLinkClass}>
+                  Matches
                 </Link>
                 <Link href="/blocked" className={navLinkClass}>
                   Blocked
@@ -76,7 +79,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/register"
-                  className="btn-primary dark:btn-primary-dark text-xs sm:text-sm"
+                  className="btn-primary text-xs sm:text-sm font-semibold text-white"
                 >
                   Register
                 </Link>
