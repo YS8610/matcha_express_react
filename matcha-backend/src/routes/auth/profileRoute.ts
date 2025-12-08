@@ -50,7 +50,7 @@ router.get("/", async (req: Request<{}, {}, {}, { minAge: string, maxAge: string
     return;
   }
   // TODO: use userLocation and parsedDistanceKm to filter users by distance
-  const nearbyProfiles = await getNearbyUsers(userLocation?.latitude || 0, userLocation?.longitude || 0, parsedDistanceKm);
+  const nearbyProfiles = await serverErrorWrapper(() => getNearbyUsers(userLocation?.latitude || 0, userLocation?.longitude || 0, parsedDistanceKm), "Error getting nearby users");
   const nearbyProfileMap = new Map<string, { latitude: number, longitude: number }>();
   nearbyProfiles.forEach(prof => {
     nearbyProfileMap.set(prof.userId, { latitude: prof.latitude, longitude: prof.longitude });
@@ -69,13 +69,7 @@ router.get("/", async (req: Request<{}, {}, {}, { minAge: string, maxAge: string
 router.get("/short/:userId", async (req: Request<{ userId: string }>, res: Response<ProfileShort>, next: NextFunction) => {
   const { authenticated, username, id, activated } = res.locals as Reslocal;
   const userId = req.params.userId;
-  if (!userId)
-    return next(new BadRequestError({
-      code: 400,
-      message: "User ID is required",
-      logging: false,
-      context: { userId: "missing" }
-    }));
+  // if userid is missing, it will go to /:userId route instead. short/ is the path variable
   const isBlocked = await serverErrorWrapper(() => getBlockedRel(id, userId), "Error checking if user blocked or is blocked");
   if (isBlocked)
     return next(new BadRequestError({
