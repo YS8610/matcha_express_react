@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 
 export default function ActivatePage() {
@@ -10,7 +12,13 @@ export default function ActivatePage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
+  const [showResendForm, setShowResendForm] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendUsername, setResendUsername] = useState('');
+  const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [resendMessage, setResendMessage] = useState('');
   const { activateAccount } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
   const params = useParams();
 
@@ -43,6 +51,7 @@ export default function ActivatePage() {
       await activateAccount(activationToken);
       setStatus('success');
       setMessage('Your account has been successfully activated!');
+      addToast('Account activated successfully! Redirecting...', 'success', 3000);
       setTimeout(() => {
         router.push('/profile/setup');
       }, 3000);
@@ -54,10 +63,12 @@ export default function ActivatePage() {
         setStatus('error');
         setMessage('Invalid or expired activation token');
         setErrorDetails('This token may have already been used or has expired. Please check your email for the latest activation link.');
+        addToast('Activation failed: Invalid or expired token', 'error', 4000);
       } else {
         setStatus('error');
         setMessage('Failed to activate account');
         setErrorDetails(errorMessage || 'An unexpected error occurred. Please try again or contact support.');
+        addToast('Activation failed: ' + errorMessage, 'error', 4000);
       }
     }
   };
@@ -65,6 +76,36 @@ export default function ActivatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await performActivation(token);
+  };
+
+  const handleResendActivation = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!resendEmail.trim() || !resendUsername.trim()) {
+      setResendMessage('Please enter both email and username');
+      setResendStatus('error');
+      return;
+    }
+
+    setResendStatus('loading');
+    setResendMessage('');
+
+    try {
+      await api.resendActivationEmail(resendEmail, resendUsername);
+      setResendStatus('success');
+      setResendMessage('Activation email has been resent! Please check your inbox.');
+      setResendEmail('');
+      setResendUsername('');
+      setTimeout(() => {
+        setShowResendForm(false);
+        setResendStatus('idle');
+        setResendMessage('');
+      }, 3000);
+    } catch (error) {
+      console.error('Resend activation error:', error);
+      setResendStatus('error');
+      setResendMessage(error instanceof Error ? error.message : 'Failed to resend activation email');
+    }
   };
 
   return (
@@ -145,6 +186,88 @@ export default function ActivatePage() {
                   {errorDetails && <p className="text-sm text-red-700 dark:text-red-300 mt-1">{errorDetails}</p>}
                 </div>
               </div>
+            </div>
+          )}
+
+          {status === 'error' && !showResendForm && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowResendForm(true)}
+                className="w-full btn-secondary text-sm py-2"
+              >
+                Resend Activation Email
+              </button>
+            </div>
+          )}
+
+          {showResendForm && (
+            <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-3">Resend Activation Email</h3>
+              <form onSubmit={handleResendActivation} className="space-y-3">
+                <div>
+                  <label htmlFor="resend-email" className="block text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="resend-email"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm"
+                    disabled={resendStatus === 'loading'}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="resend-username" className="block text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    id="resend-username"
+                    value={resendUsername}
+                    onChange={(e) => setResendUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm"
+                    disabled={resendStatus === 'loading'}
+                  />
+                </div>
+
+                {resendStatus === 'success' && (
+                  <div className="p-3 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+                    <p className="text-sm text-emerald-800 dark:text-emerald-200">{resendMessage}</p>
+                  </div>
+                )}
+
+                {resendStatus === 'error' && (
+                  <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                    <p className="text-sm text-red-800 dark:text-red-200">{resendMessage}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={resendStatus === 'loading'}
+                    className="flex-1 btn-primary dark:btn-primary-dark text-sm py-2"
+                  >
+                    {resendStatus === 'loading' ? 'Sending...' : 'Send'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowResendForm(false);
+                      setResendStatus('idle');
+                      setResendMessage('');
+                      setResendEmail('');
+                      setResendUsername('');
+                    }}
+                    className="flex-1 btn-secondary text-sm py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           )}
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   validateUsername,
   validateEmail,
@@ -33,6 +34,7 @@ export default function RegisterForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
 
   const validateField = useCallback((name: string, value: string) => {
@@ -106,7 +108,9 @@ export default function RegisterForm() {
     if (isRateLimited(rateLimitKey, 5, 15 * 60 * 1000)) {
       const resetMs = getResetTime(rateLimitKey);
       const resetMinutes = resetMs ? Math.ceil(resetMs / 60000) : 15;
-      setError(`Too many registration attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`);
+      const errorMsg = `Too many registration attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`;
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 5000);
       return;
     }
 
@@ -114,7 +118,9 @@ export default function RegisterForm() {
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setError('Please fix the errors below');
+      const errorMsg = 'Please fix the errors below';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
@@ -131,9 +137,12 @@ export default function RegisterForm() {
         password2: formData.confirmPassword,
       });
       resetRateLimit(rateLimitKey);
+      addToast('Registration successful! Check your email for activation link.', 'success', 4000);
       router.push('/activate');
     } catch (err: unknown) {
-      setError((err as Error).message || 'Registration failed. Please try again.');
+      const errorMsg = (err as Error).message || 'Registration failed. Please try again.';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setLoading(false);
     }

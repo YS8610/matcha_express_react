@@ -28,6 +28,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const pingInterval = setInterval(async () => {
+      try {
+        await api.ping();
+      } catch (error) {
+        console.error('Ping failed:', error);
+      }
+    }, 60000);
+
+    return () => clearInterval(pingInterval);
+  }, [user]);
+
   const checkAuth = async () => {
     try {
       tokenStorage.checkAndClearOldCookies();

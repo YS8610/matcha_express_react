@@ -73,8 +73,8 @@ export default function EditProfilePage() {
           sexualPreference: sexualPreferenceReverseMap[sexPrefNum] || '',
           biography: (typedData.biography as string) || '',
           birthDate: birthDateStr,
-          latitude: typedData.latitude ? String(typedData.latitude) : '',
-          longitude: typedData.longitude ? String(typedData.longitude) : '',
+          latitude: typedData.latitude ? parseFloat(String(typedData.latitude)).toFixed(4) : '',
+          longitude: typedData.longitude ? parseFloat(String(typedData.longitude)).toFixed(4) : '',
         });
 
         if (typedData.latitude && typedData.longitude) {
@@ -107,8 +107,8 @@ export default function EditProfilePage() {
 
           setFormData(prev => ({
             ...prev,
-            latitude: position.coords.latitude.toString(),
-            longitude: position.coords.longitude.toString(),
+            latitude: position.coords.latitude.toFixed(4),
+            longitude: position.coords.longitude.toFixed(4),
           }));
           setLocationDetected(true);
           setLocationLoading(false);

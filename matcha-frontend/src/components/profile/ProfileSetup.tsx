@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import imageCompression from 'browser-image-compression';
 import TagSelector from '@/components/TagSelector';
 import {
@@ -41,6 +42,7 @@ export default function ProfileSetup() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const { user, updateUser } = useAuth();
+  const { addToast } = useToast();
 
   const validateFormField = (fieldName: string, value: unknown): string | null => {
     switch (fieldName) {
@@ -121,23 +123,29 @@ export default function ProfileSetup() {
           setLocationLoading(false);
 
           if (accuracy < 100) {
-            console.log('Location detected via GPS (high accuracy)');
+            addToast('Location detected via GPS (high accuracy)', 'success', 3000);
           } else if (accuracy < 1000) {
-            console.log('Location detected via WiFi positioning');
+            addToast('Location detected via WiFi positioning', 'success', 3000);
           } else if (accuracy < 10000) {
-            console.log('Location detected via IP geolocation (district-level accuracy)');
+            addToast('Location detected via IP geolocation (district-level)', 'success', 3000);
           } else {
-            setError(`Location detected but accuracy is low (~${Math.round(accuracy / 1000)}km). Consider enabling WiFi or manually adjusting your location.`);
+            const errorMsg = `Location detected but accuracy is low (~${Math.round(accuracy / 1000)}km). Consider enabling WiFi or manually adjusting your location.`;
+            setError(errorMsg);
+            addToast(errorMsg, 'warning', 4000);
           }
         },
         async (error) => {
           console.warn('Browser geolocation failed, trying server-side IP fallback:', error.message);
 
           try {
-            setError('Unable to detect location automatically. Please adjust your location manually on the map.');
+            const errorMsg = 'Unable to detect location automatically. Please adjust your location manually on the map.';
+            setError(errorMsg);
+            addToast(errorMsg, 'error', 4000);
             setLocationLoading(false);
           } catch (fallbackError) {
-            setError('Failed to detect location. Please set your location manually.');
+            const errorMsg = 'Failed to detect location. Please set your location manually.';
+            setError(errorMsg);
+            addToast(errorMsg, 'error', 4000);
             setLocationLoading(false);
           }
         },
@@ -148,7 +156,9 @@ export default function ProfileSetup() {
         }
       );
     } else {
-      setError('Geolocation is not supported by your browser. Please set your location manually.');
+      const errorMsg = 'Geolocation is not supported by your browser. Please set your location manually.';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
       setLocationLoading(false);
     }
   };
@@ -224,7 +234,9 @@ export default function ProfileSetup() {
     if (Object.keys(newErrors).length > 0) {
       setFieldErrors(newErrors);
       setLoading(false);
-      setError('Please fix the errors below');
+      const errorMsg = 'Please fix the errors below';
+      setError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
@@ -292,6 +304,7 @@ export default function ProfileSetup() {
         localStorage.setItem('profileComplete', 'true');
       }
 
+      addToast('Profile setup completed successfully! Welcome to Matcha!', 'success', 4000);
       router.push('/browse');
     } catch (err: unknown) {
       console.error('Profile setup error:', err);
@@ -324,6 +337,7 @@ export default function ProfileSetup() {
       }
 
       setError(errorMessage);
+      addToast(errorMessage, 'error', 5000);
     } finally {
       setLoading(false);
     }

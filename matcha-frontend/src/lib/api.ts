@@ -151,6 +151,17 @@ class ApiClient {
     });
   }
 
+  async ping() {
+    return this.request('/pubapi/ping');
+  }
+
+  async resendActivationEmail(email: string, username: string) {
+    return this.request('/pubapi/reactivation', {
+      method: 'POST',
+      body: JSON.stringify({ email, username }),
+    });
+  }
+
   async getProfile(userId?: string): Promise<{ data: Record<string, unknown> }> {
     const endpoint = userId && userId !== 'undefined' ? `/api/profile/${userId}` : '/api/user/profile';
     const response = await this.request<Record<string, unknown>>(endpoint);
@@ -159,6 +170,11 @@ class ApiClient {
       return { data: response as unknown as Record<string, unknown> };
     }
     return response as unknown as { data: Record<string, unknown> };
+  }
+
+  async getShortProfile(userId: string): Promise<ProfileShort> {
+    const response = await this.request<ProfileShort>(`/api/profile/short/${userId}`);
+    return response as ProfileShort;
   }
 
   async updateProfile(data: Record<string, unknown>) {

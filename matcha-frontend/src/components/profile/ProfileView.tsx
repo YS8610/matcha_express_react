@@ -491,6 +491,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
                   {locationName ? locationName : <span className="text-gray-500 dark:text-gray-400 animate-pulse">Loading...</span>}
                 </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {profile.latitude.toFixed(4)}°, {profile.longitude.toFixed(4)}°
+                </p>
               </div>
             )}
           </div>

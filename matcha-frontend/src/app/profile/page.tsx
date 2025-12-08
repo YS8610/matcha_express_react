@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
-import { User, Star, Heart, Eye, Edit, Leaf, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Star, Heart, Eye, Edit, Leaf, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { toNumber, toGenderString, toSexualPreferenceString, toDateString } from '@/lib/neo4j-utils';
+import { getLocationName } from '@/lib/geolocation';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -16,7 +18,10 @@ export default function MyProfilePage() {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [locationName, setLocationName] = useState<string>('');
+  const [tags, setTags] = useState<string[]>([]);
   const { user } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
@@ -54,9 +59,29 @@ export default function MyProfilePage() {
       const photoResponse = await api.getUserPhotos() as { photoNames?: string[] };
       setPhotos(photoResponse.photoNames || []);
 
+      if (typedProfileData.latitude !== undefined && typedProfileData.longitude !== undefined) {
+        const lat = typedProfileData.latitude as number;
+        const lon = typedProfileData.longitude as number;
+        try {
+          const name = await getLocationName(lat, lon);
+          setLocationName(name);
+        } catch (err) {
+          console.error('Failed to fetch location name:', err);
+          setLocationName(`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+        }
+      }
+
+      try {
+        const tagsResponse = await api.getUserTags() as { tags?: string[] };
+        setTags(tagsResponse.tags || []);
+      } catch (err) {
+        console.error('Failed to fetch tags:', err);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error('Failed to load profile:', error);
+      addToast('Failed to load profile. Redirecting to setup...', 'error', 3000);
       setShouldRedirect(true);
     }
   };
@@ -175,6 +200,20 @@ export default function MyProfilePage() {
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                     {`${toNumber(profile.fameRating) ?? '0'}/100`}
                   </p>
+                  {(profile.latitude !== undefined && profile.longitude !== undefined) && (
+                    <div>
+                      <p className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-green-600 dark:text-green-500" />
+                        <span className="font-medium text-green-800 dark:text-green-400">Location:</span>
+                      </p>
+                      <p className="ml-4 text-xs">
+                        {locationName || 'Loading...'}
+                      </p>
+                      <p className="ml-4 text-xs text-green-600 dark:text-green-400">
+                        {profile.latitude.toFixed(4)}°, {profile.longitude.toFixed(4)}°
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -184,11 +223,11 @@ export default function MyProfilePage() {
                   Stats
                 </h2>
                 <div className="space-y-2 flex flex-col gap-2">
-                  <Link href="/profile/views" className="btn-secondary text-sm flex items-center justify-center gap-2">
+                  <Link href="/visitors" className="btn-secondary text-sm flex items-center justify-center gap-2">
                     <Eye className="w-4 h-4" />
                     View Profile Visitors
                   </Link>
-                  <Link href="/profile/likes" className="btn-secondary text-sm flex items-center justify-center gap-2">
+                  <Link href="/likes" className="btn-secondary text-sm flex items-center justify-center gap-2">
                     <Heart className="w-4 h-4" />
                     See Who Liked You
                   </Link>
@@ -200,6 +239,22 @@ export default function MyProfilePage() {
               <h2 className="font-semibold mb-2 text-green-800 dark:text-green-400">Biography</h2>
               <p className="text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 p-4 rounded-lg">{profile.biography || 'No biography set yet.'}</p>
             </div>
+
+            {tags.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-semibold mb-3 text-green-800 dark:text-green-400">Interests</h2>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700 rounded-full text-sm font-medium"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {photos.length > 0 && (
               <div className="mt-8">

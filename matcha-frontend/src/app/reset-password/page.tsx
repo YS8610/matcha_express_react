@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 import { Leaf } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const params = useParams();
+  const { addToast } = useToast();
 
   const [resetData, setResetData] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -73,9 +75,13 @@ export default function ResetPasswordPage() {
 
     try {
       await api.requestPasswordReset(requestData.email, requestData.username);
-      setRequestSuccess('Password reset email sent! Please check your email for the reset link.');
+      const successMsg = 'Password reset email sent! Please check your email for the reset link.';
+      setRequestSuccess(successMsg);
+      addToast(successMsg, 'success', 4000);
     } catch (err) {
-      setRequestError(err instanceof Error ? err.message : 'Password reset request failed');
+      const errorMsg = err instanceof Error ? err.message : 'Password reset request failed';
+      setRequestError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setRequestLoading(false);
     }
@@ -87,12 +93,16 @@ export default function ResetPasswordPage() {
     setResetSuccess('');
 
     if (resetData.newPassword !== resetData.newPassword2) {
-      setResetError('Passwords do not match');
+      const errorMsg = 'Passwords do not match';
+      setResetError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
     if (resetData.newPassword.length < 8) {
-      setResetError('Password must be at least 8 characters long');
+      const errorMsg = 'Password must be at least 8 characters long';
+      setResetError(errorMsg);
+      addToast(errorMsg, 'warning', 3000);
       return;
     }
 
@@ -105,12 +115,16 @@ export default function ResetPasswordPage() {
         resetData.newPassword,
         resetData.newPassword2
       );
-      setResetSuccess(`Success: ${response.msg}`);
+      const successMsg = `Success: ${response.msg}`;
+      setResetSuccess(successMsg);
+      addToast('Password reset successfully! Redirecting to login...', 'success', 3000);
       setTimeout(() => {
         router.push('/login');
       }, 3000);
     } catch (err) {
-      setResetError(err instanceof Error ? err.message : 'Password reset failed');
+      const errorMsg = err instanceof Error ? err.message : 'Password reset failed';
+      setResetError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setResetLoading(false);
     }

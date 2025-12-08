@@ -6,6 +6,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { ArrowLeft, Send, Circle, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
+import { useToast } from '@/contexts/ToastContext';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
 import AuthImage from '@/components/AuthImage';
@@ -13,6 +14,7 @@ import { sanitizeInput } from '@/lib/security';
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
   const params = useParams();
   const chatUserId = params?.id as string;
@@ -43,8 +45,8 @@ export default function ChatPage() {
     try {
       setLoading(true);
       setError('');
-      const response = await api.request<ProfileShort>(`/api/profile/short/${chatUserId}`);
-      setProfile(response.data || null);
+      const response = await api.getShortProfile(chatUserId);
+      setProfile(response || null);
     } catch (err) {
       setProfile(null);
     } finally {
@@ -91,6 +93,7 @@ export default function ChatPage() {
       console.error('[Chat] Failed to load chat history from API:', err);
       const errorMsg = err instanceof Error ? err.message : 'Failed to load chat history';
       setError(errorMsg);
+      addToast('Could not load chat history. Showing recent messages.', 'warning', 3000);
 
       if (skipno === 0) {
         const webSocketMessages = getChatHistory(chatUserId);

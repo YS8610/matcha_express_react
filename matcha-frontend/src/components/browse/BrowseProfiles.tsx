@@ -7,6 +7,7 @@ import FilterPanel from './FilterPanel';
 import AlertBox from '@/components/AlertBox';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 
 const MemoizedProfileCard = memo(ProfileCard);
 
@@ -110,6 +111,7 @@ function PaginationControls({ currentPage, totalPages, onPageChange, getPageNumb
 }
 
 export default function BrowseProfiles() {
+  const { addToast } = useToast();
   const [allProfiles, setAllProfiles] = useState<ProfileShort[]>([]);
   const [displayedProfiles, setDisplayedProfiles] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
@@ -230,8 +232,8 @@ export default function BrowseProfiles() {
       setCurrentPage(1);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load profiles';
-      console.error('Failed to load profiles:', error);
       setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
       setAllProfiles([]);
       setTotalProfiles(0);
     } finally {

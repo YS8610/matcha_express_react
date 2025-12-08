@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Heart, Eye, MessageCircle, UserX, AlertCircle } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useToast } from '@/contexts/ToastContext';
 import { Notification } from '@/types';
 import { api } from '@/lib/api';
 import { getLastSeenString } from '@/lib/neo4j-utils';
@@ -25,6 +26,7 @@ const getNotificationIcon = (type: Notification['type']) => {
 };
 
 export default function NotificationCenter() {
+  const { addToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const { notifications: wsNotifications, isConnected, markNotificationRead, clearNotifications } = useWebSocket();
   const [apiNotifications, setApiNotifications] = useState<Notification[]>([]);
@@ -49,8 +51,8 @@ export default function NotificationCenter() {
       setApiNotifications(notifications as Notification[]);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load notifications';
-      console.error('Failed to load notifications:', error);
       setError(errorMsg);
+      addToast(errorMsg, 'error', 3000);
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,8 @@ export default function NotificationCenter() {
         prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
       );
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      const errorMsg = 'Failed to mark notification as read';
+      addToast(errorMsg, 'error', 3000);
     }
   };
 
@@ -107,8 +110,8 @@ export default function NotificationCenter() {
       setApiNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to delete notification';
-      console.error('Failed to delete notification:', error);
       setError(errorMsg);
+      addToast(errorMsg, 'error', 3000);
     }
   };
 
@@ -122,8 +125,8 @@ export default function NotificationCenter() {
       clearNotifications();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to clear notifications';
-      console.error('Failed to clear all notifications:', error);
       setError(errorMsg);
+      addToast(errorMsg, 'error', 3000);
     }
   };
 

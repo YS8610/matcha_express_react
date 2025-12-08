@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { validateUsername, validatePassword } from '@/lib/validation';
 import { isRateLimited, resetRateLimit, getRemainingAttempts, getResetTime } from '@/lib/rateLimit';
 
@@ -18,6 +19,7 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
 
   const validateField = useCallback((name: string, value: string) => {
@@ -80,7 +82,9 @@ export default function LoginForm() {
     if (isRateLimited(rateLimitKey, 5, 15 * 60 * 1000)) {
       const resetMs = getResetTime(rateLimitKey);
       const resetMinutes = resetMs ? Math.ceil(resetMs / 60000) : 15;
-      setError(`Too many login attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`);
+      const errorMsg = `Too many login attempts. Please try again in ${resetMinutes} minute${resetMinutes > 1 ? 's' : ''}.`;
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 5000);
       return;
     }
 
@@ -102,9 +106,12 @@ export default function LoginForm() {
     try {
       await login(formData.username, formData.password);
       resetRateLimit(rateLimitKey);
+      addToast('Login successful! Welcome back!', 'success', 3000);
       router.push('/browse');
     } catch (err: unknown) {
-      setError((err as Error).message || 'Login failed');
+      const errorMsg = (err as Error).message || 'Login failed';
+      setError(errorMsg);
+      addToast(errorMsg, 'error', 4000);
     } finally {
       setLoading(false);
     }
