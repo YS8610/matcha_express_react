@@ -4,6 +4,7 @@ import request from "supertest";
 import { type Express } from "express-serve-static-core";
 import { createToken } from "../../service/jwtSvc.js";
 import * as userSvc from "../../service/userSvc.js";
+import * as locationSvc from "../../service/locationSvc.js";
 
 let app: Express;
 
@@ -62,6 +63,7 @@ describe("Route /api/user/profile", () => {
         gender: -1,
       };
       const mockedgetUserProfileById = vi.spyOn(userSvc, "getUserProfileById").mockResolvedValueOnce(mockProfile as any);
+      const mockedgetUserLocation = vi.spyOn(locationSvc, "getUserLocation").mockResolvedValueOnce({ latitude: 1.2345, longitude: 103.8198 });
       const res = await request(app)
         .get("/api/user/profile")
         .set("Authorization", `Bearer ${nonActivatedToken}`);
@@ -88,6 +90,8 @@ describe("Route /api/user/profile", () => {
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
+      expect(mockedgetUserLocation).toHaveBeenCalledOnce();
+      expect(mockedgetUserLocation).toHaveBeenCalledWith("1");
     });
 
     it("should return 200 and user profile data", async () => {
@@ -100,6 +104,7 @@ describe("Route /api/user/profile", () => {
         birthDate: "1999-12-31",
       };
       const mockedgetUserProfileById = vi.spyOn(userSvc, "getUserProfileById").mockResolvedValueOnce(mockProfile as any);
+      const mockedgetUserLocation = vi.spyOn(locationSvc, "getUserLocation").mockResolvedValueOnce({ latitude: 1.2345, longitude: 103.8198 });
       const res = await request(app)
         .get("/api/user/profile")
         .set("Authorization", `Bearer ${token}`);
@@ -126,6 +131,8 @@ describe("Route /api/user/profile", () => {
       });
       expect(mockedgetUserProfileById).toHaveBeenCalledOnce();
       expect(mockedgetUserProfileById).toHaveBeenCalledWith("1");
+      expect(mockedgetUserLocation).toHaveBeenCalledOnce();
+      expect(mockedgetUserLocation).toHaveBeenCalledWith("1");
     });
 
     it("should handle server error gracefully", async () => {

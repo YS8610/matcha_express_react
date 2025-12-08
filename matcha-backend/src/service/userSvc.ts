@@ -66,8 +66,11 @@ export const getUserById = async (id: string): Promise<ProfileDb | null> => {
 export const getShortProfileById = async (id: string): Promise<ProfileShort | null> => {
   const session = driver.session();
   try {
-    const result = await session.run<ProfileShort>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
-    return result.records.length == 1 ? result.records[0].get(0) : null;
+    const result = await session.run<{ u: ProfileShort, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_SHORT_PROFILE_BY_ID, { id });
+    if (result.records.length !== 1) return null;
+    const profile = result.records[0].get("u");
+    const userTags = result.records[0].get("userTags");
+    return { ...profile, userTags };
   } finally {
     await session.close();
   }
@@ -185,8 +188,11 @@ export const activateUserByUsername = async (username: string): Promise<boolean>
 export const getUserProfileById = async (id: string): Promise<ProfileGetJson | null> => {
   const session = driver.session();
   try{
-    const result = await session.run<ProfileGetJson>(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
-    return result.records.length == 1 ? result.records[0].get(0) : null;
+    const result = await session.run<{ u: ProfileGetJson, userTags: string[] }>(ConstMatcha.NEO4j_STMT_GET_USER_PROFILE_BY_ID, { id });
+    if (result.records.length !== 1) return null;
+    const profile = result.records[0].get("u");
+    const userTags = result.records[0].get("userTags");
+    return { ...profile, userTags };
   } finally {
     await session.close();
   }
