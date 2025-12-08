@@ -26,26 +26,14 @@ describe("Route /api/user/chat", () => {
       expect(response.body).toEqual({ msg: "unauthorised. You need to be authenticated to access this resource" });
     });
 
-    it("should return 400 if request body is missing", async () => {
+    it("should return 404 if path variable is missing", async () => {
       const response = await request(app)
         .get("/api/user/chat/")
         .set("Authorization", `Bearer ${token}`);
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(404);
       expect(response.body.errors[0]).toEqual({
-        context: { body: "missing" },
-        message: "Request body is required"
-      });
-    });
-
-    it("should return 400 if otherid is missing in body", async () => {
-      const response = await request(app)
-        .get("/api/user/chat/")
-        .set("Authorization", `Bearer ${token}`)
-        .send({});
-      expect(response.status).toBe(400);
-      expect(response.body.errors[0]).toEqual({
-        context: { otherid: "missing" },
-        message: "otherid is required in request body"
+        context: { msg: "The requested endpoint does not exist." },
+        message: "invalid endpoint"
       });
     });
 
@@ -59,9 +47,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/")
+        .get("/api/user/chat/2")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -84,9 +72,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?limit=10&skipno=5")
+        .get("/api/user/chat/2?limit=10&skipno=5")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -109,9 +97,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?limit=abc&skipno=xyz")
+        .get("/api/user/chat/2?limit=abc&skipno=xyz")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -129,9 +117,9 @@ describe("Route /api/user/chat", () => {
         throw new Error("Database error");
       });
       const response = await request(app)
-        .get("/api/user/chat/")
+        .get("/api/user/chat/2")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(500);
       expect(response.body.errors[0]).toEqual({
         context: { error: {}, errorMsg: "Database error", errorStack: expect.any(String) },
@@ -143,9 +131,9 @@ describe("Route /api/user/chat", () => {
     it("should return 200 and empty array if no chat history exists", async () => {
       const mockedgetChatHistoryBetweenUsers = vi.spyOn(await import("../../service/chatSvc.js"), "getChatHistoryBetweenUsers").mockResolvedValue([]);
       const response = await request(app)
-        .get("/api/user/chat/")
+        .get("/api/user/chat/2")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
       expect(mockedgetChatHistoryBetweenUsers).toHaveBeenCalledWith(getDb, "1", "2", 0, 50);
@@ -161,9 +149,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/")
+        .get("/api/user/chat/2")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -186,9 +174,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?limit=20")
+        .get("/api/user/chat/2?limit=20")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -211,9 +199,9 @@ describe("Route /api/user/chat", () => {
         },
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?skipno=15")
+        .get("/api/user/chat/2?skipno=15")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -236,9 +224,9 @@ describe("Route /api/user/chat", () => {
         }
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?skipno=abc")
+        .get("/api/user/chat/2?skipno=abc")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
@@ -261,9 +249,9 @@ describe("Route /api/user/chat", () => {
         }
       ]);
       const response = await request(app)
-        .get("/api/user/chat/?limit=xyz")
+        .get("/api/user/chat/2?limit=xyz")
         .set("Authorization", `Bearer ${token}`)
-        .send({ otherid: "2" });
+        .send();
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
         {
