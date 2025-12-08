@@ -2,14 +2,18 @@ import { Server, Socket } from "socket.io";
 import { clogger } from "../service/loggerSvc.js";
 import { AuthToken } from "../model/token.js";
 import { authWSmiddleware } from "../middleware/auth.js";
-import ConstMatcha from "../ConstMatcha.js";
-import { NotificationManager } from "../service/notificationSvc.js";
+import ConstMatcha, { NOTIFICATION_TYPE } from "../ConstMatcha.js";
+import { createNotification, NotificationManager, notifyUser } from "../service/notificationSvc.js";
 import { ChatMessage } from "../model/Response.js";
 import { getBlockedRel } from "../service/blockSvc.js";
 import { isMatch } from "../service/likeSvc.js";
 import { getChatHistoryBetweenUsers, saveChatmsg } from "../service/chatSvc.js";
 import { setLastOnlineById } from "../service/userSvc.js";
 import { getDb } from "../repo/mongoRepo.js";
+import { Notification_Matcha } from "../model/notification.js";
+import { v4 as uuidv4 } from "uuid";
+
+
 
 // Extend the Socket interface to include 'user'
 declare module "socket.io" {
@@ -70,11 +74,19 @@ const eventHandlers = (io: Server) => {
       //   io.to(socket.id).emit("error", { msg: "Cannot send message to this user as you are not matched" });
       //   return;
       // }
-      // store message in db
+      // store message in db and create notification
       try {
         await saveChatmsg(getDb, data);
+        await notifyUser(getDb, createNotification, {
+          userId: data.toUserId,
+          type: NOTIFICATION_TYPE.MESSAGE,
+          message: `New Message`,
+          createdAt: Date.now(),
+          id: uuidv4(),
+          read: false
+        } as Notification_Matcha);
       } catch (err) {
-        io.to(socket.id).emit("error", { msg: "Failed to store chat message" });
+        io.to(socket.id).emit("error", { msg: "Failed to store chat message or create notification" });
         return;
       }
       // send msg to recipient and user socket if online
@@ -94,7 +106,7 @@ const eventHandlers = (io: Server) => {
         const userSockets = ConstMatcha.wsmap.get(socket.user.id);
         if (userSockets) {
           userSockets.delete(socket.id);
-          if (userSockets.size === 0){
+          if (userSockets.size === 0) {
             ConstMatcha.wsmap.delete(socket.user.id);
             setLastOnlineById(socket.user.id, Date.now());
           }
