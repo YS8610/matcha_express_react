@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+import EmptyState from '@/components/EmptyState';
+import { Alert } from '@/components/ui';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage } from '@/types';
 import AuthImage from '@/components/AuthImage';
@@ -117,22 +120,6 @@ export default function MessagesPage() {
     );
   };
 
-  const EmptyState = () => (
-    <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
-        <MessageCircle className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-      </div>
-      <p className="text-gray-500 dark:text-gray-400 mb-2">No conversations yet</p>
-      <p className="text-gray-400 dark:text-gray-500 text-sm">Match with someone to start chatting</p>
-      <button
-        onClick={() => router.push('/matches')}
-        className="mt-4 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-700 dark:to-green-600 text-white py-2 px-6 rounded-lg hover:from-green-600 hover:to-green-700 dark:hover:from-green-800 dark:hover:to-green-700 transition-all duration-200"
-      >
-        View Matches
-      </button>
-    </div>
-  );
-
   if (authLoading || !user || !user.profileComplete) {
     return null;
   }
@@ -152,25 +139,11 @@ export default function MessagesPage() {
           <p className="text-gray-600 dark:text-gray-400">Chat with your matches</p>
         </div>
 
-        {error && (
-          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-green-100 dark:border-green-900">
           {loading ? (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 animate-pulse">
-                  <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <LoadingSkeleton count={5} type="list" />
           ) : matches.length > 0 ? (
             <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {matches.map((profile) => (
@@ -178,7 +151,15 @@ export default function MessagesPage() {
               ))}
             </div>
           ) : (
-            <EmptyState />
+            <EmptyState
+              icon={<MessageCircle className="w-8 h-8 text-gray-400 dark:text-gray-500" />}
+              title="No conversations yet"
+              description="Match with someone to start chatting"
+              action={{
+                label: "Browse Profiles",
+                onClick: () => router.push('/browse')
+              }}
+            />
           )}
         </div>
       </div>

@@ -20,6 +20,10 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/browse'),
+}));
+
 describe('MobileMenu Component', () => {
   const mockUser: User = {
     id: 'user-1',

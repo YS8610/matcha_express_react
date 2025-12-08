@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const cacheKey = `${parseFloat(lat).toFixed(4)},${parseFloat(lon).toFixed(4)}`;
+  const cacheKey = `${parseFloat(lat).toFixed(8)},${parseFloat(lon).toFixed(8)}`;
   const cached = geocodeCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return NextResponse.json(cached.data);

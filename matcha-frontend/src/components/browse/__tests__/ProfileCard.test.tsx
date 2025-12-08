@@ -3,14 +3,6 @@ import { render, screen } from '@testing-library/react';
 import ProfileCard from '@/components/browse/ProfileCard';
 import type { ProfileShort } from '@/types';
 
-vi.mock('next/link', () => ({
-  default: ({ children, href, className }: any) => (
-    <a href={href} className={className} data-testid={`profile-link-${href}`}>
-      {children}
-    </a>
-  ),
-}));
-
 vi.mock('@/components/AuthImage', () => ({
   default: ({ alt }: any) => <div data-testid="auth-image">{alt}</div>,
 }));
@@ -47,9 +39,10 @@ describe('ProfileCard Component', () => {
   });
 
   it('should display profile link with correct href', () => {
-    render(<ProfileCard profile={mockProfile} />);
+    const { container } = render(<ProfileCard profile={mockProfile} />);
 
-    expect(screen.getByTestId('profile-link-/profile/profile-1')).toBeTruthy();
+    const link = container.querySelector('a[href="/profile/profile-1"]');
+    expect(link).toBeTruthy();
   });
 
   it('should display first name', () => {
@@ -105,15 +98,17 @@ describe('ProfileCard Component', () => {
       username: 'very_long_username_that_exceeds_the_character_limit',
     };
 
-    render(<ProfileCard profile={longUsernameProfile} />);
+    const { container } = render(<ProfileCard profile={longUsernameProfile} />);
 
-    expect(screen.getByTestId('profile-link-/profile/profile-1')).toBeTruthy();
+    const link = container.querySelector('a[href="/profile/profile-1"]');
+    expect(link).toBeTruthy();
   });
 
   it('should display online status indicator', () => {
-    render(<ProfileCard profile={mockProfile} />);
+    const { container } = render(<ProfileCard profile={mockProfile} />);
 
-    expect(screen.getByTestId('profile-link-/profile/profile-1')).toBeTruthy();
+    const link = container.querySelector('a[href="/profile/profile-1"]');
+    expect(link).toBeTruthy();
   });
 
   it('should have border styling', () => {
@@ -159,10 +154,11 @@ describe('ProfileCard Component', () => {
   });
 
   it('should render with memoization', () => {
-    const { rerender } = render(<ProfileCard profile={mockProfile} />);
+    const { container, rerender } = render(<ProfileCard profile={mockProfile} />);
 
     rerender(<ProfileCard profile={mockProfile} />);
 
-    expect(screen.getByTestId('profile-link-/profile/profile-1')).toBeTruthy();
+    const link = container.querySelector('a[href="/profile/profile-1"]');
+    expect(link).toBeTruthy();
   });
 });

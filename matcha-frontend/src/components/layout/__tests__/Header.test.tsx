@@ -28,6 +28,10 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/browse'),
+}));
+
 describe('Header Component', () => {
   const mockUser: User = {
     id: 'user-1',

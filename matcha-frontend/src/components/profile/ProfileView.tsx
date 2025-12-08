@@ -10,7 +10,8 @@ import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
 import { getLocationName } from '@/lib/geolocation';
-import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
+import { calculateDistance, formatDistance } from '@/lib/distance';
+import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
@@ -33,7 +34,9 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const [modalState, setModalState] = useState<{ type: 'success' | 'error' | 'confirm' | null; title: string; message: string; action?: () => void }>({ type: null, title: '', message: '' });
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [locationName, setLocationName] = useState<string>('');
+  const [distance, setDistance] = useState<number | null>(null);
   const [viewedUserIds, setViewedUserIds] = useState<Set<string>>(new Set());
+  const [myTags, setMyTags] = useState<string[]>([]);
   const { user } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
@@ -157,10 +160,65 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         .then(name => setLocationName(name))
         .catch(err => {
           console.error('Failed to fetch location name:', err);
-          setLocationName(`${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`);
+          setLocationName(`${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`);
         });
     }
   }, [profile?.latitude, profile?.longitude]);
+
+  useEffect(() => {
+    const fetchCurrentUserLocation = async () => {
+      if (!user || !profile || user.id === userId) {
+        setDistance(null);
+        return;
+      }
+
+      if (
+        profile.latitude !== undefined &&
+        profile.longitude !== undefined
+      ) {
+        try {
+          const response = await api.getProfile();
+          const currentUserProfile = response.data as unknown as Profile;
+
+          if (
+            currentUserProfile.latitude !== undefined &&
+            currentUserProfile.longitude !== undefined
+          ) {
+            const dist = calculateDistance(
+              currentUserProfile.latitude,
+              currentUserProfile.longitude,
+              profile.latitude,
+              profile.longitude
+            );
+            setDistance(dist);
+          }
+        } catch (error) {
+          console.error('Failed to fetch current user location:', error);
+        }
+      }
+    };
+
+    fetchCurrentUserLocation();
+  }, [user, profile, userId]);
+
+  useEffect(() => {
+    const fetchMyTags = async () => {
+      if (!user || user.id === userId) {
+        setMyTags([]);
+        return;
+      }
+
+      try {
+        const response = await api.getUserTags() as { tags?: string[] };
+        setMyTags(response.tags || []);
+      } catch (error) {
+        console.error('Failed to fetch current user tags:', error);
+        setMyTags([]);
+      }
+    };
+
+    fetchMyTags();
+  }, [user, userId]);
 
   const handleLike = async () => {
     if (!profile || !userId) {
@@ -491,9 +549,27 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
                   {locationName ? locationName : <span className="text-gray-500 dark:text-gray-400 animate-pulse">Loading...</span>}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  {profile.latitude.toFixed(4)}°, {profile.longitude.toFixed(4)}°
-                </p>
+                {distance !== null && user && user.id !== userId && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <MapPin className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                      {formatDistance(distance)} away
+                    </span>
+                  </div>
+                )}
+                <a
+                  href={`https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline mt-0.5 inline-flex items-center gap-1"
+                  title="View on Google Maps"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {profile.latitude.toFixed(8)}°, {profile.longitude.toFixed(8)}°
+                </a>
               </div>
             )}
           </div>
@@ -507,15 +583,30 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Interests</h2>
               <div className="flex flex-wrap gap-2">
-                {profile.userTags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700 rounded-full text-sm font-medium"
-                  >
-                    #{tag}
-                  </span>
-                ))}
+                {profile.userTags.map((tag, index) => {
+                  const isShared = myTags.includes(tag);
+                  return (
+                    <span
+                      key={index}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                        isShared
+                          ? 'bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50 text-amber-900 dark:text-amber-200 border-2 border-amber-400 dark:border-amber-600 shadow-sm'
+                          : 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700'
+                      }`}
+                      title={isShared ? 'Shared interest!' : undefined}
+                    >
+                      #{tag}
+                      {isShared && <span className="ml-1.5">✨</span>}
+                    </span>
+                  );
+                })}
               </div>
+              {myTags.length > 0 && profile.userTags.some(tag => myTags.includes(tag)) && (
+                <p className="mt-2 text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                  <span>✨</span>
+                  <span>Shared interests highlighted</span>
+                </p>
+              )}
             </div>
           )}
 

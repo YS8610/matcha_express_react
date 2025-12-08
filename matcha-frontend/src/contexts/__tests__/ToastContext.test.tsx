@@ -208,7 +208,7 @@ describe('ToastContext', () => {
       });
 
       act(() => {
-        result.current.addToast('Test toast', 'info', 0); // duration 0 to prevent auto-removal
+        result.current.addToast('Test toast', 'info', 0); 
       });
 
       expect(result.current.toasts).toHaveLength(1);
@@ -454,7 +454,6 @@ describe('ToastContext', () => {
         result.current.addToast('Test', 'info', -1000);
       });
 
-      // Negative duration should not auto-remove
       act(() => {
         vi.advanceTimersByTime(5000);
       });

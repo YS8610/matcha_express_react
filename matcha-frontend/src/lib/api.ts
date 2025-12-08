@@ -330,9 +330,8 @@ class ApiClient {
   }
 
   async getChatHistory(otherId: string, limit: number = 50, skipno: number = 0) {
-    return this.request<ChatHistoryResponse>(`/api/user/chat?limit=${limit}&skipno=${skipno}`, {
+    return this.request<ChatHistoryResponse>(`/api/user/chat?otherid=${otherId}&limit=${limit}&skipno=${skipno}`, {
       method: 'GET',
-      body: JSON.stringify({ otherid: otherId }),
     });
   }
 

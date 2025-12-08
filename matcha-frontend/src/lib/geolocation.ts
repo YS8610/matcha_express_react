@@ -33,7 +33,7 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
 
     if (!response.ok) {
       console.warn(`Geolocation API error: ${response.status}`);
-      return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+      return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
     }
 
     const data: NominatimResponse = await response.json();
@@ -42,7 +42,7 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
       if (data.error && !data.fallback) {
         console.warn('Geolocation API error:', data.error);
       }
-      return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+      return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
     }
 
     const address = data.address || {};
@@ -61,13 +61,13 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
       locationName += country;
     }
 
-    const result = locationName || `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+    const result = locationName || `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
 
     locationCache.set(cacheKey, result);
 
     return result;
   } catch (error) {
     console.error('Failed to fetch location name:', error);
-    return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+    return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
   }
 };

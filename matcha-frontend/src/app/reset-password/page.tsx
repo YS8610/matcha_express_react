@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
 import { Leaf } from 'lucide-react';
+import { FormInput, Button, Alert } from '@/components/ui';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -171,57 +172,39 @@ export default function ResetPasswordPage() {
         {activeTab === 'request' && (
           <div className="space-y-4">
             {requestError && (
-              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded">
-                {requestError}
-              </div>
+              <Alert type="error" message={requestError} onClose={() => setRequestError('')} />
             )}
 
             {requestSuccess && (
-              <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded">
-                {requestSuccess}
-              </div>
+              <Alert type="success" message={requestSuccess} />
             )}
 
             <form onSubmit={handleRequestSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={requestData.email}
-                  onChange={handleRequestChange}
-                  required
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
-                  placeholder="Enter your email"
-                />
-              </div>
+              <FormInput
+                type="email"
+                id="email"
+                name="email"
+                value={requestData.email}
+                onChange={handleRequestChange}
+                label="Email"
+                placeholder="Enter your email"
+                required
+              />
 
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={requestData.username}
-                  onChange={handleRequestChange}
-                  required
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
-                  placeholder="Enter your username"
-                />
-              </div>
+              <FormInput
+                type="text"
+                id="username"
+                name="username"
+                value={requestData.username}
+                onChange={handleRequestChange}
+                label="Username"
+                placeholder="Enter your username"
+                required
+              />
 
-              <button
-                type="submit"
-                disabled={requestLoading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
-              >
-                {requestLoading ? 'Sending...' : 'Send Reset Email'}
-              </button>
+              <Button type="submit" fullWidth loading={requestLoading}>
+                Send Reset Email
+              </Button>
             </form>
           </div>
         )}
@@ -229,36 +212,27 @@ export default function ResetPasswordPage() {
         {activeTab === 'reset' && (
           <div className="space-y-4">
             {resetError && (
-              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded">
-                {resetError}
-              </div>
+              <Alert type="error" message={resetError} onClose={() => setResetError('')} />
             )}
 
             {resetSuccess && (
-              <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded">
-                {resetSuccess}
-              </div>
+              <Alert type="success" message={resetSuccess} />
             )}
 
             <form onSubmit={handleResetSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="userId" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-                  User ID
-                </label>
-                <input
-                  type="text"
-                  id="userId"
-                  name="userId"
-                  value={resetData.userId}
-                  onChange={handleResetChange}
-                  required
-                  placeholder="Paste user ID from email"
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors font-mono text-sm"
-                />
-              </div>
+              <FormInput
+                type="text"
+                id="userId"
+                name="userId"
+                value={resetData.userId}
+                onChange={(e) => handleResetChange(e as any)}
+                label="User ID"
+                placeholder="Paste user ID from email"
+                required
+              />
 
               <div>
-                <label htmlFor="token" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
+                <label htmlFor="token" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
                   Reset Token
                 </label>
                 <textarea
@@ -269,51 +243,37 @@ export default function ResetPasswordPage() {
                   required
                   rows={3}
                   placeholder="Paste reset token from email"
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 font-mono"
                 />
               </div>
 
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={resetData.newPassword}
-                  onChange={handleResetChange}
-                  required
-                  minLength={8}
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
-                  placeholder="Enter new password (min 8 characters)"
-                />
-              </div>
+              <FormInput
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                value={resetData.newPassword}
+                onChange={(e) => handleResetChange(e as any)}
+                label="New Password"
+                placeholder="Enter new password (min 8 characters)"
+                minLength={8}
+                required
+              />
 
-              <div>
-                <label htmlFor="newPassword2" className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  id="newPassword2"
-                  name="newPassword2"
-                  value={resetData.newPassword2}
-                  onChange={handleResetChange}
-                  required
-                  minLength={8}
-                  className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white dark:focus:ring-green-400 transition-colors"
-                  placeholder="Confirm new password"
-                />
-              </div>
+              <FormInput
+                type="password"
+                id="newPassword2"
+                name="newPassword2"
+                value={resetData.newPassword2}
+                onChange={(e) => handleResetChange(e as any)}
+                label="Confirm New Password"
+                placeholder="Confirm new password"
+                minLength={8}
+                required
+              />
 
-              <button
-                type="submit"
-                disabled={resetLoading || !!resetSuccess}
-                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-full hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all transform hover:scale-105 shadow-lg"
-              >
-                {resetLoading ? 'Resetting Password...' : 'Reset Password'}
-              </button>
+              <Button type="submit" fullWidth loading={resetLoading} disabled={!!resetSuccess}>
+                Reset Password
+              </Button>
             </form>
           </div>
         )}

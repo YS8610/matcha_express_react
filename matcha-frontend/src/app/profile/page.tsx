@@ -15,7 +15,7 @@ import { getLocationName } from '@/lib/geolocation';
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [locationName, setLocationName] = useState<string>('');
@@ -32,20 +32,17 @@ export default function MyProfilePage() {
     loadProfile();
   }, [user, router]);
 
-  useEffect(() => {
-    if (shouldRedirect) {
-      router.push('/profile/setup');
-    }
-  }, [shouldRedirect, router]);
-
   const loadProfile = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await api.getProfile();
       const profileData = response.data || null;
 
       if (!profileData) {
         console.error('No profile data returned');
-        setShouldRedirect(true);
+        setError('No profile data available. You may need to complete your profile setup.');
+        setLoading(false);
         return;
       }
 
@@ -67,7 +64,7 @@ export default function MyProfilePage() {
           setLocationName(name);
         } catch (err) {
           console.error('Failed to fetch location name:', err);
-          setLocationName(`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+          setLocationName(`${lat.toFixed(8)}°, ${lon.toFixed(8)}°`);
         }
       }
 
@@ -81,18 +78,38 @@ export default function MyProfilePage() {
       setLoading(false);
     } catch (error) {
       console.error('Failed to load profile:', error);
-      addToast('Failed to load profile. Redirecting to setup...', 'error', 3000);
-      setShouldRedirect(true);
+      setError('Failed to load profile. Please try again or complete your profile setup.');
+      setLoading(false);
     }
   };
 
-  if (loading || shouldRedirect) return (
+  if (error) return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center py-12">
+        <p className="text-red-600 dark:text-red-400 mb-6">{error}</p>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={loadProfile}
+            className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+          >
+            Retry
+          </button>
+          <Link
+            href="/profile/setup"
+            className="px-5 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors"
+          >
+            Go to Profile Setup
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (loading) return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 dark:border-green-400 border-t-transparent"></div>
-        <p className="mt-4 text-green-700 dark:text-green-300">
-          {shouldRedirect ? 'Redirecting to profile setup...' : 'Loading your profile...'}
-        </p>
+        <p className="mt-4 text-green-700 dark:text-green-300">Loading your profile...</p>
       </div>
     </div>
   );
@@ -209,9 +226,19 @@ export default function MyProfilePage() {
                       <p className="ml-4 text-xs">
                         {locationName || 'Loading...'}
                       </p>
-                      <p className="ml-4 text-xs text-green-600 dark:text-green-400">
-                        {profile.latitude.toFixed(4)}°, {profile.longitude.toFixed(4)}°
-                      </p>
+                      <a
+                        href={`https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-4 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                        title="View on Google Maps"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {profile.latitude.toFixed(8)}°, {profile.longitude.toFixed(8)}°
+                      </a>
                     </div>
                   )}
                 </div>

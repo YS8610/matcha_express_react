@@ -13,6 +13,9 @@ vi.mock('next/navigation', () => ({
     back: vi.fn(),
   })),
   usePathname: vi.fn(() => '/'),
+  useSearchParams: vi.fn(() => ({
+    get: vi.fn(() => null),
+  })),
 }));
 
 describe('Page Page', () => {

@@ -5,6 +5,7 @@ import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
 import { getPasswordValidationChecks } from '@/lib/validation';
+import { Button, Alert } from '@/components/ui';
 
 interface PasswordChangerProps {
   className?: string;
@@ -138,13 +139,8 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
     <div className={`space-y-6 ${className}`}>
       <h3 className="text-lg font-semibold text-green-700 dark:text-green-400">Change Password</h3>
 
-      {error && (
-        <div className="text-red-700 dark:text-red-300 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md">{error}</div>
-      )}
-
-      {success && (
-        <div className="text-green-700 dark:text-green-300 text-sm bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 rounded-md">{success}</div>
-      )}
+      {error && <Alert type="error" message={error} onClose={() => setError('')} />}
+      {success && <Alert type="success" message={success} onClose={() => setSuccess('')} />}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <PasswordInput
@@ -203,13 +199,14 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
+          fullWidth
+          loading={loading}
           disabled={loading || !passwordValidation.isValid || formData.newPassword !== formData.confirmPassword}
-          className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 px-4 rounded-md hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-medium transition-all"
         >
           {loading ? 'Updating Password...' : 'Update Password'}
-        </button>
+        </Button>
       </form>
     </div>
   );

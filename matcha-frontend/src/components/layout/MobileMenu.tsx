@@ -2,15 +2,27 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   const closeMenu = () => setIsOpen(false);
-  const mobileNavLinkClass = 'block btn-secondary w-full text-sm text-center';
+
+  const getMobileNavLinkClass = (href: string) => {
+    const isActive = pathname === href || pathname?.startsWith(`${href}/`);
+    const baseClass = 'block w-full text-sm text-center py-3 px-4 rounded-md font-medium transition-all';
+
+    if (isActive) {
+      return `${baseClass} bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 dark:from-green-700 dark:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 text-green-800 dark:text-white border-2 border-green-600 dark:border-transparent shadow-md`;
+    }
+
+    return `${baseClass} bg-white hover:bg-green-50 dark:bg-slate-800 dark:hover:bg-slate-700 border-2 border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 hover:border-green-700 dark:hover:border-green-400`;
+  };
 
   const handleLogout = () => {
     logout();
@@ -42,49 +54,42 @@ export default function MobileMenu() {
                 <Link
                   href="/browse"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/browse')}
                 >
                   Browse
                 </Link>
                 <Link
                   href="/visitors"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/visitors')}
                 >
                   Visitors
                 </Link>
                 <Link
                   href="/likes"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/likes')}
                 >
                   Likes
                 </Link>
                 <Link
-                  href="/matches"
-                  onClick={closeMenu}
-                  className={mobileNavLinkClass}
-                >
-                  Matches
-                </Link>
-                <Link
                   href="/blocked"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/blocked')}
                 >
                   Blocked
                 </Link>
                 <Link
                   href="/messages"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/messages')}
                 >
                   Messages
                 </Link>
                 <Link
                   href="/profile"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/profile')}
                 >
                   Profile
                 </Link>
@@ -103,14 +108,14 @@ export default function MobileMenu() {
                 <Link
                   href="/login"
                   onClick={closeMenu}
-                  className={mobileNavLinkClass}
+                  className={getMobileNavLinkClass('/login')}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
                   onClick={closeMenu}
-                  className="block py-3 px-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-md font-semibold text-base hover:from-green-700 hover:to-green-600 dark:from-green-700 dark:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 transition-all text-center"
+                  className={getMobileNavLinkClass('/register')}
                 >
                   Register
                 </Link>

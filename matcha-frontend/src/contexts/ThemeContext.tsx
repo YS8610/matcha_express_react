@@ -2,14 +2,15 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Theme, ThemeContextType } from '@/types';
+import { getThemePreference, setThemePreference } from '@/lib/cookiePreferences';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function initializeTheme(): void {
   if (typeof document === 'undefined') return;
 
-  const savedTheme = localStorage.getItem('theme');
-  let theme: Theme = (savedTheme as Theme) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const savedTheme = getThemePreference();
+  let theme: Theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
   const htmlElement = document.documentElement;
 
@@ -50,7 +51,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(prevTheme => {
       const newTheme = prevTheme === 'light' ? 'dark' : 'light';
       applyTheme(newTheme);
-      localStorage.setItem('theme', newTheme);
+      setThemePreference(newTheme);
       return newTheme;
     });
   };
@@ -58,7 +59,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     applyTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    setThemePreference(newTheme);
   };
 
   return (

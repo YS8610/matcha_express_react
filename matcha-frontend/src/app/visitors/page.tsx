@@ -3,26 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, Users } from 'lucide-react';
-import AuthImage from '@/components/AuthImage';
-import type { ProfileViewed } from '@/types';
-import { api, generateAvatarUrl } from '@/lib/api';
+import ProfileCard from '@/components/ProfileCard';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+import EmptyState from '@/components/EmptyState';
+import { Alert } from '@/components/ui';
+import type { ProfileShort } from '@/types';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface ProfileViewedData extends Record<string, unknown> {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  photo0: string;
-  viewedAt: number;
-}
 
 export default function VisitorsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'viewed-by' | 'viewed'>('viewed-by');
-  const [viewedByMe, setViewedByMe] = useState<ProfileViewed[]>([]);
-  const [viewedMe, setViewedMe] = useState<ProfileViewed[]>([]);
+  const [viewedByMe, setViewedByMe] = useState<ProfileShort[]>([]);
+  const [viewedMe, setViewedMe] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -47,7 +41,7 @@ export default function VisitorsPage() {
       const viewedByMeArray = Array.isArray(viewedByMeData) ? viewedByMeData : viewedByMeData.data || [];
       const viewedMeArray = Array.isArray(viewedMeData) ? viewedMeData : viewedMeData.data || [];
 
-      const transformedViewedByMe = viewedByMeArray.map((item: unknown) => {
+      const transformedViewedByMe: ProfileShort[] = viewedByMeArray.map((item: unknown) => {
         const typedItem = item as Record<string, unknown>;
         return {
           id: typedItem.id as string,
@@ -55,11 +49,11 @@ export default function VisitorsPage() {
           firstName: typedItem.firstName as string,
           lastName: typedItem.lastName as string,
           photo0: typedItem.photo0 as string,
-          userId: typedItem.id as string,
-          viewedAt: typedItem.viewedAt as number || 0,
+          fameRating: 0,
+          lastOnline: (typedItem.viewedAt as number) || 0,
         };
       });
-      const transformedViewedMe = viewedMeArray.map((item: unknown) => {
+      const transformedViewedMe: ProfileShort[] = viewedMeArray.map((item: unknown) => {
         const typedItem = item as Record<string, unknown>;
         return {
           id: typedItem.id as string,
@@ -67,8 +61,8 @@ export default function VisitorsPage() {
           firstName: typedItem.firstName as string,
           lastName: typedItem.lastName as string,
           photo0: typedItem.photo0 as string,
-          userId: typedItem.id as string,
-          viewedAt: typedItem.viewedAt as number || 0,
+          fameRating: 0,
+          lastOnline: (typedItem.viewedAt as number) || 0,
         };
       });
 
@@ -80,49 +74,6 @@ export default function VisitorsPage() {
       setLoading(false);
     }
   };
-
-  const handleProfileClick = (userId: string) => {
-    router.push(`/profile/${userId}`);
-  };
-
-  const ProfileCard = ({ profile }: { profile: ProfileViewed }) => {
-    const photoUrl = profile.photo0
-      ? `/api/photo/${profile.photo0}`
-      : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId);
-
-    return (
-      <div
-        onClick={() => handleProfileClick(profile.userId)}
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-      >
-        <div className="relative h-48">
-          <AuthImage
-            src={photoUrl}
-            alt={profile.username}
-            fill
-            className="object-cover"
-            unoptimized
-            fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.userId)}
-          />
-        </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-            {profile.firstName} {profile.lastName}
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
-        </div>
-      </div>
-    );
-  };
-
-  const EmptyState = ({ message }: { message: string }) => (
-    <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
-        <Eye className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-      </div>
-      <p className="text-gray-500 dark:text-gray-400">{message}</p>
-    </div>
-  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -139,11 +90,7 @@ export default function VisitorsPage() {
           <p className="text-green-600">See who viewed your profile and who you&apos;ve checked out</p>
         </div>
 
-        {error && (
-          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
           <div className="flex border-b border-gray-200 dark:border-gray-700">
@@ -187,17 +134,7 @@ export default function VisitorsPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
-                <div className="p-4">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <LoadingSkeleton count={6} type="grid" />
         ) : (
           <div>
             {activeTab === 'viewed-by' && (
@@ -205,11 +142,15 @@ export default function VisitorsPage() {
                 {viewedMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedMe.map((profile) => (
-                      <ProfileCard key={profile.userId} profile={profile} />
+                      <ProfileCard key={profile.id} profile={profile} />
                     ))}
                   </div>
                 ) : (
-                  <EmptyState message="No one has viewed your profile yet. Keep your profile updated to attract more visitors!" />
+                  <EmptyState
+                    icon={<Eye className="w-8 h-8 text-gray-400 dark:text-gray-500" />}
+                    title="No one has viewed your profile yet"
+                    description="Keep your profile updated to attract more visitors!"
+                  />
                 )}
               </div>
             )}
@@ -219,11 +160,15 @@ export default function VisitorsPage() {
                 {viewedByMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedByMe.map((profile) => (
-                      <ProfileCard key={profile.userId} profile={profile} />
+                      <ProfileCard key={profile.id} profile={profile} />
                     ))}
                   </div>
                 ) : (
-                  <EmptyState message="You haven't viewed any profiles yet. Start browsing to discover matches!" />
+                  <EmptyState
+                    icon={<Eye className="w-8 h-8 text-gray-400 dark:text-gray-500" />}
+                    title="You haven't viewed any profiles yet"
+                    description="Start browsing to discover matches!"
+                  />
                 )}
               </div>
             )}

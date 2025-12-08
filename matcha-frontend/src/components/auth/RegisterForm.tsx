@@ -3,9 +3,9 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { FormInput, Button, Alert } from '@/components/ui';
 import {
   validateUsername,
   validateEmail,
@@ -158,261 +158,123 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md px-4 sm:px-0">
-      <div>
-        <label htmlFor="username" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-          Username
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="3-20 characters, letters, numbers, _, -"
-            className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-              isFieldInvalid('username')
-                ? 'border-red-500 dark:border-red-500'
-                : isFieldValid('username')
-                ? 'border-green-500 dark:border-green-500'
-                : 'border-gray-300 dark:border-slate-600'
-            }`}
-          />
-          {isFieldValid('username') && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-          )}
-          {isFieldInvalid('username') && (
-            <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-          )}
-        </div>
-        {isFieldInvalid('username') && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.username}</p>
-        )}
-      </div>
+      <FormInput
+        type="text"
+        id="username"
+        name="username"
+        value={formData.username}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        label="Username"
+        placeholder="3-20 characters, letters, numbers, _, -"
+        error={touched.username ? fieldErrors.username : undefined}
+        showValidation={touched.username}
+        isValid={isFieldValid('username')}
+      />
 
-      <div>
-        <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-          Email
-        </label>
-        <div className="relative">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="your.email@example.com"
-            className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-              isFieldInvalid('email')
-                ? 'border-red-500 dark:border-red-500'
-                : isFieldValid('email')
-                ? 'border-green-500 dark:border-green-500'
-                : 'border-gray-300 dark:border-slate-600'
-            }`}
-          />
-          {isFieldValid('email') && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-          )}
-          {isFieldInvalid('email') && (
-            <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-          )}
-        </div>
-        {isFieldInvalid('email') && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.email}</p>
-        )}
-      </div>
+      <FormInput
+        type="email"
+        id="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        label="Email"
+        placeholder="your.email@example.com"
+        error={touched.email ? fieldErrors.email : undefined}
+        showValidation={touched.email}
+        isValid={isFieldValid('email')}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="firstName" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-            First Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="John"
-              className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                isFieldInvalid('firstName')
-                  ? 'border-red-500 dark:border-red-500'
-                  : isFieldValid('firstName')
-                  ? 'border-green-500 dark:border-green-500'
-                  : 'border-gray-300 dark:border-slate-600'
-              }`}
-            />
-            {isFieldValid('firstName') && (
-              <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-            )}
-            {isFieldInvalid('firstName') && (
-              <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-            )}
-          </div>
-          {isFieldInvalid('firstName') && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.firstName}</p>
-          )}
-        </div>
+        <FormInput
+          type="text"
+          id="firstName"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          label="First Name"
+          placeholder="John"
+          error={touched.firstName ? fieldErrors.firstName : undefined}
+          showValidation={touched.firstName}
+          isValid={isFieldValid('firstName')}
+        />
 
-        <div>
-          <label htmlFor="lastName" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-            Last Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Doe"
-              className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                isFieldInvalid('lastName')
-                  ? 'border-red-500 dark:border-red-500'
-                  : isFieldValid('lastName')
-                  ? 'border-green-500 dark:border-green-500'
-                  : 'border-gray-300 dark:border-slate-600'
-              }`}
-            />
-            {isFieldValid('lastName') && (
-              <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-            )}
-            {isFieldInvalid('lastName') && (
-              <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-            )}
-          </div>
-          {isFieldInvalid('lastName') && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.lastName}</p>
-          )}
-        </div>
+        <FormInput
+          type="text"
+          id="lastName"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          label="Last Name"
+          placeholder="Doe"
+          error={touched.lastName ? fieldErrors.lastName : undefined}
+          showValidation={touched.lastName}
+          isValid={isFieldValid('lastName')}
+        />
       </div>
 
       <div>
-        <label htmlFor="birthDate" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-          Birth Date
-        </label>
-        <div className="relative">
-          <input
-            type="date"
-            id="birthDate"
-            name="birthDate"
-            value={formData.birthDate}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-            className={`w-full px-3 py-2.5 sm:py-2 pr-10 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-              isFieldInvalid('birthDate')
-                ? 'border-red-500 dark:border-red-500'
-                : isFieldValid('birthDate')
-                ? 'border-green-500 dark:border-green-500'
-                : 'border-gray-300 dark:border-slate-600'
-            }`}
-          />
-          {isFieldValid('birthDate') && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-          )}
-          {isFieldInvalid('birthDate') && (
-            <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-          )}
-        </div>
-        {isFieldInvalid('birthDate') ? (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.birthDate}</p>
-        ) : (
+        <FormInput
+          type="date"
+          id="birthDate"
+          name="birthDate"
+          value={formData.birthDate}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          label="Birth Date"
+          max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+          error={touched.birthDate ? fieldErrors.birthDate : undefined}
+          showValidation={touched.birthDate}
+          isValid={isFieldValid('birthDate')}
+        />
+        {!isFieldInvalid('birthDate') && (
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">You must be at least 18 years old</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-          Password
-        </label>
-        <div className="relative">
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="Enter a strong password"
-            className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-              isFieldInvalid('password')
-                ? 'border-red-500 dark:border-red-500'
-                : isFieldValid('password')
-                ? 'border-green-500 dark:border-green-500'
-                : 'border-gray-300 dark:border-slate-600'
-            }`}
-          />
-          {isFieldValid('password') && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-          )}
-          {isFieldInvalid('password') && (
-            <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-          )}
-        </div>
-        {isFieldInvalid('password') ? (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.password}</p>
-        ) : (
+        <FormInput
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          label="Password"
+          placeholder="Enter a strong password"
+          error={touched.password ? fieldErrors.password : undefined}
+          showValidation={touched.password}
+          isValid={isFieldValid('password')}
+        />
+        {!isFieldInvalid('password') && (
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
             8+ chars with uppercase, lowercase, number & special char (@$!%*?&)
           </p>
         )}
       </div>
 
-      <div>
-        <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-          Confirm Password
-        </label>
-        <div className="relative">
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="Re-enter your password"
-            className={`w-full px-3 py-2.5 sm:py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-              isFieldInvalid('confirmPassword')
-                ? 'border-red-500 dark:border-red-500'
-                : isFieldValid('confirmPassword')
-                ? 'border-green-500 dark:border-green-500'
-                : 'border-gray-300 dark:border-slate-600'
-            }`}
-          />
-          {isFieldValid('confirmPassword') && (
-            <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-          )}
-          {isFieldInvalid('confirmPassword') && (
-            <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-500" />
-          )}
-        </div>
-        {isFieldInvalid('confirmPassword') && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.confirmPassword}</p>
-        )}
-      </div>
+      <FormInput
+        type="password"
+        id="confirmPassword"
+        name="confirmPassword"
+        value={formData.confirmPassword}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        label="Confirm Password"
+        placeholder="Re-enter your password"
+        error={touched.confirmPassword ? fieldErrors.confirmPassword : undefined}
+        showValidation={touched.confirmPassword}
+        isValid={isFieldValid('confirmPassword')}
+      />
 
-      {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            {error}
-          </p>
-        </div>
-      )}
+      {error && <Alert type="error" message={error} />}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-gradient-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 text-white py-2.5 sm:py-2 rounded-full hover:from-green-700 hover:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all transform hover:scale-105 shadow-lg text-base sm:text-base"
-      >
+      <Button type="submit" fullWidth loading={loading}>
         {loading ? 'Creating Account...' : 'Register'}
-      </button>
+      </Button>
 
       <Link href="/login" className="btn-secondary text-sm text-center w-full mt-4">
         Back to Login

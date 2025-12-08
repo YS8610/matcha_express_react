@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import imageCompression from 'browser-image-compression';
 import TagSelector from '@/components/TagSelector';
+import { FormInput, FormSelect, FormTextarea, Button, Alert } from '@/components/ui';
 import {
   validateEnum,
   validateBiography,
@@ -160,8 +161,8 @@ export default function ProfileSetup() {
 
                 setFormData(prev => ({
                   ...prev,
-                  latitude: parseFloat(lat.toFixed(4)),
-                  longitude: parseFloat(lon.toFixed(4)),
+                  latitude: parseFloat(lat.toFixed(8)),
+                  longitude: parseFloat(lon.toFixed(8)),
                 }));
                 setIsAutoDetectedLocation(false);
                 setLocationLoading(false);
@@ -219,8 +220,8 @@ export default function ProfileSetup() {
 
               setFormData(prev => ({
                 ...prev,
-                latitude: parseFloat(lat.toFixed(4)),
-                longitude: parseFloat(lon.toFixed(4)),
+                latitude: parseFloat(lat.toFixed(8)),
+                longitude: parseFloat(lon.toFixed(8)),
               }));
               setIsAutoDetectedLocation(false);
               setLocationLoading(false);
@@ -440,89 +441,75 @@ export default function ProfileSetup() {
 
       <form className="space-y-6">
         <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">First Name</label>
-            <input
-              type="text"
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              className="w-full px-3 py-2 border rounded-md"
-              placeholder="Your first name..."
-            />
-            {fieldErrors.firstName && (
-              <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Last Name</label>
-            <input
-              type="text"
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              className="w-full px-3 py-2 border rounded-md"
-              placeholder="Your last name..."
-            />
-            {fieldErrors.lastName && (
-              <p className="text-xs text-red-500 mt-1">{fieldErrors.lastName}</p>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Gender</label>
-          <select
-            value={formData.gender}
-            onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            <option value="">Select...</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {fieldErrors.gender && (
-            <p className="text-xs text-red-500 mt-1">{fieldErrors.gender}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Sexual Preference</label>
-          <select
-            value={formData.sexualPreference}
-            onChange={(e) => setFormData({ ...formData, sexualPreference: e.target.value })}
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            <option value="">Select...</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="both">Both</option>
-          </select>
-          {fieldErrors.sexualPreference && (
-            <p className="text-xs text-red-500 mt-1">{fieldErrors.sexualPreference}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Birth Date</label>
-          <input
-            type="date"
-            value={formData.birthDate}
-            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-            className="w-full px-3 py-2 border rounded-md"
-            required
+          <FormInput
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            label="First Name"
+            placeholder="Your first name..."
+            error={fieldErrors.firstName}
           />
-          {fieldErrors.birthDate && (
-            <p className="text-xs text-red-500 mt-1">{fieldErrors.birthDate}</p>
-          )}
+
+          <FormInput
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            label="Last Name"
+            placeholder="Your last name..."
+            error={fieldErrors.lastName}
+          />
         </div>
+
+        <FormSelect
+          id="gender"
+          name="gender"
+          value={formData.gender}
+          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+          label="Gender"
+          options={[
+            { value: 'male', label: 'Male' },
+            { value: 'female', label: 'Female' },
+            { value: 'other', label: 'Other' },
+          ]}
+          error={fieldErrors.gender}
+        />
+
+        <FormSelect
+          id="sexualPreference"
+          name="sexualPreference"
+          value={formData.sexualPreference}
+          onChange={(e) => setFormData({ ...formData, sexualPreference: e.target.value })}
+          label="Sexual Preference"
+          options={[
+            { value: 'male', label: 'Male' },
+            { value: 'female', label: 'Female' },
+            { value: 'both', label: 'Both' },
+          ]}
+          error={fieldErrors.sexualPreference}
+        />
+
+        <FormInput
+          type="date"
+          id="birthDate"
+          name="birthDate"
+          value={formData.birthDate}
+          onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+          label="Birth Date"
+          max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+          error={fieldErrors.birthDate}
+          required
+        />
 
         <div>
           <label className="block text-sm font-medium mb-3">Location</label>
           {formData.latitude && formData.longitude && isAutoDetectedLocation && (
             <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
               <p className="text-xs text-green-600 dark:text-green-400">
-                ✓ Location auto-detected during account activation ({formData.latitude.toFixed(2)}, {formData.longitude.toFixed(2)})
+                ✓ Location auto-detected during account activation ({formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)})
               </p>
               <p className="text-xs text-green-500 dark:text-green-400 mt-1">
                 Use any of the options below to update your location
@@ -564,84 +551,70 @@ export default function ProfileSetup() {
             <div>
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Manual Coordinates</p>
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label htmlFor="latitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Latitude (-90 to 90)
-                  </label>
-                  <input
-                    type="number"
-                    id="latitude"
-                    value={formData.latitude !== null ? formData.latitude : ''}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const value = parseFloat(e.target.value);
-                        const rounded = parseFloat(value.toFixed(4));
-                        setFormData(prev => ({ ...prev, latitude: rounded }));
-                      } else {
-                        setFormData(prev => ({ ...prev, latitude: null }));
-                      }
-                    }}
-                    step="0.0001"
-                    min="-90"
-                    max="90"
-                    placeholder="e.g., 37.7749"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="longitude" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Longitude (-180 to 180)
-                  </label>
-                  <input
-                    type="number"
-                    id="longitude"
-                    value={formData.longitude !== null ? formData.longitude : ''}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const value = parseFloat(e.target.value);
-                        const rounded = parseFloat(value.toFixed(4));
-                        setFormData(prev => ({ ...prev, longitude: rounded }));
-                      } else {
-                        setFormData(prev => ({ ...prev, longitude: null }));
-                      }
-                    }}
-                    step="0.0001"
-                    min="-180"
-                    max="180"
-                    placeholder="e.g., -122.4194"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm"
-                  />
-                </div>
+                <FormInput
+                  type="number"
+                  id="latitude"
+                  name="latitude"
+                  value={formData.latitude !== null ? String(formData.latitude) : ''}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const value = parseFloat(e.target.value);
+                      const rounded = parseFloat(value.toFixed(8));
+                      setFormData(prev => ({ ...prev, latitude: rounded }));
+                    } else {
+                      setFormData(prev => ({ ...prev, latitude: null }));
+                    }
+                  }}
+                  label="Latitude (-90 to 90)"
+                  placeholder="e.g., 37.77491234"
+                  step="0.00000001"
+                  min="-90"
+                  max="90"
+                />
+
+                <FormInput
+                  type="number"
+                  id="longitude"
+                  name="longitude"
+                  value={formData.longitude !== null ? String(formData.longitude) : ''}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const value = parseFloat(e.target.value);
+                      const rounded = parseFloat(value.toFixed(8));
+                      setFormData(prev => ({ ...prev, longitude: rounded }));
+                    } else {
+                      setFormData(prev => ({ ...prev, longitude: null }));
+                    }
+                  }}
+                  label="Longitude (-180 to 180)"
+                  placeholder="e.g., -122.41943217"
+                  step="0.00000001"
+                  min="-180"
+                  max="180"
+                />
               </div>
             </div>
 
             {formData.latitude !== null && formData.longitude !== null && (
               <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded">
-                <strong>Current Location:</strong> {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+                <strong>Current Location:</strong> {formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)}
               </div>
             )}
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Biography</label>
-          <textarea
-            value={formData.biography}
-            onChange={(e) => setFormData({ ...formData, biography: e.target.value })}
-            rows={4}
-            maxLength={500}
-            className="w-full px-3 py-2 border rounded-md"
-            placeholder="Tell us about yourself..."
-          />
-          <div className="flex justify-between items-start mt-1">
-            <p className="text-xs text-gray-500">
-              {formData.biography.length}/500 characters
-            </p>
-            {fieldErrors.biography && (
-              <p className="text-xs text-red-500">{fieldErrors.biography}</p>
-            )}
-          </div>
-        </div>
+        <FormTextarea
+          id="biography"
+          name="biography"
+          value={formData.biography}
+          onChange={(e) => setFormData({ ...formData, biography: e.target.value })}
+          label="Biography"
+          placeholder="Tell us about yourself..."
+          rows={4}
+          maxLength={500}
+          showCharCount={true}
+          error={fieldErrors.biography}
+        />
 
         <div>
           <label className="block text-sm font-medium mb-2">Interests</label>
@@ -732,26 +705,26 @@ export default function ProfileSetup() {
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md p-4">
-            <p className="text-red-800 dark:text-red-200 text-sm font-medium mb-2">{error}</p>
+          <Alert type="error" message={error} onClose={() => setError('')}>
             {Object.keys(fieldErrors).length > 0 && (
-              <ul className="list-disc list-inside text-red-700 dark:text-red-300 text-xs space-y-1">
+              <ul className="list-disc list-inside text-xs space-y-1 mt-2">
                 {Object.entries(fieldErrors).map(([field, message]) => (
                   <li key={field}>{message}</li>
                 ))}
               </ul>
             )}
-          </div>
+          </Alert>
         )}
 
-        <button
+        <Button
           type="button"
           onClick={handleSubmit}
+          fullWidth
+          loading={loading}
           disabled={loading || !formData.firstName.trim() || !formData.lastName.trim() || !formData.gender || !formData.sexualPreference || !formData.birthDate || !formData.biography || formData.interests.length === 0 || formData.photos.length === 0}
-          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 disabled:opacity-50"
         >
           {loading ? 'Setting up...' : 'Complete Setup'}
-        </button>
+        </Button>
       </form>
     </div>
   );

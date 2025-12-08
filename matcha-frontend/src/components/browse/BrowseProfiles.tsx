@@ -4,10 +4,17 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
-import AlertBox from '@/components/AlertBox';
+import { Alert } from '@/components/ui';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
+import {
+  getBrowseSortPreference,
+  setBrowseSortPreference,
+  getBrowseItemsPerPagePreference,
+  setBrowseItemsPerPagePreference
+} from '@/lib/cookiePreferences';
+import { calculateDistance } from '@/lib/distance';
 
 const MemoizedProfileCard = memo(ProfileCard);
 
@@ -120,10 +127,20 @@ export default function BrowseProfiles() {
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [filters, setFilters] = useState<SearchFilters>({});
   const [showFilters, setShowFilters] = useState(false);
-  const [profilesPerPage, setProfilesPerPage] = useState(12);
+  const [profilesPerPage, setProfilesPerPage] = useState(() => {
+    const saved = getBrowseItemsPerPagePreference();
+    return saved ?? 12;
+  });
   const [error, setError] = useState('');
   const [searchName, setSearchName] = useState('');
-  const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc'>('fame-desc');
+  const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc'>(() => {
+    const saved = getBrowseSortPreference();
+    if (saved === 'age-asc' || saved === 'age-desc' || saved === 'distance-asc' || saved === 'distance-desc' || saved === 'fame-asc' || saved === 'fame-desc' || saved === 'tags-desc') {
+      return saved;
+    }
+    return 'distance-asc';
+  });
+  const [myTags, setMyTags] = useState<string[]>([]);
 
   const filteredProfiles = useMemo(() => {
     let profiles = allProfiles;
@@ -184,6 +201,15 @@ export default function BrowseProfiles() {
     return age;
   };
 
+  const getCommonTagsCount = useCallback((profileTags: string[] = []) => {
+    if (!myTags.length || !profileTags.length) return 0;
+
+    const myTagsLower = myTags.map(t => t.toLowerCase());
+    const profileTagsLower = profileTags.map(t => t.toLowerCase());
+
+    return profileTagsLower.filter(tag => myTagsLower.includes(tag)).length;
+  }, [myTags]);
+
   const sortedProfiles = useMemo(() => {
     const profiles = [...filteredProfiles];
 
@@ -193,19 +219,31 @@ export default function BrowseProfiles() {
       case 'age-desc':
         return profiles.sort((a, b) => calculateAge(b.birthDate) - calculateAge(a.birthDate));
       case 'distance-asc':
-        return profiles.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+        return profiles.sort((a, b) => {
+          const distA = a.distance !== undefined ? a.distance : Infinity;
+          const distB = b.distance !== undefined ? b.distance : Infinity;
+          return distA - distB;
+        });
       case 'distance-desc':
-        return profiles.sort((a, b) => (b.distance || 0) - (a.distance || 0));
+        return profiles.sort((a, b) => {
+          const distA = a.distance !== undefined ? a.distance : 0;
+          const distB = b.distance !== undefined ? b.distance : 0;
+          return distB - distA;
+        });
       case 'fame-asc':
         return profiles.sort((a, b) => (a.fameRating || 0) - (b.fameRating || 0));
       case 'fame-desc':
         return profiles.sort((a, b) => (b.fameRating || 0) - (a.fameRating || 0));
       case 'tags-desc':
-        return profiles.sort((a, b) => (b.userTags?.length || 0) - (a.userTags?.length || 0));
+        return profiles.sort((a, b) => {
+          const aCommonTags = getCommonTagsCount(a.userTags);
+          const bCommonTags = getCommonTagsCount(b.userTags);
+          return bCommonTags - aCommonTags;
+        });
       default:
         return profiles;
     }
-  }, [filteredProfiles, sortBy]);
+  }, [filteredProfiles, sortBy, getCommonTagsCount]);
 
   const totalPages = Math.ceil(sortedProfiles.length / profilesPerPage);
 
@@ -226,7 +264,30 @@ export default function BrowseProfiles() {
 
       const response = await api.getFilteredProfiles(requestFilters);
 
-      const profiles = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+      let profiles = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+
+      try {
+        const currentUserProfile = await api.getProfile();
+        const userProfile = currentUserProfile.data as any;
+
+        if (userProfile?.latitude !== undefined && userProfile?.longitude !== undefined) {
+          profiles = profiles.map((profile: ProfileShort) => {
+            if (profile.latitude !== undefined && profile.longitude !== undefined) {
+              const distance = calculateDistance(
+                userProfile.latitude,
+                userProfile.longitude,
+                profile.latitude,
+                profile.longitude
+              );
+              return { ...profile, distance };
+            }
+            return profile;
+          });
+        }
+      } catch (distanceError) {
+        console.error('Failed to calculate distances:', distanceError);
+      }
+
       setAllProfiles(profiles as ProfileShort[]);
       setTotalProfiles(profiles.length);
       setCurrentPage(1);
@@ -239,7 +300,7 @@ export default function BrowseProfiles() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, addToast]);
 
   useEffect(() => {
     loadProfiles();
@@ -252,6 +313,20 @@ export default function BrowseProfiles() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchMyTags = async () => {
+      try {
+        const response = await api.getUserTags() as { tags?: string[] };
+        setMyTags(response.tags || []);
+      } catch (error) {
+        console.error('Failed to fetch user tags:', error);
+        setMyTags([]);
+      }
+    };
+
+    fetchMyTags();
   }, []);
 
   useEffect(() => {
@@ -327,8 +402,8 @@ export default function BrowseProfiles() {
             </div>
           )}
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <div className="flex-1 sm:flex-none relative">
+        <div className="flex gap-2 w-full lg:w-auto flex-wrap">
+          <div className="flex-1 min-w-[200px] max-w-[300px] relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 dark:text-green-400" />
             <input
               type="text"
@@ -352,28 +427,30 @@ export default function BrowseProfiles() {
               </button>
             )}
           </div>
-          <div className="relative">
+          <div className="relative min-w-[180px]">
             <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 dark:text-green-400 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => {
-                setSortBy(e.target.value as typeof sortBy);
+                const newSort = e.target.value as typeof sortBy;
+                setSortBy(newSort);
+                setBrowseSortPreference(newSort);
                 setCurrentPage(1);
               }}
-              className="pl-10 pr-4 py-2 border border-green-300 dark:border-green-700 rounded-full bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors appearance-none cursor-pointer"
+              className="pl-10 pr-4 py-2 border border-green-300 dark:border-green-700 rounded-full bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors appearance-none cursor-pointer w-full"
             >
+              <option value="distance-asc">Distance (Near to Far)</option>
+              <option value="distance-desc">Distance (Far to Near)</option>
+              <option value="tags-desc">Common Interests</option>
               <option value="fame-desc">Fame (High to Low)</option>
               <option value="fame-asc">Fame (Low to High)</option>
               <option value="age-asc">Age (Young to Old)</option>
               <option value="age-desc">Age (Old to Young)</option>
-              <option value="distance-asc">Distance (Near to Far)</option>
-              <option value="distance-desc">Distance (Far to Near)</option>
-              <option value="tags-desc">Common Interests</option>
             </select>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2 whitespace-nowrap"
+            className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-full hover:from-green-700 hover:to-green-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <Filter className="w-4 h-4" />
             Filters
@@ -388,7 +465,7 @@ export default function BrowseProfiles() {
 
       {error && (
         <div className="mb-6">
-          <AlertBox
+          <Alert
             type="error"
             message={error}
             onClose={() => setError('')}
@@ -438,6 +515,7 @@ export default function BrowseProfiles() {
               profilesPerPage={profilesPerPage}
               onItemsPerPageChange={(count) => {
                 setProfilesPerPage(count);
+                setBrowseItemsPerPagePreference(count);
                 setCurrentPage(1);
               }}
             />
@@ -462,6 +540,7 @@ export default function BrowseProfiles() {
               profilesPerPage={profilesPerPage}
               onItemsPerPageChange={(count) => {
                 setProfilesPerPage(count);
+                setBrowseItemsPerPagePreference(count);
                 setCurrentPage(1);
               }}
             />

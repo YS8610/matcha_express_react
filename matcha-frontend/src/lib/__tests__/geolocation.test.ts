@@ -128,7 +128,7 @@ describe('Geolocation Utilities', () => {
       });
 
       const location = await getLocationName(40.7128, -74.006);
-      expect(location).toMatch(/40\.71.*-74\.01/);
+      expect(location).toMatch(/40\.71.*-74\.00/);
     });
 
     it('should return coordinates on error response from API', async () => {

@@ -3,14 +3,25 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Leaf } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import NotificationCenter from '@/components/NotificationCenter';
 import { ThemeToggle } from './ThemeToggle';
 import MobileMenu from './MobileMenu';
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
-  const navLinkClass = 'btn-secondary text-xs md:text-sm lg:text-sm whitespace-nowrap';
+  const getNavLinkClass = (href: string) => {
+    const isActive = pathname === href || pathname?.startsWith(`${href}/`);
+    const baseClass = 'text-xs md:text-sm lg:text-sm whitespace-nowrap px-3 xl:px-4 py-1.5 xl:py-2 rounded-lg font-medium transition-all transform hover:scale-105 shadow-sm';
+
+    if (isActive) {
+      return `${baseClass} bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 dark:from-green-700 dark:to-green-600 dark:hover:from-green-800 dark:hover:to-green-700 text-green-800 dark:text-white border-2 border-green-600 dark:border-transparent`;
+    }
+
+    return `${baseClass} bg-white hover:bg-green-50 dark:bg-slate-800 dark:hover:bg-slate-700 border-2 border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 hover:border-green-700 dark:hover:border-green-400`;
+  };
 
   return (
     <header className="relative z-40 shadow-md border-b bg-neutral-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
@@ -28,25 +39,22 @@ export default function Header() {
           <nav className="hidden lg:flex space-x-2 xl:space-x-4 flex-grow justify-center mx-2 xl:mx-6 min-w-0">
             {user && (
               <>
-                <Link href="/browse" className={navLinkClass}>
+                <Link href="/browse" className={getNavLinkClass('/browse')}>
                   Browse
                 </Link>
-                <Link href="/visitors" className={navLinkClass}>
+                <Link href="/visitors" className={getNavLinkClass('/visitors')}>
                   Visitors
                 </Link>
-                <Link href="/likes" className={navLinkClass}>
+                <Link href="/likes" className={getNavLinkClass('/likes')}>
                   Likes
                 </Link>
-                <Link href="/matches" className={navLinkClass}>
-                  Matches
-                </Link>
-                <Link href="/blocked" className={navLinkClass}>
+                <Link href="/blocked" className={getNavLinkClass('/blocked')}>
                   Blocked
                 </Link>
-                <Link href="/messages" className={navLinkClass}>
+                <Link href="/messages" className={getNavLinkClass('/messages')}>
                   Messages
                 </Link>
-                <Link href="/profile" className={navLinkClass}>
+                <Link href="/profile" className={getNavLinkClass('/profile')}>
                   Profile
                 </Link>
               </>
@@ -73,13 +81,13 @@ export default function Header() {
               <div className="gap-2 xl:gap-3 flex items-center">
                 <Link
                   href="/login"
-                  className="btn-secondary text-xs xl:text-sm"
+                  className={getNavLinkClass('/login')}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="btn-primary text-xs sm:text-sm font-semibold text-white"
+                  className={getNavLinkClass('/register')}
                 >
                   Register
                 </Link>

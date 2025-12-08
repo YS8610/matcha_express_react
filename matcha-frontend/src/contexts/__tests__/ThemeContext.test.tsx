@@ -4,35 +4,19 @@ import { ThemeProvider, useTheme, initializeTheme } from '@/contexts/ThemeContex
 import React from 'react';
 
 describe('ThemeContext', () => {
-  let localStorageMock: { [key: string]: string };
-
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock localStorage
-    localStorageMock = {};
-    global.localStorage = {
-      getItem: vi.fn((key: string) => localStorageMock[key] || null),
-      setItem: vi.fn((key: string, value: string) => {
-        localStorageMock[key] = value;
-      }),
-      removeItem: vi.fn((key: string) => {
-        delete localStorageMock[key];
-      }),
-      clear: vi.fn(() => {
-        localStorageMock = {};
-      }),
-      length: 0,
-      key: vi.fn(),
-    } as Storage;
+    document.cookie.split(';').forEach((cookie) => {
+      const name = cookie.split('=')[0].trim();
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+    });
 
-    // Mock document.documentElement
     document.documentElement.classList.add = vi.fn();
     document.documentElement.classList.remove = vi.fn();
     document.documentElement.setAttribute = vi.fn();
     document.documentElement.getAttribute = vi.fn(() => null);
 
-    // Mock window.matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation(query => ({
@@ -105,7 +89,6 @@ describe('ThemeContext', () => {
     });
 
     it('should throw error when used outside ThemeProvider', () => {
-      // Suppress console.error for this test
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       expect(() => {
@@ -201,10 +184,10 @@ describe('ThemeContext', () => {
         result.current.setTheme('dark');
       });
 
-      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'dark');
+      expect(document.cookie).toContain('theme=dark');
     });
 
-    it('should persist theme to localStorage when set to light', () => {
+    it('should persist theme to cookies when set to light', () => {
       const { result } = renderHook(() => useTheme(), {
         wrapper: ThemeProvider,
       });
@@ -213,7 +196,7 @@ describe('ThemeContext', () => {
         result.current.setTheme('light');
       });
 
-      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'light');
+      expect(document.cookie).toContain('theme=light');
     });
   });
 
@@ -270,8 +253,8 @@ describe('ThemeContext', () => {
   });
 
   describe('initializeTheme Function', () => {
-    it('should initialize theme from localStorage if available', () => {
-      localStorageMock['theme'] = 'dark';
+    it('should initialize theme from cookies if available', () => {
+      document.cookie = 'theme=dark; path=/';
 
       initializeTheme();
 
@@ -311,7 +294,6 @@ describe('ThemeContext', () => {
 
     it('should handle SSR gracefully (no document)', () => {
       const originalDocument = global.document;
-      // @ts-ignore
       delete global.document;
 
       expect(() => {
@@ -344,7 +326,6 @@ describe('ThemeContext', () => {
         wrapper: ThemeProvider,
       });
 
-      // Wait for useEffect to run
       waitFor(() => {
         expect(result.current.theme).toBe('dark');
       });
@@ -379,7 +360,7 @@ describe('ThemeContext', () => {
       });
 
       expect(result.current.theme).toBe('dark');
-      expect(localStorage.setItem).toHaveBeenCalledTimes(3);
+      expect(document.cookie).toContain('theme=dark');
     });
 
     it('should handle unmounting provider', () => {
