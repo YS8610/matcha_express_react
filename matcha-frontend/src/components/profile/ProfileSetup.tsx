@@ -85,7 +85,7 @@ export default function ProfileSetup() {
           }));
         }
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
+        addToast('Failed to fetch profile', 'error');
       } finally {
         setProfileLoading(false);
       }
@@ -136,7 +136,7 @@ export default function ProfileSetup() {
           }
         },
         async (error) => {
-          console.warn('Browser geolocation failed, trying IP-based fallback:', error.message);
+          addToast('Browser geolocation failed, trying IP-based fallback', 'warning', 3000);
 
           const services = [
             { url: 'http://ip-api.com/json/', lat: 'lat', lon: 'lon', city: 'city', country: 'country' },
@@ -147,13 +147,11 @@ export default function ProfileSetup() {
 
           for (const service of services) {
             try {
-              console.log(`Trying IP service: ${service.url}`);
               const response = await fetch(service.url);
 
               if (!response.ok) continue;
 
               const data = await response.json();
-              console.log('IP service response:', data);
 
               if (data[service.lat] && data[service.lon]) {
                 const lat = parseFloat(data[service.lat]);
@@ -174,13 +172,11 @@ export default function ProfileSetup() {
                 break;
               }
             } catch (err) {
-              console.warn(`Service ${service.url} failed:`, err);
               continue;
             }
           }
 
           if (!success) {
-            console.error('All IP geolocation services failed');
             const errorMsg = 'Unable to detect location. Please enter coordinates manually below.';
             setError(errorMsg);
             addToast(errorMsg, 'warning', 4000);
@@ -194,7 +190,7 @@ export default function ProfileSetup() {
         }
       );
     } else {
-      console.warn('Browser geolocation not supported, trying IP-based fallback');
+      addToast('Browser geolocation not supported, trying IP-based fallback', 'warning', 3000);
 
       (async () => {
         const services = [
@@ -206,13 +202,11 @@ export default function ProfileSetup() {
 
         for (const service of services) {
           try {
-            console.log(`Trying IP service: ${service.url}`);
             const response = await fetch(service.url);
 
             if (!response.ok) continue;
 
             const data = await response.json();
-            console.log('IP service response:', data);
 
             if (data[service.lat] && data[service.lon]) {
               const lat = parseFloat(data[service.lat]);
@@ -233,13 +227,11 @@ export default function ProfileSetup() {
               break;
             }
           } catch (err) {
-            console.warn(`Service ${service.url} failed:`, err);
             continue;
           }
         }
 
         if (!success) {
-          console.error('All IP geolocation services failed');
           const errorMsg = 'Geolocation not supported. Please enter coordinates manually below.';
           setError(errorMsg);
           addToast(errorMsg, 'warning', 4000);
@@ -359,7 +351,7 @@ export default function ProfileSetup() {
         try {
           await api.updateUserLocation(formData.latitude, formData.longitude);
         } catch (locationError) {
-          console.error('Failed to update location:', locationError);
+          addToast('Failed to update location', 'error');
         }
       }
 
@@ -367,7 +359,7 @@ export default function ProfileSetup() {
         try {
           await api.addTag(interest);
         } catch (tagError) {
-          console.error(`Failed to add tag ${interest}:`, tagError);
+          addToast(`Failed to add tag ${interest}`, 'error');
         }
       }
 
@@ -393,8 +385,6 @@ export default function ProfileSetup() {
       addToast('Profile setup completed successfully! Welcome to Matcha!', 'success', 4000);
       router.push('/browse');
     } catch (err: unknown) {
-      console.error('Profile setup error:', err);
-
       let errorMessage = 'Failed to setup profile';
 
       if (err instanceof Error) {

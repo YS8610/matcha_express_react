@@ -33,18 +33,24 @@ export async function GET(request: NextRequest) {
 
   try {
     lastRequestTime = Date.now();
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
       {
         headers: {
           'User-Agent': 'Matcha-Dating-App/1.0 (Educational Project)',
           'Accept': 'application/json'
-        }
+        },
+        signal: controller.signal
       }
     );
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      console.error(`Nominatim API error: ${response.status} ${response.statusText}`);
       return NextResponse.json(
         { error: 'Geocoding service unavailable', fallback: true },
         { status: 200 }
@@ -63,7 +69,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Geocoding error:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Geocoding request timed out', fallback: true },
+        { status: 200 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to fetch location data', fallback: true },
       { status: 200 }

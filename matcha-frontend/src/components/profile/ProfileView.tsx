@@ -546,9 +546,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             {(profile.latitude !== undefined && profile.longitude !== undefined) && (
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Location</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
-                  {locationName ? locationName : <span className="text-gray-500 dark:text-gray-400 animate-pulse">Loading...</span>}
-                </p>
                 {distance !== null && user && user.id !== userId && (
                   <div className="flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3 text-green-600 dark:text-green-400" />

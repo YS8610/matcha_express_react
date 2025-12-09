@@ -35,6 +35,10 @@ export default function NotificationCenter() {
   const [seenNotificationIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       loadNotifications();
       const interval = setInterval(loadNotifications, 10000);
@@ -205,9 +209,8 @@ export default function NotificationCenter() {
                     <div
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
-                      className={`p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                        !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                      }`}
+                      className={`p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-1">

@@ -71,8 +71,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('notification', (data: unknown) => {
-      console.log('[WebSocket] Received notification:', data);
-
       const notifData = data as {
         id?: string;
         userId?: string;
@@ -117,8 +115,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     const handleChatMessage = (data: ChatMessage) => {
-      console.log('[WebSocket] Received chat message:', data);
-
       const otherUserId = data.fromUserId === user?.id ? data.toUserId : data.fromUserId;
       setChatMessages(prev => ({
         ...prev,
@@ -171,8 +167,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         timestamp: Date.now()
       };
       socket.emit('chatMessage', message);
-    } else {
-      console.warn('[WebSocket] Cannot send message: socket not connected');
     }
   }, [socket, isConnected, user]);
 

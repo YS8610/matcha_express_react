@@ -32,16 +32,12 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
     );
 
     if (!response.ok) {
-      console.warn(`Geolocation API error: ${response.status}`);
       return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
     }
 
     const data: NominatimResponse = await response.json();
 
     if (data.error || data.fallback) {
-      if (data.error && !data.fallback) {
-        console.warn('Geolocation API error:', data.error);
-      }
       return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
     }
 
@@ -67,7 +63,6 @@ export const getLocationName = async (latitude: number, longitude: number): Prom
 
     return result;
   } catch (error) {
-    console.error('Failed to fetch location name:', error);
     return `${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`;
   }
 };

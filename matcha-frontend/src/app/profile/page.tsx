@@ -223,9 +223,6 @@ export default function MyProfilePage() {
                         <MapPin className="w-3 h-3 text-green-600 dark:text-green-500" />
                         <span className="font-medium text-green-800 dark:text-green-400">Location:</span>
                       </p>
-                      <p className="ml-4 text-xs">
-                        {locationName || 'Loading...'}
-                      </p>
                       <a
                         href={`https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`}
                         target="_blank"

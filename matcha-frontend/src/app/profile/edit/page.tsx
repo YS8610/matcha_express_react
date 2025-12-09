@@ -82,8 +82,8 @@ export default function EditProfilePage() {
           setLocationDetected(true);
         }
       } catch (error) {
-        console.error('Failed to load profile:', error);
         setError('Failed to load profile data');
+        addToast('Failed to load profile', 'error');
       }
     };
 
@@ -125,7 +125,7 @@ export default function EditProfilePage() {
           }
         },
         async (error) => {
-          console.warn('Browser geolocation failed, trying IP-based fallback:', error.message);
+          addToast('Browser geolocation failed, trying IP-based fallback', 'warning', 3000);
 
           const services = [
             { url: 'http://ip-api.com/json/', lat: 'lat', lon: 'lon', city: 'city', country: 'country' },
@@ -136,13 +136,11 @@ export default function EditProfilePage() {
 
           for (const service of services) {
             try {
-              console.log(`Trying IP service: ${service.url}`);
               const response = await fetch(service.url);
 
               if (!response.ok) continue;
 
               const data = await response.json();
-              console.log('IP service response:', data);
 
               if (data[service.lat] && data[service.lon]) {
                 const lat = parseFloat(data[service.lat]);
@@ -163,13 +161,11 @@ export default function EditProfilePage() {
                 break;
               }
             } catch (err) {
-              console.warn(`Service ${service.url} failed:`, err);
               continue;
             }
           }
 
           if (!success) {
-            console.error('All IP geolocation services failed');
             const errorMsg = 'Unable to detect location. Please enter coordinates manually below.';
             setError(errorMsg);
             addToast(errorMsg, 'warning', 4000);
@@ -183,7 +179,7 @@ export default function EditProfilePage() {
         }
       );
     } else {
-      console.warn('Browser geolocation not supported, trying IP-based fallback');
+      addToast('Browser geolocation not supported, trying IP-based fallback', 'warning', 3000);
 
       (async () => {
         const services = [
@@ -195,13 +191,11 @@ export default function EditProfilePage() {
 
         for (const service of services) {
           try {
-            console.log(`Trying IP service: ${service.url}`);
             const response = await fetch(service.url);
 
             if (!response.ok) continue;
 
             const data = await response.json();
-            console.log('IP service response:', data);
 
             if (data[service.lat] && data[service.lon]) {
               const lat = parseFloat(data[service.lat]);
@@ -222,13 +216,11 @@ export default function EditProfilePage() {
               break;
             }
           } catch (err) {
-            console.warn(`Service ${service.url} failed:`, err);
             continue;
           }
         }
 
         if (!success) {
-          console.error('All IP geolocation services failed');
           const errorMsg = 'Geolocation not supported. Please enter coordinates manually below.';
           setError(errorMsg);
           addToast(errorMsg, 'warning', 3000);

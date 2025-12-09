@@ -7,6 +7,7 @@ import { generateAvatarUrl } from '@/lib/api';
 import AuthImage from '@/components/AuthImage';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags } from '@/lib/security';
+import { formatDistance } from '@/lib/distance';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
@@ -89,7 +90,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {(profile.distance / 1000).toFixed(1)} km
+              {formatDistance(profile.distance)}
             </span>
           )}
         </div>

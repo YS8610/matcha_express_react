@@ -35,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await api.ping();
       } catch (error) {
-        console.error('Ping failed:', error);
       }
     }, 60000);
 
@@ -93,7 +92,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
       tokenStorage.clearToken();
     } finally {
       setLoading(false);
@@ -159,7 +157,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       window.location.href = '/login';
     } catch (error) {
-      console.error('Logout error:', error);
     }
   };
 
