@@ -67,7 +67,8 @@ export default function MessagesPage() {
   };
 
   const ConversationItem = ({ profile }: { profile: ProfileShort }) => {
-    const photoUrl = profile.photo0
+    const hasPhoto = profile.photo0 && profile.photo0.length > 0;
+    const photoUrl = hasPhoto
       ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 

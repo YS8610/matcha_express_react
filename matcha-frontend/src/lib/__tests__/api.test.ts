@@ -190,7 +190,7 @@ describe('API Client', () => {
       await api.getChatHistory('user-id-123', 50, 0);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/user/chat?otherid=user-id-123&limit=50&skipno=0'),
+        expect.stringContaining('/api/user/chat/user-id-123?limit=50&skipno=0'),
         expect.objectContaining({
           method: 'GET',
         })

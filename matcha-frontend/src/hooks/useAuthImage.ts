@@ -23,11 +23,12 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
       const token = getToken();
 
       if (!token) {
-
+        console.warn(`[useAuthImage] No token available for ${photoName}, attempt ${attemptCount}/${maxAttempts}`);
         if (attemptCount < maxAttempts && isMounted) {
           const delay = Math.min(100 * attemptCount, 1000);
           setTimeout(attemptFetch, delay);
         } else if (isMounted) {
+          console.error(`[useAuthImage] Failed to load ${photoName} - no token after ${maxAttempts} attempts`);
           setImageUrl(null);
         }
         return;
@@ -43,6 +44,7 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
           if (!isMounted) return;
 
           if (!response.ok) {
+            console.error(`[useAuthImage] Failed to load ${photoName}: ${response.status} ${response.statusText}`);
             setImageUrl(null);
             return;
           }

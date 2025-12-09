@@ -34,24 +34,12 @@ export default function NotificationCenter() {
   const [error, setError] = useState('');
   const [seenNotificationIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      loadNotifications();
-      const interval = setInterval(loadNotifications, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [isOpen]);
-
-  const loadNotifications = async () => {
+  const loadNotifications = React.useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       const response = await api.getNotifications(20, 0);
-      const notifications = Array.isArray(response.data) ? response.data : response.data && typeof response.data === 'object' ? Object.values(response.data) : [];
+      const notifications = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : response.data && typeof response.data === 'object' ? Object.values(response.data) : [];
       setApiNotifications(notifications as Notification[]);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load notifications';
@@ -60,7 +48,19 @@ export default function NotificationCenter() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadNotifications();
+      const interval = setInterval(loadNotifications, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isOpen, loadNotifications]);
 
   const allNotifications = (() => {
     const seenIds = new Set<string>();

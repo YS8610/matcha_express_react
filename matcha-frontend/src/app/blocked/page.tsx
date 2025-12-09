@@ -55,7 +55,8 @@ export default function BlockedPage() {
   };
 
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
-    const photoUrl = profile.photo0
+    const hasPhoto = profile.photo0 && profile.photo0.length > 0;
+    const photoUrl = hasPhoto
       ? `/api/photo/${profile.photo0}`
       : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
@@ -66,10 +67,7 @@ export default function BlockedPage() {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="flex items-center p-4">
-          <div
-            onClick={() => handleProfileClick(profile.id)}
-            className="relative w-16 h-16 cursor-pointer hover:opacity-80 transition-opacity"
-          >
+          <div className="relative w-16 h-16">
             <AuthImage
               src={photoUrl}
               alt={profile.username}
@@ -79,10 +77,7 @@ export default function BlockedPage() {
               fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
             />
           </div>
-          <div
-            onClick={() => handleProfileClick(profile.id)}
-            className="flex-1 ml-4 cursor-pointer hover:opacity-80 transition-opacity"
-          >
+          <div className="flex-1 ml-4">
             <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
               {profile.firstName} {profile.lastName}
             </h3>

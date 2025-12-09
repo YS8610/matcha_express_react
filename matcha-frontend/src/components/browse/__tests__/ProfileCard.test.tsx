@@ -25,7 +25,7 @@ describe('ProfileCard Component', () => {
     photo0: 'photo1.jpg',
     fameRating: 4.5,
     lastOnline: Date.now(),
-    distance: 5200,
+    distance: 5.2,
   };
 
   beforeEach(() => {

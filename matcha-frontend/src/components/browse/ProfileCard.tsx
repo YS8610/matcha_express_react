@@ -51,6 +51,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const isOnline = profile.lastOnline ? (Date.now() - profile.lastOnline) < 5 * 60 * 1000 : false;
 
+  const hasPhoto = profile.photo0 && profile.photo0.length > 0;
+
   return (
     <a
       href={`/profile/${profileId}`}
@@ -58,7 +60,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     >
       <div className="relative h-64 w-full aspect-video">
         <AuthImage
-          src={profile.photo0 ? `/api/photo/${profile.photo0}` : generateAvatarUrl(displayName, profileId)}
+          src={hasPhoto ? `/api/photo/${profile.photo0}` : generateAvatarUrl(displayName, profileId)}
           alt={`Profile ${profileId}`}
           fill
           unoptimized

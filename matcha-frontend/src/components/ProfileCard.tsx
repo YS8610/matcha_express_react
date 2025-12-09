@@ -17,7 +17,8 @@ export default function ProfileCard({
   badgeIcon,
   badgeClassName = 'bg-red-500 text-white'
 }: ProfileCardProps) {
-  const photoUrl = profile.photo0
+  const hasPhoto = profile.photo0 && profile.photo0.length > 0;
+  const photoUrl = hasPhoto
     ? `/api/photo/${profile.photo0}`
     : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
 
