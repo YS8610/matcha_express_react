@@ -92,6 +92,7 @@ export default function MessagesPage() {
               height={56}
               className="object-cover"
               unoptimized
+              priority
               fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
             />
           </div>

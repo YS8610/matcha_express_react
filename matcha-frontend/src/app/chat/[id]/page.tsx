@@ -271,6 +271,7 @@ export default function ChatPage() {
                       fill
                       className="object-cover"
                       unoptimized
+                      priority
                       fallbackSrc={photoUrl}
                     />
                   )}
