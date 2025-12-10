@@ -69,11 +69,11 @@ const eventHandlers = (io: Server) => {
       }
       // check if sender is matched with recipient
       // TODO: Fix match check - temporarily disabled for testing
-      // const isMatched = await isMatch(data.fromUserId, data.toUserId);
-      // if (!isMatched) {
-      //   io.to(socket.id).emit("error", { msg: "Cannot send message to this user as you are not matched" });
-      //   return;
-      // }
+      const isMatched = await isMatch(data.fromUserId, data.toUserId);
+      if (!isMatched) {
+        io.to(socket.id).emit("error", { msg: "Cannot send message to this user as you are not matched" });
+        return;
+      }
       // store message in db and create notification
       try {
         await saveChatmsg(getDb, data);
