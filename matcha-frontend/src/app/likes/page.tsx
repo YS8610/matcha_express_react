@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import ProfileCard from '@/components/ProfileCard';
@@ -8,37 +8,23 @@ import LoadingSkeleton from '@/components/LoadingSkeleton';
 import EmptyState from '@/components/EmptyState';
 import { Alert } from '@/components/ui';
 import { api } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
 import { ProfileShort } from '@/types';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export default function LikesPage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [likedMe, setLikedMe] = useState<ProfileShort[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { user } = useRequireAuth();
+  const { data: likedMe, loading, error, execute, setData } = useAsyncData<ProfileShort[]>();
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
+    if (user) {
+      execute(async () => {
+        const response = await api.getUsersWhoLikedMe();
+        return Array.isArray(response) ? response : response.data || [];
+      });
     }
-    loadData();
-  }, [user, router]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-
-      const response = await api.getUsersWhoLikedMe();
-      setLikedMe(Array.isArray(response) ? response : response.data || []);
-    } catch (err) {
-      setError((err as Error).message || 'Failed to load likes data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, execute]);
 
 
   return (
@@ -56,11 +42,11 @@ export default function LikesPage() {
           <p className="text-gray-600 dark:text-gray-400">These users have shown interest in your profile</p>
         </div>
 
-        {error && <Alert type="error" message={error} onClose={() => setError('')} />}
+        {error && <Alert type="error" message={error} />}
 
         {loading ? (
           <LoadingSkeleton count={6} type="grid" />
-        ) : likedMe.length > 0 ? (
+        ) : likedMe && likedMe.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {likedMe.map((profile) => (
               <ProfileCard

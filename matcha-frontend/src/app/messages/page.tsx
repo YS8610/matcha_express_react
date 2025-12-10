@@ -11,6 +11,7 @@ import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage } from '@/types';
 import AuthImage from '@/components/AuthImage';
 import { useWebSocket } from '@/contexts/WebSocketContext';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 export default function MessagesPage() {
   const { user, loading: authLoading } = useAuth();
@@ -67,10 +68,11 @@ export default function MessagesPage() {
   };
 
   const ConversationItem = ({ profile }: { profile: ProfileShort }) => {
-    const hasPhoto = profile.photo0 && profile.photo0.length > 0;
-    const photoUrl = hasPhoto
-      ? `/api/photo/${profile.photo0}`
-      : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
+    const photoUrl = useProfilePhoto(
+      profile.photo0,
+      profile.firstName + ' ' + profile.lastName,
+      profile.id
+    );
 
     const lastMessage = getLastMessage(profile.id);
     const unreadCount = getUnreadCount(profile.id);

@@ -3,6 +3,7 @@ import AuthImage from './AuthImage';
 import { generateAvatarUrl } from '@/lib/api';
 import { ProfileShort } from '@/types';
 import { formatDistance } from '@/lib/distance';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 interface ProfileCardProps {
   profile: ProfileShort;
@@ -17,10 +18,11 @@ export default function ProfileCard({
   badgeIcon,
   badgeClassName = 'bg-red-500 text-white'
 }: ProfileCardProps) {
-  const hasPhoto = profile.photo0 && profile.photo0.length > 0;
-  const photoUrl = hasPhoto
-    ? `/api/photo/${profile.photo0}`
-    : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
+  const photoUrl = useProfilePhoto(
+    profile.photo0,
+    profile.firstName + ' ' + profile.lastName,
+    profile.id
+  );
 
   const handleClick = () => {
     window.location.href = `/profile/${profile.id}`;

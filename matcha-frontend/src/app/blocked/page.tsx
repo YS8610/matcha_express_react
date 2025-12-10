@@ -7,6 +7,7 @@ import AuthImage from '@/components/AuthImage';
 import { api, generateAvatarUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileShort } from '@/types';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 export default function BlockedPage() {
   const router = useRouter();
@@ -55,10 +56,11 @@ export default function BlockedPage() {
   };
 
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
-    const hasPhoto = profile.photo0 && profile.photo0.length > 0;
-    const photoUrl = hasPhoto
-      ? `/api/photo/${profile.photo0}`
-      : generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id);
+    const photoUrl = useProfilePhoto(
+      profile.photo0,
+      profile.firstName + ' ' + profile.lastName,
+      profile.id
+    );
 
     const displayFameRating = typeof profile.fameRating === 'object' && profile.fameRating !== null && 'low' in profile.fameRating
       ? (profile.fameRating as { low: number }).low || 0

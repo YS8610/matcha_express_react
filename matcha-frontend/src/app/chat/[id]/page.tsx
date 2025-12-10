@@ -11,6 +11,7 @@ import { api, generateAvatarUrl } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
 import AuthImage from '@/components/AuthImage';
 import { sanitizeInput } from '@/lib/security';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
@@ -237,10 +238,11 @@ export default function ChatPage() {
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : 'Loading...';
   const displayUsername = profile?.username || chatUserId;
 
-  const hasPhoto = profile && profile.photo0 && profile.photo0.length > 0;
-  const photoUrl = hasPhoto
-    ? `/api/photo/${profile.photo0}`
-    : profile ? generateAvatarUrl(displayName, profile.id) : generateAvatarUrl(displayUsername, chatUserId);
+  const photoUrl = useProfilePhoto(
+    profile?.photo0,
+    profile ? displayName : displayUsername,
+    profile?.id || chatUserId
+  );
 
   const isOnline = onlineUsers[chatUserId] || false;
 

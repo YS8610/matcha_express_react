@@ -8,6 +8,7 @@ import AuthImage from '@/components/AuthImage';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags } from '@/lib/security';
 import { formatDistance } from '@/lib/distance';
+import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
@@ -51,7 +52,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const isOnline = profile.lastOnline ? (Date.now() - profile.lastOnline) < 5 * 60 * 1000 : false;
 
-  const hasPhoto = profile.photo0 && profile.photo0.length > 0;
+  const photoUrl = useProfilePhoto(profile.photo0, displayName, profileId);
 
   return (
     <a
@@ -60,7 +61,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     >
       <div className="relative h-64 w-full aspect-video">
         <AuthImage
-          src={hasPhoto ? `/api/photo/${profile.photo0}` : generateAvatarUrl(displayName, profileId)}
+          src={photoUrl}
           alt={`Profile ${profileId}`}
           fill
           unoptimized
