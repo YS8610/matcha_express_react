@@ -8,7 +8,6 @@ import * as userSvc from "../../service/userSvc.js";
 import * as viewedSvc from "../../service/viewedSvc.js";
 import * as fameSvc from "../../service/fameSvc.js";
 import * as notificationSvc from "../../service/notificationSvc.js";
-import { ProfileShort } from "../../model/profile.js";
 import ConstMatcha, { NOTIFICATION_TYPE } from "../../ConstMatcha.js";
 import { getDb } from "../../repo/mongoRepo.js";
 

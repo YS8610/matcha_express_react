@@ -41,15 +41,15 @@ export interface ProfilePutJson {
   birthDate: string;
 }
 
-export interface IntTypeNeo4j {
-  low: number;
-  high: number;
-}
+// export interface IntTypeNeo4j {
+//   low: number;
+//   high: number;
+// }
 
 export interface DateTypeNeo4j {
-  year: IntTypeNeo4j;
-  month: IntTypeNeo4j;
-  day: IntTypeNeo4j;
+  year: number;
+  month: number;
+  day: number;
 }
 
 export interface ProfileGetJson {
@@ -61,7 +61,7 @@ export interface ProfileGetJson {
   birthDate: DateTypeNeo4j;
   biography: string;
   gender: number;
-  sexualPreference: IntTypeNeo4j;
+  sexualPreference: number;
   fameRating: number;
   photo0: string;
   photo1: string;
@@ -112,7 +112,7 @@ export interface UserProfileResponse {
   lastName: string;
   email: string;
   gender: number;
-  sexualPreference: IntTypeNeo4j;
+  sexualPreference: number;
   biography: string;
   birthDate: DateTypeNeo4j;
   fameRating: number;

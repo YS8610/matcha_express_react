@@ -2,7 +2,6 @@ import { describe, expect, it, beforeAll, vi, afterEach } from "vitest";
 import driver from "../../repo/neo4jRepo.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { getFame, setFame } from "../../service/fameSvc.js";
-import { IntTypeNeo4j } from "../../model/profile.js";
 
 describe("testing fameSvc", () => {
 
@@ -122,7 +121,7 @@ describe("testing fameSvc", () => {
     const { updateFameRating } = fameSvc;
     const userId = "user123";
     const increment = 30;
-    const mockgetFame = vi.spyOn(fameSvc, "getFame").mockResolvedValue({low:50, high :0} as IntTypeNeo4j);
+    const mockgetFame = vi.spyOn(fameSvc, "getFame").mockResolvedValue(50);
     const mocksetFame = vi.spyOn(fameSvc, "setFame").mockResolvedValue();
     const newFame = await updateFameRating(userId, increment, getFame, setFame);
     expect(mockgetFame).toHaveBeenCalledWith(userId);

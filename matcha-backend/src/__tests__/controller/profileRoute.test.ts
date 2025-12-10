@@ -182,7 +182,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const mockedIsMatch = vi.spyOn(likeSvc, "isMatch").mockRejectedValue(new Error("Database error"));
@@ -209,7 +209,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const mockedIsMatch = vi.spyOn(likeSvc, "isMatch").mockResolvedValue(false);
@@ -237,7 +237,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const mockedIsMatch = vi.spyOn(likeSvc, "isMatch").mockResolvedValue(false);
@@ -272,7 +272,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const response = await request(app)
@@ -290,7 +290,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
         connectionStatus: {
           userid: "2",
@@ -310,7 +310,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const response = await request(app)
@@ -327,7 +327,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year: 1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
         connectionStatus: {
           userid: "2",
@@ -347,7 +347,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
       } as ProfileShort);
       const response = await request(app)
@@ -364,7 +364,7 @@ describe("Route /api/profile", () => {
         id: "2",
         username: "testuser",
         fameRating: 100,
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year: 1990, month: 1, day: 1 },
         photo0: "photo0.jpg",
         connectionStatus: {
           userid: "2",
@@ -578,9 +578,9 @@ describe("Route /api/profile", () => {
         email: "testuser@example.com",
         firstName: "Test",
         lastName: "User",
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         gender: 0,
-        sexualPreference: { low: 1, high: 1 },
+        sexualPreference: 1,
         fameRating: 100,
         biography: "This is a test user.",
         photo0: "photo0.jpg",
@@ -609,9 +609,9 @@ describe("Route /api/profile", () => {
         email: "testuser@example.com",
         firstName: "Test",
         lastName: "User",
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year: 1990, month: 1, day: 1 },
         gender: 0,
-        sexualPreference: { low: 1, high: 1 },
+        sexualPreference: 1,
         fameRating: 100,
         biography: "This is a test user.",
         photo0: "photo0.jpg",
@@ -637,9 +637,9 @@ describe("Route /api/profile", () => {
         email: "testuser@example.com",
         firstName: "Test",
         lastName: "User",
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         gender: 0,
-        sexualPreference: { low: 1, high: 1 },
+        sexualPreference: 1,
         fameRating: 100,
         biography: "This is a test user.",
         photo0: "photo0.jpg",
@@ -673,9 +673,9 @@ describe("Route /api/profile", () => {
         email: "testuser@example.com",
         firstName: "Test",
         lastName: "User",
-        birthDate: { year: { low: 1990, high: 1990 }, month: { low: 1, high: 1 }, day: { low: 1, high: 1 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         gender: 0,
-        sexualPreference: { low: 1, high: 1 },
+        sexualPreference: 1,
         fameRating: 100,
         biography: "This is a test user.",
         photo0: "photo0.jpg",

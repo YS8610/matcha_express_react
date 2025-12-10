@@ -73,11 +73,11 @@ describe("Route /api/user/block", () => {
         lastName: "User1",
         fameRating: 50,
         lastOnline: Date.now(),
-        birthDate: { year: { low: 1990, high: 0 }, month: { low: 1, high: 0 }, day: { low: 1, high: 0 } },
+        birthDate: { year:  1990, month: 1, day: 1 },
         email: "blockedUser1@example.com",
         biography: "",
         gender: 1,
-        sexualPreference: { low: 1, high: 0 },
+        sexualPreference: 1,
         photo0: "photoUrl1",
         photo1: "",
         photo2: "",
@@ -98,7 +98,7 @@ describe("Route /api/user/block", () => {
             fameRating: 50,
             photo0: "photoUrl1",
             lastOnline: expect.any(Number),
-            birthDate: { year: { low: 1990, high: 0 }, month: { low: 1, high: 0 }, day: { low: 1, high: 0 } },
+            birthDate: { year: 1990, month: 1, day: 1 },
           }
         ]
       });

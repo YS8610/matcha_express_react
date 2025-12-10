@@ -15,8 +15,9 @@ const driver = neo4j.driver(
     process.env.NEO4J_PASSWORD || ConstMatcha.NEO4j_DEFAULT_PASSWORD
   ),
   // Configuration
-  { 
-    maxConnectionPoolSize: parseInt(process.env.NEO4J_POOL || ConstMatcha.NEO4j_DEFAULT_POOL.toString(), 10)
+  {
+    maxConnectionPoolSize: parseInt(process.env.NEO4J_POOL || ConstMatcha.NEO4j_DEFAULT_POOL.toString(), 10),
+    disableLosslessIntegers: true
   }
 );
 

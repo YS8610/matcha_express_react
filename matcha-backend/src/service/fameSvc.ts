@@ -1,13 +1,12 @@
 import ConstMatcha from "../ConstMatcha.js";
 import BadRequestError from "../errors/BadRequestError.js";
-import { IntTypeNeo4j } from "../model/profile.js";
 import driver from "../repo/neo4jRepo.js";
 import { isUserExistsById } from "./userSvc.js";
 
-export const getFame = async (userId: string): Promise<IntTypeNeo4j | null> => {
+export const getFame = async (userId: string): Promise<number | null> => {
   const session = driver.session();
   try {
-    const result = await session.run<{ fameRating: IntTypeNeo4j }>(
+    const result = await session.run<{ fameRating: number }>(
       ConstMatcha.NEO4j_STMT_GET_FAME_RATING_BY_USER_ID,
       { userId }
     );
@@ -41,7 +40,7 @@ export const setFame = async (userId: string, fame: number): Promise<void> => {
 export const updateFameRating = async (
   userId: string,
   increment: number,
-  getFame: (userid: string) => Promise<IntTypeNeo4j | null>,
+  getFame: (userid: string) => Promise<number | null>,
   setFame: (userid: string, fame: number) => Promise<void>): Promise<number> => {
   const exist = await isUserExistsById(userId);
   if (!exist)
@@ -51,7 +50,7 @@ export const updateFameRating = async (
       context: { error: "UserNotFound" },
     });
   const currentFame = await getFame(userId);
-  const newFame = (currentFame?.low ?? 0) + increment;
+  const newFame = (currentFame ?? 0) + increment;
   await setFame(userId, newFame);
   return newFame;
 };
