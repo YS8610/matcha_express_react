@@ -535,9 +535,8 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                 <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Age</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
                   {(() => {
-                    const bd = profile.birthDate as unknown as { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number };
-                    const year = typeof bd.year === 'object' && bd.year ? (bd.year as Record<string, number>).low : bd.year;
-                    if (year) return new Date().getFullYear() - Number(year);
+                    const bd = profile.birthDate as unknown as { year?: number; month?: number; day?: number };
+                    if (bd.year) return new Date().getFullYear() - Number(bd.year);
                     return 'N/A';
                   })()}
                 </p>

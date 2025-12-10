@@ -231,10 +231,6 @@ export default function ChatPage() {
     setMessageText('');
   };
 
-  if (authLoading || !user || !user.profileComplete) {
-    return null;
-  }
-
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : 'Loading...';
   const displayUsername = profile?.username || chatUserId;
 
@@ -245,6 +241,10 @@ export default function ChatPage() {
   );
 
   const isOnline = onlineUsers[chatUserId] || false;
+
+  if (authLoading || !user || !user.profileComplete) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-4 min-h-[calc(100vh-160px)]">

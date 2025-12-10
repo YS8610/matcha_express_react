@@ -6,7 +6,7 @@ import {
   toDateString,
   getLastSeenString,
 } from '@/lib/neo4j-utils';
-import type { Neo4jInteger, Neo4jDate } from '@/types';
+import type { Neo4jDate } from '@/types';
 
 describe('Neo4j Utilities', () => {
   describe('toNumber', () => {
@@ -22,11 +22,6 @@ describe('Neo4j Utilities', () => {
       expect(toNumber(42)).toBe(42);
       expect(toNumber(0)).toBe(0);
       expect(toNumber(-10)).toBe(-10);
-    });
-
-    it('should extract low value from Neo4jInteger', () => {
-      const neo4jInt: Neo4jInteger = { low: 123, high: 0 };
-      expect(toNumber(neo4jInt)).toBe(123);
     });
 
     it('should return null for non-integer objects', () => {
@@ -59,11 +54,6 @@ describe('Neo4j Utilities', () => {
     it('should return "Not set" for null', () => {
       expect(toGenderString(null)).toBe('Not set');
     });
-
-    it('should handle Neo4jInteger input', () => {
-      const neo4jInt: Neo4jInteger = { low: 1, high: 0 };
-      expect(toGenderString(neo4jInt)).toBe('Male');
-    });
   });
 
   describe('toSexualPreferenceString', () => {
@@ -86,11 +76,6 @@ describe('Neo4j Utilities', () => {
     it('should return "Not set" for null', () => {
       expect(toSexualPreferenceString(null)).toBe('Not set');
     });
-
-    it('should handle Neo4jInteger input', () => {
-      const neo4jInt: Neo4jInteger = { low: 3, high: 0 };
-      expect(toSexualPreferenceString(neo4jInt)).toBe('Both');
-    });
   });
 
   describe('toDateString', () => {
@@ -111,15 +96,6 @@ describe('Neo4j Utilities', () => {
         day: 15,
       };
       expect(toDateString(date)).toBe('2024-01-15');
-    });
-
-    it('should convert Neo4jDate with Neo4jInteger fields', () => {
-      const date: Neo4jDate = {
-        year: { low: 2024, high: 0 },
-        month: { low: 12, high: 0 },
-        day: { low: 25, high: 0 },
-      };
-      expect(toDateString(date)).toBe('2024-12-25');
     });
 
     it('should pad single digit months and days', () => {
@@ -219,11 +195,6 @@ describe('Neo4j Utilities', () => {
     it('should return "X years ago" for timestamps more than 365 days ago', () => {
       const time = Date.now() - 730 * 24 * 60 * 60 * 1000;
       expect(getLastSeenString(time)).toBe('2 years ago');
-    });
-
-    it('should handle Neo4jInteger timestamps', () => {
-      const neo4jTime: Neo4jInteger = { low: Date.now() - 60000, high: 0 };
-      expect(getLastSeenString(neo4jTime)).toBe('1 minute ago');
     });
   });
 });

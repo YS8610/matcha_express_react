@@ -17,6 +17,7 @@ export default function VisitorsPage() {
   const [activeTab, setActiveTab] = useState<'viewed-by' | 'viewed'>('viewed-by');
   const [viewedByMe, setViewedByMe] = useState<ProfileShort[]>([]);
   const [viewedMe, setViewedMe] = useState<ProfileShort[]>([]);
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -33,9 +34,10 @@ export default function VisitorsPage() {
       setLoading(true);
       setError('');
 
-      const [viewedByMeData, viewedMeData] = await Promise.all([
+      const [viewedByMeData, viewedMeData, blockedUsersData] = await Promise.all([
         api.getUsersViewed(),
         api.getUsersWhoViewedMe(),
+        api.getBlockedUsers(),
       ]);
 
       const viewedByMeArray = Array.isArray(viewedByMeData) ? viewedByMeData : viewedByMeData.data || [];
@@ -49,7 +51,7 @@ export default function VisitorsPage() {
           firstName: typedItem.firstName as string,
           lastName: typedItem.lastName as string,
           photo0: typedItem.photo0 as string,
-          fameRating: 0,
+          fameRating: (typedItem.fameRating as number) || 0,
           lastOnline: (typedItem.viewedAt as number) || 0,
         };
       });
@@ -61,13 +63,17 @@ export default function VisitorsPage() {
           firstName: typedItem.firstName as string,
           lastName: typedItem.lastName as string,
           photo0: typedItem.photo0 as string,
-          fameRating: 0,
+          fameRating: (typedItem.fameRating as number) || 0,
           lastOnline: (typedItem.viewedAt as number) || 0,
         };
       });
 
       setViewedByMe(transformedViewedByMe);
       setViewedMe(transformedViewedMe);
+
+      const blockedArray = Array.isArray(blockedUsersData) ? blockedUsersData : blockedUsersData.data || [];
+      const blockedIds = new Set(blockedArray.map((user: ProfileShort) => user.id));
+      setBlockedUserIds(blockedIds);
     } catch (err) {
       setError((err as Error).message || 'Failed to load visitors data');
     } finally {
@@ -142,7 +148,11 @@ export default function VisitorsPage() {
                 {viewedMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedMe.map((profile) => (
-                      <ProfileCard key={profile.id} profile={profile} />
+                      <ProfileCard
+                        key={profile.id}
+                        profile={profile}
+                        isBlocked={blockedUserIds.has(profile.id)}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -160,7 +170,11 @@ export default function VisitorsPage() {
                 {viewedByMe.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viewedByMe.map((profile) => (
-                      <ProfileCard key={profile.id} profile={profile} />
+                      <ProfileCard
+                        key={profile.id}
+                        profile={profile}
+                        isBlocked={blockedUserIds.has(profile.id)}
+                      />
                     ))}
                   </div>
                 ) : (

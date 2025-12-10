@@ -12,6 +12,7 @@ interface AuthImageProps {
   fill?: boolean;
   unoptimized?: boolean;
   fallbackSrc?: string;
+  priority?: boolean;
 }
 
 export default function AuthImage({
@@ -23,6 +24,7 @@ export default function AuthImage({
   fill,
   unoptimized,
   fallbackSrc,
+  priority,
 }: AuthImageProps) {
   const photoName = src && src.includes('/api/photo/')
     ? src.split('/api/photo/')[1]
@@ -44,6 +46,7 @@ export default function AuthImage({
         fill
         className={className}
         unoptimized={unoptimized}
+        priority={priority}
       />
     );
   }
@@ -56,6 +59,7 @@ export default function AuthImage({
       height={height}
       className={className}
       unoptimized={unoptimized}
+      priority={priority}
     />
   );
 }

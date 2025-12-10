@@ -188,15 +188,10 @@ export interface UseWebSocketOptions {
   checkOnlineUsers?: string[];
 }
 
-export interface Neo4jInteger {
-  low: number;
-  high: number;
-}
-
 export interface Neo4jDate {
-  year: Neo4jInteger | number;
-  month: Neo4jInteger | number;
-  day: Neo4jInteger | number;
+  year: number;
+  month: number;
+  day: number;
 }
 
 export interface TokenPayload {

@@ -12,6 +12,7 @@ import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
+  priority?: boolean;
 }
 
 const colorSchemes = [
@@ -30,7 +31,7 @@ function getColorScheme(id: string): typeof colorSchemes[0] {
   return colorSchemes[hash % colorSchemes.length];
 }
 
-export default function ProfileCard({ profile }: ProfileCardProps) {
+export default function ProfileCard({ profile, priority = false }: ProfileCardProps) {
   const profileId = profile.id;
   const colorScheme = getColorScheme(profileId);
 
@@ -67,6 +68,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           unoptimized
           className="object-cover"
           fallbackSrc={generateAvatarUrl(displayName, profileId)}
+          priority={priority}
         />
 
         {isOnline && (

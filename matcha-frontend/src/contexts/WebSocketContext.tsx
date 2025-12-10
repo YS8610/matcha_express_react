@@ -89,12 +89,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         createdAt: notifData.createdAt || Date.now()
       };
 
+      let isNewNotification = false;
+
       setNotifications(prev => {
         if (prev.some(n => n.id === notification.id)) {
           return prev;
         }
+        isNewNotification = true;
         const updated = [notification, ...prev];
+        return updated.slice(0, 50);
+      });
 
+      if (isNewNotification) {
         const toastMessages: Record<Notification['type'], { message: string; type: 'success' | 'info' | 'warning' | 'error' }> = {
           like: { message: `💚 ${notification.message}`, type: 'success' },
           view: { message: `👁️ ${notification.message}`, type: 'info' },
@@ -104,10 +110,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
         };
 
         const toastConfig = toastMessages[notification.type] || { message: notification.message, type: 'info' };
-        addToast(toastConfig.message, toastConfig.type, 4000);
 
-        return updated.slice(0, 50);
-      });
+        setTimeout(() => {
+          addToast(toastConfig.message, toastConfig.type, 4000);
+        }, 0);
+      }
     });
 
     newSocket.on('onlineStatus', (statuses: Record<string, boolean>) => {

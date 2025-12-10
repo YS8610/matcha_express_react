@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, Ban } from 'lucide-react';
 import AuthImage from './AuthImage';
 import { generateAvatarUrl } from '@/lib/api';
 import { ProfileShort } from '@/types';
@@ -10,13 +10,15 @@ interface ProfileCardProps {
   showBadge?: boolean;
   badgeIcon?: React.ReactNode;
   badgeClassName?: string;
+  isBlocked?: boolean;
 }
 
 export default function ProfileCard({
   profile,
   showBadge = false,
   badgeIcon,
-  badgeClassName = 'bg-red-500 text-white'
+  badgeClassName = 'bg-red-500 text-white',
+  isBlocked = false
 }: ProfileCardProps) {
   const photoUrl = useProfilePhoto(
     profile.photo0,
@@ -25,13 +27,18 @@ export default function ProfileCard({
   );
 
   const handleClick = () => {
+    if (isBlocked) return;
     window.location.href = `/profile/${profile.id}`;
   };
 
   return (
     <div
       onClick={handleClick}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow ${
+        isBlocked
+          ? 'opacity-60 cursor-not-allowed'
+          : 'cursor-pointer hover:shadow-lg'
+      }`}
     >
       <div className="relative h-48">
         <AuthImage
@@ -42,7 +49,15 @@ export default function ProfileCard({
           unoptimized
           fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
         />
-        {showBadge && badgeIcon && (
+        {isBlocked && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="text-center">
+              <Ban className="w-12 h-12 text-red-500 mx-auto mb-2" />
+              <span className="text-white font-semibold text-sm">Blocked User</span>
+            </div>
+          </div>
+        )}
+        {showBadge && badgeIcon && !isBlocked && (
           <div className={`absolute top-2 right-2 p-2 rounded-full ${badgeClassName}`}>
             {badgeIcon}
           </div>

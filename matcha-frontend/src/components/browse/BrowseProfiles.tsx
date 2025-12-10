@@ -173,7 +173,7 @@ export default function BrowseProfiles() {
     return profiles;
   }, [allProfiles, searchName, filters.interests]);
 
-  const calculateAge = (birthDate?: string | { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number }): number => {
+  const calculateAge = (birthDate?: string | { year?: number; month?: number; day?: number }): number => {
     if (!birthDate) return 0;
 
     let year: number;
@@ -181,10 +181,10 @@ export default function BrowseProfiles() {
     let day: number;
 
     if (typeof birthDate === 'object') {
-      const bd = birthDate as { year?: { low?: number } | number; month?: { low?: number } | number; day?: { low?: number } | number };
-      year = typeof bd.year === 'object' && bd.year ? (bd.year as Record<string, number>).low : Number(bd.year || 0);
-      month = typeof bd.month === 'object' && bd.month ? (bd.month as Record<string, number>).low : Number(bd.month || 1);
-      day = typeof bd.day === 'object' && bd.day ? (bd.day as Record<string, number>).low : Number(bd.day || 1);
+      const bd = birthDate as { year?: number; month?: number; day?: number };
+      year = Number(bd.year || 0);
+      month = Number(bd.month || 1);
+      day = Number(bd.day || 1);
     } else {
       const birth = new Date(birthDate);
       year = birth.getFullYear();
@@ -527,7 +527,7 @@ export default function BrowseProfiles() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">
             {displayedProfiles.map((profile, index) => (
-              <MemoizedProfileCard key={`${profile.id}-${index}`} profile={profile} />
+              <MemoizedProfileCard key={`${profile.id}-${index}`} profile={profile} priority={index === 0} />
             ))}
           </div>
 

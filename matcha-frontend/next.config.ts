@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.infrastructureLogging = {
+        level: 'error',
+      };
+    }
+    return config;
+  },
   async rewrites() {
     const backendUrl = process.env.NODE_ENV === 'production'
       ? 'http://matcha-backend:8080'
@@ -26,6 +34,8 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
+
     return [
       {
         source: '/:path*',
@@ -34,7 +44,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' https://cdn.socket.io https://cdn.jsdelivr.net;
+              script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''} https://cdn.socket.io https://cdn.jsdelivr.net;
               style-src 'self' 'unsafe-inline';
               img-src 'self' data: https: blob:;
               font-src 'self' data: https:;

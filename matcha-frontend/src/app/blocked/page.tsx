@@ -62,9 +62,7 @@ export default function BlockedPage() {
       profile.id
     );
 
-    const displayFameRating = typeof profile.fameRating === 'object' && profile.fameRating !== null && 'low' in profile.fameRating
-      ? (profile.fameRating as { low: number }).low || 0
-      : typeof profile.fameRating === 'number' ? profile.fameRating : 0;
+    const displayFameRating = typeof profile.fameRating === 'number' ? profile.fameRating : 0;
 
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">

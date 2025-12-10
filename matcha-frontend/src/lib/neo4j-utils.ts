@@ -1,4 +1,4 @@
-import type { Neo4jInteger, Neo4jDate } from '@/types';
+import type { Neo4jDate } from '@/types';
 
 export function toNumber(value: unknown): number | null {
   if (value === null || value === undefined) {
@@ -7,10 +7,6 @@ export function toNumber(value: unknown): number | null {
 
   if (typeof value === 'number') {
     return value;
-  }
-
-  if (typeof value === 'object' && value !== null && 'low' in value) {
-    return (value as Neo4jInteger).low;
   }
 
   return null;
@@ -45,9 +41,7 @@ export function toDateString(value: unknown): string {
 
   if (typeof value === 'object' && value !== null) {
     const dateObj = value as Neo4jDate;
-    const year = typeof dateObj.year === 'number' ? dateObj.year : (dateObj.year as Neo4jInteger).low;
-    const month = typeof dateObj.month === 'number' ? dateObj.month : (dateObj.month as Neo4jInteger).low;
-    const day = typeof dateObj.day === 'number' ? dateObj.day : (dateObj.day as Neo4jInteger).low;
+    const { year, month, day } = dateObj;
 
     if (year && month && day) {
       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;

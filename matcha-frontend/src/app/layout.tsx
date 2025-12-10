@@ -45,6 +45,26 @@ export default function RootLayout({
           strategy="beforeInteractive"
           content={`(function(){const t=localStorage.getItem('theme');let h=t||window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';const e=document.documentElement;h==='dark'?e.classList.add('dark'):e.classList.remove('dark');e.setAttribute('data-theme',h);})()`}
         />
+        {process.env.NODE_ENV === 'development' && (
+          <Script
+            id="suppress-logs"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  const originalLog = console.log;
+                  console.log = function(...args) {
+                    const message = args.join(' ');
+                    if (message.includes('[Fast Refresh]') || message.includes('[HMR]')) {
+                      return;
+                    }
+                    originalLog.apply(console, args);
+                  };
+                })();
+              `,
+            }}
+          />
+        )}
       </head>
       <body
         className="antialiased"
