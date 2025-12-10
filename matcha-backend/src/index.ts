@@ -10,7 +10,7 @@ import { Server } from "socket.io";
 import eventHandlers from "./websocket/eventHandler.js";
 import  redisClient from "./repo/redisRepo.js";
 import { closeClient } from "./repo/mongoRepo.js";
-import { seeding, seedingProfiles } from "./service/seedSvc.js";
+import { clearMongoSeedData, deleteNeo4jSeedData, seeding, seedingProfiles } from "./service/seedSvc.js";
 
 dotenv.config();
 const port = process.env.PORT || ConstMatcha.DEFAULT_PORT;
@@ -25,6 +25,8 @@ eventHandlers(io);
 
 // start http server
 server.listen(port, async () => {
+  // await clearMongoSeedData();
+  // await deleteNeo4jSeedData();
   await serverErrorWrapper(setAllConstraints, "failed to set constraints");
   await seeding(500, seedingProfiles);
   // await redisClient.connect().catch(err => {

@@ -6,6 +6,7 @@ import driver from "../repo/neo4jRepo.js";
 import { v4 as uuidv4 } from "uuid";
 import { hashPW } from "./authSvc.js";
 import { updateUserLocation } from "./locationSvc.js";
+import { getDb } from "../repo/mongoRepo.js";
 
 dotenv.config();
 
@@ -206,3 +207,35 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
   }
 }
 // match (n:PROFILE) delete n
+
+
+export const clearMongoSeedData = async () => {
+  getDb().then(async (db) => {
+    const collectionsToClear = [
+      ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS,
+      ConstMatcha.MONGO_COLLECTION_CHATMESSAGES,
+      ConstMatcha.MONGO_COLLECTION_REPORTS,
+      ConstMatcha.MONGO_COLLECTION_LOCATION
+    ];
+    for (const collName of collectionsToClear) {
+      const collection = db.collection(collName);
+      const deleteResult = await collection.deleteMany({});
+      console.log(`Cleared ${deleteResult.deletedCount} documents from collection: ${collName}`);
+    }
+  }).catch((err) => {
+    console.error("Error clearing MongoDB seed data: ", err);
+  });
+  console.log("Clearing MongoDB seed data... (functionality not implemented)");
+}
+
+export const deleteNeo4jSeedData = async () => {
+  const session = driver.session();
+  try {
+    await session.run(`MATCH (n:${ConstMatcha.DEFAULT_TAG_PROFILE}) DETACH DELETE n`);
+    await session.run(`MATCH (n:PROFILE) DETACH DELETE n`);
+    await session.run(`MATCH (n:TAG) DETACH DELETE n`);
+    console.log("Deleted all seed PROFILE nodes from Neo4j.");
+  } finally {
+    await session.close();
+  }
+};
