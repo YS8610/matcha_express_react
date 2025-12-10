@@ -102,7 +102,7 @@ export const markNotificationAsRead = async(getDb: () => Promise<Db>, userId: st
   );
 }
 
-export const isNotificationExists = async(getDb: () => Promise<Db>, notificationID:string, userId:string): Promise<boolean> => {
+export const isNotificationExists = async(getDb: () => Promise<Db>, userId:string, notificationID:string): Promise<boolean> => {
   const db = await getDb();
   const count = await db.collection(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS).countDocuments({ id: notificationID, userId });
   return count > 0;

@@ -192,10 +192,10 @@ describe("notificationSvc tests", () => {
       }),
     };
     mockGetDb.mockResolvedValue(mockDb as any);
-    const exists = await isNotificationExists(mockGetDb, notificationId, userId);
+    const exists = await isNotificationExists(mockGetDb, userId, notificationId);
     expect(mockGetDb).toHaveBeenCalledTimes(1);
     expect(mockDb.collection).toHaveBeenCalledWith(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS);
-    expect(mockCountDocuments).toHaveBeenCalledWith({ id: notificationId, userId });
+    expect(mockCountDocuments).toHaveBeenCalledWith({ userId, id: notificationId });
     expect(exists).toBe(true);
   });
 
@@ -211,10 +211,10 @@ describe("notificationSvc tests", () => {
       }),
     };
     mockGetDb.mockResolvedValue(mockDb as any);
-    const exists = await isNotificationExists(mockGetDb, notificationId, userId);
+    const exists = await isNotificationExists(mockGetDb, userId, notificationId);
     expect(mockGetDb).toHaveBeenCalledTimes(1);
     expect(mockDb.collection).toHaveBeenCalledWith(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS);
-    expect(mockCountDocuments).toHaveBeenCalledWith({ id: notificationId, userId });
+    expect(mockCountDocuments).toHaveBeenCalledWith({ userId, id: notificationId });
     expect(exists).toBe(false);
   });
 
@@ -230,10 +230,10 @@ describe("notificationSvc tests", () => {
       }),
     };
     mockGetDb.mockResolvedValue(mockDb as any);
-    const exists = await isNotificationExists(mockGetDb, notificationId, userId);
+    const exists = await isNotificationExists(mockGetDb, userId, notificationId);
     expect(mockGetDb).toHaveBeenCalledTimes(1);
     expect(mockDb.collection).toHaveBeenCalledWith(ConstMatcha.MONGO_COLLECTION_NOTIFICATIONS);
-    expect(mockCountDocuments).toHaveBeenCalledWith({ id: notificationId, userId });
+    expect(mockCountDocuments).toHaveBeenCalledWith({ userId, id: notificationId });
     expect(exists).toBe(true);
   });
 });
