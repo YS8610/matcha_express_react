@@ -9,7 +9,7 @@ import type { Notification, ChatMessage, WebSocketContextType, Socket } from '@/
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080';
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
