@@ -2,7 +2,6 @@ import ConstMatcha from "../ConstMatcha.js";
 import BadRequestError from "../errors/BadRequestError.js";
 import ServerRequestError from "../errors/ServerRequestError.js";
 import driver from "../repo/neo4jRepo.js";
-import fs from "fs/promises";
 
 export const setPhotobyUserId = async (userId: string, photoUrl: string, photoNumber: number): Promise<void> => {
   const session = driver.session();
@@ -50,7 +49,7 @@ export const deletePhotoByName = async (unlink: (path: string) => Promise<void>,
       return false;
     throw new ServerRequestError({
       message: "Failed to delete photo",
-      logging: true,
+      logging: false,
       code: 500,
       context: { err }
     });

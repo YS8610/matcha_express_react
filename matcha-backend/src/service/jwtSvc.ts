@@ -14,7 +14,7 @@ export const createToken = (id: string, email: string, username: string, activat
           return reject(new ServerRequestError({
             message: "failed to create token",
             code: 500,
-            logging: true,
+            logging: false,
             context: { message: "Failed to create JWT token" },
           }));
         resolve(token);
@@ -48,7 +48,7 @@ export const createPWResetToken = (id:string, email: string, username: string, h
           return reject(new ServerRequestError({
             message: "failed to create password reset token",
             code: 500,
-            logging: true,
+            logging: false,
             context: { message: "Failed to create JWT password reset token" },
           }));
         resolve(token);

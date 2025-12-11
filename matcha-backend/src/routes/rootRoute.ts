@@ -76,7 +76,7 @@ router.post("/login", async (req: Request<{}, {}, { username: string, password: 
     return next(new BadRequestError({
       code: 401,
       message: "Invalid username and/or password",
-      logging: true,
+      logging: false,
       context: { username: "invalid", password: "invalid" }
     }));
   res.status(200).json({ msg: jwt });
