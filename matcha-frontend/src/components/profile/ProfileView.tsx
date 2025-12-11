@@ -13,6 +13,7 @@ import { getLocationName } from '@/lib/geolocation';
 import { calculateDistance, formatDistance } from '@/lib/distance';
 import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { GENDER_MALE, GENDER_FEMALE, SEXUAL_PREFERENCE_MALE, SEXUAL_PREFERENCE_FEMALE } from '@/constants';
 
 interface ProfileViewProps {
   userId: string;
@@ -88,7 +89,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const loadProfile = useCallback(async () => {
     if (!userId) {
-      console.error('No userId provided');
       setLoading(false);
       return;
     }
@@ -130,7 +130,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         }
       }
     } catch (err) {
-      console.error('Failed to load profile:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
       let statusCode = 404;
 
@@ -159,7 +158,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
       getLocationName(latitude, longitude)
         .then(name => setLocationName(name))
         .catch(err => {
-          console.error('Failed to fetch location name:', err);
           setLocationName(`${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`);
         });
     }
@@ -193,7 +191,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             setDistance(dist);
           }
         } catch (error) {
-          console.error('Failed to fetch current user location:', error);
         }
       }
     };
@@ -212,7 +209,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         const response = await api.getUserTags() as { tags?: string[] };
         setMyTags(response.tags || []);
       } catch (error) {
-        console.error('Failed to fetch current user tags:', error);
         setMyTags([]);
       }
     };
@@ -222,7 +218,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const handleLike = async () => {
     if (!profile || !userId) {
-      console.error('Cannot like: profile or userId is missing');
       return;
     }
 
@@ -238,7 +233,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
         return;
       }
     } catch (error) {
-      console.error('Failed to fetch current user profile:', error);
       setLikeError('Failed to verify profile picture requirement');
       return;
     }
@@ -274,7 +268,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const handleUnlike = async () => {
     if (!profile || !userId) {
-      console.error('Cannot unlike: profile or userId is missing');
       return;
     }
 
@@ -309,7 +302,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
 
   const handleBlock = async () => {
     if (!profile || !userId) {
-      console.error('Cannot block: profile or userId is missing');
       return;
     }
 
@@ -349,7 +341,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     if (!profile || !userId) {
-      console.error('Cannot report: profile or userId is missing');
       return;
     }
 
@@ -455,9 +446,8 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                       <button
                         key={index}
                         onClick={() => setCurrentPhotoIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
-                        }`}
+                        className={`w-2 h-2 rounded-full transition-all ${index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
+                          }`}
                         title={`Photo ${index + 1}`}
                       />
                     ))}
@@ -521,13 +511,13 @@ export default function ProfileView({ userId }: ProfileViewProps) {
             <div>
               <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Gender</p>
               <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
-                {profile.gender === 1 ? 'Male' : profile.gender === 2 ? 'Female' : 'Other'}
+                {profile.gender === GENDER_MALE ? 'Male' : profile.gender === GENDER_FEMALE ? 'Female' : 'Other'}
               </p>
             </div>
             <div>
               <p className="text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold">Looking for</p>
               <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mt-1">
-                {profile.sexualPreference === 1 ? 'Male' : profile.sexualPreference === 2 ? 'Female' : 'Both'}
+                {profile.sexualPreference === SEXUAL_PREFERENCE_MALE ? 'Male' : profile.sexualPreference === SEXUAL_PREFERENCE_FEMALE ? 'Female' : 'Both'}
               </p>
             </div>
             {profile.birthDate && (
@@ -584,11 +574,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
                   return (
                     <span
                       key={index}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                        isShared
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${isShared
                           ? 'bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50 text-amber-900 dark:text-amber-200 border-2 border-amber-400 dark:border-amber-600 shadow-sm'
                           : 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-green-800 dark:text-emerald-200 border border-green-300 dark:border-emerald-700'
-                      }`}
+                        }`}
                       title={isShared ? 'Shared interest!' : undefined}
                     >
                       #{tag}

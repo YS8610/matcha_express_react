@@ -64,7 +64,6 @@ function ActivatePageContent() {
         router.push('/profile/setup');
       }, 3000);
     } catch (error) {
-      console.error('Activation error:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
 
       if (errorMessage.includes('already activated') || errorMessage.includes('Invalid token')) {
@@ -110,7 +109,6 @@ function ActivatePageContent() {
         setResendMessage('');
       }, 3000);
     } catch (error) {
-      console.error('Resend activation error:', error);
       setResendStatus('error');
       setResendMessage(error instanceof Error ? error.message : 'Failed to resend activation email');
     }

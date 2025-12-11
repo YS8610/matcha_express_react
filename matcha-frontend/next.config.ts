@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
               img-src 'self' data: https: blob:;
               font-src 'self' data: https:;
               worker-src 'self' blob:;
-              connect-src 'self' http://localhost:8080 http://localhost:3002 http://localhost:80 ws://localhost:8080 ws://localhost:3002 ws://localhost:80 http://matcha-backend:8080 ws://matcha-backend:8080 http://backend:8080 ws://backend:8080 https://nominatim.openstreetmap.org http://ip-api.com https://ipapi.co;
+              connect-src 'self' http://localhost:8080 http://localhost:3002 http://localhost:80 ws://localhost:8080 ws://localhost:3002 ws://localhost:80 http://matcha-backend:8080 ws://matcha-backend:8080 http://backend:8080 ws://backend:8080 https://nominatim.openstreetmap.org http://ip-api.com https://ipapi.co https://cataas.com;
               frame-ancestors 'none';
               base-uri 'self';
               form-action 'self';

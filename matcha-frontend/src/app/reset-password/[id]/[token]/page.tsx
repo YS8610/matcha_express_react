@@ -34,7 +34,6 @@ export default function ResetPasswordTokenPage({ params }: { params: Promise<{ i
         setToken(tok);
         setLoading(false);
       } catch (error) {
-        console.error('Error processing reset link:', error);
         setResetError('Failed to process reset link. Please try again.');
         setLoading(false);
       }

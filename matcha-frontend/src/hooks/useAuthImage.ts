@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getToken } from '@/lib/tokenStorage';
-import { useToast } from '@/contexts/ToastContext';
+import { getToken, clearToken } from '@/lib/tokenStorage';
 
 export function useAuthImage(photoName: string | undefined | null): string | null {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const { addToast } = useToast();
 
   useEffect(() => {
     if (!photoName) {
@@ -23,12 +21,10 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
       const token = getToken();
 
       if (!token) {
-        console.warn(`[useAuthImage] No token available for ${photoName}, attempt ${attemptCount}/${maxAttempts}`);
         if (attemptCount < maxAttempts && isMounted) {
           const delay = Math.min(100 * attemptCount, 1000);
           setTimeout(attemptFetch, delay);
         } else if (isMounted) {
-          console.error(`[useAuthImage] Failed to load ${photoName} - no token after ${maxAttempts} attempts`);
           setImageUrl(null);
         }
         return;
@@ -44,7 +40,13 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
           if (!isMounted) return;
 
           if (!response.ok) {
-            console.error(`[useAuthImage] Failed to load ${photoName}: ${response.status} ${response.statusText}`);
+            if (response.status === 401) {
+              clearToken();
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('unauthorized'));
+                window.location.href = '/login';
+              }
+            }
             setImageUrl(null);
             return;
           }
@@ -66,7 +68,7 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
     return () => {
       isMounted = false;
     };
-  }, [photoName, addToast]);
+  }, [photoName]);
 
   return imageUrl;
 }

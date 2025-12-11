@@ -3,15 +3,13 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { ArrowLeft, Send, Circle, Heart } from 'lucide-react';
+import { ArrowLeft, Send, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useToast } from '@/contexts/ToastContext';
-import { api, generateAvatarUrl } from '@/lib/api';
+import { api } from '@/lib/api';
 import { ProfileShort, ChatMessage as ChatMessageType } from '@/types';
-import AuthImage from '@/components/AuthImage';
 import { sanitizeInput } from '@/lib/security';
-import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
@@ -233,25 +231,11 @@ export default function ChatPage() {
     if (!messageText.trim() || !user || !chatUserId) return;
 
     sendChatMessage(chatUserId, messageText.trim());
-
-    const newMessage: ChatMessageType = {
-      fromUserId: user.id,
-      toUserId: chatUserId,
-      content: messageText.trim(),
-      timestamp: Date.now()
-    };
-    setMessages(prev => [...prev, newMessage]);
     setMessageText('');
   };
 
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : 'Loading...';
   const displayUsername = profile?.username || chatUserId;
-
-  const photoUrl = useProfilePhoto(
-    profile?.photo0,
-    profile ? displayName : displayUsername,
-    profile?.id || chatUserId
-  );
 
   const isOnline = onlineUsers[chatUserId] || false;
 
@@ -274,24 +258,11 @@ export default function ChatPage() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 border border-green-100 dark:border-green-900">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                  {loading ? (
-                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full"></div>
-                  ) : (
-                    <AuthImage
-                      src={photoUrl}
-                      alt={displayUsername}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                      priority
-                      fallbackSrc={photoUrl}
-                    />
-                  )}
+                <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">
+                    {displayUsername.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                {isOnline && !loading && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
-                )}
               </div>
               <div className="flex-1">
                 {loading ? (
@@ -304,14 +275,8 @@ export default function ChatPage() {
                     <h2 className="font-semibold text-gray-800 dark:text-gray-100">
                       {displayName}
                     </h2>
-                    <div className="space-y-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        @{displayUsername}
-                      </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                        <Circle className={`w-2 h-2 ${isOnline ? 'fill-green-500 text-green-500' : 'fill-gray-400 dark:fill-gray-500 text-gray-400 dark:text-gray-500'}`} />
-                        {isOnline ? 'Online' : 'Offline'}
-                      </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      @{displayUsername}
                     </div>
                   </>
                 )}

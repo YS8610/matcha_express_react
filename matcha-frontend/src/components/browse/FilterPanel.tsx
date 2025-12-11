@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { SearchFilters } from '@/types';
 import { X, Calendar, MapPin, Star, Filter, RotateCcw, Heart } from 'lucide-react';
+import { FAME_RATING_MIN, FAME_RATING_MAX, MIN_AGE, MAX_AGE } from '@/constants';
 
 interface FilterPanelProps {
   filters: SearchFilters;
@@ -41,8 +42,8 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
           <div className="flex gap-2 items-center">
             <input
               type="number"
-              min="18"
-              max="120"
+              min={MIN_AGE}
+              max={MAX_AGE}
               value={localFilters.ageMin || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,
@@ -54,8 +55,8 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
             <span className="text-green-600 dark:text-green-400">-</span>
             <input
               type="number"
-              min="18"
-              max="120"
+              min={MIN_AGE}
+              max={MAX_AGE}
               value={localFilters.ageMax || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,
@@ -94,8 +95,8 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
           <div className="flex gap-2 items-center">
             <input
               type="number"
-              min="0"
-              max="100"
+              min={FAME_RATING_MIN}
+              max={FAME_RATING_MAX}
               value={localFilters.fameMin || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,
@@ -107,8 +108,8 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
             <span className="text-green-600 dark:text-green-400">-</span>
             <input
               type="number"
-              min="0"
-              max="100"
+              min={FAME_RATING_MIN}
+              max={FAME_RATING_MAX}
               value={localFilters.fameMax || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Sparkles, Tag as TagIcon } from 'lucide-react';
 import { getTagSuggestions, getRandomPopularTags, POPULAR_TAGS } from '@/lib/popularTags';
 import { validateTag } from '@/lib/validation';
+import { USER_MAX_TAGS } from '@/constants';
 
 interface TagSelectorProps {
   selectedTags: string[];
@@ -19,7 +20,7 @@ interface TagSelectorProps {
 export default function TagSelector({
   selectedTags,
   onTagsChange,
-  maxTags = 10,
+  maxTags = USER_MAX_TAGS,
   minTags = 1,
   placeholder = 'Add interest...',
   showPopular = true,

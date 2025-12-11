@@ -228,21 +228,17 @@ describe('PhotoDisplay Component', () => {
       });
     });
 
-    it('should log error when no token available', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('should show error UI when no token available', async () => {
       vi.mocked(tokenStorage.getToken).mockReturnValue(null);
 
       render(<PhotoDisplay photoName={mockPhotoName} alt={mockAlt} />);
 
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith('No auth token available');
+        expect(screen.getByText('Failed to load')).toBeInTheDocument();
       });
-
-      consoleSpy.mockRestore();
     });
 
-    it('should log error when photo fetch fails', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('should show error UI when photo fetch fails', async () => {
       vi.mocked(tokenStorage.getToken).mockReturnValue(mockToken);
 
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
@@ -250,10 +246,8 @@ describe('PhotoDisplay Component', () => {
       render(<PhotoDisplay photoName={mockPhotoName} alt={mockAlt} />);
 
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalled();
+        expect(screen.getByText('Failed to load')).toBeInTheDocument();
       });
-
-      consoleSpy.mockRestore();
     });
   });
 

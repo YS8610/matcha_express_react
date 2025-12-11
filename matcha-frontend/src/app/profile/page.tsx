@@ -40,7 +40,6 @@ export default function MyProfilePage() {
       const profileData = response.data || null;
 
       if (!profileData) {
-        console.error('No profile data returned');
         setError('No profile data available. You may need to complete your profile setup.');
         setLoading(false);
         return;
@@ -63,7 +62,6 @@ export default function MyProfilePage() {
           const name = await getLocationName(lat, lon);
           setLocationName(name);
         } catch (err) {
-          console.error('Failed to fetch location name:', err);
           setLocationName(`${lat.toFixed(8)}°, ${lon.toFixed(8)}°`);
         }
       }
@@ -72,12 +70,10 @@ export default function MyProfilePage() {
         const tagsResponse = await api.getUserTags() as { tags?: string[] };
         setTags(tagsResponse.tags || []);
       } catch (err) {
-        console.error('Failed to fetch tags:', err);
       }
 
       setLoading(false);
     } catch (error) {
-      console.error('Failed to load profile:', error);
       setError('Failed to load profile. Please try again or complete your profile setup.');
       setLoading(false);
     }
@@ -168,9 +164,8 @@ export default function MyProfilePage() {
                         <button
                           key={index}
                           onClick={() => setCurrentPhotoIndex(index)}
-                          className={`w-2 h-2 rounded-full transition-all ${
-                            index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
-                          }`}
+                          className={`w-2 h-2 rounded-full transition-all ${index === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/75'
+                            }`}
                           title={`Photo ${index + 1}`}
                         />
                       ))}
@@ -293,11 +288,10 @@ export default function MyProfilePage() {
                       <div
                         key={index}
                         onClick={() => hasPhoto && setCurrentPhotoIndex(availablePhotos.indexOf(photoName))}
-                        className={`relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition-all ${
-                          hasPhoto
+                        className={`relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition-all ${hasPhoto
                             ? 'border-green-400 hover:border-green-600 hover:shadow-lg'
                             : 'border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50'
-                        }`}
+                          }`}
                       >
                         {hasPhoto ? (
                           <>

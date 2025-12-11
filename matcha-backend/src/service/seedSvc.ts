@@ -53,9 +53,6 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
   const seedProfiles = seedingProfiles(qty);
   const session = driver.session();
 
-  // Default photos to rotate through
-  const defaultPhotos = ["default.png", "default2.png", "default3.png", "default4.png", "default5.png"];
-
   // Popular tags for seeding
   const popularTags = [
     "travel", "fitness", "music", "cooking", "photography", "hiking", "yoga", "reading",
@@ -124,16 +121,6 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
     for (let i = 0; i < seedProfiles.length; i++) {
       const profile = seedProfiles[i];
 
-      // Rotate photos for each user (different starting index)
-      const photoStartIndex = i % defaultPhotos.length;
-      const userPhotos = [
-        defaultPhotos[photoStartIndex],
-        defaultPhotos[(photoStartIndex + 1) % defaultPhotos.length],
-        defaultPhotos[(photoStartIndex + 2) % defaultPhotos.length],
-        defaultPhotos[(photoStartIndex + 3) % defaultPhotos.length],
-        defaultPhotos[(photoStartIndex + 4) % defaultPhotos.length]
-      ];
-
       const NEO4J_SEED = `
         CREATE (u:${ConstMatcha.DEFAULT_TAG_PROFILE} {
           id: $id,
@@ -147,11 +134,6 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           gender: $gender,
           sexualPreference: $sexualPreference,
           fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
-          photo0: $photo0,
-          photo1: $photo1,
-          photo2: $photo2,
-          photo3: $photo3,
-          photo4: $photo4,
           activated: true,
           lastOnline: $lastOnline,
           createdAt: datetime(),
@@ -176,11 +158,6 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           biography: biography,
           gender: randomInt(1, 3),
           sexualPreference: randomInt(1, 3),
-          photo0: userPhotos[0],
-          photo1: userPhotos[1],
-          photo2: userPhotos[2],
-          photo3: userPhotos[3],
-          photo4: userPhotos[4],
           lastOnline: Date.now()
         }
       );

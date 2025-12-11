@@ -14,7 +14,6 @@ export default function Error({ error, reset }: ErrorProps) {
 
   useEffect(() => {
     setMounted(true);
-    console.error('App error:', error);
   }, [error]);
 
   if (!mounted) {

@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
 import { UserTagsResponse } from '@/types';
 import TagSelector from '@/components/TagSelector';
+import { USER_MAX_TAGS } from '@/constants';
 
 interface TagManagerProps {
   className?: string;
@@ -29,7 +30,6 @@ export default function TagManager({ className = '' }: TagManagerProps) {
       setTags(response.tags || []);
       setError('');
     } catch (err) {
-      console.warn('Failed to load tags:', err);
       setTags([]);
     } finally {
       setLoading(false);
@@ -102,7 +102,7 @@ export default function TagManager({ className = '' }: TagManagerProps) {
       <TagSelector
         selectedTags={tags}
         onTagsChange={handleTagsChange}
-        maxTags={5}
+        maxTags={USER_MAX_TAGS}
         minTags={0}
         placeholder="Type to add interests (e.g., vegan, geek, piercing)..."
         showPopular={true}

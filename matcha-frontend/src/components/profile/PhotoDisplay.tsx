@@ -18,7 +18,6 @@ export default function PhotoDisplay({ photoName, alt, className = '' }: PhotoDi
       try {
         const token = getToken();
         if (!token) {
-          console.error('No auth token available');
           setLoading(false);
           return;
         }
@@ -37,7 +36,6 @@ export default function PhotoDisplay({ photoName, alt, className = '' }: PhotoDi
         const url = URL.createObjectURL(blob);
         setImageSrc(url);
       } catch (error) {
-        console.error('Failed to load photo:', photoName, error);
       } finally {
         setLoading(false);
       }

@@ -14,12 +14,10 @@ interface DecodedToken extends Record<string, unknown> {
 
 function setCookie(name: string, value: string, options: { expiryDate?: Date; sameSite?: string; secure?: boolean } = {}): void {
   if (!name || typeof name !== 'string' || name.trim() === '') {
-    console.error('Cookie name cannot be empty');
     return;
   }
 
   if (!value || typeof value !== 'string') {
-    console.error(`Cookie value cannot be empty for ${name}`);
     return;
   }
 
@@ -40,7 +38,6 @@ function setCookie(name: string, value: string, options: { expiryDate?: Date; sa
 
     document.cookie = cookieString;
   } catch (error) {
-    console.error(`Failed to set cookie ${name}:`, error);
   }
 }
 
@@ -54,7 +51,6 @@ function clearCookie(name: string): void {
     let cookieString = `${name}=; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
     document.cookie = cookieString;
   } catch (error) {
-    console.error(`Failed to clear cookie ${name}:`, error);
   }
 }
 
@@ -118,7 +114,6 @@ export function storeToken(token: string): boolean {
 
     return true;
   } catch (error) {
-    console.error('Failed to store token:', error);
     return false;
   }
 }
@@ -140,7 +135,6 @@ export function getToken(): string | null {
     }
     return null;
   } catch (error) {
-    console.warn('Failed to retrieve token:', error);
     return null;
   }
 }
@@ -154,7 +148,6 @@ export function clearToken(): void {
     clearCookie(TOKEN_CREATED_AT_KEY);
     clearCookie(REFRESH_TOKEN_KEY);
   } catch (error) {
-    console.warn('Failed to clear token:', error);
   }
 }
 

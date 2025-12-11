@@ -95,15 +95,13 @@ describe('Error Page', () => {
     expect(mockReset).toHaveBeenCalledTimes(1);
   });
 
-  it('should log error to console on mount', async () => {
-    const localSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('should render error component on mount', async () => {
     render(<ErrorComponent error={mockError} reset={mockReset} />);
 
     await waitFor(() => {
-      expect(localSpy).toHaveBeenCalledWith('App error:', mockError);
+      expect(screen.getByText('Something Went Wrong')).toBeInTheDocument();
+      expect(screen.getByText(mockError.message)).toBeInTheDocument();
     });
-
-    localSpy.mockRestore();
   });
 
   it('should handle error with digest property', async () => {

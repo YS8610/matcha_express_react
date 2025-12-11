@@ -23,7 +23,6 @@ export default function ActivatePage({ params }: { params: Promise<{ token: stri
 
         router.push('/activate');
       } catch (error) {
-        console.error('Error handling activation token:', error);
         router.push('/activate');
       }
     };

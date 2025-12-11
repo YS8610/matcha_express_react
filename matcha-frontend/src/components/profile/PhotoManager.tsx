@@ -8,6 +8,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { sanitizeFilePath, validateFileUpload } from '@/lib/security';
 import imageCompression from 'browser-image-compression';
 import { UserPhotosResponse } from '@/types';
+import { getRandomCatPhotoAsFile } from '@/lib/catApi';
 
 interface PhotoManagerProps {
   className?: string;
@@ -63,11 +64,11 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       const compressedFile = await imageCompression(file, options);
 
       await api.uploadPhoto(compressedFile, photoNumber);
-      await loadPhotos();
       const successMsg = `Photo ${photoNumber + 1} uploaded successfully!`;
-      setSuccess(successMsg);
-      addToast(successMsg, 'success', 3000);
-      setTimeout(() => setSuccess(''), 3000);
+      addToast(successMsg, 'success', 2000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (err) {
       const errorMsg = (err as Error).message || 'Failed to upload photo';
       setError(errorMsg);
@@ -129,6 +130,23 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       }
     };
     input.click();
+  };
+
+  const handleRandomCatPhoto = async (photoNumber: number) => {
+    try {
+      setUploading(true);
+      setError('');
+      setSuccess('');
+
+      addToast('Fetching random cat photo... 🐱', 'info', 2000);
+      const catFile = await getRandomCatPhotoAsFile();
+
+      await handlePhotoUpload(photoNumber, catFile);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load cat photo';
+      addToast(errorMsg, 'error', 3000);
+      setUploading(false);
+    }
   };
 
   if (loading) {
@@ -208,14 +226,24 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
                       </div>
                     </>
                   ) : (
-                    <button
-                      onClick={() => handleFileInput(index)}
-                      disabled={uploading}
-                      className="w-full h-full flex flex-col items-center justify-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-50 bg-gray-50 dark:bg-gray-700/50"
-                    >
-                      <Upload className="w-8 h-8 mb-2" />
-                      <span className="text-xs font-medium">Upload</span>
-                    </button>
+                    <div className="w-full h-full flex flex-col gap-1 p-2 bg-gray-50 dark:bg-gray-700/50">
+                      <button
+                        onClick={() => handleFileInput(index)}
+                        disabled={uploading}
+                        className="flex-1 flex flex-col items-center justify-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-50 rounded-md"
+                      >
+                        <Upload className="w-6 h-6 mb-1" />
+                        <span className="text-xs font-medium">Upload</span>
+                      </button>
+                      <button
+                        onClick={() => handleRandomCatPhoto(index)}
+                        disabled={uploading}
+                        className="flex-1 flex flex-col items-center justify-center text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-50 rounded-md"
+                      >
+                        <span className="text-2xl mb-1">🐱</span>
+                        <span className="text-xs font-medium">Random Cat</span>
+                      </button>
+                    </div>
                   )}
                 </div>
                 <div className="absolute -bottom-1 -right-1 bg-green-600 dark:bg-green-700 text-white text-xs px-2 py-0.5 rounded-full font-semibold">

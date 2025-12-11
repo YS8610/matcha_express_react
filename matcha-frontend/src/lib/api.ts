@@ -5,7 +5,7 @@ import { addCsrfToken, requiresCsrfToken } from '@/lib/csrf';
 const API_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || '');
 
 class ApiClient {
-  constructor() {}
+  constructor() { }
 
   async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}, suppressErrorLog = false): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
@@ -45,35 +45,6 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      if (!suppressErrorLog) {
-        let sanitizedBody = options.body;
-        if (typeof options.body === 'string') {
-          try {
-            const parsedBody = JSON.parse(options.body);
-            const sensitiveFields = ['password', 'pw', 'pw2', 'oldPassword', 'newPassword', 'confirmPassword', 'newPassword2'];
-            const sanitized = { ...parsedBody };
-            sensitiveFields.forEach(field => {
-              if (field in sanitized) {
-                sanitized[field] = '[REDACTED]';
-              }
-            });
-            sanitizedBody = JSON.stringify(sanitized);
-          } catch {
-            sanitizedBody = options.body;
-          }
-        }
-
-        console.error('API Request Failed:', {
-          url,
-          method: config.method || 'GET',
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries()),
-          errorData: responseData,
-          requestHeaders: config.headers,
-          requestBody: sanitizedBody
-        });
-      }
 
       if (response.status === 401) {
         clearToken();

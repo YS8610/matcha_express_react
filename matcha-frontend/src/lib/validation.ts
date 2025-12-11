@@ -1,4 +1,5 @@
 import { sanitizeInput } from './security';
+import { MIN_AGE, MAX_AGE } from '@/constants';
 
 const EMAIL_REGEX = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 
@@ -158,16 +159,16 @@ export const validateBirthDate = (birthDate: string): string | null => {
 
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     const actualAge = age - 1;
-    if (actualAge < 18) {
-      return 'You must be at least 18 years old to register';
+    if (actualAge < MIN_AGE) {
+      return `You must be at least ${MIN_AGE} years old to register`;
     }
   } else {
-    if (age < 18) {
-      return 'You must be at least 18 years old to register';
+    if (age < MIN_AGE) {
+      return `You must be at least ${MIN_AGE} years old to register`;
     }
   }
 
-  if (age > 120) {
+  if (age > MAX_AGE) {
     return 'Please enter a valid birth date';
   }
 
