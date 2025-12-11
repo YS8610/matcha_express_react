@@ -616,12 +616,12 @@ export default function ProfileView({ userId }: ProfileViewProps) {
               <div className="flex gap-2">
                 {isConnected ? (
                   <button
-                    disabled={true}
-                    title="You are already connected"
-                    className="flex-1 py-2 rounded-md bg-gray-400 text-white disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    onClick={handleUnlike}
+                    title="Click to unmatch - This will disable chat and notifications"
+                    className="flex-1 py-2 rounded-md bg-purple-500 text-white hover:bg-purple-600 flex items-center justify-center gap-2"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    Connected
+                    Unmatch
                   </button>
                 ) : hasUserLiked ? (
                   <button

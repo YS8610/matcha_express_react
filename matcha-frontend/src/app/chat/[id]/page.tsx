@@ -25,6 +25,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState('');
+  const [isBlocked, setIsBlocked] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [skipno, setSkipno] = useState(0);
@@ -59,7 +60,7 @@ export default function ChatPage() {
   }, [chatUserId]);
 
   const loadChatHistoryFromAPI = useCallback(async () => {
-    if (!chatUserId) return;
+    if (!chatUserId || isBlocked) return;
 
     setLoadingHistory(true);
     setError('');
@@ -93,8 +94,10 @@ export default function ChatPage() {
       setHasMoreHistory(historyMessages.length === 50);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to load chat history';
-      setError(errorMsg);
-      addToast('Could not load chat history. Showing recent messages.', 'warning', 3000);
+      if (!errorMsg.includes('blocked') && !errorMsg.includes('blocking')) {
+        setError(errorMsg);
+        addToast('Could not load chat history. Showing recent messages.', 'warning', 3000);
+      }
 
       if (skipno === 0) {
         const webSocketMessages = getChatHistory(chatUserId);
@@ -103,7 +106,7 @@ export default function ChatPage() {
     } finally {
       setLoadingHistory(false);
     }
-  }, [chatUserId, skipno, getChatHistory, addToast]);
+  }, [chatUserId, skipno, getChatHistory, addToast, isBlocked]);
 
   useEffect(() => {
     if (!chatUserId || hasLoadedInitialHistoryRef.current === chatUserId) {
@@ -115,54 +118,64 @@ export default function ChatPage() {
     setSkipno(0);
 
     (async () => {
+      let profileBlocked = false;
+
       try {
         setLoading(true);
         setError('');
+        setIsBlocked(false);
         const response = await api.getShortProfile(chatUserId);
         setProfile(response || null);
       } catch (err) {
         setProfile(null);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (errorMsg.includes('blocked') || errorMsg.includes('blocking')) {
+          profileBlocked = true;
+          setIsBlocked(true);
+          setError('This conversation is no longer available. You have been blocked or you have blocked this user.');
+        } else {
+          setError('Failed to load user profile');
+        }
       } finally {
         setLoading(false);
       }
-    })();
 
-    checkOnlineStatus([chatUserId]);
+      if (!profileBlocked) {
+        checkOnlineStatus([chatUserId]);
+        setLoadingHistory(true);
 
-    (async () => {
-      setLoadingHistory(true);
-      setError('');
+        try {
+          const response = await api.getChatHistory(chatUserId, 50, 0);
+          const historyMessages: ChatMessageType[] = Array.isArray(response)
+            ? response
+            : (response as any).data?.data || (response as any).data || [];
 
-      try {
-        const response = await api.getChatHistory(chatUserId, 50, 0);
-        const historyMessages: ChatMessageType[] = Array.isArray(response)
-          ? response
-          : (response as any).data?.data || (response as any).data || [];
+          const webSocketMessages = getChatHistory(chatUserId);
+          const combinedMessages: ChatMessageType[] = [...historyMessages, ...webSocketMessages];
 
-        const webSocketMessages = getChatHistory(chatUserId);
-        const combinedMessages: ChatMessageType[] = [...historyMessages, ...webSocketMessages];
+          const uniqueMessages = Array.from(
+            new Map(
+              combinedMessages.map(msg => [
+                `${msg.fromUserId}-${msg.toUserId}-${msg.timestamp}-${msg.content}`,
+                msg
+              ])
+            ).values()
+          );
 
-        const uniqueMessages = Array.from(
-          new Map(
-            combinedMessages.map(msg => [
-              `${msg.fromUserId}-${msg.toUserId}-${msg.timestamp}-${msg.content}`,
-              msg
-            ])
-          ).values()
-        );
+          uniqueMessages.sort((a, b) => a.timestamp - b.timestamp);
+          setMessages(uniqueMessages);
+          setHasMoreHistory(historyMessages.length === 50);
+        } catch (err) {
+          const errorMsg = err instanceof Error ? err.message : 'Failed to load chat history';
+          if (!errorMsg.includes('blocked') && !errorMsg.includes('blocking')) {
+            addToast('Could not load chat history. Showing recent messages.', 'warning', 3000);
+          }
 
-        uniqueMessages.sort((a, b) => a.timestamp - b.timestamp);
-        setMessages(uniqueMessages);
-        setHasMoreHistory(historyMessages.length === 50);
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Failed to load chat history';
-        setError(errorMsg);
-        addToast('Could not load chat history. Showing recent messages.', 'warning', 3000);
-
-        const webSocketMessages = getChatHistory(chatUserId);
-        setMessages(webSocketMessages);
-      } finally {
-        setLoadingHistory(false);
+          const webSocketMessages = getChatHistory(chatUserId);
+          setMessages(webSocketMessages);
+        } finally {
+          setLoadingHistory(false);
+        }
       }
     })();
   }, [chatUserId, checkOnlineStatus, getChatHistory, addToast]);
@@ -323,8 +336,32 @@ export default function ChatPage() {
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-green-100 dark:border-green-900 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 380px)' }}>
-          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
+        {isBlocked ? (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-red-300 dark:border-red-700 overflow-hidden flex flex-col p-8">
+            <div className="text-center py-12">
+              <div className="mb-4">
+                <svg className="w-16 h-16 mx-auto text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                Conversation Unavailable
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                This conversation is no longer available. You have been blocked or you have blocked this user.
+              </p>
+              <Link
+                href="/messages"
+                className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Messages
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-green-100 dark:border-green-900 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 380px)' }}>
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
             {loadingHistory && allMessages.length === 0 ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent mb-3"></div>
@@ -399,6 +436,7 @@ export default function ChatPage() {
             </div>
           </form>
         </div>
+        )}
       </div>
     </div>
   );
