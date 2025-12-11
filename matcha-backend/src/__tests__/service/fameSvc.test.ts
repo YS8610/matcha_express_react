@@ -2,6 +2,8 @@ import { describe, expect, it, beforeAll, vi, afterEach } from "vitest";
 import driver from "../../repo/neo4jRepo.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import { getFame, setFame } from "../../service/fameSvc.js";
+import ConstMatcha from "../../ConstMatcha.js";
+import * as userSvc from "../../service/userSvc.js";
 
 describe("testing fameSvc", () => {
 
@@ -105,6 +107,33 @@ describe("testing fameSvc", () => {
       code: 400,
       context: { error: "UserNotFound" },
     }));
+  });
+
+  it("setFame : should clamp fame value to min and max", async () => {
+    const mockSessionRun = vi.fn().mockResolvedValue({ records: [] });
+    const mockSessionClose = vi.fn();
+    const mockSession = {
+      run: mockSessionRun,
+      close: mockSessionClose,
+    };
+    vi.spyOn(driver, "session").mockReturnValue(mockSession as any);
+    const userSvc = await import("../../service/userSvc.js");
+    vi.spyOn(userSvc, "isUserExistsById").mockResolvedValue(true);
+    const { setFame } = await import("../../service/fameSvc.js");
+    const userId = "user123";
+    // Test fame below minimum
+    await setFame(userId, ConstMatcha.FAME_RATING_MIN - 10);
+    expect(mockSessionRun).toHaveBeenCalledWith(
+      expect.any(String),
+      { userId, fameRating: ConstMatcha.FAME_RATING_MIN }
+    );
+    // Test fame above maximum
+    await setFame(userId, ConstMatcha.FAME_RATING_MAX + 10);
+    expect(mockSessionRun).toHaveBeenCalledWith(
+      expect.any(String),
+      { userId, fameRating: ConstMatcha.FAME_RATING_MAX }
+    );
+    expect(mockSessionClose).toHaveBeenCalledTimes(2);
   });
 
   it("updateFameRating : should update fame rating correctly", async () => {
