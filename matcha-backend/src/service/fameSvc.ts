@@ -28,6 +28,10 @@ export const setFame = async (userId: string, fame: number): Promise<void> => {
         code: 400,
         context: { error: "UserNotFound" },
       });
+    if (fame < ConstMatcha.FAME_RATING_MIN)
+      fame = ConstMatcha.FAME_RATING_MIN;
+    if (fame > ConstMatcha.FAME_RATING_MAX)
+      fame = ConstMatcha.FAME_RATING_MAX;
     await session.run(
       ConstMatcha.NEO4j_STMT_SET_FAME_RATING_BY_USER_ID,
       { userId, fameRating: fame }

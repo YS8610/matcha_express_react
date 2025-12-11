@@ -84,6 +84,10 @@ export default class ConstMatcha {
   static readonly SEXUAL_PREFERENCE_FEMALE = 2;
   static readonly SEXUAL_PREFERENCE_BISEXUAL = 3;
 
+  // fame rating range
+  static readonly FAME_RATING_MIN = 0;
+  static readonly FAME_RATING_MAX = 10000;
+
   // statement for neo4j
   // constraints
   static readonly NEO4j_STMT_ID_CONSTRAINT_UNIQUE_ID = `
