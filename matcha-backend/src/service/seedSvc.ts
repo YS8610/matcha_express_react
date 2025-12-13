@@ -42,6 +42,7 @@ export const seedingProfiles = (num: number) => {
       firstName: first,
       lastName: last,
       username,
+      photo0 : `${i%1000}.png`,
       birthDate: randomBirthDate()
     };
   });
@@ -132,6 +133,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           birthDate: date($birthDate),
           biography: $biography,
           gender: $gender,
+          photo0: $photo0,
           sexualPreference: $sexualPreference,
           fameRating: ${ConstMatcha.DEFAULT_FAME_RATING},
           activated: true,
@@ -156,6 +158,7 @@ export const seeding = async (qty: number, seedingProfiles: (num: number) => { e
           password: hashpw,
           birthDate: profile.birthDate,
           biography: biography,
+          photo0: `${i}.png`,
           gender: randomInt(1, 3),
           sexualPreference: randomInt(1, 3),
           lastOnline: Date.now()
