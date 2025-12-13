@@ -26,10 +26,6 @@ vi.mock('@/lib/api', () => ({
   generateAvatarUrl: vi.fn((username) => `https://avatar.example.com/${username}`),
 }));
 
-vi.mock('@/lib/geolocation', () => ({
-  getLocationName: vi.fn().mockResolvedValue('Unknown Location'),
-}));
-
 describe('ProfileView Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();

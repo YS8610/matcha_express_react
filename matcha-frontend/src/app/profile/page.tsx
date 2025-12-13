@@ -10,7 +10,6 @@ import Link from 'next/link';
 import AuthImage from '@/components/AuthImage';
 import { User, Star, Heart, Eye, Edit, Leaf, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { toNumber, toGenderString, toSexualPreferenceString, toDateString } from '@/lib/neo4j-utils';
-import { getLocationName } from '@/lib/geolocation';
 
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -54,17 +53,6 @@ export default function MyProfilePage() {
 
       const photoResponse = await api.getUserPhotos() as { photoNames?: string[] };
       setPhotos(photoResponse.photoNames || []);
-
-      if (typedProfileData.latitude !== undefined && typedProfileData.longitude !== undefined) {
-        const lat = typedProfileData.latitude as number;
-        const lon = typedProfileData.longitude as number;
-        try {
-          const name = await getLocationName(lat, lon);
-          setLocationName(name);
-        } catch (err) {
-          setLocationName(`${lat.toFixed(8)}°, ${lon.toFixed(8)}°`);
-        }
-      }
 
       try {
         const tagsResponse = await api.getUserTags() as { tags?: string[] };

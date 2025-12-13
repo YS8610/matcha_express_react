@@ -9,7 +9,6 @@ import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
-import { getLocationName } from '@/lib/geolocation';
 import { calculateDistance, formatDistance } from '@/lib/distance';
 import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -155,11 +154,6 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     if (profile?.latitude !== undefined && profile?.longitude !== undefined) {
       const latitude = profile.latitude;
       const longitude = profile.longitude;
-      getLocationName(latitude, longitude)
-        .then(name => setLocationName(name))
-        .catch(err => {
-          setLocationName(`${latitude.toFixed(8)}°, ${longitude.toFixed(8)}°`);
-        });
     }
   }, [profile?.latitude, profile?.longitude]);
 
