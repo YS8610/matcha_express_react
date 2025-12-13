@@ -88,8 +88,3 @@ matcha.md
 tsconfig.build.tsbuildinfo
 tsconfig.tsbuildinfo
 matcha-backend/photoDump/*
-!matcha-backend/photoDump/default.png
-!matcha-backend/photoDump/default2.png
-!matcha-backend/photoDump/default3.png
-!matcha-backend/photoDump/default4.png
-!matcha-backend/photoDump/default5.png
