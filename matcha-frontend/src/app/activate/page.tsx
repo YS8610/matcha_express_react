@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 import { FormInput, Button, Alert } from '@/components/ui';
+import { Mail, User, Key, CheckCircle, AlertCircle, Send } from 'lucide-react';
 
 function ActivatePageContent() {
   const [token, setToken] = useState('');
@@ -134,17 +135,39 @@ function ActivatePageContent() {
 
           {!showResendForm && (
             <>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                      Check Your Email
+                    </h3>
+                    <p className="text-xs text-blue-700 dark:text-blue-400">
+                      We've sent you an activation token. Copy it from the email and paste it below to activate your account.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-6">
-                <FormInput
-                  type="text"
-                  id="token"
-                  name="token"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  label="Activation Token"
-                  placeholder="Enter your activation token"
-                  disabled={status === 'loading'}
-                />
+                <div>
+                  <label htmlFor="token" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                    <div className="flex items-center gap-2">
+                      <Key className="w-4 h-4" />
+                      Activation Token
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    id="token"
+                    name="token"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    placeholder="Paste your activation token from email"
+                    disabled={status === 'loading'}
+                    className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
 
                 <Button
                   type="submit"
@@ -152,28 +175,58 @@ function ActivatePageContent() {
                   loading={status === 'loading'}
                   disabled={status === 'loading' || !token.trim()}
                 >
-                  {status === 'loading' ? 'Activating...' : 'Activate Account'}
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    {status === 'loading' ? 'Activating...' : 'Activate Account'}
+                  </div>
                 </Button>
               </form>
 
               {status === 'success' && (
                 <div className="mt-6">
-                  <Alert type="success" message={message} />
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-2">Redirecting to profile setup...</p>
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-1">
+                          {message}
+                        </h3>
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          Redirecting to profile setup...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {status === 'error' && (
                 <div className="mt-6">
-                  <Alert type="error" message={message} />
-                  {errorDetails && <p className="text-sm text-red-700 dark:text-red-300 mt-2">{errorDetails}</p>}
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                          {message}
+                        </h3>
+                        {errorDetails && (
+                          <p className="text-xs text-red-700 dark:text-red-400 mt-1">
+                            {errorDetails}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {status === 'error' && (
                 <div className="mt-4">
                   <Button variant="secondary" fullWidth size="sm" onClick={() => setShowResendForm(true)}>
-                    Resend Activation Email
+                    <div className="flex items-center justify-center gap-2">
+                      <Send className="w-4 h-4" />
+                      Resend Activation Email
+                    </div>
                   </Button>
                 </div>
               )}
@@ -182,28 +235,58 @@ function ActivatePageContent() {
 
           {showResendForm && (
             <div>
-              <form onSubmit={handleResendActivation} className="space-y-6">
-                <FormInput
-                  type="email"
-                  id="resend-email"
-                  name="resend-email"
-                  value={resendEmail}
-                  onChange={(e) => setResendEmail(e.target.value)}
-                  label="Email"
-                  placeholder="Enter your email"
-                  disabled={resendStatus === 'loading'}
-                />
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                      Resend Activation Email
+                    </h3>
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
+                      Enter your email and username to receive a new activation token.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                <FormInput
-                  type="text"
-                  id="resend-username"
-                  name="resend-username"
-                  value={resendUsername}
-                  onChange={(e) => setResendUsername(e.target.value)}
-                  label="Username"
-                  placeholder="Enter your username"
-                  disabled={resendStatus === 'loading'}
-                />
+              <form onSubmit={handleResendActivation} className="space-y-6">
+                <div>
+                  <label htmlFor="resend-email" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email Address
+                    </div>
+                  </label>
+                  <input
+                    type="email"
+                    id="resend-email"
+                    name="resend-email"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    placeholder="your.email@example.com"
+                    disabled={resendStatus === 'loading'}
+                    className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="resend-username" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Username
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    id="resend-username"
+                    name="resend-username"
+                    value={resendUsername}
+                    onChange={(e) => setResendUsername(e.target.value)}
+                    placeholder="your_username"
+                    disabled={resendStatus === 'loading'}
+                    className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
 
                 <Button
                   type="submit"
@@ -211,19 +294,46 @@ function ActivatePageContent() {
                   loading={resendStatus === 'loading'}
                   disabled={resendStatus === 'loading' || !resendEmail.trim() || !resendUsername.trim()}
                 >
-                  {resendStatus === 'loading' ? 'Sending...' : 'Send Activation Email'}
+                  <div className="flex items-center justify-center gap-2">
+                    <Send className="w-4 h-4" />
+                    {resendStatus === 'loading' ? 'Sending...' : 'Send Activation Email'}
+                  </div>
                 </Button>
               </form>
 
               {resendStatus === 'success' && (
                 <div className="mt-6">
-                  <Alert type="success" message={resendMessage} />
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-1">
+                          Email Sent!
+                        </h3>
+                        <p className="text-xs text-green-700 dark:text-green-400">
+                          {resendMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {resendStatus === 'error' && (
                 <div className="mt-6">
-                  <Alert type="error" message={resendMessage} />
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                          Failed to Send Email
+                        </h3>
+                        <p className="text-xs text-red-700 dark:text-red-400">
+                          {resendMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

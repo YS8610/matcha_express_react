@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
-import { Leaf } from 'lucide-react';
+import { Leaf, Mail, Key, AlertCircle, CheckCircle, Send, Lock, User } from 'lucide-react';
 import { FormInput, Button, Alert } from '@/components/ui';
 
 export default function ResetPasswordPage() {
@@ -171,6 +171,20 @@ export default function ResetPasswordPage() {
 
         {activeTab === 'request' && (
           <div className="space-y-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                    Forgot your password?
+                  </h3>
+                  <p className="text-xs text-blue-700 dark:text-blue-400">
+                    Enter your email and username below. We'll send you a reset link with instructions to create a new password.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {requestError && (
               <Alert type="error" message={requestError} onClose={() => setRequestError('')} />
             )}
@@ -180,30 +194,49 @@ export default function ResetPasswordPage() {
             )}
 
             <form onSubmit={handleRequestSubmit} className="space-y-4">
-              <FormInput
-                type="email"
-                id="email"
-                name="email"
-                value={requestData.email}
-                onChange={handleRequestChange}
-                label="Email"
-                placeholder="Enter your email"
-                required
-              />
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email Address
+                  </div>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={requestData.email}
+                  onChange={handleRequestChange}
+                  placeholder="your.email@example.com"
+                  required
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600"
+                />
+              </div>
 
-              <FormInput
-                type="text"
-                id="username"
-                name="username"
-                value={requestData.username}
-                onChange={handleRequestChange}
-                label="Username"
-                placeholder="Enter your username"
-                required
-              />
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Username
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={requestData.username}
+                  onChange={handleRequestChange}
+                  placeholder="your_username"
+                  required
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600"
+                />
+              </div>
 
               <Button type="submit" fullWidth loading={requestLoading}>
-                Send Reset Email
+                <div className="flex items-center justify-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Send Reset Email
+                </div>
               </Button>
             </form>
           </div>
@@ -211,29 +244,66 @@ export default function ResetPasswordPage() {
 
         {activeTab === 'reset' && (
           <div className="space-y-4">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <Key className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                    Reset with Token
+                  </h3>
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Copy the User ID and Reset Token from the email we sent you, then create your new password below.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {resetError && (
               <Alert type="error" message={resetError} onClose={() => setResetError('')} />
             )}
 
             {resetSuccess && (
-              <Alert type="success" message={resetSuccess} />
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-1">
+                      Password Reset Successful!
+                    </h3>
+                    <p className="text-xs text-green-700 dark:text-green-400">
+                      {resetSuccess}
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
 
             <form onSubmit={handleResetSubmit} className="space-y-4">
-              <FormInput
-                type="text"
-                id="userId"
-                name="userId"
-                value={resetData.userId}
-                onChange={(e) => handleResetChange(e as any)}
-                label="User ID"
-                placeholder="Paste user ID from email"
-                required
-              />
+              <div>
+                <label htmlFor="userId" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    User ID
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  value={resetData.userId}
+                  onChange={(e) => handleResetChange(e as any)}
+                  placeholder="Paste your User ID from the email"
+                  required
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 font-mono"
+                />
+              </div>
 
               <div>
                 <label htmlFor="token" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
-                  Reset Token
+                  <div className="flex items-center gap-2">
+                    <Key className="w-4 h-4" />
+                    Reset Token
+                  </div>
                 </label>
                 <textarea
                   id="token"
@@ -242,37 +312,56 @@ export default function ResetPasswordPage() {
                   onChange={handleResetChange}
                   required
                   rows={3}
-                  placeholder="Paste reset token from email"
+                  placeholder="Paste the reset token from the email"
                   className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600 font-mono"
                 />
               </div>
 
-              <FormInput
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                value={resetData.newPassword}
-                onChange={(e) => handleResetChange(e as any)}
-                label="New Password"
-                placeholder="Enter new password (min 8 characters)"
-                minLength={8}
-                required
-              />
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    New Password
+                  </div>
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  value={resetData.newPassword}
+                  onChange={(e) => handleResetChange(e as any)}
+                  placeholder="Enter new password (minimum 8 characters)"
+                  minLength={8}
+                  required
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600"
+                />
+              </div>
 
-              <FormInput
-                type="password"
-                id="newPassword2"
-                name="newPassword2"
-                value={resetData.newPassword2}
-                onChange={(e) => handleResetChange(e as any)}
-                label="Confirm New Password"
-                placeholder="Confirm new password"
-                minLength={8}
-                required
-              />
+              <div>
+                <label htmlFor="newPassword2" className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Confirm New Password
+                  </div>
+                </label>
+                <input
+                  type="password"
+                  id="newPassword2"
+                  name="newPassword2"
+                  value={resetData.newPassword2}
+                  onChange={(e) => handleResetChange(e as any)}
+                  placeholder="Confirm your new password"
+                  minLength={8}
+                  required
+                  className="w-full px-3 py-2 border rounded-md transition-colors bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 text-sm sm:text-base focus:ring-2 focus:ring-green-500 focus:border-green-500 border-gray-300 dark:border-slate-600"
+                />
+              </div>
 
               <Button type="submit" fullWidth loading={resetLoading} disabled={!!resetSuccess}>
-                Reset Password
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Reset Password
+                </div>
               </Button>
             </form>
           </div>
