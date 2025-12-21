@@ -111,6 +111,7 @@ export interface SearchFilters {
   fameMin?: number;
   fameMax?: number;
   interests?: string;
+  excludeTags?: string;
 }
 
 export interface RegisterData {

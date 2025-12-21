@@ -124,7 +124,7 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         <div>
           <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
             <Heart className="w-4 h-4" />
-            Interests
+            Interests (Include)
           </label>
           <input
             type="text"
@@ -138,6 +138,26 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Separate multiple interests with commas. Shows profiles with at least one matching tag.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
+            <X className="w-4 h-4" />
+            Interests (Exclude)
+          </label>
+          <input
+            type="text"
+            value={localFilters.excludeTags || ''}
+            onChange={(e) => setLocalFilters({
+              ...localFilters,
+              excludeTags: e.target.value || undefined
+            })}
+            placeholder="e.g., smoking, pets, gaming"
+            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Separate multiple interests with commas. Hides profiles with any of these tags.
           </p>
         </div>
 

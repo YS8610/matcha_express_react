@@ -144,6 +144,7 @@ export interface FilterPreferences {
   fameMin?: number;
   fameMax?: number;
   interests?: string;
+  excludeTags?: string;
 }
 
 export function setFilterPreferences(filters: FilterPreferences): void {

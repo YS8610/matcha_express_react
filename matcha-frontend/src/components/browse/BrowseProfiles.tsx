@@ -12,7 +12,9 @@ import {
   getBrowseSortPreference,
   setBrowseSortPreference,
   getBrowseItemsPerPagePreference,
-  setBrowseItemsPerPagePreference
+  setBrowseItemsPerPagePreference,
+  getFilterPreferences,
+  setFilterPreferences
 } from '@/lib/cookiePreferences';
 import { calculateDistance } from '@/lib/distance';
 
@@ -124,7 +126,10 @@ export default function BrowseProfiles() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [totalProfiles, setTotalProfiles] = useState(0);
-  const [filters, setFilters] = useState<SearchFilters>({});
+  const [filters, setFilters] = useState<SearchFilters>(() => {
+    const saved = getFilterPreferences();
+    return saved || {};
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [profilesPerPage, setProfilesPerPage] = useState(() => {
     const saved = getBrowseItemsPerPagePreference();
@@ -132,12 +137,12 @@ export default function BrowseProfiles() {
   });
   const [error, setError] = useState('');
   const [searchName, setSearchName] = useState('');
-  const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc'>(() => {
+  const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc' | 'recommended'>(() => {
     const saved = getBrowseSortPreference();
-    if (saved === 'age-asc' || saved === 'age-desc' || saved === 'distance-asc' || saved === 'distance-desc' || saved === 'fame-asc' || saved === 'fame-desc' || saved === 'tags-desc') {
+    if (saved === 'age-asc' || saved === 'age-desc' || saved === 'distance-asc' || saved === 'distance-desc' || saved === 'fame-asc' || saved === 'fame-desc' || saved === 'tags-desc' || saved === 'recommended') {
       return saved;
     }
-    return 'distance-asc';
+    return 'recommended';
   });
   const [myTags, setMyTags] = useState<string[]>([]);
 
@@ -169,8 +174,24 @@ export default function BrowseProfiles() {
       }
     }
 
+    if (filters.excludeTags && filters.excludeTags.trim()) {
+      const excludeTags = filters.excludeTags
+        .split(',')
+        .map(tag => tag.trim().toLowerCase())
+        .filter(tag => tag.length > 0);
+
+      if (excludeTags.length > 0) {
+        profiles = profiles.filter(profile => {
+          const profileTags = (profile.userTags || []).map(tag => tag.toLowerCase());
+          return !excludeTags.some(excludeTag =>
+            profileTags.some(profileTag => profileTag.includes(excludeTag))
+          );
+        });
+      }
+    }
+
     return profiles;
-  }, [allProfiles, searchName, filters.interests]);
+  }, [allProfiles, searchName, filters.interests, filters.excludeTags]);
 
   const calculateAge = (birthDate?: string | { year?: number; month?: number; day?: number }): number => {
     if (!birthDate) return 0;
@@ -209,10 +230,42 @@ export default function BrowseProfiles() {
     return profileTagsLower.filter(tag => myTagsLower.includes(tag)).length;
   }, [myTags]);
 
+  const calculateWeightedScore = useCallback((profile: ProfileShort): number => {
+    let score = 0;
+
+    const commonTags = getCommonTagsCount(profile.userTags);
+    const maxCommonTags = Math.min(myTags.length, (profile.userTags || []).length) || 1;
+    const tagsScore = (commonTags / maxCommonTags) * 40;
+    score += tagsScore;
+
+    const distance = profile.distance !== undefined ? profile.distance : 50000;
+    const maxDistance = 100000;
+    const distanceScore = ((maxDistance - Math.min(distance, maxDistance)) / maxDistance) * 30;
+    score += distanceScore;
+
+    const fame = profile.fameRating || 50;
+    const fameScore = (fame / 10000) * 20;
+    score += fameScore;
+
+    const lastOnline = profile.lastOnline || 0;
+    const now = Date.now();
+    const hoursSinceOnline = (now - lastOnline) / (1000 * 60 * 60);
+    const activityScore = Math.max(0, (168 - Math.min(hoursSinceOnline, 168)) / 168) * 10;
+    score += activityScore;
+
+    return score;
+  }, [getCommonTagsCount, myTags]);
+
   const sortedProfiles = useMemo(() => {
     const profiles = [...filteredProfiles];
 
     switch (sortBy) {
+      case 'recommended':
+        return profiles.sort((a, b) => {
+          const scoreA = calculateWeightedScore(a);
+          const scoreB = calculateWeightedScore(b);
+          return scoreB - scoreA;
+        });
       case 'age-asc':
         return profiles.sort((a, b) => calculateAge(a.birthDate) - calculateAge(b.birthDate));
       case 'age-desc':
@@ -242,7 +295,7 @@ export default function BrowseProfiles() {
       default:
         return profiles;
     }
-  }, [filteredProfiles, sortBy, getCommonTagsCount]);
+  }, [filteredProfiles, sortBy, getCommonTagsCount, calculateWeightedScore]);
 
   const totalPages = Math.ceil(sortedProfiles.length / profilesPerPage);
 
@@ -335,6 +388,7 @@ export default function BrowseProfiles() {
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
+    setFilterPreferences(newFilters);
     setShowFilters(false);
     setCurrentPage(1);
   };
@@ -436,6 +490,7 @@ export default function BrowseProfiles() {
               }}
               className="pl-10 pr-4 py-2 border border-green-300 dark:border-green-700 rounded-full bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors appearance-none cursor-pointer w-full"
             >
+              <option value="recommended">Recommended</option>
               <option value="distance-asc">Distance (Near to Far)</option>
               <option value="distance-desc">Distance (Far to Near)</option>
               <option value="tags-desc">Common Interests</option>

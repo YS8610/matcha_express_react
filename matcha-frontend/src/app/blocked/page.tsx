@@ -65,22 +65,31 @@ export default function BlockedPage() {
     const displayFameRating = typeof profile.fameRating === 'number' ? profile.fameRating : 0;
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border-l-4 border-red-500">
         <div className="flex items-center p-4">
           <div className="relative w-16 h-16">
             <AuthImage
               src={photoUrl}
               alt={profile.username}
               fill
-              className="object-cover rounded-full"
+              className="object-cover rounded-full grayscale"
               unoptimized
               fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
             />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ShieldBan className="w-8 h-8 text-red-500 opacity-80" />
+            </div>
           </div>
           <div className="flex-1 ml-4">
-            <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-              {profile.firstName} {profile.lastName}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
+                {profile.firstName} {profile.lastName}
+              </h3>
+              <span className="inline-flex items-center gap-1 bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 text-xs font-semibold px-2 py-0.5 rounded-full">
+                <ShieldBan className="w-3 h-3" />
+                Blocked
+              </span>
+            </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
             <div className="mt-1 flex items-center gap-2">
               <div className="flex items-center text-yellow-500">

@@ -11,6 +11,57 @@ interface PasswordChangerProps {
   className?: string;
 }
 
+const PasswordInput = ({
+  name,
+  label,
+  value,
+  placeholder,
+  showPassword,
+  onToggle,
+  onChange
+}: {
+  name: string;
+  label: string;
+  value: string;
+  placeholder: string;
+  showPassword: boolean;
+  onToggle: () => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => (
+  <div>
+    <label htmlFor={name} className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
+      {label}
+    </label>
+    <div className="relative">
+      <input
+        type={showPassword ? 'text' : 'password'}
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
+        placeholder={placeholder}
+        className="w-full px-3 py-2 pr-10 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:focus:ring-green-600 dark:focus:border-green-600 transition-colors"
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+        aria-label={showPassword ? 'Hide password' : 'Show password'}
+      >
+        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  </div>
+);
+
+const ValidationItem = ({ check, label }: { check: boolean; label: string }) => (
+  <div className={`flex items-center gap-2 text-sm ${check ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+    {check ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+    <span>{label}</span>
+  </div>
+);
+
 export default function PasswordChanger({ className = '' }: PasswordChangerProps) {
   const { addToast } = useToast();
   const [formData, setFormData] = useState({
@@ -86,55 +137,6 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
     });
   };
 
-  const PasswordInput = ({
-    name,
-    label,
-    value,
-    placeholder,
-    showPassword,
-    onToggle
-  }: {
-    name: string;
-    label: string;
-    value: string;
-    placeholder: string;
-    showPassword: boolean;
-    onToggle: () => void;
-  }) => (
-    <div>
-      <label htmlFor={name} className="block text-sm font-medium mb-1 text-green-700 dark:text-green-400">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type={showPassword ? 'text' : 'password'}
-          id={name}
-          name={name}
-          value={value}
-          onChange={handleChange}
-          required
-          placeholder={placeholder}
-          className="w-full px-3 py-2 pr-10 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:focus:ring-green-600 dark:focus:border-green-600 transition-colors"
-        />
-        <button
-          type="button"
-          onClick={onToggle}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
-        >
-          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
-      </div>
-    </div>
-  );
-
-  const ValidationItem = ({ check, label }: { check: boolean; label: string }) => (
-    <div className={`flex items-center gap-2 text-sm ${check ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
-      {check ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-      <span>{label}</span>
-    </div>
-  );
-
   return (
     <div className={`space-y-6 ${className}`}>
       <h3 className="text-lg font-semibold text-green-700 dark:text-green-400">Change Password</h3>
@@ -150,6 +152,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           placeholder="Enter your current password"
           showPassword={showPasswords.old}
           onToggle={() => togglePasswordVisibility('old')}
+          onChange={handleChange}
         />
 
         <PasswordInput
@@ -159,6 +162,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           placeholder="Enter your new password"
           showPassword={showPasswords.new}
           onToggle={() => togglePasswordVisibility('new')}
+          onChange={handleChange}
         />
 
         {formData.newPassword && (
@@ -182,6 +186,7 @@ export default function PasswordChanger({ className = '' }: PasswordChangerProps
           placeholder="Confirm your new password"
           showPassword={showPasswords.confirm}
           onToggle={() => togglePasswordVisibility('confirm')}
+          onChange={handleChange}
         />
 
         {formData.confirmPassword && (
