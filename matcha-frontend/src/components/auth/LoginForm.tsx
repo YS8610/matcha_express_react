@@ -109,7 +109,7 @@ export default function LoginForm() {
       addToast('Login successful! Welcome back!', 'success', 3000);
       router.push('/browse');
     } catch (err: unknown) {
-      const errorMsg = (err as Error).message || 'Login failed';
+      const errorMsg = (err as Error).message || 'Invalid username or password';
       setError(errorMsg);
       addToast(errorMsg, 'error', 4000);
     } finally {

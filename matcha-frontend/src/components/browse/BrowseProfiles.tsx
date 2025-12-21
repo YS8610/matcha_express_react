@@ -5,7 +5,7 @@ import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
 import { Alert } from '@/components/ui';
-import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown } from 'lucide-react';
+import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown, Info, Calculator, Target, MapPin, Star, Activity } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -145,6 +145,7 @@ export default function BrowseProfiles() {
     return 'recommended';
   });
   const [myTags, setMyTags] = useState<string[]>([]);
+  const [showFormulas, setShowFormulas] = useState(false);
 
   const filteredProfiles = useMemo(() => {
     let profiles = allProfiles;
@@ -244,13 +245,13 @@ export default function BrowseProfiles() {
     score += distanceScore;
 
     const fame = profile.fameRating || 50;
-    const fameScore = (fame / 10000) * 20;
+    const fameScore = (fame / 100) * 20;
     score += fameScore;
 
     const lastOnline = profile.lastOnline || 0;
     const now = Date.now();
     const hoursSinceOnline = (now - lastOnline) / (1000 * 60 * 60);
-    const activityScore = Math.max(0, (168 - Math.min(hoursSinceOnline, 168)) / 168) * 10;
+    const activityScore = Math.max(0, (24 - Math.min(hoursSinceOnline, 24)) / 24) * 10;
     score += activityScore;
 
     return score;
@@ -512,6 +513,18 @@ export default function BrowseProfiles() {
               <ChevronDown className="w-4 h-4 transition-transform" />
             )}
           </button>
+          <button
+            onClick={() => setShowFormulas(!showFormulas)}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full hover:from-blue-700 hover:to-blue-600 font-medium transition-all transform hover:scale-105 shadow-md flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <Calculator className="w-4 h-4" />
+            Formulas
+            {showFormulas ? (
+              <ChevronUp className="w-4 h-4 transition-transform" />
+            ) : (
+              <ChevronDown className="w-4 h-4 transition-transform" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -532,6 +545,86 @@ export default function BrowseProfiles() {
             onFilterChange={handleFilterChange}
             onClose={() => setShowFilters(false)}
           />
+        </div>
+      )}
+
+      {showFormulas && (
+        <div className="mb-6 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 rounded-lg p-5 shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recommendation Scoring Formula</h3>
+            </div>
+            <button
+              onClick={() => setShowFormulas(false)}
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <Target className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">Common Interests</h4>
+                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">40%</span>
+                </div>
+                <code className="text-xs text-purple-900 dark:text-purple-200 block overflow-x-auto">
+                  (commonTags / maxCommonTags) × 40
+                </code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+              <MapPin className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">Distance</h4>
+                  <span className="text-xs font-bold text-green-600 dark:text-green-400">30%</span>
+                </div>
+                <code className="text-xs text-green-900 dark:text-green-200 block overflow-x-auto">
+                  ((100km - distance) / 100km) × 30
+                </code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <Star className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">Fame Rating</h4>
+                  <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">20%</span>
+                </div>
+                <code className="text-xs text-yellow-900 dark:text-yellow-200 block overflow-x-auto">
+                  (fameRating / 100) × 20
+                </code>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
+              <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">Recent Activity</h4>
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-400">10%</span>
+                </div>
+                <code className="text-xs text-orange-900 dark:text-orange-200 block overflow-x-auto">
+                  ((24h - hoursSinceOnline) / 24h) × 10
+                </code>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Info className="w-4 h-4 flex-shrink-0" />
+              <p>
+                <strong className="text-gray-900 dark:text-gray-100">Total Score:</strong> All components sum to max 100 points when using "Recommended" sorting
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

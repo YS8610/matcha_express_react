@@ -2,7 +2,7 @@
 
 reset password section for frontend (checked)
 email link change port: 3001 to 3000 (checked)
-weighted profile suggestion for sorting and user suggestion
+weighted profile suggestion for sorting and user suggestion (checked)
 state not saved after filtering
 placeholder for tag to exclude eg.
 PUT api/user/location route. Error in updateUserlocation

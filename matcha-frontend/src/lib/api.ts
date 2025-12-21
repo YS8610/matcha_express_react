@@ -45,12 +45,18 @@ class ApiClient {
     }
 
     if (!response.ok) {
+      const isLoginEndpoint = endpoint === '/pubapi/login';
+      const isPasswordResetEndpoint = endpoint === '/pubapi/reset-password' || endpoint.startsWith('/pubapi/reset-password/');
+      const isActivateEndpoint = endpoint.startsWith('/pubapi/activate/');
 
-      if (response.status === 401) {
+      if (response.status === 401 && !isLoginEndpoint && !isPasswordResetEndpoint && !isActivateEndpoint) {
         clearToken();
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('unauthorized'));
-          window.location.href = '/login';
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/activate' && !currentPath.startsWith('/reset-password')) {
+            window.dispatchEvent(new CustomEvent('unauthorized'));
+            window.location.href = '/login';
+          }
         }
       }
 
@@ -66,14 +72,24 @@ class ApiClient {
 
         if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
           const firstError = data.errors[0] as Record<string, unknown>;
-          throw new Error((firstError.message as string) || `HTTP error! status: ${response.status}`);
+          const errorMessage = (firstError.message as string) || `HTTP error! status: ${response.status}`;
+          const error = new Error(errorMessage);
+          (error as Error & { silent?: boolean }).silent = isLoginEndpoint || isPasswordResetEndpoint || isActivateEndpoint;
+          throw error;
         }
         if (data.msg) {
-          throw new Error(data.msg as string);
+          const error = new Error(data.msg as string);
+          (error as Error & { silent?: boolean }).silent = isLoginEndpoint || isPasswordResetEndpoint || isActivateEndpoint;
+          throw error;
         }
-        throw new Error((data.message as string) || `HTTP error! status: ${response.status}`);
+        const errorMessage = (data.message as string) || `HTTP error! status: ${response.status}`;
+        const error = new Error(errorMessage);
+        (error as Error & { silent?: boolean }).silent = isLoginEndpoint || isPasswordResetEndpoint || isActivateEndpoint;
+        throw error;
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const error = new Error(`HTTP error! status: ${response.status}`);
+      (error as Error & { silent?: boolean }).silent = isLoginEndpoint || isPasswordResetEndpoint || isActivateEndpoint;
+      throw error;
     }
 
     return responseData as unknown as ApiResponse<T>;
