@@ -8,6 +8,10 @@ class ApiClient {
   constructor() { }
 
   async request<T = Record<string, unknown>>(endpoint: string, options: RequestInit = {}, suppressErrorLog = false): Promise<ApiResponse<T>> {
+    if (endpoint === '/api/profile/edit' || endpoint === '/api/profile/setup') {
+      throw new Error('Invalid API endpoint. Use /api/user/profile for your own profile.');
+    }
+
     const url = `${API_URL}${endpoint}`;
     const method = options.method || 'GET';
     const token = typeof window !== 'undefined' ? getToken() : null;
@@ -52,11 +56,7 @@ class ApiClient {
       if (response.status === 401 && !isLoginEndpoint && !isPasswordResetEndpoint && !isActivateEndpoint) {
         clearToken();
         if (typeof window !== 'undefined') {
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/activate' && !currentPath.startsWith('/reset-password')) {
-            window.dispatchEvent(new CustomEvent('unauthorized'));
-            window.location.href = '/login';
-          }
+          window.dispatchEvent(new CustomEvent('unauthorized'));
         }
       }
 
@@ -66,7 +66,6 @@ class ApiClient {
           clearToken();
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('unauthorized'));
-            window.location.href = '/login';
           }
         }
 

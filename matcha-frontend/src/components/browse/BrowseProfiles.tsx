@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ProfileShort, SearchFilters } from '@/types';
 import ProfileCard from './ProfileCard';
 import FilterPanel from './FilterPanel';
@@ -120,24 +121,56 @@ function PaginationControls({ currentPage, totalPages, onPageChange, getPageNumb
 
 export default function BrowseProfiles() {
   const { addToast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [allProfiles, setAllProfiles] = useState<ProfileShort[]>([]);
   const [displayedProfiles, setDisplayedProfiles] = useState<ProfileShort[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam) : 1;
+  });
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [filters, setFilters] = useState<SearchFilters>(() => {
+    const ageMin = searchParams.get('ageMin');
+    const ageMax = searchParams.get('ageMax');
+    const distanceMax = searchParams.get('distanceMax');
+    const fameMin = searchParams.get('fameMin');
+    const fameMax = searchParams.get('fameMax');
+    const interests = searchParams.get('interests');
+
+    if (ageMin || ageMax || distanceMax || fameMin || fameMax || interests) {
+      return {
+        ageMin: ageMin ? parseInt(ageMin) : undefined,
+        ageMax: ageMax ? parseInt(ageMax) : undefined,
+        distanceMax: distanceMax ? parseInt(distanceMax) : undefined,
+        fameMin: fameMin ? parseInt(fameMin) : undefined,
+        fameMax: fameMax ? parseInt(fameMax) : undefined,
+        interests: interests || undefined,
+      };
+    }
+
     const saved = getFilterPreferences();
     return saved || {};
   });
   const [showFilters, setShowFilters] = useState(false);
   const [profilesPerPage, setProfilesPerPage] = useState(() => {
+    const perPageParam = searchParams.get('perPage');
+    if (perPageParam) return parseInt(perPageParam);
     const saved = getBrowseItemsPerPagePreference();
     return saved ?? 12;
   });
   const [error, setError] = useState('');
-  const [searchName, setSearchName] = useState('');
+  const [searchName, setSearchName] = useState(() => {
+    return searchParams.get('search') || '';
+  });
   const [sortBy, setSortBy] = useState<'age-asc' | 'age-desc' | 'distance-asc' | 'distance-desc' | 'fame-asc' | 'fame-desc' | 'tags-desc' | 'recommended'>(() => {
+    const sortParam = searchParams.get('sort');
+    if (sortParam === 'age-asc' || sortParam === 'age-desc' || sortParam === 'distance-asc' || sortParam === 'distance-desc' || sortParam === 'fame-asc' || sortParam === 'fame-desc' || sortParam === 'tags-desc' || sortParam === 'recommended') {
+      return sortParam;
+    }
     const saved = getBrowseSortPreference();
     if (saved === 'age-asc' || saved === 'age-desc' || saved === 'distance-asc' || saved === 'distance-desc' || saved === 'fame-asc' || saved === 'fame-desc' || saved === 'tags-desc' || saved === 'recommended') {
       return saved;
@@ -146,6 +179,18 @@ export default function BrowseProfiles() {
   });
   const [myTags, setMyTags] = useState<string[]>([]);
   const [showFormulas, setShowFormulas] = useState(false);
+
+  const updateURL = useCallback((params: Record<string, string | number | undefined>) => {
+    const newParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '' && value !== null) {
+        newParams.set(key, String(value));
+      }
+    });
+
+    router.push(`/browse?${newParams.toString()}`, { scroll: false });
+  }, [router]);
 
   const filteredProfiles = useMemo(() => {
     let profiles = allProfiles;
@@ -386,6 +431,21 @@ export default function BrowseProfiles() {
     setDisplayedProfiles(sortedProfiles.slice(startIdx, endIdx));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [sortedProfiles, currentPage, profilesPerPage]);
+
+  useEffect(() => {
+    updateURL({
+      page: currentPage > 1 ? currentPage : undefined,
+      search: searchName || undefined,
+      sort: sortBy !== 'recommended' ? sortBy : undefined,
+      perPage: profilesPerPage !== 12 ? profilesPerPage : undefined,
+      ageMin: filters.ageMin,
+      ageMax: filters.ageMax,
+      distanceMax: filters.distanceMax,
+      fameMin: filters.fameMin,
+      fameMax: filters.fameMax,
+      interests: filters.interests,
+    });
+  }, [currentPage, searchName, sortBy, profilesPerPage, filters, updateURL]);
 
   const handleFilterChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);

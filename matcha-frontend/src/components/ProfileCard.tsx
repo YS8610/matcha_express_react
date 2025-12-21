@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { MapPin, Ban } from 'lucide-react';
 import AuthImage from './AuthImage';
 import { generateAvatarUrl } from '@/lib/api';
@@ -26,19 +27,39 @@ export default function ProfileCard({
     profile.id
   );
 
-  const handleClick = () => {
-    if (isBlocked) return;
-    window.location.href = `/profile/${profile.id}`;
-  };
+  if (isBlocked) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow opacity-60 cursor-not-allowed">
+        <div className="relative h-48">
+          <AuthImage
+            src={photoUrl}
+            alt={profile.username}
+            fill
+            className="object-cover"
+            unoptimized
+            fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="text-center">
+              <Ban className="w-12 h-12 text-red-500 mx-auto mb-2" />
+              <span className="text-white font-semibold text-sm">Blocked User</span>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
+            {profile.firstName} {profile.lastName}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">@{profile.username}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      onClick={handleClick}
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow ${
-        isBlocked
-          ? 'opacity-60 cursor-not-allowed'
-          : 'cursor-pointer hover:shadow-lg'
-      }`}
+    <Link
+      href={`/profile/${profile.id}`}
+      className="block bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow cursor-pointer hover:shadow-lg"
     >
       <div className="relative h-48">
         <AuthImage
@@ -49,15 +70,7 @@ export default function ProfileCard({
           unoptimized
           fallbackSrc={generateAvatarUrl(profile.firstName + ' ' + profile.lastName, profile.id)}
         />
-        {isBlocked && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="text-center">
-              <Ban className="w-12 h-12 text-red-500 mx-auto mb-2" />
-              <span className="text-white font-semibold text-sm">Blocked User</span>
-            </div>
-          </div>
-        )}
-        {showBadge && badgeIcon && !isBlocked && (
+        {showBadge && badgeIcon && (
           <div className={`absolute top-2 right-2 p-2 rounded-full ${badgeClassName}`}>
             {badgeIcon}
           </div>
@@ -83,6 +96,6 @@ export default function ProfileCard({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

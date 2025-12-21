@@ -44,7 +44,6 @@ export function useAuthImage(photoName: string | undefined | null): string | nul
               clearToken();
               if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('unauthorized'));
-                window.location.href = '/login';
               }
             }
             setImageUrl(null);

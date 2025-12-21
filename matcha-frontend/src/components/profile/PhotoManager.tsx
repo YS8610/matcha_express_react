@@ -64,11 +64,9 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       const compressedFile = await imageCompression(file, options);
 
       await api.uploadPhoto(compressedFile, photoNumber);
+      await loadPhotos();
       const successMsg = `Photo ${photoNumber + 1} uploaded successfully!`;
       addToast(successMsg, 'success', 2000);
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (err) {
       const errorMsg = (err as Error).message || 'Failed to upload photo';
       setError(errorMsg);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { ProfileShort } from '@/types';
 import { Star, Heart, ThumbsUp } from 'lucide-react';
 import { generateAvatarUrl } from '@/lib/api';
@@ -56,7 +57,7 @@ export default function ProfileCard({ profile, priority = false }: ProfileCardPr
   const photoUrl = useProfilePhoto(profile.photo0, displayName, profileId);
 
   return (
-    <a
+    <Link
       href={`/profile/${profileId}`}
       className={`relative z-10 block bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 border-2 ${colorScheme.border} ${colorScheme.shadow}`}
     >
@@ -123,6 +124,6 @@ export default function ProfileCard({ profile, priority = false }: ProfileCardPr
           </div>
         )}
       </div>
-    </a>
+    </Link>
   );
 }

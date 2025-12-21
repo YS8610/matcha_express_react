@@ -54,7 +54,9 @@ export default function EditProfilePage() {
         const data = response.data;
 
         if (!data) {
-          setError('Failed to load profile data');
+          setError('Profile not found. Redirecting to profile setup...');
+          addToast('Please complete your profile setup first', 'warning');
+          router.push('/profile/setup');
           return;
         }
 
@@ -82,13 +84,22 @@ export default function EditProfilePage() {
           setLocationDetected(true);
         }
       } catch (error) {
-        setError('Failed to load profile data');
-        addToast('Failed to load profile', 'error');
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load profile data';
+
+        if (errorMsg.includes('User profile not found') || errorMsg.includes('profile not found')) {
+          setError('Profile not found. Redirecting to profile setup...');
+          addToast('Please complete your profile setup first', 'warning');
+          router.push('/profile/setup');
+          return;
+        }
+
+        setError(errorMsg);
+        addToast(errorMsg, 'error');
       }
     };
 
     loadProfile();
-  }, [user, router]);
+  }, [user, router, addToast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({

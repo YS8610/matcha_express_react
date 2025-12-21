@@ -51,10 +51,6 @@ export default function BlockedPage() {
     }
   };
 
-  const handleProfileClick = (userId: string) => {
-    router.push(`/profile/${userId}`);
-  };
-
   const ProfileCard = ({ profile }: { profile: ProfileShort }) => {
     const photoUrl = useProfilePhoto(
       profile.photo0,

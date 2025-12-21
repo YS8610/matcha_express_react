@@ -16,9 +16,10 @@ import { GENDER_MALE, GENDER_FEMALE, SEXUAL_PREFERENCE_MALE, SEXUAL_PREFERENCE_F
 
 interface ProfileViewProps {
   userId: string;
+  isModal?: boolean;
 }
 
-export default function ProfileView({ userId }: ProfileViewProps) {
+export default function ProfileView({ userId, isModal = false }: ProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ message: string; statusCode?: number } | null>(null);
@@ -40,6 +41,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   const { user } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
+  const currentUserId = user?.id;
 
   const displayName = useMemo(
     () => {
@@ -86,69 +88,81 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     setCurrentPhotoIndex((prev) => (prev - 1 + availablePhotos.length) % availablePhotos.length);
   };
 
-  const loadProfile = useCallback(async () => {
+  useEffect(() => {
     if (!userId) {
       setLoading(false);
       return;
     }
 
-    try {
-      const response = await api.getProfile(userId);
-      setProfile((response.data as unknown as Profile) || null);
-      setError(null);
+    let cancelled = false;
 
-      if (user && user.id !== userId) {
-        try {
-          const viewedResponse = await api.getUsersViewed() as { data?: Array<{ id: string }> } | Array<{ id: string }>;
-          const viewedUsers = Array.isArray(viewedResponse) ? viewedResponse : (viewedResponse?.data || []);
-          const viewedIds = new Set(viewedUsers.map(u => u.id));
-          setViewedUserIds(viewedIds);
+    const loadProfile = async () => {
+      try {
+        const response = await api.getProfile(userId);
+        if (cancelled) return;
 
-          if (!viewedIds.has(userId)) {
+        setProfile((response.data as unknown as Profile) || null);
+        setError(null);
+
+        if (currentUserId && currentUserId !== userId) {
+          try {
+            const viewedResponse = await api.getUsersViewed() as { data?: Array<{ id: string }> } | Array<{ id: string }>;
+            if (cancelled) return;
+
+            const viewedUsers = Array.isArray(viewedResponse) ? viewedResponse : (viewedResponse?.data || []);
+            const viewedIds = new Set(viewedUsers.map(u => u.id));
+            setViewedUserIds(viewedIds);
+
+            if (!viewedIds.has(userId)) {
+              try {
+                await api.recordUserView(userId);
+                if (cancelled) return;
+
+                viewedIds.add(userId);
+                setViewedUserIds(new Set(viewedIds));
+              } catch (viewError) {
+              }
+            }
+          } catch (viewError) {
             try {
               await api.recordUserView(userId);
-              viewedIds.add(userId);
-              setViewedUserIds(new Set(viewedIds));
-            } catch (viewError) {
+            } catch (err) {
             }
           }
-        } catch (viewError) {
-          try {
-            await api.recordUserView(userId);
-          } catch (err) {
+
+          if (response.data) {
+            const typedData = response.data as Record<string, unknown>;
+            const connectionStatus = typedData.connectionStatus as Record<string, unknown>;
+            if (connectionStatus) {
+              setHasProfileLikedUser((connectionStatus.likedBack as boolean) || false);
+              setIsConnected((connectionStatus.matched as boolean) || false);
+            }
           }
         }
+      } catch (err) {
+        if (cancelled) return;
 
-        if (response.data) {
-          const typedData = response.data as Record<string, unknown>;
-          const connectionStatus = typedData.connectionStatus as Record<string, unknown>;
-          if (connectionStatus) {
-            setHasProfileLikedUser((connectionStatus.likedBack as boolean) || false);
-            setIsConnected((connectionStatus.matched as boolean) || false);
-          }
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
+        let statusCode = 404;
+
+        if (errorMessage.includes('blocked') || errorMessage.includes('blocking')) {
+          statusCode = 403;
+        }
+
+        setError({ message: errorMessage, statusCode });
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
-      let statusCode = 404;
+    };
 
-      if (errorMessage.includes('blocked') || errorMessage.includes('blocking')) {
-        statusCode = 403;
-      }
+    loadProfile();
 
-      setError({ message: errorMessage, statusCode });
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, user]);
-
-  useEffect(() => {
-    if (userId) {
-      loadProfile();
-    } else {
-      setLoading(false);
-    }
-  }, [userId, loadProfile]);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, currentUserId]);
 
   useEffect(() => {
     if (profile?.latitude !== undefined && profile?.longitude !== undefined) {
@@ -362,10 +376,10 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className={`flex items-center justify-center ${isModal ? 'min-h-[400px]' : 'min-h-screen'}`}>
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-        <p className="mt-4 text-gray-600">Loading profile...</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
       </div>
     </div>
   );
@@ -380,23 +394,25 @@ export default function ProfileView({ userId }: ProfileViewProps) {
     }
 
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
+      <div className={`flex items-center justify-center ${isModal ? 'min-h-[400px]' : 'min-h-screen'}`}>
+        <div className="text-center p-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">{title}</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
-          <button
-            onClick={() => router.push('/browse')}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Back to Browse
-          </button>
+          {!isModal && (
+            <button
+              onClick={() => router.push('/browse')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Back to Browse
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   if (!profile) return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className={`flex items-center justify-center ${isModal ? 'min-h-[400px]' : 'min-h-screen'}`}>
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Loading...</h2>
       </div>
@@ -404,7 +420,7 @@ export default function ProfileView({ userId }: ProfileViewProps) {
   );
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className={`max-w-4xl mx-auto ${isModal ? 'p-0' : 'p-6'}`}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video group">
           {availablePhotos.length > 0 ? (

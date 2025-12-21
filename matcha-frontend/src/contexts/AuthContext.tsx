@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import * as tokenStorage from '@/lib/tokenStorage';
 import type { User, AuthContextType, RegisterData, LoginRequest } from '@/types';
@@ -10,6 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     checkAuth();
@@ -19,6 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       tokenStorage.clearToken();
       localStorage.clear();
       sessionStorage.clear();
+
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/activate' && !currentPath.startsWith('/reset-password')) {
+        Promise.resolve().then(() => {
+          router.push('/login');
+        });
+      }
     };
 
     window.addEventListener('unauthorized', handleUnauthorized);
@@ -26,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener('unauthorized', handleUnauthorized);
     };
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!user) return;
@@ -143,6 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      router.push('/login');
+
+      await Promise.resolve();
+
       tokenStorage.clearToken();
       localStorage.clear();
       sessionStorage.clear();
@@ -155,7 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       setUser(null);
-      window.location.href = '/login';
     } catch (error) {
     }
   };
