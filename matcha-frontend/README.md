@@ -10,8 +10,8 @@ when location is set to 0, 0 , backend will give error that longtitude and latit
 backend not getting the correct ip for location (checked)
 need to enforce that new user to enter location coordinate (checked)
 online status either backend or frontend (checked)
-blocked message log to be labelled
-conversation needs to set max text
-backend to check for blocked user and excluding it from the search
+blocked message log to be labelled (checked)
+conversation needs to set max text (checked)
+backend to check for blocked user and excluding it from the search (checked)
 
 Once everything is done, update all package.json and write all test cases and pass it.

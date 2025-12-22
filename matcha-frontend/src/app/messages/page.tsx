@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Ban } from 'lucide-react';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import EmptyState from '@/components/EmptyState';
 import { Alert } from '@/components/ui';
@@ -18,6 +18,7 @@ export default function MessagesPage() {
   const router = useRouter();
   const { chatMessages, onlineUsers, checkOnlineStatus } = useWebSocket();
   const [matches, setMatches] = useState<ProfileShort[]>([]);
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -48,7 +49,16 @@ export default function MessagesPage() {
     try {
       setLoading(true);
       setError('');
-      const response = await api.getMatchedUsers();
+
+      const [response, blockedUsersData] = await Promise.all([
+        api.getMatchedUsers(),
+        api.getBlockedUsers()
+      ]);
+
+      const blockedArray = Array.isArray(blockedUsersData) ? blockedUsersData : blockedUsersData.data || [];
+      const blockedIds = new Set(blockedArray.map((user: ProfileShort) => user.id));
+      setBlockedUserIds(blockedIds);
+
       setMatches(response.data || []);
     } catch (err) {
       setError((err as Error).message || 'Failed to load matches');
@@ -77,11 +87,16 @@ export default function MessagesPage() {
     const lastMessage = getLastMessage(profile.id);
     const unreadCount = getUnreadCount(profile.id);
     const isOnline = onlineUsers[profile.id] || false;
+    const isBlocked = blockedUserIds.has(profile.id);
 
     return (
       <div
-        onClick={() => router.push(`/chat/${profile.id}`)}
-        className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 transition-colors"
+        onClick={() => !isBlocked && router.push(`/chat/${profile.id}`)}
+        className={`flex items-center gap-4 p-4 border-b border-gray-100 dark:border-gray-700 transition-colors ${
+          isBlocked
+            ? 'opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800'
+            : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
+        }`}
       >
         <div className="relative">
           <div className="w-14 h-14 rounded-full overflow-hidden">
@@ -102,20 +117,28 @@ export default function MessagesPage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate">
-              {profile.firstName} {profile.lastName}
-            </h3>
-            {lastMessage && (
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate">
+                {profile.firstName} {profile.lastName}
+              </h3>
+              {isBlocked && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-semibold rounded-full">
+                  <Ban className="w-3 h-3" />
+                  Blocked
+                </span>
+              )}
+            </div>
+            {lastMessage && !isBlocked && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {new Date(lastMessage.timestamp).toLocaleDateString()}
               </span>
             )}
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-            {lastMessage ? lastMessage.content : 'Start a conversation!'}
+            {isBlocked ? 'This user is blocked' : (lastMessage ? lastMessage.content : 'Start a conversation!')}
           </p>
         </div>
-        {unreadCount > 0 && (
+        {!isBlocked && unreadCount > 0 && (
           <div className="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
             {unreadCount}
           </div>

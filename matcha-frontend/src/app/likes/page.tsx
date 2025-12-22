@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import ProfileCard from '@/components/ProfileCard';
@@ -16,11 +16,20 @@ export default function LikesPage() {
   const router = useRouter();
   const { user } = useRequireAuth();
   const { data: likedMe, loading, error, execute, setData } = useAsyncData<ProfileShort[]>();
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user) {
       execute(async () => {
-        const response = await api.getUsersWhoLikedMe();
+        const [response, blockedUsersData] = await Promise.all([
+          api.getUsersWhoLikedMe(),
+          api.getBlockedUsers()
+        ]);
+
+        const blockedArray = Array.isArray(blockedUsersData) ? blockedUsersData : blockedUsersData.data || [];
+        const blockedIds = new Set(blockedArray.map((user: ProfileShort) => user.id));
+        setBlockedUserIds(blockedIds);
+
         return Array.isArray(response) ? response : response.data || [];
       });
     }
@@ -55,6 +64,7 @@ export default function LikesPage() {
                 showBadge
                 badgeIcon={<Heart className="w-4 h-4 fill-current" />}
                 badgeClassName="bg-red-500 text-white"
+                isBlocked={blockedUserIds.has(profile.id)}
               />
             ))}
           </div>

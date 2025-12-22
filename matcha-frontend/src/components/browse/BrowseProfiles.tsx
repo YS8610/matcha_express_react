@@ -128,6 +128,7 @@ export default function BrowseProfiles() {
 
   const [allProfiles, setAllProfiles] = useState<ProfileShort[]>([]);
   const [displayedProfiles, setDisplayedProfiles] = useState<ProfileShort[]>([]);
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(() => {
     const pageParam = searchParams.get('page');
@@ -362,7 +363,14 @@ export default function BrowseProfiles() {
       if (filters.fameMin !== undefined) requestFilters.minFameRating = filters.fameMin;
       if (filters.fameMax !== undefined) requestFilters.maxFameRating = filters.fameMax;
 
-      const response = await api.getFilteredProfiles(requestFilters);
+      const [response, blockedUsersData] = await Promise.all([
+        api.getFilteredProfiles(requestFilters),
+        api.getBlockedUsers()
+      ]);
+
+      const blockedArray = Array.isArray(blockedUsersData) ? blockedUsersData : blockedUsersData.data || [];
+      const blockedIds = new Set(blockedArray.map((user: ProfileShort) => user.id));
+      setBlockedUserIds(blockedIds);
 
       let profiles = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
 
@@ -750,7 +758,12 @@ export default function BrowseProfiles() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-8">
             {displayedProfiles.map((profile, index) => (
-              <MemoizedProfileCard key={`${profile.id}-${index}`} profile={profile} priority={index === 0} />
+              <MemoizedProfileCard
+                key={`${profile.id}-${index}`}
+                profile={profile}
+                priority={index === 0}
+                isBlocked={blockedUserIds.has(profile.id)}
+              />
             ))}
           </div>
 

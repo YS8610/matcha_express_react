@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { ProfileShort } from '@/types';
-import { Star, Heart, ThumbsUp } from 'lucide-react';
+import { Star, Heart, ThumbsUp, Ban } from 'lucide-react';
 import { generateAvatarUrl } from '@/lib/api';
 import AuthImage from '@/components/AuthImage';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
@@ -14,6 +14,7 @@ import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 interface ProfileCardProps {
   profile: ProfileShort & { distance?: number };
   priority?: boolean;
+  isBlocked?: boolean;
 }
 
 const colorSchemes = [
@@ -32,7 +33,7 @@ function getColorScheme(id: string): typeof colorSchemes[0] {
   return colorSchemes[hash % colorSchemes.length];
 }
 
-export default function ProfileCard({ profile, priority = false }: ProfileCardProps) {
+export default function ProfileCard({ profile, priority = false, isBlocked = false }: ProfileCardProps) {
   const profileId = profile.id;
   const colorScheme = getColorScheme(profileId);
 
@@ -55,6 +56,39 @@ export default function ProfileCard({ profile, priority = false }: ProfileCardPr
   const isOnline = profile.lastOnline ? (Date.now() - profile.lastOnline) < 5 * 60 * 1000 : false;
 
   const photoUrl = useProfilePhoto(profile.photo0, displayName, profileId);
+
+  if (isBlocked) {
+    return (
+      <div className={`relative z-10 block bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border-2 ${colorScheme.border} opacity-60 cursor-not-allowed`}>
+        <div className="relative h-64 w-full aspect-video">
+          <AuthImage
+            src={photoUrl}
+            alt={`Profile ${profileId}`}
+            fill
+            unoptimized
+            className="object-cover"
+            fallbackSrc={generateAvatarUrl(displayName, profileId)}
+            priority={priority}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+            <div className="text-center">
+              <Ban className="w-16 h-16 text-red-500 mx-auto mb-2" />
+              <span className="text-white font-semibold text-lg">Blocked User</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4">
+          <h3 className="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-1">
+            {displayName}
+          </h3>
+          <p className="text-sm text-gray-400 dark:text-gray-500">
+            @{displayUsername}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Link
