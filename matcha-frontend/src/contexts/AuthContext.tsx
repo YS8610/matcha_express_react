@@ -152,10 +152,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      router.push('/login');
-
-      await Promise.resolve();
-
       tokenStorage.clearToken();
       localStorage.clear();
       sessionStorage.clear();
@@ -168,6 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       setUser(null);
+      setLoading(true);
+
+      window.location.href = '/login';
     } catch (error) {
     }
   };

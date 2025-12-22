@@ -10,7 +10,7 @@ import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
 import { calculateDistance, formatDistance } from '@/lib/distance';
-import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin } from 'lucide-react';
+import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GENDER_MALE, GENDER_FEMALE, SEXUAL_PREFERENCE_MALE, SEXUAL_PREFERENCE_FEMALE } from '@/constants';
 
@@ -421,6 +421,15 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
 
   return (
     <div className={`max-w-4xl mx-auto ${isModal ? 'p-0' : 'p-6'}`}>
+      {!isModal && (
+        <button
+          onClick={() => router.back()}
+          className="mb-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+      )}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-48 sm:h-64 md:h-96 w-full aspect-video group">
           {availablePhotos.length > 0 ? (

@@ -3,8 +3,8 @@
 reset password section for frontend (checked)
 email link change port: 3001 to 3000 (checked)
 weighted profile suggestion for sorting and user suggestion (checked)
-state not saved after filtering (not easy to fix)
-placeholder for tag to exclude eg.
+state not saved after filtering (checked)
+placeholder for tag to exclude eg (checked)
 PUT api/user/location route. Error in updateUserlocation
 when location is set to 0, 0 , backend will give error that longtitude and latitude are needed
 backend not getting the correct ip for location

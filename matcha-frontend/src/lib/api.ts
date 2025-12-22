@@ -62,7 +62,20 @@ class ApiClient {
 
       if (typeof responseData === 'object') {
         const data = responseData as Record<string, unknown>;
-        if (response.status === 400 && data.message && (data.message as string).includes('User profile not found')) {
+
+        let isProfileNotFound = false;
+        if (response.status === 400) {
+          if (data.message && (data.message as string).includes('User profile not found')) {
+            isProfileNotFound = true;
+          } else if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+            const firstError = data.errors[0] as Record<string, unknown>;
+            if (firstError.message && (firstError.message as string).includes('User profile not found')) {
+              isProfileNotFound = true;
+            }
+          }
+        }
+
+        if (isProfileNotFound) {
           clearToken();
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('unauthorized'));

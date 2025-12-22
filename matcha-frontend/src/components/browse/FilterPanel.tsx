@@ -33,38 +33,76 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Age Range
-          </label>
-          <div className="flex gap-2 items-center">
-            <input
-              type="number"
-              min={MIN_AGE}
-              max={MAX_AGE}
-              value={localFilters.ageMin || ''}
-              onChange={(e) => setLocalFilters({
-                ...localFilters,
-                ageMin: e.target.value ? parseInt(e.target.value) : undefined
-              })}
-              placeholder="Min"
-              className="w-full sm:w-20 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-            />
-            <span className="text-green-600 dark:text-green-400">-</span>
-            <input
-              type="number"
-              min={MIN_AGE}
-              max={MAX_AGE}
-              value={localFilters.ageMax || ''}
-              onChange={(e) => setLocalFilters({
-                ...localFilters,
-                ageMax: e.target.value ? parseInt(e.target.value) : undefined
-              })}
-              placeholder="Max"
-              className="w-full sm:w-20 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-            />
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-slate-700/50 dark:to-slate-700/50 rounded-lg border border-green-200 dark:border-green-800">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Age Range
+            </label>
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                min={MIN_AGE}
+                max={MAX_AGE}
+                value={localFilters.ageMin || ''}
+                onChange={(e) => setLocalFilters({
+                  ...localFilters,
+                  ageMin: e.target.value ? parseInt(e.target.value) : undefined
+                })}
+                placeholder={`${MIN_AGE}`}
+                className="w-20 px-3 py-2.5 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-center font-medium"
+              />
+              <span className="text-green-600 dark:text-green-400 font-bold">→</span>
+              <input
+                type="number"
+                min={MIN_AGE}
+                max={MAX_AGE}
+                value={localFilters.ageMax || ''}
+                onChange={(e) => setLocalFilters({
+                  ...localFilters,
+                  ageMax: e.target.value ? parseInt(e.target.value) : undefined
+                })}
+                placeholder={`${MAX_AGE}`}
+                className="w-20 px-3 py-2.5 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-center font-medium"
+              />
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">years</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              Fame Rating
+            </label>
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                min={FAME_RATING_MIN}
+                max={FAME_RATING_MAX}
+                value={localFilters.fameMin || ''}
+                onChange={(e) => setLocalFilters({
+                  ...localFilters,
+                  fameMin: e.target.value ? parseInt(e.target.value) : undefined
+                })}
+                placeholder={`${FAME_RATING_MIN}`}
+                className="w-20 px-3 py-2.5 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-center font-medium"
+              />
+              <span className="text-green-600 dark:text-green-400 font-bold">→</span>
+              <input
+                type="number"
+                min={FAME_RATING_MIN}
+                max={FAME_RATING_MAX}
+                value={localFilters.fameMax || ''}
+                onChange={(e) => setLocalFilters({
+                  ...localFilters,
+                  fameMax: e.target.value ? parseInt(e.target.value) : undefined
+                })}
+                placeholder={`${FAME_RATING_MAX}`}
+                className="w-20 px-3 py-2.5 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-center font-medium"
+              />
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">/100</span>
+            </div>
           </div>
         </div>
 
@@ -87,80 +125,41 @@ export default function FilterPanel({ filters, onFilterChange, onClose }: Filter
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
-            <Star className="w-4 h-4" />
-            Fame Rating
-          </label>
-          <div className="flex gap-2 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
+              <Heart className="w-4 h-4 fill-green-500 dark:fill-green-400" />
+              Include Interests
+            </label>
             <input
-              type="number"
-              min={FAME_RATING_MIN}
-              max={FAME_RATING_MAX}
-              value={localFilters.fameMin || ''}
+              type="text"
+              value={localFilters.interests || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,
-                fameMin: e.target.value ? parseInt(e.target.value) : undefined
+                interests: e.target.value || undefined
               })}
-              placeholder="Min"
-              className="w-full sm:w-20 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              placeholder="travel, fitness, music (comma-separated)"
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-700 dark:to-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
-            <span className="text-green-600 dark:text-green-400">-</span>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-red-600 dark:text-red-400 flex items-center gap-2">
+              <X className="w-4 h-4" />
+              Exclude Interests
+            </label>
             <input
-              type="number"
-              min={FAME_RATING_MIN}
-              max={FAME_RATING_MAX}
-              value={localFilters.fameMax || ''}
+              type="text"
+              value={localFilters.excludeTags || ''}
               onChange={(e) => setLocalFilters({
                 ...localFilters,
-                fameMax: e.target.value ? parseInt(e.target.value) : undefined
+                excludeTags: e.target.value || undefined
               })}
-              placeholder="Max"
-              className="w-full sm:w-20 px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+              placeholder="smoking, pets, gaming (comma-separated)"
+              className="w-full px-3 py-2 border border-red-300 dark:border-red-700 rounded-md bg-gradient-to-r from-red-50 to-orange-50 dark:from-slate-700 dark:to-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
-            <Heart className="w-4 h-4" />
-            Interests (Include)
-          </label>
-          <input
-            type="text"
-            value={localFilters.interests || ''}
-            onChange={(e) => setLocalFilters({
-              ...localFilters,
-              interests: e.target.value || undefined
-            })}
-            placeholder="e.g., travel, fitness, music"
-            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Separate multiple interests with commas. Shows profiles with at least one matching tag.
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2 text-green-700 dark:text-green-300 flex items-center gap-2">
-            <X className="w-4 h-4" />
-            Interests (Exclude)
-          </label>
-          <input
-            type="text"
-            value={localFilters.excludeTags || ''}
-            onChange={(e) => setLocalFilters({
-              ...localFilters,
-              excludeTags: e.target.value || undefined
-            })}
-            placeholder="e.g., smoking, pets, gaming"
-            className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Separate multiple interests with commas. Hides profiles with any of these tags.
-          </p>
-        </div>
-
       </div>
 
       <div className="flex gap-2 pt-4">
