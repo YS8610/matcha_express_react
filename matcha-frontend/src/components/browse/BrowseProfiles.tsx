@@ -9,6 +9,7 @@ import { Alert } from '@/components/ui';
 import { Filter, Sparkles, ChevronLeft, ChevronRight, ArrowUp, Users, ChevronDown, ChevronUp, Search, X, ArrowUpDown, Info, Calculator, Target, MapPin, Star, Activity } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import {
   getBrowseSortPreference,
   setBrowseSortPreference,
@@ -121,6 +122,7 @@ function PaginationControls({ currentPage, totalPages, onPageChange, getPageNumb
 
 export default function BrowseProfiles() {
   const { addToast } = useToast();
+  const { checkOnlineStatus } = useWebSocket();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -402,6 +404,22 @@ export default function BrowseProfiles() {
   useEffect(() => {
     loadProfiles();
   }, [loadProfiles]);
+
+  useEffect(() => {
+    if (!checkOnlineStatus || displayedProfiles.length === 0) return;
+
+    const userIds = displayedProfiles.map(p => p.id);
+
+    checkOnlineStatus(userIds);
+
+    const intervalId = setInterval(() => {
+      checkOnlineStatus(userIds);
+    }, 5000); 
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [displayedProfiles, checkOnlineStatus]);
 
   useEffect(() => {
     const handleScroll = () => {

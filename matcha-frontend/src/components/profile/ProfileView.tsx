@@ -5,6 +5,7 @@ import { api, generateAvatarUrl } from '@/lib/api';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import AuthImage from '@/components/AuthImage';
 import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
@@ -40,6 +41,7 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
   const [myTags, setMyTags] = useState<string[]>([]);
   const { user } = useAuth();
   const { addToast } = useToast();
+  const { onlineUsers, checkOnlineStatus } = useWebSocket();
   const router = useRouter();
   const currentUserId = user?.id;
 
@@ -65,9 +67,13 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
   );
 
   const isOnline = useMemo(() => {
+    if (!userId) return false;
+    if (onlineUsers[userId] !== undefined) {
+      return onlineUsers[userId];
+    }
     if (!profile?.lastOnline) return false;
     return (Date.now() - profile.lastOnline) < 5 * 60 * 1000;
-  }, [profile?.lastOnline]);
+  }, [userId, onlineUsers, profile?.lastOnline]);
 
   const availablePhotos = useMemo(() => {
     if (!profile) return [];
@@ -163,6 +169,20 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
       cancelled = true;
     };
   }, [userId, currentUserId]);
+
+  useEffect(() => {
+    if (!userId || !checkOnlineStatus) return;
+
+    checkOnlineStatus([userId]);
+
+    const intervalId = setInterval(() => {
+      checkOnlineStatus([userId]);
+    }, 5000); 
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [userId, checkOnlineStatus]);
 
   useEffect(() => {
     if (profile?.latitude !== undefined && profile?.longitude !== undefined) {

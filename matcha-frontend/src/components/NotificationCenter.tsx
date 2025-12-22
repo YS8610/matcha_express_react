@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Bell, Heart, Eye, MessageCircle, UserX, AlertCircle, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/contexts/ToastContext';
 import { Notification } from '@/types';
@@ -27,6 +28,7 @@ const getNotificationIcon = (type: Notification['type']) => {
 
 export default function NotificationCenter() {
   const { addToast } = useToast();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { notifications: wsNotifications, isConnected, markNotificationRead, clearNotifications } = useWebSocket();
   const [apiNotifications, setApiNotifications] = useState<Notification[]>([]);
@@ -100,6 +102,22 @@ export default function NotificationCenter() {
       setApiNotifications(prev =>
         prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
       );
+
+      setIsOpen(false);
+
+      switch (notification.type) {
+        case 'message':
+          router.push(`/chat/${notification.userId}`);
+          break;
+        case 'like':
+        case 'view':
+        case 'unlike':
+        case 'match':
+          router.push(`/profile/${notification.userId}`);
+          break;
+        default:
+          router.push(`/profile/${notification.userId}`);
+      }
     } catch (error) {
       const errorMsg = 'Failed to mark notification as read';
       addToast(errorMsg, 'error', 3000);

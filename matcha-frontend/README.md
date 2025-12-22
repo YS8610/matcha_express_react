@@ -9,7 +9,7 @@ PUT api/user/location route. Error in updateUserlocation (checked)
 when location is set to 0, 0 , backend will give error that longtitude and latitude are needed (checked)
 backend not getting the correct ip for location (checked)
 need to enforce that new user to enter location coordinate (checked)
-online status either backend or frontend
+online status either backend or frontend (checked)
 blocked message log to be labelled
 conversation needs to set max text
 backend to check for blocked user and excluding it from the search
