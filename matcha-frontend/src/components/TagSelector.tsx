@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Sparkles, Tag as TagIcon } from 'lucide-react';
+import { X, Sparkles, Tag as TagIcon, Check, AlertTriangle } from 'lucide-react';
 import { getTagSuggestions, getRandomPopularTags, POPULAR_TAGS } from '@/lib/popularTags';
 import { validateTag } from '@/lib/validation';
 import { USER_MAX_TAGS } from '@/constants';
@@ -176,8 +176,9 @@ export default function TagSelector({
           </span>
 
           {displayError && (
-            <span className="text-xs text-red-600 dark:text-red-400 font-medium">
-              ⚠ {displayError}
+            <span className="text-xs text-red-600 dark:text-red-400 font-medium flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              {displayError}
             </span>
           )}
         </div>
@@ -185,8 +186,9 @@ export default function TagSelector({
 
       {selectedTags.length > 0 && (
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mb-3">
-            ✓ {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} selected
+          <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mb-3 flex items-center gap-1.5">
+            <Check className="w-3.5 h-3.5" />
+            {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} selected
           </p>
           <div className="flex flex-wrap gap-2">
             {selectedTags.map((tag) => (

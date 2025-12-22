@@ -10,7 +10,7 @@ import Modal from '@/components/Modal';
 import { toNumber, getLastSeenString } from '@/lib/neo4j-utils';
 import { removeTags, sanitizeInput } from '@/lib/security';
 import { calculateDistance, formatDistance } from '@/lib/distance';
-import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin, ArrowLeft } from 'lucide-react';
+import { ShieldBan, Flag, X, Heart, MessageCircle, ChevronLeft, ChevronRight, Circle, MapPin, ArrowLeft, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GENDER_MALE, GENDER_FEMALE, SEXUAL_PREFERENCE_MALE, SEXUAL_PREFERENCE_FEMALE } from '@/constants';
 
@@ -249,7 +249,7 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
       setLikeError('');
       await api.likeUser(userId);
       setHasUserLiked(true);
-      addToast('Profile liked! 💚', 'success', 3000);
+      addToast('Profile liked!', 'success', 3000);
       setModalState({
         type: 'success',
         title: 'Profile Liked!',
@@ -600,14 +600,14 @@ export default function ProfileView({ userId, isModal = false }: ProfileViewProp
                       title={isShared ? 'Shared interest!' : undefined}
                     >
                       #{tag}
-                      {isShared && <span className="ml-1.5">✨</span>}
+                      {isShared && <Sparkles className="w-3.5 h-3.5 ml-1.5 inline-block" />}
                     </span>
                   );
                 })}
               </div>
               {myTags.length > 0 && profile.userTags.some(tag => myTags.includes(tag)) && (
                 <p className="mt-2 text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                  <span>✨</span>
+                  <Sparkles className="w-3.5 h-3.5" />
                   <span>Shared interests highlighted</span>
                 </p>
               )}

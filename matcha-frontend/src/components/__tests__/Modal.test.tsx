@@ -25,7 +25,7 @@ describe('Modal Component', () => {
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h2>{title}</h2>
-            <button onClick={onClose} aria-label="Close">✕</button>
+            <button onClick={onClose} aria-label="Close">Close</button>
           </div>
           <div className="modal-body">{children}</div>
           {actions && <div className="modal-footer">{actions}</div>}

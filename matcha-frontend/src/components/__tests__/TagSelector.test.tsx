@@ -199,7 +199,7 @@ describe('TagSelector Component', () => {
         />
       );
 
-      expect(screen.getByText('✓ 2 tags selected')).toBeInTheDocument();
+      expect(screen.getByText('2 tags selected')).toBeInTheDocument();
     });
 
     it('should use singular form for single tag', () => {
@@ -210,7 +210,7 @@ describe('TagSelector Component', () => {
         />
       );
 
-      expect(screen.getByText('✓ 1 tag selected')).toBeInTheDocument();
+      expect(screen.getByText('1 tag selected')).toBeInTheDocument();
     });
   });
 
@@ -239,7 +239,7 @@ describe('TagSelector Component', () => {
       const input = screen.getByPlaceholderText('Add interest...');
       await user.type(input, 'travel{Enter}');
 
-      expect(screen.getByText('⚠ This tag is already added')).toBeInTheDocument();
+      expect(screen.getByText('This tag is already added')).toBeInTheDocument();
     });
 
     it('should show error when max tags reached', async () => {
@@ -269,7 +269,7 @@ describe('TagSelector Component', () => {
       const input = screen.getByPlaceholderText('Add interest...');
       await user.type(input, 'a{Enter}'); 
 
-      expect(screen.getByText('⚠ Tag must be at least 2 characters')).toBeInTheDocument();
+      expect(screen.getByText('Tag must be at least 2 characters')).toBeInTheDocument();
     });
 
     it('should display external error prop', () => {
@@ -281,7 +281,7 @@ describe('TagSelector Component', () => {
         />
       );
 
-      expect(screen.getByText('⚠ Custom error message')).toBeInTheDocument();
+      expect(screen.getByText('Custom error message')).toBeInTheDocument();
     });
 
     it('should clear error after successful tag addition', async () => {
@@ -296,11 +296,11 @@ describe('TagSelector Component', () => {
       const input = screen.getByPlaceholderText('Add interest...');
 
       await user.type(input, 'travel{Enter}');
-      expect(screen.getByText('⚠ This tag is already added')).toBeInTheDocument();
+      expect(screen.getByText('This tag is already added')).toBeInTheDocument();
 
       await user.clear(input);
       await user.type(input, 'music{Enter}');
-      expect(screen.queryByText('⚠ This tag is already added')).not.toBeInTheDocument();
+      expect(screen.queryByText('This tag is already added')).not.toBeInTheDocument();
     });
   });
 
@@ -530,7 +530,7 @@ describe('TagSelector Component', () => {
         />
       );
 
-      expect(screen.getByText('✓ 1 tag selected')).toBeInTheDocument();
+      expect(screen.getByText('1 tag selected')).toBeInTheDocument();
     });
 
     it('should show color-coded tag counter', () => {

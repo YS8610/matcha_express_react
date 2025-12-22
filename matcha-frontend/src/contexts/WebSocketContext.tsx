@@ -102,11 +102,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
       if (isNewNotification) {
         const toastMessages: Record<Notification['type'], { message: string; type: 'success' | 'info' | 'warning' | 'error' }> = {
-          like: { message: `💚 ${notification.message}`, type: 'success' },
-          view: { message: `👁️ ${notification.message}`, type: 'info' },
-          message: { message: `💬 ${notification.message}`, type: 'info' },
-          match: { message: `💖 ${notification.message}`, type: 'success' },
-          unlike: { message: `💔 ${notification.message}`, type: 'warning' }
+          like: { message: notification.message, type: 'success' },
+          view: { message: notification.message, type: 'info' },
+          message: { message: notification.message, type: 'info' },
+          match: { message: notification.message, type: 'success' },
+          unlike: { message: notification.message, type: 'warning' }
         };
 
         const toastConfig = toastMessages[notification.type] || { message: notification.message, type: 'info' };

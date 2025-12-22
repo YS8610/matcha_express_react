@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Leaf, Save, MapPin, Loader } from 'lucide-react';
+import { Leaf, Save, MapPin, Loader, Check, AlertTriangle } from 'lucide-react';
 import TagManager from '@/components/profile/TagManager';
 import PasswordChanger from '@/components/profile/PasswordChanger';
 import PhotoManager from '@/components/profile/PhotoManager';
@@ -264,6 +264,19 @@ export default function EditProfilePage() {
         return;
       }
 
+      if (formData.latitude && formData.longitude) {
+        const lat = parseFloat(formData.latitude);
+        const lon = parseFloat(formData.longitude);
+
+        if (lat === 0 || lon === 0) {
+          const errorMsg = 'For precise location matching, coordinates cannot be exactly on the equator (latitude 0) or prime meridian (longitude 0). Please use your actual GPS location.';
+          setError(errorMsg);
+          addToast(errorMsg, 'error', 5000);
+          setLoading(false);
+          return;
+        }
+      }
+
       const genderMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'other': 3 };
       const sexualPreferenceMap: { [key: string]: number } = { 'male': 1, 'female': 2, 'both': 3 };
 
@@ -479,9 +492,25 @@ export default function EditProfilePage() {
                 </div>
               </div>
 
-              {formData.latitude && formData.longitude && (
-                <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded">
-                  <strong>Current Location:</strong> {parseFloat(formData.latitude).toFixed(8)}, {parseFloat(formData.longitude).toFixed(8)}
+              {formData.latitude && formData.longitude && (parseFloat(formData.latitude) === 0 || parseFloat(formData.longitude) === 0) && (
+                <div className="text-xs text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 p-3 rounded flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Invalid Location:</strong> Coordinates cannot be exactly on the equator (latitude 0) or prime meridian (longitude 0).
+                    <br />
+                    <span className="text-xs mt-1 block opacity-90">Please use the "Detect My Location" button or enter your actual coordinates with decimal precision.</span>
+                  </div>
+                </div>
+              )}
+
+              {formData.latitude && formData.longitude && !(parseFloat(formData.latitude) === 0 || parseFloat(formData.longitude) === 0) && (
+                <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded flex items-start gap-2">
+                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Location Set:</strong> {parseFloat(formData.latitude).toFixed(8)}, {parseFloat(formData.longitude).toFixed(8)}
+                    <br />
+                    <span className="text-xs mt-1 block opacity-75">Your location is used for distance-based matching</span>
+                  </div>
                 </div>
               )}
             </div>

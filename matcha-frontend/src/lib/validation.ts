@@ -328,6 +328,10 @@ export const validateCoordinates = (latitude: number | null, longitude: number |
     return 'Longitude must be between -180 and 180';
   }
 
+  if (latitude === 0 || longitude === 0) {
+    return 'For precise location matching, coordinates cannot be exactly on the equator (latitude 0) or prime meridian (longitude 0). Please use your actual GPS location or enter coordinates with decimal precision.';
+  }
+
   return null;
 };
 

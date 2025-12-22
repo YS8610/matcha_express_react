@@ -20,6 +20,7 @@ import {
 import { toDateString } from '@/lib/neo4j-utils';
 import { USER_MAX_TAGS, USER_MAX_PHOTOS } from '@/constants';
 import { getRandomCatPhotoAsFile } from '@/lib/catApi';
+import { Check, AlertTriangle, Cat } from 'lucide-react';
 
 const MAX_INTERESTS = USER_MAX_TAGS;
 const MIN_INTERESTS = 1;
@@ -313,7 +314,7 @@ export default function ProfileSetup() {
         photos: [...currentPhotos, catFile],
       });
 
-      addToast('Random cat photo added! 🐱', 'success', 3000);
+      addToast('Random cat photo added!', 'success', 3000);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to load cat photo';
       addToast(errorMsg, 'error', 3000);
@@ -435,13 +436,13 @@ export default function ProfileSetup() {
           errorMessage = String(errorObj.message);
 
           if (errorMessage.includes('interests') || errorMessage.includes('tag')) {
-            errorMessage = `⚠ Interest validation failed: Please ensure you have between ${MIN_INTERESTS} and ${MAX_INTERESTS} interests. Currently added: ${formData.interests.length}`;
+            errorMessage = `Interest validation failed: Please ensure you have between ${MIN_INTERESTS} and ${MAX_INTERESTS} interests. Currently added: ${formData.interests.length}`;
           } else if (errorMessage.includes('photo')) {
-            errorMessage = `⚠ Photo validation failed: Please upload valid photos (max ${USER_MAX_PHOTOS})`;
+            errorMessage = `Photo validation failed: Please upload valid photos (max ${USER_MAX_PHOTOS})`;
           } else if (errorMessage.includes('biography') || errorMessage.includes('bio')) {
-            errorMessage = '⚠ Biography validation failed: Biography must be between 50 and 500 characters';
+            errorMessage = 'Biography validation failed: Biography must be between 50 and 500 characters';
           } else if (errorMessage.includes('gender') || errorMessage.includes('sexuality')) {
-            errorMessage = '⚠ Please select both gender and sexual preference';
+            errorMessage = 'Please select both gender and sexual preference';
           }
         } else if (errorObj.errors && Array.isArray(errorObj.errors)) {
           const firstError = (errorObj.errors[0] as Record<string, unknown>)?.message;
@@ -537,8 +538,9 @@ export default function ProfileSetup() {
           <label className="block text-sm font-medium mb-3">Location</label>
           {formData.latitude && formData.longitude && isAutoDetectedLocation && (
             <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-              <p className="text-xs text-green-600 dark:text-green-400">
-                ✓ Location auto-detected during account activation ({formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)})
+              <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                Location auto-detected during account activation ({formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)})
               </p>
               <p className="text-xs text-green-500 dark:text-green-400 mt-1">
                 Use any of the options below to update your location
@@ -624,9 +626,25 @@ export default function ProfileSetup() {
               </div>
             </div>
 
-            {formData.latitude !== null && formData.longitude !== null && (
-              <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded">
-                <strong>Current Location:</strong> {formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)}
+            {formData.latitude !== null && formData.longitude !== null && (formData.latitude === 0 || formData.longitude === 0) && (
+              <div className="text-xs text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 p-3 rounded flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong>Invalid Location:</strong> Coordinates cannot be exactly on the equator (latitude 0) or prime meridian (longitude 0).
+                  <br />
+                  <span className="text-xs mt-1 block opacity-90">Please use the "Detect My Location" button or enter your actual coordinates with decimal precision.</span>
+                </div>
+              </div>
+            )}
+
+            {formData.latitude !== null && formData.longitude !== null && !(formData.latitude === 0 || formData.longitude === 0) && (
+              <div className="text-xs text-gray-700 dark:text-gray-300 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 p-3 rounded flex items-start gap-2">
+                <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong>Location Set:</strong> {formData.latitude.toFixed(8)}, {formData.longitude.toFixed(8)}
+                  <br />
+                  <span className="text-xs mt-1 block opacity-75">Your location is used for distance-based matching</span>
+                </div>
               </div>
             )}
           </div>
@@ -711,7 +729,7 @@ export default function ProfileSetup() {
                 </>
               ) : (
                 <>
-                  <span className="text-xl">🐱</span>
+                  <Cat className="w-5 h-5" />
                   Random Cat
                 </>
               )}

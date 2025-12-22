@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { Upload, X, ArrowUp, ArrowDown, Cat } from 'lucide-react';
 import AuthImage from '@/components/AuthImage';
 import { api } from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
@@ -136,7 +136,7 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
       setError('');
       setSuccess('');
 
-      addToast('Fetching random cat photo... 🐱', 'info', 2000);
+      addToast('Fetching random cat photo...', 'info', 2000);
       const catFile = await getRandomCatPhotoAsFile();
 
       await handlePhotoUpload(photoNumber, catFile);
@@ -238,7 +238,7 @@ export default function PhotoManager({ className = '' }: PhotoManagerProps) {
                         disabled={uploading}
                         className="flex-1 flex flex-col items-center justify-center text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-50 rounded-md"
                       >
-                        <span className="text-2xl mb-1">🐱</span>
+                        <Cat className="w-6 h-6 mb-1" />
                         <span className="text-xs font-medium">Random Cat</span>
                       </button>
                     </div>

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProfileCard from '../ProfileCard';
 import type { ProfileShort } from '@/types';
+import { Heart } from 'lucide-react';
 
 vi.mock('@/components/AuthImage', () => ({
   default: ({ src, alt, fallbackSrc }: { src: string; alt: string; fallbackSrc: string }) => (
@@ -88,7 +89,7 @@ describe('ProfileCard Component', () => {
     });
 
     it('should show badge when showBadge is true and badgeIcon is provided', () => {
-      const badgeIcon = <span data-testid="badge-icon">❤️</span>;
+      const badgeIcon = <Heart data-testid="badge-icon" className="w-4 h-4" />;
       const { container } = render(
         <ProfileCard
           profile={mockProfile}

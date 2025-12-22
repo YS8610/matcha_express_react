@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bell, Heart, Eye, MessageCircle, UserX, AlertCircle } from 'lucide-react';
+import { Bell, Heart, Eye, MessageCircle, UserX, AlertCircle, X } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/contexts/ToastContext';
 import { Notification } from '@/types';
@@ -187,7 +187,7 @@ export default function NotificationCenter() {
                   className="text-red-600 dark:text-red-400 hover:opacity-70 transition-opacity flex-shrink-0"
                   aria-label="Close error"
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             )}
