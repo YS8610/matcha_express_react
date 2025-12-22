@@ -8,6 +8,7 @@ vi.mock('@/lib/tokenStorage');
 describe('useAuthImage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
     global.fetch = vi.fn();
     global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
   });
