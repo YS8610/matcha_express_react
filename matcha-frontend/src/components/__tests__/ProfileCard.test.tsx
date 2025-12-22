@@ -146,31 +146,25 @@ describe('ProfileCard Component', () => {
   });
 
   describe('Navigation', () => {
-    it('should navigate to profile page on click', async () => {
-      const user = userEvent.setup();
+    it('should navigate to profile page on click', () => {
       render(<ProfileCard profile={mockProfile} />);
 
-      const card = screen.getByText('John Doe').closest('div[class*="cursor-pointer"]');
-      expect(card).toBeInTheDocument();
-
-      if (card) {
-        await user.click(card);
-        expect(window.location.href).toBe('/profile/user123');
-      }
+      const link = screen.getByRole('link');
+      expect(link).toHaveAttribute('href', `/profile/${mockProfile.id}`);
     });
 
     it('should have cursor-pointer class', () => {
       render(<ProfileCard profile={mockProfile} />);
 
-      const card = screen.getByText('John Doe').closest('div[class*="cursor-pointer"]');
-      expect(card).toHaveClass('cursor-pointer');
+      const link = screen.getByRole('link');
+      expect(link).toHaveClass('cursor-pointer');
     });
 
     it('should have hover effect', () => {
       render(<ProfileCard profile={mockProfile} />);
 
-      const card = screen.getByText('John Doe').closest('div[class*="hover:shadow-lg"]');
-      expect(card).toHaveClass('hover:shadow-lg');
+      const link = screen.getByRole('link');
+      expect(link.className).toContain('hover:shadow');
     });
   });
 
@@ -192,8 +186,8 @@ describe('ProfileCard Component', () => {
     it('should have transition effect', () => {
       render(<ProfileCard profile={mockProfile} />);
 
-      const card = screen.getByText('John Doe').closest('div[class*="transition"]');
-      expect(card).toHaveClass('transition-shadow');
+      const link = screen.getByRole('link');
+      expect(link.className).toContain('transition');
     });
   });
 
@@ -299,8 +293,9 @@ describe('ProfileCard Component', () => {
     it('should be keyboard accessible', () => {
       render(<ProfileCard profile={mockProfile} />);
 
-      const card = screen.getByText('John Doe').closest('div[class*="cursor-pointer"]');
-      expect(card).toBeInTheDocument();
+      const link = screen.getByRole('link');
+      expect(link).toBeInTheDocument();
+      expect(link.tagName).toBe('A');
     });
   });
 });
