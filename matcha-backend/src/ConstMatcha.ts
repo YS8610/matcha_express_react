@@ -70,6 +70,8 @@ export default class ConstMatcha {
   static readonly DEFAULT_FAME_RATING = 50;
   static readonly DEFAULT_BIRTH_DATE = "\"1000-01-01\"";
   static readonly DEFAULT_BIOGRAPHY = "\"\"";
+  static readonly NEO4j_POPULAR_TAGS_DEFAULT_LIMIT = 20;
+  static readonly NEO4j_POPULAR_TAGS_MAX_LIMIT = 50;
 
   // user limit
   static readonly NEO4j_USER_MAX_TAGS = 10;
@@ -262,6 +264,13 @@ export default class ConstMatcha {
   static readonly NEO4j_STMT_GET_TAG_COUNTS_BY_USER_ID = `
     MATCH (u:PROFILE { id: $userId })-[:HAS_TAG]->(t:TAG)
     RETURN count(t) as tagCount
+  `;
+
+  static readonly NEO4j_STMT_GET_POPULAR_TAGS = `
+    MATCH (u:PROFILE)-[:HAS_TAG]->(t:TAG)
+    RETURN t.name as name, count(u) as tagCount
+    ORDER BY tagCount DESC
+    LIMIT $limit
   `;
 
   static readonly NEO4j_STMT_ADD_USER_PHOTO0 = `

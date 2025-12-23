@@ -1,5 +1,6 @@
 import ConstMatcha from "../ConstMatcha.js";
 import driver from "../repo/neo4jRepo.js";
+import neo4j from "neo4j-driver";
 
 export const createTag = async (name:string): Promise<void> => {
   const session = driver.session();
@@ -43,6 +44,16 @@ export const deleteTagbyUserId = async (userId: string, tagName: string): Promis
   const session = driver.session();
   try{
     await session.run(ConstMatcha.NEO4j_STMT_DELETE_USER_TAG_REL, { userId, tagName });
+  } finally {
+    await session.close();
+  }
+}
+
+export const getPopularTags = async (limit: number): Promise<{ name: string, tagCount: number }[]> => {
+  const session = driver.session();
+  try{
+    const result = await session.run<{ name: string, tagCount: number }>(ConstMatcha.NEO4j_STMT_GET_POPULAR_TAGS, { limit: neo4j.int(limit) });
+    return result.records.map(record => ({ name: record.get("name"), tagCount: record.get("tagCount") }));
   } finally {
     await session.close();
   }

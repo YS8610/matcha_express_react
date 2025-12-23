@@ -1,12 +1,27 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { serverErrorWrapper } from "../../util/wrapper.js";
-import { deleteTagbyUserId, getTagCountById, getTagsById, setTagbyUserId } from "../../service/tagSvc.js";
+import { deleteTagbyUserId, getPopularTags, getTagCountById, getTagsById, setTagbyUserId } from "../../service/tagSvc.js";
 import { Reslocal } from "../../model/profile.js";
 import BadRequestError from "../../errors/BadRequestError.js";
 import ConstMatcha from "../../ConstMatcha.js";
 import { ResMsg } from "../../model/Response.js";
 
 let router = express.Router();
+
+router.get("/popular", async (req: Request<{}, {}, {}, { limit?: string }>, res: Response<{ tags: { name: string, tagCount: number }[] }>, next: NextFunction) => {
+  const { limit: limitRaw } = req.query;
+  const parsed = limitRaw === undefined ? ConstMatcha.NEO4j_POPULAR_TAGS_DEFAULT_LIMIT : Number(limitRaw);
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed >= ConstMatcha.NEO4j_POPULAR_TAGS_MAX_LIMIT) {
+    return next(new BadRequestError({
+      code: 400,
+      message: "Invalid limit provided",
+      logging: false,
+      context: { limit: limitRaw ?? "missing" }
+    }));
+  }
+  const tags = await serverErrorWrapper(() => getPopularTags(Math.trunc(parsed)), "Error getting popular tags");
+  res.status(200).json({ tags });
+});
 
 // Get all tags for the authenticated user
 router.get("/", async (req: Request, res: Response<{ tags: string[] }>, next: NextFunction) => {

@@ -4,6 +4,7 @@ import request from "supertest";
 import { type Express } from "express-serve-static-core";
 import { createToken } from "../../service/jwtSvc.js";
 import * as tagSvc from "../../service/tagSvc.js";
+import ConstMatcha from "../../ConstMatcha.js";
 
 let app: Express;
 
@@ -18,6 +19,65 @@ describe("Route /api/user/tag", () => {
     vi.restoreAllMocks();
   });
 
+  describe("GET /api/user/tag/popular", () => {
+    it("should return 400 for invalid negative limit", async () => {
+      const response = await request(app)
+      .get("/api/user/tag/popular?limit=-5")
+      .set("Authorization", `Bearer ${token}`);
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        message: "Invalid limit provided",
+        context: { limit: "-5" }
+      });
+    });
+
+    it("should return 400 for invalid 0 limit", async () => {
+      const response = await request(app)
+      .get("/api/user/tag/popular?limit=0")
+      .set("Authorization", `Bearer ${token}`);
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        message: "Invalid limit provided",
+        context: { limit: "0" }
+      });
+    });
+
+    it("should return 400 for invalid limit greater than max", async () => {
+      const response = await request(app)
+      .get("/api/user/tag/popular?limit=" + (ConstMatcha.NEO4j_POPULAR_TAGS_MAX_LIMIT + 1))
+      .set("Authorization", `Bearer ${token}`);
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        message: "Invalid limit provided",
+        context: { limit: (String(ConstMatcha.NEO4j_POPULAR_TAGS_MAX_LIMIT + 1)) }
+      });
+    });
+
+    it("should return 400 for non-numeric limit", async () => {
+      const response = await request(app)
+      .get("/api/user/tag/popular?limit=abc")
+      .set("Authorization", `Bearer ${token}`);
+      expect(response.status).toBe(400);
+      expect(response.body.errors[0]).toEqual({
+        message: "Invalid limit provided",
+        context: { limit: "abc" }
+      });
+    });
+
+    it("should return popular tags with default limit", async () => {
+      const mockTags = [
+        { name: "tag1", tagCount: 10 },
+        { name: "tag2", tagCount: 8 },
+        { name: "tag3", tagCount: 5 }
+      ];
+      vi.spyOn(tagSvc, "getPopularTags").mockResolvedValue(mockTags);
+      const response = await request(app)
+      .get("/api/user/tag/popular")
+      .set("Authorization", `Bearer ${token}`);
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ tags: mockTags });
+    });
+  });
 
   describe("GET /api/user/tag", () => {
     it("should return 401 if not authenticated", async () => {
