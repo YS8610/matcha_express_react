@@ -233,3 +233,12 @@ export interface UserTagsResponse {
 export interface ChatHistoryResponse {
   data: ChatMessage[];
 }
+
+export interface PopularTag {
+  name: string;
+  tagCount: number;
+}
+
+export interface PopularTagsResponse {
+  tags: PopularTag[];
+}

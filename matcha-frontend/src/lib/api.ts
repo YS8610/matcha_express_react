@@ -1,4 +1,4 @@
-import type { RegisterData, LoginRequest, LoginResponse, ApiResponse, ProfileShort, ChatHistoryResponse } from '@/types';
+import type { RegisterData, LoginRequest, LoginResponse, ApiResponse, ProfileShort, ChatHistoryResponse, PopularTagsResponse } from '@/types';
 import { storeToken, getToken, clearToken } from '@/lib/tokenStorage';
 import { addCsrfToken, requiresCsrfToken } from '@/lib/csrf';
 
@@ -250,9 +250,9 @@ class ApiClient {
     });
   }
 
-  async getPopularTags(limit: number = 50) {
+  async getPopularTags(limit: number = 20): Promise<PopularTagsResponse> {
     try {
-      return this.request<{ tags: string[] }>(`/api/tags/popular?limit=${limit}`);
+      return await this.request<PopularTagsResponse>(`/api/user/tag/popular?limit=${limit}`);
     } catch {
       return { tags: [] };
     }
