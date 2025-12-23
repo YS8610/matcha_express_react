@@ -23,7 +23,7 @@ export default class ConstMatcha {
   static readonly PHOTO_DUMP_DIR = "./photoDump/";
 
   // ip api for approximate location
-  static readonly IP_API_URL = "https://ip-api.com/";
+  static readonly IP_API_URL = "http://ip-api.com/";
 
   // constants for argon2
   static readonly ARGON_HASHLENGTH = 128;

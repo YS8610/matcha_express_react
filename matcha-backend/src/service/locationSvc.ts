@@ -1,16 +1,16 @@
 import { Db } from "mongodb";
 import ConstMatcha from "../ConstMatcha.js";
-import ServerRequestError from "../errors/ServerRequestError.js";
 import { getDb } from "../repo/mongoRepo.js";
+import { IpLocation } from "../model/Response.js";
 
-export const updateUserLocation = async (userId: string, username: string, latitude: number, longitude: number, getDataBase : () => Promise<Db> = getDb): Promise<void> => {
+export const updateUserLocation = async (userId: string, username: string, latitude: number, longitude: number, getDataBase: () => Promise<Db> = getDb): Promise<void> => {
   const db = await getDataBase();
   const locationData = {
     userId,
     username,
     location: {
       type: "Point",
-      coordinates: [longitude+0.000000001, latitude+0.000000001] // slight offset to avoid mongo geo indexing issues
+      coordinates: [longitude + 0.000000001, latitude + 0.000000001] // slight offset to avoid mongo geo indexing issues
     },
     updatedAt: Date.now()
   };
@@ -32,19 +32,14 @@ export const getUserLocation = async (userId: string, getDataBase: () => Promise
 
 export const getAproximateUserLocation = async (ip: string, _fetch: typeof global.fetch = fetch): Promise<{ latitude: number, longitude: number } | null> => {
   try {
-    const response = await _fetch(`${ConstMatcha.IP_API_URL}/${ip}/json`);
+    const response = await _fetch(`${ConstMatcha.IP_API_URL}/json/${ip === '::ffff:127.0.0.1' ? "" : ip}`);
     if (!response.ok)
-      throw new ServerRequestError({
-        code: response.status,
-        message: `Failed to fetch location for IP: ${ip}`,
-        logging: true,
-        context: { err: "ip_location_fetch_failed" }
-      });
-    const data = await response.json();
-    return { latitude: data.latitude, longitude: data.longitude };
+      return { latitude: 0.1, longitude: 0.1 };
+    const data: IpLocation = await response.json();
+    return { latitude: data.lat, longitude: data.lon };
   }
   catch (err) {
-    return null;
+    return { latitude: 0.1, longitude: 0.1 };
   }
 };
 

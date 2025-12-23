@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeAll, vi, afterEach } from "vitest";
 import ConstMatcha from "../../ConstMatcha.js";
 import * as locationSvc from "../../service/locationSvc.js";
+import { IpLocation } from "../../model/Response.js";
 
 describe("locationSvc tests", () => {
   beforeAll(() => {
@@ -69,11 +70,11 @@ describe("locationSvc tests", () => {
     it("getAproximateUserLocation : retrieves approximate location based on IP", async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ latitude: 12.345678, longitude: 98.765432 })
+        json: async () => ({ lat: 12.345678, lon: 98.765432 })
       });
       const location = await locationSvc.getAproximateUserLocation("1", mockFetch);
+      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/json/1`);
       expect(location).toEqual({ latitude: 12.345678, longitude: 98.765432 });
-      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/1/json`);
     });
 
     it("getAproximateUserLocation : returns null if fetch fails", async () => {
@@ -82,15 +83,24 @@ describe("locationSvc tests", () => {
         status: 500
       });
       const location = await locationSvc.getAproximateUserLocation("2", mockFetch);
-      expect(location).toBeNull();
-      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/2/json`);
+      expect(location).toEqual({ latitude: 0.1, longitude: 0.1 });
+      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/json/2`);
     });
 
     it("getAproximateUserLocation : returns null if exception occurs", async () => {
       const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
       const location = await locationSvc.getAproximateUserLocation("3", mockFetch);
-      expect(location).toBeNull();
-      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/3/json`);
+      expect(location).toEqual({ latitude: 0.1, longitude: 0.1 });
+      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/json/3`);
+    });
+
+    it("getAproximateUserLocation : handles localhost IP correctly", async () => {
+      const res = await fetch(`${ConstMatcha.IP_API_URL}/json/`);
+      const data: IpLocation = await res.json();
+      const mockFetch = vi.spyOn(global, 'fetch');
+      const location = await locationSvc.getAproximateUserLocation("::ffff:127.0.0.1");
+      expect(location).toEqual({ latitude: data.lat, longitude: data.lon });
+      expect(mockFetch).toHaveBeenCalledWith(`${ConstMatcha.IP_API_URL}/json/`);
     });
   });
 

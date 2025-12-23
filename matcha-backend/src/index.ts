@@ -9,7 +9,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import eventHandlers from "./websocket/eventHandler.js";
 import  redisClient from "./repo/redisRepo.js";
-import { closeClient } from "./repo/mongoRepo.js";
+import { closeClient, getDb } from "./repo/mongoRepo.js";
 import { clearMongoSeedData, deleteNeo4jSeedData, seeding, seedingProfiles } from "./service/seedSvc.js";
 
 dotenv.config();
@@ -32,6 +32,8 @@ server.listen(port, async () => {
   // await redisClient.connect().catch(err => {
   //   clogger.error(`[redis]: Could not connect to Redis: ${err}`);
   // });
+  const db = await getDb();
+  await db.collection(ConstMatcha.MONGO_COLLECTION_LOCATION).createIndex({ location: "2dsphere" });
   clogger.info(`[server]: Server is running at http://localhost:${port}`);
 });
 
